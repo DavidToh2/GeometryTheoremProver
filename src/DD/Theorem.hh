@@ -18,7 +18,7 @@ public:
     std::string name = "";
     std::vector<std::unique_ptr<Arg>> args;
     Clause preconditions;
-    std::unique_ptr<Predicate> postcondition;
+    std::unique_ptr<PredicateTemplate> postcondition;
 
     Theorem(const std::string &s);
 

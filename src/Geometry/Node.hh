@@ -7,9 +7,11 @@ class Predicate;
 class Node {
 
 public:
-    std::string id;
+    std::string name;
 
     Node* parent = nullptr;
     Node* root = nullptr;
     Predicate* parent_why = nullptr;
+
+    Node(std::string name) : name(name) {}
 };

@@ -1,13 +1,15 @@
 #pragma once 
 
-#include <string>
-#include <vector>
-#include <set>
-#include <variant>
+#include <map>
 #include <memory>
-#include <Numerics/Numerics.hh>
-#include <Geometry/Node.hh>
-#include <Geometry/Object.hh>
+#include <set>
+#include <string>
+#include <variant>
+#include <vector>
+
+#include "Geometry/Object.hh"
+#include "Numerics/Numerics.hh"
+#include "Common/Generator.hh"
 
 class Arg {
 
@@ -29,22 +31,22 @@ public:
 	std::string to_string();
 
 	static void populate_args_and_argmap(const std::string arg_str, std::vector<std::unique_ptr<Arg>> &arg_unique_ptr_vec, std::map<std::string, Arg*> &argmap);
+
+	void operator=(Object* obj);
+	void operator=(Frac f);
+	void operator=(char c);
 };
 
-class Predicate {
+class PredicateTemplate {
 	std::string id;
 
 public:
 	std::string name;
 	std::vector<Arg*> args;
-
-	std::set<Predicate*> why;
 	
-	Predicate(const std::string name) : name(name) {}
-	Predicate(const std::string name, std::vector<Arg*> &args) : name(name), args(std::move(args)) {};
-	Predicate(const std::string pred_string, std::map<std::string, Arg*> &argmap);
-
-	std::string to_string();
+	PredicateTemplate(const std::string name) : name(name) {}
+	PredicateTemplate(const std::string name, std::vector<Arg*> &args) : name(name), args(std::move(args)) {};
+	PredicateTemplate(const std::string pred_string, std::map<std::string, Arg*> &argmap);
 
 	void set_arg(int i, Object* obj) noexcept;
 	void set_arg(int i, Frac f) noexcept;
@@ -54,6 +56,26 @@ public:
 	void set_args(std::vector<Object*> objs);
 	void set_args(std::vector<Object*> objs, Frac f);
 	void clear_args();
+
+	std::unique_ptr<Predicate> instantiate();
+
+	std::string to_string();
+	std::string to_hash_with_args();
+};
+
+class Predicate {
+public:
+	std::string hash;
+	std::vector<Object*> args;
+	Frac frac_arg;
+	std::set<Predicate*> why; // keep
+
+	Predicate(const std::string pred_name, std::vector<Object*> &&objs);
+	Predicate(PredicateTemplate &pred_template);
+
+	static std::unique_ptr<Predicate> from_global_point_map(const std::string pred_string, std::map<std::string, std::unique_ptr<Point>> &global_point_map);
+
+	std::string to_string();
 };
 
 class Clause {
@@ -61,15 +83,16 @@ class Clause {
 public:
 	std::string name;
 	std::vector<Arg*> args;
-	std::vector<std::unique_ptr<Predicate>> predicates;
+	std::vector<std::unique_ptr<PredicateTemplate>> predicates;
 
 	Clause() {}
 	Clause(std::string clause_string, std::map<std::string, Arg*> &argmap);
 
 	void empty_args();
+	bool is_empty();
 
-	// TODO: Write a generator that, given a proof state graph, produces all valid unifications of the clause
-
+	Generator<std::unique_ptr<Predicate>> instantiate();
+	Generator<std::string> instantiate_hashes();
 
 	std::string to_string();
 };

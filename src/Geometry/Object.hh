@@ -15,15 +15,19 @@ class Quadrilateral;
 
 class Object : public Node {
     std::vector<std::pair<Point*, Predicate*>> points;
+
+public:
+    Object(std::string name) : Node(name) {}
+    std::string to_string() { return name; }
 };
 
 
 class Point : public Object {
-private:
-    std::vector<std::pair<Point*, Predicate*>> points;
 public:
     std::map<Circle*, Predicate*> on_circle;
     std::map<Line*, Predicate*> on_line;
+
+    Point(std::string name) : Object(name) {}
 
     Coords* coords = nullptr;
 };

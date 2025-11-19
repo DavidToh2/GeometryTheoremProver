@@ -1,3 +1,8 @@
-problem 1 {
-    
-}
+problem 110-1
+triangle a b c : , foot d : c a b, foot e : b a c, midpoint f : b c, midpoint g : d e ? perp f g d e
+
+problem 110-2
+triangle a b c : , midpoint d : b c, midpoint e : a c, midpoint f : a b, circumcenter o : a b c ? perp o d e f
+
+problem 110-3
+triangle a b c : , orthocenter2 d e f h : a b c, midpoint p : b e, midpoint q : c f ? cyclic p q h d

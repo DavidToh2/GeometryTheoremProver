@@ -60,11 +60,14 @@ int main(int argc, char** argv) {
     }
 
     GTPEngine gtp(
-        input_filepath,
-        problem_name,
         rule_filepath,
         construction_filepath,
         output_filepath
+    );
+
+    gtp.load_problem(
+        input_filepath,
+        problem_name
     );
 
 }
