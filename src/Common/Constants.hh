@@ -10,6 +10,7 @@ const std::string DEFAULT_OUTPUT_FILEPATH = "output.txt";
 
 // Predicate names. Documented in outline.md
 const std::string PREDICATE_NAMES[] = {
+    "base",
     "coll", "cyclic", 
     "para", "perp", 
     "cong", 
@@ -21,3 +22,23 @@ const std::string PREDICATE_NAMES[] = {
 };
 
 } // namespace Constants
+
+enum class pred_t {
+    BASE,
+    COLL,
+    CYCLIC,
+    PARA,
+    PERP,
+    CONG,
+    EQANGLE,
+    EQRATIO,
+    CONTRI,
+    SIMTRI,
+    MIDP,
+    CONSTANGLE,
+    CONSTRATIO,
+    NEQ,
+    NCOLL,
+    SAMESIDE,
+    CONVEX
+};

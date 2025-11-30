@@ -21,7 +21,7 @@ Construction::Construction(const std::string _c_decl, const std::string _c_pres,
     Arg::populate_args_and_argmap(parsed_decl[1], args_new, argmap);
     Arg::populate_args_and_argmap(parsed_decl[2], args_existing, argmap);
 
-    preconditions = Clause(_c_pres, argmap);
+    preconditions = ClauseTemplate(_c_pres, argmap);
 
     std::vector<std::string> c_posts = StrUtils::split(_c_posts, ", ");
     for (std::string _c_post : c_posts) {
@@ -115,16 +115,20 @@ bool Construction::__instantiation_check(
 }
 
 Generator<std::unique_ptr<Predicate>> Construction::__instantiate_no_checks(
-    std::vector<Object*> &objs_existing, std::vector<Object*> &objs_new
+    std::vector<Object*> &objs_existing, std::vector<Object*> &objs_new, Predicate* base_pred
 ) {
     __set_obj_args(objs_existing, objs_new);
 
     auto preconditions_ = preconditions.instantiate();
     while (preconditions_) {
-        co_yield preconditions_();
+        auto pre = std::move(preconditions_());
+        pre.get()->why.insert(base_pred);
+        co_yield std::move(pre);
     }
     for (auto& postptr : postconditions) {
-        co_yield postptr.get()->instantiate();
+        auto post = std::move(postptr.get()->instantiate());
+        post.get()->why.insert(base_pred);
+        co_yield std::move(post);
     }
 
     __clear_args();
@@ -186,7 +190,7 @@ void Construction::construct_no_checks(
 
     // Create a new Construction object based on the template.
     auto gen = c_template->__instantiate_no_checks(
-        objs_existing, objs_new
+        objs_existing, objs_new, dd.base_pred.get()
     );
     int i=0;
     while (gen) {

@@ -22,4 +22,8 @@ public:
         std::string problem_name
     );
 
+    void solve(
+        int max_steps
+    );
+
 };

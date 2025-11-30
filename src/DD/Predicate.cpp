@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "Predicate.hh"
+#include "Geometry/GeometricGraph.hh"
 #include "Numerics/Numerics.hh"
 #include "Common/StrUtils.hh"
 #include "Common/Exceptions.hh"
@@ -13,10 +14,16 @@
 
 void Arg::clear() { arg = std::monostate{}; }
 bool Arg::empty() { return (arg.index() == 0); }
+bool Arg::filled() { return (arg.index() != 0); }
 
 void Arg::set(Object* obj) { arg = obj; }
 void Arg::set(Frac f) { arg = f; }
 void Arg::set(char c) { arg = c; }
+
+Point* Arg::get_point() {
+    if (!std::holds_alternative<Object*>(arg)) { return nullptr; }
+    return static_cast<Point*>(std::get<Object*>(arg));
+}
 
 void Arg::operator=(Object* obj) { arg = obj; }
 void Arg::operator=(Frac f) { arg = f; }
@@ -47,13 +54,17 @@ std::string Arg::to_string() {
     return "0";
 }
 
+
+
+
+
 PredicateTemplate::PredicateTemplate(const std::string s, std::map<std::string, Arg*> &argmap) {
 
     std::vector<std::string> v = StrUtils::split(s, " ");
-    name = v[0];
-    if (!Utils::isin(name, Constants::PREDICATE_NAMES)) {
-        throw InvalidTextualInputError("PredicateTemplate: Invalid predicate name: " + name);
+    if (!Utils::isin(v[0], Constants::PREDICATE_NAMES)) {
+        throw InvalidTextualInputError("PredicateTemplate: Invalid predicate name: " + v[0]);
     }
+    name = Utils::to_pred_t(v[0]);
 
     for (auto iter = v.begin() + 1; iter != v.end(); iter++) {
         args.emplace_back(argmap[*iter]);
@@ -89,7 +100,7 @@ std::unique_ptr<Predicate> PredicateTemplate::instantiate() {
 }
 
 std::string PredicateTemplate::to_string() {
-    std::string res = name;
+    std::string res = Utils::to_pred_str(name);
     for (Arg* arg : args) {
         res = res + " " + arg->to_string();
     }
@@ -102,13 +113,54 @@ std::string PredicateTemplate::to_hash_with_args() {
     return to_string(); 
 }
 
-Predicate::Predicate(const std::string pred_name, std::vector<Object*> &&objs) {
+bool PredicateTemplate::__validate_neq(GeometricGraph &ggraph) {
+    Object* obj1 = std::get<Object*>(args[0]->arg);
+    Object* obj2 = std::get<Object*>(args[1]->arg);
+    return (NodeUtils::get_root(obj1) != NodeUtils::get_root(obj2));
+}
+
+bool PredicateTemplate::__validate_ncoll(GeometricGraph &ggraph) {
+    Point* p1 = static_cast<Point*>(std::get<Object*>(args[0]->arg));
+    Point* p2 = static_cast<Point*>(std::get<Object*>(args[1]->arg));
+    Point* p3 = static_cast<Point*>(std::get<Object*>(args[2]->arg));
+
+    Line* l = ggraph.__try_get_line(p1, p2);
+    if (!l) {
+        return true;    
+    }
+    // Check if p3 is on line l
+    return (l->points.find(NodeUtils::get_root(p3)) == l->points.end());
+}
+
+bool PredicateTemplate::validate_degeneracy_args(GeometricGraph &ggraph) {
+    for (Arg* arg : args) {
+        if (!std::holds_alternative<Object*>(arg->arg)) {
+            throw DDInternalError("PredicateTemplate: Degeneracy validation failed as argument was not instantiated as an Object: " + to_string());
+        }
+    }
+    if (name == pred_t::NEQ) {
+        return __validate_neq(ggraph);
+    } else if (name == pred_t::NCOLL) {
+        return __validate_ncoll(ggraph);
+    } else {
+        throw DDInternalError("PredicateTemplate: Degeneracy validation not implemented for predicate: " + Utils::to_pred_str(name));
+    }
+}
+
+
+
+
+
+Predicate::Predicate(const pred_t pred_name, std::vector<Object*> &&objs) {
     args = std::move(objs);
-    hash = pred_name;
+    name = pred_name;
+    hash = Utils::to_pred_str(pred_name);
     for (Object* obj : args) {
         hash = hash + " " + obj->name;
     }
 }
+
+Predicate::Predicate(const std::string pred_name, std::vector<Object*> &&objs) : Predicate(Utils::to_pred_t(pred_name), std::move(objs)) {}
 
 std::unique_ptr<Predicate> Predicate::from_global_point_map(const std::string pred_string, std::map<std::string, std::unique_ptr<Point>> &global_point_map) {
     std::vector<std::string> v = StrUtils::split(pred_string, " ");
@@ -135,6 +187,7 @@ std::unique_ptr<Predicate> Predicate::from_global_point_map(const std::string pr
 
 Predicate::Predicate(PredicateTemplate &pt) {
     hash = pt.to_hash_with_args();
+    name = pt.name;
 
     for (Arg* argptr : pt.args) {
         if (std::holds_alternative<Object*>(argptr->arg)) {
@@ -152,7 +205,21 @@ Predicate::Predicate(PredicateTemplate &pt) {
 
 std::string Predicate::to_string() { return hash; }
 
-Clause::Clause(std::string s, std::map<std::string, Arg*> &argmap) {
+void PredVec::emplace_back(Predicate* pred) {
+    preds.emplace_back(pred);
+}
+void PredVec::operator+=(Predicate* pred) {
+    preds.emplace_back(pred);
+}
+void PredVec::operator+=(const PredVec& other) {
+    preds.insert(preds.end(), other.preds.begin(), other.preds.end());
+}
+
+
+
+
+
+ClauseTemplate::ClauseTemplate(std::string s, std::map<std::string, Arg*> &argmap) {
 
     if (s.empty()) { 
         name = "EMPTY";
@@ -178,21 +245,21 @@ Clause::Clause(std::string s, std::map<std::string, Arg*> &argmap) {
     }
 }
 
-bool Clause::is_empty() { return predicates.empty(); }
+bool ClauseTemplate::is_empty() { return predicates.empty(); }
 
-Generator<std::unique_ptr<Predicate>> Clause::instantiate() {
+Generator<std::unique_ptr<Predicate>> ClauseTemplate::instantiate() {
     for (auto& predptr : predicates) {
         co_yield predptr.get()->instantiate();
     }
 }
 
-Generator<std::string> Clause::instantiate_hashes() {
+Generator<std::string> ClauseTemplate::instantiate_hashes() {
     for (auto& predptr : predicates) {
         co_yield predptr.get()->to_hash_with_args();
     }
 }
 
-std::string Clause::to_string() {
+std::string ClauseTemplate::to_string() {
     if (this->is_empty()) {
         return "EMPTY";
     }

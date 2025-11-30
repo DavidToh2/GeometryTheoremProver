@@ -17,7 +17,7 @@ void InputParser::parse_rules_from_file(std::string rule_filepath, DDEngine &dd)
     }
 
     while (std::getline(fbuf, line)) {
-        if (line[0] == '#') {
+        if (line.empty() || line[0] == '#') {
             continue;
         }
         dd.__add_theorem_template_from_text(line);   

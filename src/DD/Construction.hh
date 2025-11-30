@@ -19,7 +19,7 @@ public:
     std::vector<std::unique_ptr<Arg>> args_existing;
     std::vector<std::unique_ptr<Arg>> args_new;
 
-    Clause preconditions;
+    ClauseTemplate preconditions;
     std::vector<std::unique_ptr<PredicateTemplate>> postconditions;
 
     /* Assemble a Construction object from the declaration, preconditions and postconditions strings.
@@ -52,7 +52,7 @@ public:
         std::vector<Object*> &objs_existing, DDEngine &dd
     );
     Generator<std::unique_ptr<Predicate>> __instantiate_no_checks(
-        std::vector<Object*> &objs_existing, std::vector<Object*> &objs_new
+        std::vector<Object*> &objs_existing, std::vector<Object*> &objs_new, Predicate* base_pred
     );
 
     static void construct(

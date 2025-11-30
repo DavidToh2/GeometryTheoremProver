@@ -1,46 +1,11 @@
 ### Predicate Names
 
-<style type="text/css">
-.tg  {border-collapse:collapse;border-spacing:0;width:900px}
-.tg .tg-0lax{text-align:left;vertical-align:top}
-</style>
-<table class="tg"><thead>
-  <tr>
-    <th class="tg-0lax">Geometric Node Type</th>
-    <th class="tg-0lax"></th>
-    <th class="tg-0lax"></th>
-  </tr></thead>
-<tbody>
-  <tr>
-    <td class="tg-0lax">Object Nodes</td>
-    <td class="tg-0lax">
-    
-`Point`, `Line`, `Circle`, `Triangle`, `Quadrilateral`</td>
-    <td class="tg-0lax">Object nodes of the same type connect to each other in a DSU fashion if they are identical. <br><br>Object nodes of different types connect to each other if they are related.<br><br>Every `Line` contains connections to every `Point` that lies on it.
-    <br><br>Every `Circle` contains connections to every `Point` that lies on it.
-    </td>
-  </tr>
-  <tr>
-    <td class="tg-0lax">Secondary Object Nodes<br><br>(Object2 Nodes)</td>
-    <td class="tg-0lax">
-    
-`Angle`, `Segment`, `Ratio`</td>
-    <td class="tg-0lax">Object2 nodes connect in a one-way fashion to the Object nodes for which they are relevant.
-    <br><br>Object2 nodes of the same type connect to each other in a DSU fashion if they are identical.
-    <br><br>Object2 nodes of different types connect to each other if they are related.
-    <br><br>For example, every `Angle` is connected to the two `Line`s that form it.
-    </td>
-  </tr>
-  <tr>
-    <td class="tg-0lax">Value Nodes</td>
-    <td class="tg-0lax">
-    
-`Measure`, `Length`, `Fraction`</td>
-    <td class="tg-0lax">Value nodes connect in a two-way fashion to all the Object2 nodes which they quantify. In other words, every Object2 node with the same value of a Value will be connected to this Value node. These edges thus represent equality relationships.
-    <br><br>For example, all `Angle`s with the same measure will be connected to the same `Measure` node.
-    </td>
-  </tr>
-</tbody></table>
+| Geometric Node Type |  | All nodes of the same type connect to each other to form a DSU if they are identical. |
+|---|---|---|
+| `Object` Nodes | `Point`, `Line`, `Circle`<br>`Triangle`, `Quadrilateral` | Every `Point` has `on_line`, `on_circle`, `on_triangle` and `on_quadrilateral` attributes.<br>Every `Line`, `Circle`, `Triangle` and `Quadrilateral` contains some `points`. |
+| `Object2` Nodes | `Angle`, `Segment`, `Ratio` | Every `Object2` connects in a two-way fashion to the `Object` nodes for which they are relevant.<br>Every `Angle` has a `line1` and a `line2`.<br>Every `Segment` has two `points`.<br>Every `Ratio` has two `segments`. |
+| `Value` Nodes | `Direction`, `Cong`, `Sim` | Every `Value` connects in a two-way fashion to all the `Object`s for which they are relevant.<br>A `Direction` connects to a collection of `lines` which are parallel.<br>Additionally, it also has a `perp` attribute.<br>A `Cong` connects to a collection of `triangles` which are congruent.<br>A `Sim` connects to a collection of `triangles` which are similar.<br>Additionally, it is also connected to the relevant `congs`. |
+| `Value2` Nodes | `Measure`, `Length`, `Fraction` | Every `Value2` connects in a two-way fashion to all the `Object2`s for which they are relevant.<br>Every `Measure` connects to a collection of `angles`.<br>Every `Length` connects to a collection of `segments`.<br>Every `Fraction` connects to a collection of `ratios`. |
 
 | Declarations |  |  |
 |---|---|---|

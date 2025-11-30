@@ -14,12 +14,12 @@ Theorem::Theorem(const std::string &s) {
     Arg::populate_args_and_argmap(_points, args, argmap);
 
     std::string _preconditions = m1[1];
-    preconditions = Clause(_preconditions, argmap);
+    preconditions = ClauseTemplate(_preconditions, argmap);
 
     std::string _conclusion = m0[1];
     postcondition = std::make_unique<PredicateTemplate>(_conclusion, argmap);
 
-    name = preconditions.name + "_" + postcondition.get()->name;
+    name = preconditions.name + "_" + Utils::to_pred_str(postcondition.get()->name);
 };
 
 void Theorem::__set_placeholder_args() {

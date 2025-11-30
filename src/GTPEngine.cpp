@@ -45,3 +45,43 @@ void GTPEngine::load_problem(
     dd.__print_predicates();
     ggraph.__print_points();
 }
+
+void GTPEngine::solve(
+    int max_steps
+) {
+    for (int step = 0; step < max_steps; step++) {
+
+        /* Synthesises geometric Objects (Lines, Circles, Angles) based on the recently added 
+        predicates "coll", "cyclic". */
+        ggraph.synthesise_objects(dd);
+
+        /* Unify all points which have been shown to be identical. */
+        // ggraph.unify_points(dd);
+
+        /* Unify all Objects which have been shown to be identical based on the recently added
+        predicates "coll", "cyclic". */
+        // ggraph.unify_objects(dd);
+
+        /* Link lines which are related based on the recently added predicates "perp", "para". */
+        // ggraph.link_lines(dd);
+
+
+        /* Synthesize Object2 nodes (Angle, Segment, Ratio) based on the recently added predicates
+        "eqangle", "eqratio", "constangle", "constratio" and "cong". */
+        // ggraph.synthesise_object2s(dd);
+
+        /* Unify all Value nodes (Measure, Length, Fraction) which have been shown to be identical 
+        based on the recently added predicates "eqangle", "eqratio". */
+        // ggraph.unify_values(dd);
+
+
+        /* Search on the proof-state graph using the Level 1 Rules to generate new Predicates. */
+        dd.search(ggraph);
+
+        /* Search on the proof-state graph using the Level 2 Rules to generate new Predicate2s. */
+        // dd.search2(ggraph);
+
+        /* Check if the conclusion was reached. */
+        bool res = dd.check_conclusion(ggraph);
+    }
+}

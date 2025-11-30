@@ -8,8 +8,6 @@
 
 class DDEngine;
 
-/* Represents rules in rules.txt. */
-
 class GeometricGraph;
 
 class Theorem {
@@ -17,7 +15,7 @@ class Theorem {
 public:
     std::string name = "";
     std::vector<std::unique_ptr<Arg>> args;
-    Clause preconditions;
+    ClauseTemplate preconditions;
     std::unique_ptr<PredicateTemplate> postcondition;
 
     Theorem(const std::string &s);
