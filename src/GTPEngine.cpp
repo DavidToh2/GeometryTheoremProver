@@ -40,9 +40,10 @@ void GTPEngine::load_problem(
         Construction::construct_no_checks(_construction, dd, ggraph);
     }
 
-    dd.conclusion = Predicate::from_global_point_map(_goal, ggraph.points);
+    dd.set_conclusion(Predicate::from_global_point_map(_goal, ggraph.points));
 
     dd.__print_predicates();
+    dd.__print_conclusion();
     ggraph.__print_points();
 }
 
@@ -50,6 +51,8 @@ void GTPEngine::solve(
     int max_steps
 ) {
     for (int step = 0; step < max_steps; step++) {
+
+        std::cout << "Iteration " << step << std::endl;
 
         /* Synthesises geometric Objects (Lines, Circles, Angles) based on the recently added 
         predicates "coll", "cyclic". */
@@ -81,7 +84,12 @@ void GTPEngine::solve(
         /* Search on the proof-state graph using the Level 2 Rules to generate new Predicate2s. */
         // dd.search2(ggraph);
 
+        dd.__print_predicates();
+
         /* Check if the conclusion was reached. */
-        bool res = dd.check_conclusion(ggraph);
+        if (dd.check_conclusion(ggraph)) {
+            std::cout << "Conclusion reached at iteration " << step << "!" << std::endl;
+            return;
+        }
     }
 }

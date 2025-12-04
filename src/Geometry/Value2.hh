@@ -2,8 +2,8 @@
 
 #include <map>
 #include "Node.hh"
+#include "Value.hh"
 
-class Value;
 class Measure;
 class Length;
 class Fraction;

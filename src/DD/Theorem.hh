@@ -20,8 +20,11 @@ public:
 
     Theorem(const std::string &s);
 
+    std::unique_ptr<Predicate> instantiate_postcondition();
+
     void __set_placeholder_args();
     void __clear_args();
     
     std::string to_string();
+    std::string to_string_with_placeholders();
 };

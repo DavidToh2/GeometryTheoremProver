@@ -1,0 +1,2 @@
+problem perp-para-coll-1
+free a : , free b : , on_tline e : a a b, on_tline d : e e a, on_pline c : d e a ? perp c d a b

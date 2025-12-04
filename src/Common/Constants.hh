@@ -15,10 +15,11 @@ const std::string PREDICATE_NAMES[] = {
     "para", "perp", 
     "cong", 
     "eqangle", "eqratio", 
-    "contri", "simtri", "midp",
+    "contri", "simtri", "midp", "circle",
     "constangle", "constratio",
-    "neq", "ncoll", "sameside",
-    "convex"
+    "diff", "ncoll", "npara",
+    "sameside", "convex",
+    "last"
 };
 
 } // namespace Constants
@@ -35,10 +36,13 @@ enum class pred_t {
     CONTRI,
     SIMTRI,
     MIDP,
+    CIRCLE,
     CONSTANGLE,
     CONSTRATIO,
-    NEQ,
+    DIFF,
     NCOLL,
+    NPARA,
     SAMESIDE,
-    CONVEX
+    CONVEX,
+    LAST // "sentinel value", not to be used
 };

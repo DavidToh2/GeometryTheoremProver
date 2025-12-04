@@ -5,20 +5,26 @@
 
 /* Lazy generator functions.
 
-Usage: Functions may be declared as `Generator<T>`. They should use the
-keywords `co_yield` to yield values of type `T` (these are known as an 
-intermediate suspend point), and `co_return` to end the generator, optionally
+Usage: Functions may be declared as `Generator<T>`. They should use the keywords `co_yield` to yield values 
+of type `T` (these are known as an intermediate suspend point), and `co_return` to end the generator, optionally
 yielding a final value (this is known as the final suspend point.) 
 
 The following design patterns help use the generator effectively:
 
-- `while (gen)` or `for (int i=0; gen; i++)` to loop while there are more values
-to generate; `gen()` to fetch the next value inside the loop. 
-This takes advantage of the Generator's conversion operator to `bool`.
+- `while (gen)` or `for (int i=0; gen; i++)` to loop while there are more values to generate; `gen()` to fetch 
+the next value inside the loop. This takes advantage of the Generator's conversion operator to `bool`.
 
-- `gen.next()` to generate the next value without fetching the previous value.
-This is useful when only specific values are needed. The values can still be fetched
-with `gen()` as and when required.*/
+- `gen.next()` to generate the next value without fetching the previous value. This is useful when only specific 
+values are needed. The values can still be fetched with `gen()` as and when required.
+
+WARNING: All generators should be implemented with the awareness that the value to be `co_yield`-ed will be `std::move()`d
+in order to do so. If accessing member variables of other objects by reference, ensure that these variables are copied
+before being returned. 
+
+The semantics of C++ mean that returning references within functions is very bad practice. If writing a generator to
+manipulate large objects by reference, consider returning pointers to their members instead of returning the members
+themselves.
+*/
 template<typename T>
 struct Generator {
 
@@ -36,6 +42,10 @@ struct Generator {
         std::suspend_always final_suspend() noexcept { return {}; }
 
         std::suspend_always yield_value(T&& value) {
+            current_value = std::move(value);
+            return {};
+        }
+        std::suspend_always yield_value(T& value) {
             current_value = std::move(value);
             return {};
         }

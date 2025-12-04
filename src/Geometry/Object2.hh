@@ -12,7 +12,7 @@ class Angle;
 class Segment;
 class Ratio;
 
-class Value;
+class Value2;
 
 class Object2 : Node {
     

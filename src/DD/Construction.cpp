@@ -11,6 +11,8 @@
 #include "Common/Exceptions.hh"
 #include "Predicate.hh"
 #include "Common/Generator.hh"
+#include "Geometry/GeometricGraph.hh"
+#include "DD/DDEngine.hh"
 
 Construction::Construction(const std::string _c_decl, const std::string _c_pres, const std::string _c_posts) {
 
@@ -29,19 +31,19 @@ Construction::Construction(const std::string _c_decl, const std::string _c_pres,
     }
 }
 
-void Construction::__set_obj_args(std::vector<Object*> &objs_existing, std::vector<Object*> &objs_new) {
-    if (objs_existing.size() != args_existing.size()) {
+void Construction::__set_node_args(std::vector<Node*> &nodes_existing, std::vector<Node*> &nodes_new) {
+    if (nodes_existing.size() != args_existing.size()) {
         throw DDInternalError("Error: Mismatch in number of existing object arguments when setting construction args for construction " + name);
     }
-    if (objs_new.size() != args_new.size()) {
+    if (nodes_new.size() != args_new.size()) {
         throw DDInternalError("Error: Mismatch in number of new object arguments when setting construction args for construction " + name);
     }
 
-    for (int i=0; i<objs_existing.size(); i++) {
-        args_existing.at(i).get()->set(objs_existing.at(i));
+    for (int i=0; i<nodes_existing.size(); i++) {
+        args_existing.at(i).get()->set(nodes_existing.at(i));
     }
-    for (int i=0; i<objs_new.size(); i++) {
-        args_new.at(i).get()->set(objs_new.at(i));
+    for (int i=0; i<nodes_new.size(); i++) {
+        args_new.at(i).get()->set(nodes_new.at(i));
     }
 }
 
@@ -71,30 +73,11 @@ std::array<std::string, 3> Construction::parse_decl_string(const std::string c_d
     return std::array<std::string, 3>{c_decl.substr(0, i), c_decl.substr(i+1, j-i-1), c_decl.substr(j+3)};
 }
 
-std::string Construction::to_string() {
-
-    __set_placeholder_args();
-    std::string s = "Construction: " + name + " ";
-
-    for (auto& argptr : args_new) { s += argptr.get()->to_string() + " ";}
-    s += ": ";
-    for (auto& argptr : args_existing) { s += argptr.get()->to_string() + " ";}
-    s += "\n";
-
-    s += preconditions.to_string() + "\n";
-    for (auto& postptr : postconditions) { s += postptr.get()->to_string() + ", "; }
-
-    s = s.substr(0, s.size() - 2); // Remove trailing ", "
-    __clear_args();
-
-    return s;
-}
-
 Generator<std::unique_ptr<Predicate>> Construction::__instantiate(
-    std::vector<Object*> &objs_existing, std::vector<Object*> &objs_new, DDEngine &dd
+    std::vector<Node*> &nodes_existing, std::vector<Node*> &nodes_new, DDEngine &dd
 ) {
-    __set_obj_args(objs_existing, objs_new);
-    if (!__instantiation_check(objs_existing, dd)) {
+    __set_node_args(nodes_existing, nodes_new);
+    if (!__instantiation_check(nodes_existing, dd)) {
         __clear_args();
         co_return;
     }
@@ -108,16 +91,16 @@ Generator<std::unique_ptr<Predicate>> Construction::__instantiate(
 }
 
 bool Construction::__instantiation_check(
-    std::vector<Object*> &objs_existing, DDEngine &dd
+    std::vector<Node*> &nodes_existing, DDEngine &dd
 ) {
     std::cerr << "Construction: Instantiation checks for degeneracy conditions not implemented. Assuming success." << std::endl;
     return true;
 }
 
 Generator<std::unique_ptr<Predicate>> Construction::__instantiate_no_checks(
-    std::vector<Object*> &objs_existing, std::vector<Object*> &objs_new, Predicate* base_pred
+    std::vector<Node*> &nodes_existing, std::vector<Node*> &nodes_new, Predicate* base_pred
 ) {
-    __set_obj_args(objs_existing, objs_new);
+    __set_node_args(nodes_existing, nodes_new);
 
     auto preconditions_ = preconditions.instantiate();
     while (preconditions_) {
@@ -143,23 +126,23 @@ void Construction::construct(
     std::array<std::string, 3> parsed = parse_decl_string(c_string);
 
     std::string c_name = parsed[0];
-    std::vector<std::string> c_existing_objs = StrUtils::split(parsed[2], " ");
-    std::vector<std::string> c_new_objs = StrUtils::split(parsed[1], " ");
-    std::vector<Object*> objs_existing;
-    std::vector<Object*> objs_new;
+    std::vector<std::string> c_existing_nodes = StrUtils::split(parsed[2], " ");
+    std::vector<std::string> c_new_nodes = StrUtils::split(parsed[1], " ");
+    std::vector<Node*> nodes_existing;
+    std::vector<Node*> nodes_new;
 
-    for (std::string obj_ : c_existing_objs) {
-        objs_existing.push_back(ggraph.get_or_add_point(obj_));
+    for (std::string obj_ : c_existing_nodes) {
+        nodes_existing.push_back(ggraph.get_or_add_point(obj_));
     }
-    for (std::string obj_ : c_new_objs) {
-        objs_new.push_back(ggraph.get_or_add_point(obj_));
+    for (std::string obj_ : c_new_nodes) {
+        nodes_new.push_back(ggraph.get_or_add_point(obj_));
     }
 
     Construction* c_template = dd.constructions.at(c_name).get();
 
     // Create a new Construction object based on the template.
     auto gen = c_template->__instantiate(
-        objs_existing, objs_new, dd
+        nodes_existing, nodes_new, dd
     );
     while (gen) {
         dd.insert_predicate(std::move(gen()));
@@ -174,27 +157,53 @@ void Construction::construct_no_checks(
     std::array<std::string, 3> parsed = parse_decl_string(c_string);
 
     std::string c_name = parsed[0];
-    std::vector<std::string> c_existing_objs = StrUtils::split(parsed[2], " ");
-    std::vector<std::string> c_new_objs = StrUtils::split(parsed[1], " ");
-    std::vector<Object*> objs_existing;
-    std::vector<Object*> objs_new;
+    std::vector<std::string> c_existing_nodes = StrUtils::split(parsed[2], " ");
+    std::vector<std::string> c_new_nodes = StrUtils::split(parsed[1], " ");
+    std::vector<Node*> nodes_existing;
+    std::vector<Node*> nodes_new;
 
-    for (std::string obj_ : c_existing_objs) {
-        objs_existing.push_back(ggraph.get_or_add_point(obj_));
+    for (std::string obj_ : c_existing_nodes) {
+        nodes_existing.push_back(ggraph.get_or_add_point(obj_));
     }
-    for (std::string obj_ : c_new_objs) {
-        objs_new.push_back(ggraph.get_or_add_point(obj_));
+    for (std::string obj_ : c_new_nodes) {
+        nodes_new.push_back(ggraph.get_or_add_point(obj_));
     }
 
     Construction* c_template = dd.constructions.at(c_name).get();
 
     // Create a new Construction object based on the template.
     auto gen = c_template->__instantiate_no_checks(
-        objs_existing, objs_new, dd.base_pred.get()
+        nodes_existing, nodes_new, dd.base_pred.get()
     );
     int i=0;
     while (gen) {
         i++;
         dd.insert_predicate(std::move(gen()));
     }
+}
+
+std::string Construction::to_string() {
+
+    std::string s = "Construction: " + name + " ";
+
+    for (auto& argptr : args_new) { s += argptr.get()->to_string() + " ";}
+    s += ": ";
+    for (auto& argptr : args_existing) { s += argptr.get()->to_string() + " ";}
+    s += "\n";
+
+    s += preconditions.to_string() + "\n";
+    for (auto& postptr : postconditions) { s += postptr.get()->to_string() + ", "; }
+
+    s = s.substr(0, s.size() - 2); // Remove trailing ", "
+
+    return s;
+}
+
+std::string Construction::to_string_with_placeholders() {
+
+    __set_placeholder_args();
+    std::string s = to_string();
+    __clear_args();
+
+    return s;
 }

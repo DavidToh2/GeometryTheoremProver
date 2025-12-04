@@ -16,16 +16,16 @@ void Arg::clear() { arg = std::monostate{}; }
 bool Arg::empty() { return (arg.index() == 0); }
 bool Arg::filled() { return (arg.index() != 0); }
 
-void Arg::set(Object* obj) { arg = obj; }
+void Arg::set(Node* node) { arg = node; }
 void Arg::set(Frac f) { arg = f; }
 void Arg::set(char c) { arg = c; }
 
 Point* Arg::get_point() {
-    if (!std::holds_alternative<Object*>(arg)) { return nullptr; }
-    return static_cast<Point*>(std::get<Object*>(arg));
+    if (!std::holds_alternative<Node*>(arg)) { return nullptr; }
+    return static_cast<Point*>(std::get<Node*>(arg));
 }
 
-void Arg::operator=(Object* obj) { arg = obj; }
+void Arg::operator=(Node* node) { arg = node; }
 void Arg::operator=(Frac f) { arg = f; }
 void Arg::operator=(char c) { arg = c; }
 
@@ -42,8 +42,8 @@ std::string Arg::to_string() {
     if (arg.index() == 0) {
         return "EMPTY";
     }
-    if (std::holds_alternative<Object*>(arg)) {
-        return std::get<Object*>(arg)->name;
+    if (std::holds_alternative<Node*>(arg)) {
+        return std::get<Node*>(arg)->name;
     }
     if (std::holds_alternative<Frac>(arg)) {
         return std::get<Frac>(arg).to_string();
@@ -71,23 +71,30 @@ PredicateTemplate::PredicateTemplate(const std::string s, std::map<std::string, 
     }
 }
 
-void PredicateTemplate::set_arg(int i, Object* obj) noexcept { args.at(i)->set(obj); }
+PredicateTemplate::PredicateTemplate(Predicate* pred, std::vector<std::unique_ptr<Arg>> &arglist) {
+    name = pred->name;
+    for (const auto& ptr : arglist) {
+        args.emplace_back(ptr.get());
+    }
+}
+
+void PredicateTemplate::set_arg(int i, Node* node) noexcept { args.at(i)->set(node); }
 void PredicateTemplate::set_arg(int i, Frac f) noexcept { args.at(i)->set(f); }
 void PredicateTemplate::set_arg(int i, char c) noexcept { args.at(i)->set(c); }
 void PredicateTemplate::clear_arg(int i) noexcept { args.at(i)->clear(); }
 
-void PredicateTemplate::set_args(std::vector<Object*> objs) {
+void PredicateTemplate::set_args(std::vector<Node*> nodes) {
     int i = 0; 
-    for (auto obj : objs) {
-        args.at(i)->set(obj);
+    for (auto node : nodes) {
+        args.at(i)->set(node);
         i++;
     }
 }
-void PredicateTemplate::set_args(std::vector<Object*> objs, Frac f) {
+void PredicateTemplate::set_args(std::vector<Node*> nodes, Frac f) {
     args.at(0)->set(f);
     int i = 1; 
-    for (auto obj : objs) {
-        args.at(i)->set(obj);
+    for (auto node : nodes) {
+        args.at(i)->set(node);
         i++;
     }
 }
@@ -114,15 +121,15 @@ std::string PredicateTemplate::to_hash_with_args() {
 }
 
 bool PredicateTemplate::__validate_neq(GeometricGraph &ggraph) {
-    Object* obj1 = std::get<Object*>(args[0]->arg);
-    Object* obj2 = std::get<Object*>(args[1]->arg);
-    return (NodeUtils::get_root(obj1) != NodeUtils::get_root(obj2));
+    Node* node1 = std::get<Node*>(args[0]->arg);
+    Node* node2 = std::get<Node*>(args[1]->arg);
+    return (NodeUtils::get_root(node1) != NodeUtils::get_root(node2));
 }
 
 bool PredicateTemplate::__validate_ncoll(GeometricGraph &ggraph) {
-    Point* p1 = static_cast<Point*>(std::get<Object*>(args[0]->arg));
-    Point* p2 = static_cast<Point*>(std::get<Object*>(args[1]->arg));
-    Point* p3 = static_cast<Point*>(std::get<Object*>(args[2]->arg));
+    Point* p1 = static_cast<Point*>(std::get<Node*>(args[0]->arg));
+    Point* p2 = static_cast<Point*>(std::get<Node*>(args[1]->arg));
+    Point* p3 = static_cast<Point*>(std::get<Node*>(args[2]->arg));
 
     Line* l = ggraph.__try_get_line(p1, p2);
     if (!l) {
@@ -134,11 +141,11 @@ bool PredicateTemplate::__validate_ncoll(GeometricGraph &ggraph) {
 
 bool PredicateTemplate::validate_degeneracy_args(GeometricGraph &ggraph) {
     for (Arg* arg : args) {
-        if (!std::holds_alternative<Object*>(arg->arg)) {
-            throw DDInternalError("PredicateTemplate: Degeneracy validation failed as argument was not instantiated as an Object: " + to_string());
+        if (!std::holds_alternative<Node*>(arg->arg)) {
+            throw DDInternalError("PredicateTemplate: Degeneracy validation failed as argument was not instantiated as a Node: " + to_string());
         }
     }
-    if (name == pred_t::NEQ) {
+    if (name == pred_t::DIFF) {
         return __validate_neq(ggraph);
     } else if (name == pred_t::NCOLL) {
         return __validate_ncoll(ggraph);
@@ -151,16 +158,16 @@ bool PredicateTemplate::validate_degeneracy_args(GeometricGraph &ggraph) {
 
 
 
-Predicate::Predicate(const pred_t pred_name, std::vector<Object*> &&objs) {
-    args = std::move(objs);
+Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes) {
+    args = std::move(nodes);
     name = pred_name;
     hash = Utils::to_pred_str(pred_name);
-    for (Object* obj : args) {
-        hash = hash + " " + obj->name;
+    for (Node* node : args) {
+        hash = hash + " " + node->name;
     }
 }
 
-Predicate::Predicate(const std::string pred_name, std::vector<Object*> &&objs) : Predicate(Utils::to_pred_t(pred_name), std::move(objs)) {}
+Predicate::Predicate(const std::string pred_name, std::vector<Node*> &&nodes) : Predicate(Utils::to_pred_t(pred_name), std::move(nodes)) {}
 
 std::unique_ptr<Predicate> Predicate::from_global_point_map(const std::string pred_string, std::map<std::string, std::unique_ptr<Point>> &global_point_map) {
     std::vector<std::string> v = StrUtils::split(pred_string, " ");
@@ -170,19 +177,19 @@ std::unique_ptr<Predicate> Predicate::from_global_point_map(const std::string pr
         throw DDInternalError("Predicate: Invalid predicate name: " + pred_name);
     }
 
-    std::vector<Object*> objs;
+    std::vector<Node*> nodes;
     for (auto iter = v.begin() + 1; iter != v.end(); iter++) {
         std::string pt_str = *iter;
         if (Utils::isinmap(pt_str, global_point_map)) {
-            Object* obj = global_point_map[pt_str].get();
-            objs.emplace_back(obj);
+            Node* node = global_point_map[pt_str].get();
+            nodes.emplace_back(node);
         } else {
             throw DDInternalError("Predicate: Invalid predicate argument: " + pt_str);
         }
     }
 
     // Create Predicate from PredicateTemplate
-    return std::make_unique<Predicate>(pred_name, std::move(objs));
+    return std::make_unique<Predicate>(pred_name, std::move(nodes));
 }
 
 Predicate::Predicate(PredicateTemplate &pt) {
@@ -190,9 +197,9 @@ Predicate::Predicate(PredicateTemplate &pt) {
     name = pt.name;
 
     for (Arg* argptr : pt.args) {
-        if (std::holds_alternative<Object*>(argptr->arg)) {
-            Object* obj = std::get<Object*>(argptr->arg);
-            args.emplace_back(obj);
+        if (std::holds_alternative<Node*>(argptr->arg)) {
+            Node* node = std::get<Node*>(argptr->arg);
+            args.emplace_back(node);
 
         } else if (std::holds_alternative<Frac>(argptr->arg)) {
             frac_arg = std::get<Frac>(argptr->arg);

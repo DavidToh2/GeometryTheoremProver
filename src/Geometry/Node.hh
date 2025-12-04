@@ -19,46 +19,129 @@ public:
     std::string name;
 
     Node* parent = nullptr;
-    Node* root = nullptr;
+    Node* root = this;
     Predicate* parent_why = nullptr;
 
     Node(std::string name) : name(name), root(this) {}
 
-    bool is_root();
+    constexpr bool is_root() { return (root == this); }
+    constexpr std::string to_string() { return name; }
 };
 
 namespace NodeUtils {
 
-/* Returns the root of any `Node` object. 
-This function has the secondary purpose of lazily updating the `root` pointer for every node it passes through to the correct root. */
-template <std::derived_from<Node> Key>
-Key* get_root(Key* n);
+    /* Returns the root of any `Node` object. 
+    This function has the secondary purpose of lazily updating the `root` pointer for every node it passes through to the correct root. */
+    template <std::derived_from<Node> Key>
+    Key* get_root(Key* n) {
+        if (!n->is_root()) {
+            n->root = get_root(n->root);
+        }
+        return static_cast<Key*>(n->root);
+    }
 
-template<std::derived_from<Node> Key, size_t n>
-std::array<Key*, n> get_root(std::array<Key*, n>&& t);
+    /* Returns the roots of all elements in an array of `Node` objects. */
+    template<std::derived_from<Node> Key, int n>
+    std::array<Key*, n> get_roots(std::array<Key*, n>&& t) {
+        std::array<Key*, n> res;
+        for (size_t i=0; i<n; i++) {
+            res[i] = get_root(t[i]);
+        }
+        return res;
+    }
 
-/* Takes in as input a map of the form `std::map<Object*, T>`. This may be `on_line`, `on_circle`, `points` etc. 
-Returns the roots of all keys in the map.
+    /* Takes in as input a map of the form `std::map<Object*, T>`. Returns all keys in the map. 
 
-Note: No deduplication occurs. */
-template <std::derived_from<Node> Key, typename Map>
-Generator<Key*> on_roots(Map& m);
+    Note: In ordinary conditions we won't need to use this, as we can simply use a regular iterator of the form `for (auto [key, _] : map) { ... }`*/
+    template <std::derived_from<Node> Key, typename Map>
+    Generator<Key*> all(Map& m) {
+        for (const auto& [key, _] : m) {
+            co_yield static_cast<Key*>(key);
+        }
+        co_return;
+    }
 
-/* Takes in as input a map of the form `std::map<Object*, T>`. This may be `on_line`, `on_circle`, `points` etc. 
-Returns the roots of all keys in the map.
+    /* Takes in as input a map of the form `std::map<Object*, T>`. This will usually be `on_line`, `on_circle`, `points` etc. 
+    Returns the roots of all keys in the map.
 
-Note: Deduplication is handled in this version. */
-template <std::derived_from<Node> Key, typename Map>
-Generator<Key*> on_roots_dedup(Map& m);
+    Note: No deduplication occurs. */
+    template <std::derived_from<Node> Key, typename Map>
+    Generator<Key*> all_roots(Map& m) {
+        for (const auto& [key, _] : m) {
+            Node* r = get_root(key);
+            co_yield static_cast<Key*>(r);
+        }
+        co_return;
+    }
 
-/* Takes in as input a map of the form `std::map<Object*, T>`. This will usually be `points`. 
-Returns all possible pairs of keys in the map. */
-template <std::derived_from<Node> Key, typename Map>
-Generator<std::pair<Key*, Key*>> on_pairs(Map& m);
+    /* Takes in as input a map of the form `std::map<Object*, T>`. This will usually be `on_line`, `on_circle`, `points` etc. 
+    Returns all distinct roots of all keys in the map. */
+    template <std::derived_from<Node> Key, typename Map>
+    Generator<Key*> all_roots_dedup(Map& m) {
+        std::set<Node*> yielded;
+        for (const auto& [key, _] : m) {
+            Node* r = get_root(key);
+            if (!(yielded.contains(r))) {
+                yielded.insert(r);
+                co_yield static_cast<Key*>(r);
+            }
+        }
+        co_return;
+    }
 
-/* Takes in as input a map of the form `std::map<Object*, T>`. This will usually be `points`. 
-Returns all possible triples of keys in the map. */
-template <std::derived_from<Node> Key, typename Map>
-Generator<std::tuple<Key*, Key*, Key*>> on_triples(Map& m);
+    /* Takes in as input a map of the form `std::map<Object*, T>`. This will usually be `points`. 
+    Returns all possible pairs of keys in the map. */
+    template <std::derived_from<Node> Key, typename Map>
+    Generator<std::pair<Key*, Key*>> all_pairs(Map& m) {
+        for (auto it = m.begin(); it != m.end(); ++it) {
+            for (auto jt = std::next(it); jt != m.end(); ++jt) {
+                co_yield {static_cast<Key*>(it->first), static_cast<Key*>(jt->first)};
+            }
+        }
+        co_return;
+    }
+
+    /* Take in as input a set of pointers to `Value`s. This will usually be a `root_objs` set.
+    Returns all pairs of values in the set. */
+
+    template <std::derived_from<Node> Value>
+    Generator<std::pair<Value*, Value*>> all_pairs(std::set<Value*>& s) {
+        for (auto it = s.begin(); it != s.end(); ++it) {
+            for (auto jt = std::next(it); jt != s.end(); ++jt) {
+                co_yield {(*it), (*jt)};
+            }
+        }
+        co_return;
+    }
+
+    /* Takes in as input a map of the form `std::map<Object*, T>`. This will usually be `objs`. 
+    Returns all distinct pairs of roots of keys in the map. */
+    template <std::derived_from<Node> Key, typename Map>
+    Generator<std::pair<Key*, Key*>> all_root_pairs_dedup(Map& m) {
+        std::vector<Node*> yielded_1;
+        auto roots_1 = all_roots_dedup<Key>(m);
+        while (roots_1) {
+            yielded_1.emplace_back(roots_1());
+            Key* r1 = yielded_1.back();
+            for (auto it = yielded_1.begin(); it != yielded_1.end() - 1; ++it) {
+                co_yield {(*it), r1};
+            }
+        }
+        co_return;
+    }
+
+    /* Takes in as input a map of the form `std::map<Object*, T>`. This will usually be `points`. 
+    Returns all possible triples of keys in the map. */
+    template <std::derived_from<Node> Key, typename Map>
+    Generator<std::tuple<Key*, Key*, Key*>> all_triples(Map& m) {
+        for (auto it = m.begin(); it != m.end(); ++it) {
+            for (auto jt = std::next(it); jt != m.end(); ++jt) {
+                for (auto kt = std::next(jt); kt != m.end(); ++kt) {
+                    co_yield {static_cast<Key*>(it->first), static_cast<Key*>(jt->first), static_cast<Key*>(kt->first)};
+                }
+            }
+        }
+        co_return;
+    }
 
 } // namespace NodeUtils

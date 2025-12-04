@@ -1,0 +1,5 @@
+#perp_perp_para
+A B C D E F : perp A B C D, perp C D E F => para A B E F
+
+#perp_perp_eqangles
+A B C D E F G H : perp A B C D, perp E F G H => eqangle A B E F C D G H

@@ -22,6 +22,10 @@ Theorem::Theorem(const std::string &s) {
     name = preconditions.name + "_" + Utils::to_pred_str(postcondition.get()->name);
 };
 
+std::unique_ptr<Predicate> Theorem::instantiate_postcondition() {
+    return postcondition.get()->instantiate();
+}
+
 void Theorem::__set_placeholder_args() {
     char c = 'a';
     for (auto& argptr : args) {
@@ -35,6 +39,10 @@ void Theorem::__clear_args() {
 }
 
 std::string Theorem::to_string() {
+    std::string s = preconditions.to_string() + " => " + postcondition.get()->to_string();
+    return s;
+}
+std::string Theorem::to_string_with_placeholders() {
     __set_placeholder_args();
     std::string s = preconditions.to_string() + " => " + postcondition.get()->to_string();
     __clear_args();

@@ -2,9 +2,9 @@
 
 #include <map>
 #include <memory>
+#include <variant>
 #include <set>
 #include <string>
-#include <variant>
 #include <vector>
 
 #include "Numerics/Numerics.hh"
@@ -12,6 +12,7 @@
 #include "Common/Constants.hh"
 #include "Common/Utils.hh"
 
+class Node;
 class Object;
 class Point;
 class Predicate;
@@ -19,10 +20,10 @@ class Predicate;
 class Arg {
 
 public:
-	std::variant<std::monostate, Object*, Frac, char> arg;
+	std::variant<std::monostate, Node*, Frac, char> arg;
 
 	Arg() {}
-	Arg(Object* obj) : arg(obj) {}
+	Arg(Node* node) : arg(node) {}
 	Arg(Frac f) : arg(f) {}
 	Arg(char c) : arg(c) {}
 
@@ -30,17 +31,17 @@ public:
 	bool empty();
 	bool filled();
 
-	void set(Object* obj);
+	void set(Node* node);
 	void set(Frac f);
 	void set(char c);
 
-	/* Note: Returns `nullptr` if the argument stored is not an `Object*`.
-	Performs a `static_cast` to `Point*` regardless of whether the `Object*` argument's true type is a `Point*`. */
+	/* Note: Returns `nullptr` if the argument stored is not an `Node*`.
+	Performs a `static_cast` to `Point*` regardless of whether the `Node*` argument's true type is a `Point*`. */
 	Point* get_point();
 
 	static void populate_args_and_argmap(const std::string arg_str, std::vector<std::unique_ptr<Arg>> &arg_unique_ptr_vec, std::map<std::string, Arg*> &argmap);
 
-	void operator=(Object* obj);
+	void operator=(Node* node);
 	void operator=(Frac f);
 	void operator=(char c);
 
@@ -61,14 +62,16 @@ public:
 	PredicateTemplate(const pred_t name, std::vector<Arg*> &args) : name(name), args(std::move(args)) {};
 	PredicateTemplate(const std::string name, std::vector<Arg*> &args) : name(Utils::to_pred_t(name)), args(std::move(args)) {};
 	PredicateTemplate(const std::string pred_string, std::map<std::string, Arg*> &argmap);
+	// This constructor literally only exists to convert the conclusion from a Predicate to a PredicateTemplate
+	PredicateTemplate(Predicate* pred, std::vector<std::unique_ptr<Arg>> &arglist);
 
-	void set_arg(int i, Object* obj) noexcept;
+	void set_arg(int i, Node* node) noexcept;
 	void set_arg(int i, Frac f) noexcept;
 	void set_arg(int i, char c) noexcept;
 	void clear_arg(int i) noexcept;
 
-	void set_args(std::vector<Object*> objs);
-	void set_args(std::vector<Object*> objs, Frac f);
+	void set_args(std::vector<Node*> nodes);
+	void set_args(std::vector<Node*> nodes, Frac f);
 	void clear_args();
 
 	std::unique_ptr<Predicate> instantiate();
@@ -86,13 +89,13 @@ public:
 	std::string hash;
 
 	pred_t name;
-	std::vector<Object*> args;
+	std::vector<Node*> args;
 	Frac frac_arg;
 	std::set<Predicate*> why; // keep
 
 	Predicate() : name(pred_t::BASE), hash("BASE") {};
-	Predicate(const pred_t name, std::vector<Object*> &&objs);
-	Predicate(const std::string pred_name, std::vector<Object*> &&objs);
+	Predicate(const pred_t name, std::vector<Node*> &&nodes);
+	Predicate(const std::string pred_name, std::vector<Node*> &&nodes);
 	Predicate(PredicateTemplate &pred_template);
 
 	static std::unique_ptr<Predicate> from_global_point_map(const std::string pred_string, std::map<std::string, std::unique_ptr<Point>> &global_point_map);
@@ -105,6 +108,7 @@ public:
 	std::vector<Predicate*> preds;
 
 	PredVec() {}
+	PredVec(std::initializer_list<Predicate*> init_list) : preds(init_list) {}
 
 	void emplace_back(Predicate* pred);
 	void operator+=(Predicate* pred);

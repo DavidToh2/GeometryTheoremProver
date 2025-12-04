@@ -70,4 +70,6 @@ int main(int argc, char** argv) {
         problem_name
     );
 
+    gtp.solve(2);
+
 }
