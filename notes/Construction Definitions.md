@@ -39,9 +39,9 @@ Let p be the point such that the triangles abc and adp are spirally similar.
 Let t be the a-mixtilinear intouch point on the minor arc bc of the circle abc.
 ```
 
-## Addressing complex construction statements
+## Addressing complex construction statements using "construction stages"
 
-Given multiple constructions each introducing a single object, we could reasonably use a structure similar to the one below:
+In the case when we have a single object introduced in two or more constructions simultaneously, we could reasonably use a structure similar to the one below:
 
 ```
 Let the perpendicular to a through bc intersect the circumcircle of ade at p.
@@ -51,6 +51,8 @@ Let the circumcircles of pqr and pxy intersect at z.
 z = on_circum z : p q r, on_circum z : x y z; ...
 ```
 
+This allows us to define a **construction stage** involving multiple constructions.
+
 However, certain construction definitions, like `square x y : a b`, intersect two or more points. This means we may have to deal with statements like the second line of the problem definition below (indented for clarity):
 
 ```
@@ -59,7 +61,7 @@ p = on_line p : b c; q = on_line q : b c;
 r, s = square r s : p q, on_line r : a b, on_line s : a c; ...
 ```
 
-If we allow constructing multiple new points with multiple new constructions in a single step, then what's to prevent someone from just doing the entire problem at once in one giant construction step?
+If we allow constructing multiple new points with multiple new constructions in a single step, then what's to prevent someone from just doing the entire problem at once in one giant construction stage?
 
 ```
 p, q, r, s = on_line p : b c, on_line q : b c, [square r s : p q], on_line r : a b, on_line s : a c; ...
@@ -67,7 +69,11 @@ p, q, r, s = on_line p : b c, on_line q : b c, [square r s : p q], on_line r : a
 
 The issue with that approach would be the square-bracketed construction above. Because `p, q` are also new points being introduced in this step, they cannot be part of any construction's "existing points" set. Thus, we safely avoid the possibility of falling down that rabbit hole.
 
-This structure allows us to construct a "layered directed acyclic dependency graph" of constructed points. Every point has in-edges from all the points it depends on, with every in-edge labelled by the (possibly multiple) constructions involved. Each construction step gives us a new layer of the graph.
+To summarise, a **construction stage**:
+- can introduce multiple points
+- can make use of multiple constructions, each of which involves some or all of the newly introduced points
+
+This structure allows us to construct a "layered directed acyclic dependency graph" of constructed points. Every point has in-edges from all the points it depends on, with every in-edge labelled by the (possibly multiple) constructions involved. Each construction stage gives us a new layer of the graph.
 
 Having said that, will we ever be in a situation where some points reference each other in a circular manner, i.e. the graph becomes cyclic? We address this below.
 
@@ -88,7 +94,7 @@ Let abc be a triangle with ... Let p, q be the intersections of rf, rg with the 
 
 We cannot make use of `circle a : p q o` because `a` was defined at the very start of the problem. In terms of our dependency graph, it would cause `p, q, o` to loop back to `a`. 
 
-A clever way might be to attempt re-defining the auxiliary condition so that the new points `p, q` are the subjects. This might work something like
+A clever way might be to attempt **re-defining the auxiliary condition** so that the new points `p, q` are the subjects. This might work something like
 
 ```
 p = on_line p : r f, on_circum p : a b c, eqdistance p : a a o;
@@ -101,7 +107,7 @@ There are, of course, going to be absolutely abhorrent questions which go someth
 Given that a, b, c are the incenter, orthocenter and circumcenter of pqr respectively...
 ```
 
-which would basically mandate an extremely long and convoluted construction step of the form (indentions for clarity)
+which would basically mandate an extremely long and convoluted construction stage of the form (indentions for clarity)
 
 ```
 p = [constructions defining p];

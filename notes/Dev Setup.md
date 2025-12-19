@@ -39,6 +39,10 @@ The project's build instructions are specified in the `CMakeLists.txt` file at r
 - After building, the binaries are stored at `build/bin`.
 - To switch to the `clang` compiler we need to add `-DCMAKE_C_COMPILER=/path/to/clang -DCMAKE_CXX_COMPILER=/path/to/clang++` to every invocation of `cmake`. For me, my path is `/usr/local/bin/clang-20`. This is already done by VSCode's "CMake kits", but is important to note for command-line invocations.
 
+### External Libraries
+
+We use the **Eigen** linear algebra library. Instructions coming soon.
+
 ### Development Environment
 
 To debug `main.cpp`, run the default VSCode (c_cpp_tools) debugger with the following `launch.json` configuration:

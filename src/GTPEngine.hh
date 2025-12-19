@@ -29,4 +29,6 @@ public:
         std::string output_filepath
     );
 
+    void clear_problem();
+
 };

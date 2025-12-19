@@ -52,6 +52,10 @@ public:
 	Performs a `static_cast` to `Point*` regardless of whether the `Node*` argument's true type is a `Point*`. */
 	Point* get_point();
 
+	/* Given a string of Argument names (e.g. `p q r s t`), add new `std::unique_ptr<Arg>` and `Arg*` entries
+	to the provided maps `arg_unique_ptr_vec` and `argmap` respectively, one corresponding to each Arg name, provided
+	they are not already present 
+	Note: If an Arg name is already present in `argmap`, then nothing happens */
 	static void populate_args_and_argmap(
 		const std::string arg_str, 
 		std::vector<std::unique_ptr<Arg>> &arg_unique_ptr_vec, 

@@ -19,10 +19,16 @@ GTPEngine::GTPEngine(
     inputParser = InputParser();
 
     // Read in the constructions and pass them to the DD engine.
-    inputParser.parse_constructions_from_file(construction_filepath, dd);
+    auto constructions = inputParser.parse_constructions_from_file(construction_filepath);
+    for (auto construction : constructions) {
+        dd.__add_construction_template_from_texts(construction);
+    }
 
     // Read in the rules and pass them to the DD engine.
-    inputParser.parse_rules_from_file(rule_filepath, dd);
+    auto rules = inputParser.parse_rules_from_file(rule_filepath);
+    for (auto rule : rules) {
+        dd.__add_theorem_template_from_text(rule);
+    }
 }
 
 void GTPEngine::load_problem(
@@ -32,15 +38,15 @@ void GTPEngine::load_problem(
     // Read in the problem and pass it to the DD engine.
     std::string problem_string = inputParser.extract_problem_from_file(input_filepath, problem_name);
     
-    std::vector<std::string> _v0 = StrUtils::split(problem_string, " ? ");
-    std::vector<std::string> _constructions = StrUtils::split(_v0[0], ", ");
-    std::string _goal = _v0[1];
+    auto [_construction_steps, _goal] = StrUtils::split_first(problem_string, "?");
+    std::vector<std::string> _construction_stages = StrUtils::split(_construction_steps, ";");
 
-    for (std::string _construction : _constructions) {
-        // add construction to ggraph;
-        Construction::construct_no_checks(_construction, dd, ggraph);
+    for (std::string _construction_stage : _construction_stages) {
+        StrUtils::trim(_construction_stage);
+        Construction::construct_no_checks(_construction_stage, dd, ggraph);
     }
 
+    StrUtils::trim(_goal);
     dd.set_conclusion(Predicate::from_global_point_map(_goal, ggraph.points));
 
     dd.__print_predicates();
@@ -109,4 +115,8 @@ void GTPEngine::output(std::string output_filepath) {
     dd.__print_predicates(fbuf);
 
     fbuf.close();
+}
+
+void GTPEngine::clear_problem() {
+    // TBA
 }

@@ -52,8 +52,8 @@ int main(int argc, char** argv) {
         }
     }
 
-    if (input_filepath.empty() || problem_name.empty() || output_filepath.empty()) {
-        std::cerr << "Error: --problem_file, --problem_name, and --output must be provided." << std::endl;
+    if (input_filepath.empty() || output_filepath.empty()) {
+        std::cerr << "Error: --problem_file and --output_file must be provided." << std::endl;
         return 1;
     } else {
         std::cerr << "Inputs received!\n";
@@ -64,15 +64,34 @@ int main(int argc, char** argv) {
         construction_filepath
     );
 
-    gtp.load_problem(
-        input_filepath,
-        problem_name
-    );
+    if (problem_name.empty()) {
+        // Iterate through every single problem in the input file
+        std::vector<std::string> problem_names = gtp.inputParser.extract_all_problem_names_from_file(input_filepath);
+        for (std::string problem_name : problem_names) {
+            gtp.load_problem(
+                input_filepath,
+                problem_name
+            );
 
-    gtp.solve(5);
+            gtp.solve(5);
 
-    gtp.output(
-        output_filepath
-    );
+            gtp.output(
+                output_filepath
+            );
 
+            gtp.clear_problem();
+        }
+    } else {
+        // Solve the specified problem
+        gtp.load_problem(
+            input_filepath,
+            problem_name
+        );
+
+        gtp.solve(5);
+
+        gtp.output(
+            output_filepath
+        );
+    }
 }

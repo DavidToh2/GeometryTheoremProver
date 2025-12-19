@@ -36,6 +36,8 @@ Associations between `Object(2)s` and `Value(2)s` need not store root nodes.
 | Predicates | Every predicate is a truth statement regarding a set of points. | `pred p1 p2 ...` |
 | Constructions | Every construction introduces a set of new points and depends on a set of old points. | `parallelogram x : a b c` |
 | | The specification of a construction in `constructions.txt` shall include the preconditions<br>necessary to perform the construction, as well as postconditions involving the new points.<br> The preconditions shall be stored as a clause.<br>The postconditions shall be stored as a list of predicates. | `ncoll a b c`<br>`para a b c x, para a x b c, cong a b c x, cong a x b c` |
-| Problem Definitions | A problem definition is a  |  |
+| Problem Definitions | A problem is indicated by the word `problem` followed by its name. It is defined by a series of **construction stages** enclosed in curly brackets. | `problem P1 {` |
+| | A **construction stage** introduces a set of new points along with their relevant constructions. New points are listed, before a `=`.<br>A comma-separated list of constructions follow. Every construction takes the same form as its definition - its name, then the new points involved, then a `:`, then the old points it relies on.<br>Stages are separated with a `;`.<br>Indentation shown on the right is optional. | `p1 p2 ... pk = `<br>`const1 p1 : q1 q2 ...,`<br>`const2 p2 p3 : q1 ...,`<br>`...;` | 
+| | The goal of the problem is indicated by a `?` followed by a singular predicate. | `... ? pred p q r s`<br>`}` | 
 
 

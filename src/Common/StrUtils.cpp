@@ -18,4 +18,14 @@ std::vector<std::string> split(const std::string& s, const std::string& delimite
     return tokens;
 }
 
+std::pair<std::string, std::string> split_first(const std::string& s, const std::string& delimiter) {
+    
+    size_t pos = s.find(delimiter);
+    if (pos == std::string::npos) {
+        return {s, ""};
+    } else {
+        return {s.substr(0, pos), s.substr(pos + delimiter.size())};
+    }
+}
+
 } // namespace StrUtils

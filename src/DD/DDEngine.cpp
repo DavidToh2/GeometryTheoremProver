@@ -34,7 +34,7 @@ void DDEngine::__add_theorem_template_from_text(const std::string s) {
     theorems.insert({name, std::move(_thr)});
 }
 
-void DDEngine::__add_construction_template_from_texts(const std::vector<std::string> v) { 
+void DDEngine::__add_construction_template_from_texts(const std::tuple<std::string, std::string, std::string> v) { 
 
     std::unique_ptr<Construction> _c = std::make_unique<Construction>(v);
     std::string name = _c.get()->name;
@@ -806,12 +806,12 @@ Generator<bool> DDEngine::match_perp(PredicateTemplate* pred_template, Geometric
     co_return;
 }
 
-Generator<bool> DDEngine::__match_eqangle(PredicateTemplate* pred_template, GeometricGraph &ggraph, int i, std::array<Line*, 4> &ls) {
+Generator<bool> DDEngine::__match_eqangle(PredicateTemplate* pred_template, GeometricGraph &ggraph, int i, std::array<Direction*, 4> &ds) {
     if (i == 4) {
         co_yield true;
         co_return;
     }
-    Line* l = ls[i];
+    Direction* d = ds[i];
     Point* p1 = pred_template->args[i*2]->get_point();
     Point* p2 = pred_template->args[i*2 + 1]->get_point();
     char a = pred_template->args[i*2]->filled();
@@ -820,24 +820,69 @@ Generator<bool> DDEngine::__match_eqangle(PredicateTemplate* pred_template, Geom
 
     switch(k) {
         case 0b11: {
-            if (l->contains(p1) && l->contains(p2)) {
-                auto rec = __match_eqangle(pred_template, ggraph, i + 1, ls);
-                while (rec) {
-                    if (rec()) {
-                        co_yield true;
+            for (auto l : d->root_objs) {
+                if (l->contains(p1) && l->contains(p2)) {
+                    auto rec = __match_eqangle(pred_template, ggraph, i + 1, ds);
+                    while (rec) {
+                        if (rec()) {
+                            co_yield true;
+                        }
                     }
                 }
             }
             co_return;
         } break;
         case 0b10: {
-            auto gen_points = l->all_points();
-            while (gen_points) {
-                Point* pt = gen_points();
-                if (pt != p1) {
-                    char c2 = pred_template->set_arg(i*2 + 1, pt);
-                    if (c2 != Arg::UNSUCCESSFUL_SET) {
-                        auto rec = __match_eqangle(pred_template, ggraph, i + 1, ls);
+            for (auto l : d->root_objs) {
+                auto gen_points = l->all_points();
+                while (gen_points) {
+                    Point* pt = gen_points();
+                    if (pt != p1) {
+                        char c2 = pred_template->set_arg(i*2 + 1, pt);
+                        if (c2 != Arg::UNSUCCESSFUL_SET) {
+                            auto rec = __match_eqangle(pred_template, ggraph, i + 1, ds);
+                            while (rec) {
+                                if (rec()) {
+                                    co_yield true;
+                                }
+                            }
+                        }
+                        if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(i*2 + 1);
+                    }
+                }
+            }
+            co_return;
+        } break;
+        case 0b01: {
+            for (auto l : d->root_objs) {
+                auto gen_points = l->all_points();
+                while (gen_points) {
+                    Point* pt = gen_points();
+                    if (pt != p2) {
+                        char c1 = pred_template->set_arg(i*2, pt);
+                        if (c1 != Arg::UNSUCCESSFUL_SET) {
+                            auto rec = __match_eqangle(pred_template, ggraph, i + 1, ds);
+                            while (rec) {
+                                if (rec()) {
+                                    co_yield true;
+                                }
+                            }
+                        }
+                        if (c1 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(i*2);
+                    }
+                }
+            }
+            co_return;
+        } break;
+        case 0b00: {
+            for (auto l : d->root_objs) {
+                auto gen_point_pairs = l->all_point_pairs();
+                while (gen_point_pairs) {
+                    auto [pt1, pt2] = gen_point_pairs();
+                    char c1 = pred_template->set_arg(i*2, pt1);
+                    char c2 = pred_template->set_arg(i*2 + 1, pt2);
+                    if (c1 != Arg::UNSUCCESSFUL_SET && c2 != Arg::UNSUCCESSFUL_SET) {
+                        auto rec = __match_eqangle(pred_template, ggraph, i + 1, ds);
                         while (rec) {
                             if (rec()) {
                                 co_yield true;
@@ -845,45 +890,8 @@ Generator<bool> DDEngine::__match_eqangle(PredicateTemplate* pred_template, Geom
                         }
                     }
                     if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(i*2 + 1);
-                }
-            }
-            co_return;
-        } break;
-        case 0b01: {
-            auto gen_points = l->all_points();
-            while (gen_points) {
-                Point* pt = gen_points();
-                if (pt != p2) {
-                    char c1 = pred_template->set_arg(i*2, pt);
-                    if (c1 != Arg::UNSUCCESSFUL_SET) {
-                        auto rec = __match_eqangle(pred_template, ggraph, i + 1, ls);
-                        while (rec) {
-                            if (rec()) {
-                                co_yield true;
-                            }
-                        }
-                    }
                     if (c1 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(i*2);
                 }
-            }
-            co_return;
-        } break;
-        case 0b00: {
-            auto gen_point_pairs = l->all_point_pairs();
-            while (gen_point_pairs) {
-                auto [pt1, pt2] = gen_point_pairs();
-                char c1 = pred_template->set_arg(i*2, pt1);
-                char c2 = pred_template->set_arg(i*2 + 1, pt2);
-                if (c1 != Arg::UNSUCCESSFUL_SET && c2 != Arg::UNSUCCESSFUL_SET) {
-                    auto rec = __match_eqangle(pred_template, ggraph, i + 1, ls);
-                    while (rec) {
-                        if (rec()) {
-                            co_yield true;
-                        }
-                    }
-                }
-                if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(i*2 + 1);
-                if (c1 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(i*2);
             }
             co_return;
         } break;
@@ -899,15 +907,15 @@ Generator<bool> DDEngine::match_eqangle(PredicateTemplate* pred_template, Geomet
             auto [angle1, angle2] = gen_angle_pairs();
 
             // Match points for the first angle
-            Line* l1 = angle1->line1, *l2 = angle1->line2, *l3 = angle2->line1, *l4 = angle2->line2;
-            std::array<std::array<Line*, 4>, 4> lss = {
-                std::array<Line*, 4>{l1, l2, l3, l4},
-                std::array<Line*, 4>{l3, l4, l1, l2},
-                std::array<Line*, 4>{l2, l1, l4, l3},
-                std::array<Line*, 4>{l4, l3, l2, l1}
+            Direction* d1 = angle1->direction1, *d2 = angle1->direction2, *d3 = angle2->direction1, *d4 = angle2->direction2;
+            std::array<std::array<Direction*, 4>, 4> dss = {
+                std::array<Direction*, 4>{d1, d2, d3, d4},
+                std::array<Direction*, 4>{d3, d4, d1, d2},
+                std::array<Direction*, 4>{d2, d1, d4, d3},
+                std::array<Direction*, 4>{d4, d3, d2, d1}
             };
-            for (std::array<Line*, 4> &ls : lss) {
-                auto gen =  __match_eqangle(pred_template, ggraph, 0, ls);
+            for (std::array<Direction*, 4> &ds : dss) {
+                auto gen =  __match_eqangle(pred_template, ggraph, 0, ds);
                 while (gen) {
                     if (gen()) {
                         co_yield true;

@@ -50,8 +50,10 @@ void Arg::populate_args_and_argmap(const std::string s, std::vector<std::unique_
     
     std::vector<std::string> _args = StrUtils::split(s, " ");
     for (std::string a : _args) {
-        args.emplace_back(std::make_unique<Arg>());
-        argmap.insert({a, (args.back()).get()});
+        if (!argmap.contains(a)) {
+            args.emplace_back(std::make_unique<Arg>());
+            argmap.insert({a, (args.back()).get()});
+        }
     }
 }
 

@@ -42,7 +42,7 @@ public:
     uptrmap<Construction> constructions;
 
     void __add_theorem_template_from_text(const std::string s);
-    void __add_construction_template_from_texts(const std::vector<std::string> v);
+    void __add_construction_template_from_texts(const std::tuple<std::string, std::string, std::string> v);
     void set_conclusion(std::unique_ptr<Predicate> predicate);
 
     void insert_predicate(std::unique_ptr<Predicate> &&predicate);
@@ -55,7 +55,7 @@ public:
     Generator<bool> match_cyclic(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> match_para(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> match_perp(PredicateTemplate* pred_template, GeometricGraph &ggraph);
-    Generator<bool> __match_eqangle(PredicateTemplate* pred_template, GeometricGraph &ggraph, int i, std::array<Line*, 4> &ls);
+    Generator<bool> __match_eqangle(PredicateTemplate* pred_template, GeometricGraph &ggraph, int i, std::array<Direction*, 4> &ls);
     Generator<bool> match_eqangle(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> match_circle(PredicateTemplate* pred_template, GeometricGraph &ggraph);
 

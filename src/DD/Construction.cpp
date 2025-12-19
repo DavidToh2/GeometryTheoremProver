@@ -18,10 +18,10 @@ Construction::Construction(const std::string _c_decl, const std::string _c_pres,
 
     std::map<std::string, Arg*> argmap;
 
-    std::array<std::string, 3> parsed_decl = parse_decl_string(_c_decl);
-    name = parsed_decl[0];
-    Arg::populate_args_and_argmap(parsed_decl[1], args_new, argmap);
-    Arg::populate_args_and_argmap(parsed_decl[2], args_existing, argmap);
+    auto [_n, _args_new, _args_existing] = parse_decl_string(_c_decl);
+    name = _n;
+    Arg::populate_args_and_argmap(_args_new, args_new, argmap);
+    Arg::populate_args_and_argmap(_args_existing, args_existing, argmap);
 
     preconditions = ClauseTemplate(_c_pres, argmap);
 
@@ -65,12 +65,15 @@ void Construction::__clear_args() {
     for (auto& argptr : args_new) { argptr.get()->clear(); }
 }
 
-std::array<std::string, 3> Construction::parse_decl_string(const std::string c_decl) {
-    int i = c_decl.find(" "), j = c_decl.find(" : ");
+std::tuple<std::string, std::string, std::string> Construction::parse_decl_string(const std::string c_decl) {
+    int i = c_decl.find(" "), j = c_decl.find(":");
     if (i == 0 || i == std::string::npos || j == 0 || j == std::string::npos || j <= i) {
         throw InvalidTextualInputError("Error: Invalid construction declaration string: " + c_decl);
     }
-    return std::array<std::string, 3>{c_decl.substr(0, i), c_decl.substr(i+1, j-i-1), c_decl.substr(j+3)};
+    std::string name = c_decl.substr(0, i), args_new = c_decl.substr(i+1, j-i-1), args_existing = c_decl.substr(j+1);
+    StrUtils::trim(args_new);
+    StrUtils::trim(args_existing);
+    return std::make_tuple(name, args_new, args_existing);
 }
 
 Generator<std::unique_ptr<Predicate>> Construction::__instantiate(
@@ -121,64 +124,47 @@ Generator<std::unique_ptr<Predicate>> Construction::__instantiate_no_checks(
 void Construction::construct(
     const std::string c_string, DDEngine &dd, GeometricGraph &ggraph
 ) {
-
-    // Parse the construction string to extract the construction name and arguments.
-    std::array<std::string, 3> parsed = parse_decl_string(c_string);
-
-    std::string c_name = parsed[0];
-    std::vector<std::string> c_existing_nodes = StrUtils::split(parsed[2], " ");
-    std::vector<std::string> c_new_nodes = StrUtils::split(parsed[1], " ");
-    std::vector<Node*> nodes_existing;
-    std::vector<Node*> nodes_new;
-
-    for (std::string obj_ : c_existing_nodes) {
-        nodes_existing.push_back(ggraph.get_or_add_point(obj_));
-    }
-    for (std::string obj_ : c_new_nodes) {
-        nodes_new.push_back(ggraph.get_or_add_point(obj_));
-    }
-
-    Construction* c_template = dd.constructions.at(c_name).get();
-
-    // Create a new Construction object based on the template.
-    auto gen = c_template->__instantiate(
-        nodes_existing, nodes_new, dd
-    );
-    while (gen) {
-        dd.insert_predicate(std::move(gen()));
-    }
+    throw std::runtime_error("Construction::construct not implemented");
 }
 
 void Construction::construct_no_checks(
     const std::string c_string, DDEngine &dd, GeometricGraph &ggraph
 ) {
-
-    // Parse the construction string to extract the construction name and arguments.
-    std::array<std::string, 3> parsed = parse_decl_string(c_string);
-
-    std::string c_name = parsed[0];
-    std::vector<std::string> c_existing_nodes = StrUtils::split(parsed[2], " ");
-    std::vector<std::string> c_new_nodes = StrUtils::split(parsed[1], " ");
-    std::vector<Node*> nodes_existing;
-    std::vector<Node*> nodes_new;
-
-    for (std::string obj_ : c_existing_nodes) {
-        nodes_existing.push_back(ggraph.get_or_add_point(obj_));
-    }
-    for (std::string obj_ : c_new_nodes) {
-        nodes_new.push_back(ggraph.get_or_add_point(obj_));
-    }
-
-    Construction* c_template = dd.constructions.at(c_name).get();
-
-    // Create a new Construction object based on the template.
-    auto gen = c_template->__instantiate_no_checks(
-        nodes_existing, nodes_new, dd.base_pred.get()
-    );
+    auto [_ps, _cs] = StrUtils::split_first(c_string, "=");
+    StrUtils::trim(_ps);
+    StrUtils::trim(_cs);
     int i=0;
-    while (gen) {
-        i++;
-        dd.insert_predicate(std::move(gen()));
+
+    std::vector<std::string> c_new_nodes_all = StrUtils::split(_ps, " ");   // unused
+
+    std::vector<std::string> constructions = StrUtils::split(_cs, ",");
+
+    for (std::string _c : constructions) {
+        StrUtils::trim(_c);
+        auto [c_name, c_new_nodes_str, c_existing_nodes_str] = parse_decl_string(_c);
+
+        std::vector<std::string> c_existing_nodes = StrUtils::split(c_existing_nodes_str, " ");
+        std::vector<std::string> c_new_nodes = StrUtils::split(c_new_nodes_str, " ");
+
+        std::vector<Node*> nodes_existing;
+        std::vector<Node*> nodes_new;
+        for (std::string obj_ : c_existing_nodes) {
+            nodes_existing.push_back(ggraph.get_or_add_point(obj_));
+        }
+        for (std::string obj_ : c_new_nodes) {
+            nodes_new.push_back(ggraph.get_or_add_point(obj_));
+        }
+
+        Construction* c_template = dd.constructions.at(c_name).get();
+
+        // Instantiate a new construction with the nodes supplied in the c_string.
+        auto gen = c_template->__instantiate_no_checks(
+            nodes_existing, nodes_new, dd.base_pred.get()
+        );
+        while (gen) {
+            i++;
+            dd.insert_predicate(std::move(gen()));
+        }
     }
 }
 

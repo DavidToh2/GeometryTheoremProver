@@ -17,7 +17,7 @@ public:
     Every rule occupies a single line in the file, and is of the format
     
     `[POINTS] : pred1 a1 a2 ..., pred2 b1 b2 ..., etc. => conc`*/
-    void parse_rules_from_file(std::string rule_filepath, DDEngine &dd);
+    std::vector<std::string> parse_rules_from_file(std::string rule_filepath);
 
     /* Parses constructions from a file and adds them to the DDEngine instance. 
     
@@ -31,14 +31,13 @@ public:
 
     Constructions are separated by a blank line.
     */
-    void parse_constructions_from_file(std::string construction_filepath, DDEngine &dd);
+    std::vector<std::tuple<std::string, std::string, std::string>> parse_constructions_from_file(std::string construction_filepath);
 
     /* Extracts a given problem from a file and returns it as a string.
     
-    A problem occupies two lines in the file. The first line is always the word "problem" followed by the problem name.
-    
-    The second line is the problem description, in the format
-    
-    `construction1, construction2, ..., constructionk ? goalpred` */
+    See `Outline.md` for more information about how problems are formatted. */
     std::string extract_problem_from_file(std::string input_filepath, std::string problem_name);
+
+    /* Extracts all problem names from a file and returns it as a vector of strings. */
+    std::vector<std::string> extract_all_problem_names_from_file(std::string input_filepath);
 };
