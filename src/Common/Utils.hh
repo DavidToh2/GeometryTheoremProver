@@ -38,6 +38,17 @@ namespace Utils {
         s.insert(new_value);
     }
 
+    template <typename T>
+    std::set<T> intersect_sets(const std::set<T>& s1, const std::set<T>& s2) {
+        std::set<T> result;
+        std::set_intersection(
+            s1.begin(), s1.end(),
+            s2.begin(), s2.end(),
+            std::inserter(result, result.begin())
+        );
+        return result;
+    }
+
     /* Merge the keys from `src` into `dest`. Overwrite every single value from `src` with `overwrite_value`, as 
     long as the key is not already in `dest`. */
     template <typename Map, typename Value>

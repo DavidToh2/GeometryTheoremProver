@@ -1,16 +1,17 @@
 #include <string>
+#include <vector>
+#include <chrono>
+#include <fstream>
 
 #include "GTPEngine.hh"
 #include "DD/Predicate.hh"
 #include "Parsers/InputParser.hh"
 #include <Common/StrUtils.hh>
 #include <Geometry/GeometricGraph.hh>
-#include <vector>
 
 GTPEngine::GTPEngine(
     std::string rule_filepath,
-    std::string construction_filepath,
-    std::string output_filepath
+    std::string construction_filepath
 ) {
     dd = DDEngine();
     ggraph = GeometricGraph();
@@ -50,13 +51,15 @@ void GTPEngine::load_problem(
 void GTPEngine::solve(
     int max_steps
 ) {
+    auto start_time = std::chrono::high_resolution_clock::now();
+
     for (int step = 0; step < max_steps; step++) {
 
         std::cout << "Iteration " << step << std::endl;
 
         /* Synthesises geometric Objects (Lines, Circles, Angles) based on the recently added 
         predicates "coll", "cyclic". */
-        ggraph.synthesise_objects(dd);
+        ggraph.synthesise_preds(dd);
 
         /* Unify all points which have been shown to be identical. */
         // ggraph.unify_points(dd);
@@ -89,7 +92,21 @@ void GTPEngine::solve(
         /* Check if the conclusion was reached. */
         if (dd.check_conclusion(ggraph)) {
             std::cout << "Conclusion reached at iteration " << step << "!" << std::endl;
-            return;
+            break;
         }
     }
+
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
+    std::cout << "Total time: " << duration << " us" << std::endl;
+    return;
+}
+
+void GTPEngine::output(std::string output_filepath) {
+    std::ofstream fbuf;
+    fbuf.open(output_filepath);
+
+    dd.__print_predicates(fbuf);
+
+    fbuf.close();
 }

@@ -61,8 +61,7 @@ int main(int argc, char** argv) {
 
     GTPEngine gtp(
         rule_filepath,
-        construction_filepath,
-        output_filepath
+        construction_filepath
     );
 
     gtp.load_problem(
@@ -70,6 +69,10 @@ int main(int argc, char** argv) {
         problem_name
     );
 
-    gtp.solve(2);
+    gtp.solve(5);
+
+    gtp.output(
+        output_filepath
+    );
 
 }

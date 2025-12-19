@@ -51,7 +51,12 @@ A B P Q : cong A P B P, cong A Q B Q, cyclic A B P Q => perp P A A Q
 A B C D M : midp M A B, midp M C D => para A C B D
 A B C D M : midp M A B, para A C B D, para A D B C => midp M C D
 A B C D O : eqratio O A A C O B B D, coll O A C, coll O B D, ncoll A B C, sameside A O C B O D => para A B C D
+
+
 A B C : para A B A C => coll A B C
+
+
+
 A B C D M N : midp M A B, midp N C D => eqratio M A A B N C C D
 A B C D P Q U V : eqangle A B P Q C D U V, perp P Q U V => perp A B C D
 A B C D P Q U V : eqratio A B P Q C D U V, cong P Q U V => cong A B C D

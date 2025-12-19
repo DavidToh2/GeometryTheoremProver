@@ -16,9 +16,26 @@ void Arg::clear() { arg = std::monostate{}; }
 bool Arg::empty() { return (arg.index() == 0); }
 bool Arg::filled() { return (arg.index() != 0); }
 
-void Arg::set(Node* node) { arg = node; }
-void Arg::set(Frac f) { arg = f; }
-void Arg::set(char c) { arg = c; }
+char Arg::set(Node* node) { 
+    if (!empty()) {
+        if (std::get<Node*>(arg) != node) {
+            return UNSUCCESSFUL_SET;
+        }
+        return UNCHANGED_SET;
+    }
+    arg = node;
+    return SUCCESSFUL_SET;
+}
+char Arg::set(Frac f) { 
+    if (!empty()) { return UNSUCCESSFUL_SET; }
+    arg = f; 
+    return SUCCESSFUL_SET;
+}
+char Arg::set(char c) { 
+    if (!empty()) { return UNSUCCESSFUL_SET; }
+    arg = c; 
+    return SUCCESSFUL_SET;
+}
 
 Point* Arg::get_point() {
     if (!std::holds_alternative<Node*>(arg)) { return nullptr; }
@@ -78,29 +95,36 @@ PredicateTemplate::PredicateTemplate(Predicate* pred, std::vector<std::unique_pt
     }
 }
 
-void PredicateTemplate::set_arg(int i, Node* node) noexcept { args.at(i)->set(node); }
-void PredicateTemplate::set_arg(int i, Frac f) noexcept { args.at(i)->set(f); }
-void PredicateTemplate::set_arg(int i, char c) noexcept { args.at(i)->set(c); }
+char PredicateTemplate::set_arg(int i, Node* node) noexcept { return args.at(i)->set(node); }
+char PredicateTemplate::set_arg(int i, Frac f) noexcept { return args.at(i)->set(f); }
+char PredicateTemplate::set_arg(int i, char c) noexcept { return args.at(i)->set(c); }
+bool PredicateTemplate::arg_empty(int i) noexcept { return args.at(i)->empty(); }
 void PredicateTemplate::clear_arg(int i) noexcept { args.at(i)->clear(); }
 
-void PredicateTemplate::set_args(std::vector<Node*> nodes) {
+char PredicateTemplate::set_args(std::vector<Node*> nodes) {
     int i = 0; 
     for (auto node : nodes) {
-        args.at(i)->set(node);
+        if (!args.at(i)->set(node)) { return 0; }
         i++;
     }
+    return 1;
 }
-void PredicateTemplate::set_args(std::vector<Node*> nodes, Frac f) {
+char PredicateTemplate::set_args(std::vector<Node*> nodes, Frac f) {
     args.at(0)->set(f);
     int i = 1; 
     for (auto node : nodes) {
-        args.at(i)->set(node);
+        if (!args.at(i)->set(node)) { return 0; }
         i++;
     }
+    return 1;
 }
 void PredicateTemplate::clear_args() {
-    for (int i=0; i<args.size(); i++) { args.at(i)->clear(); }
+    for (int i=0; i<args.size(); i++) { 
+        args.at(i)->clear(); 
+    }
 }
+
+Point* PredicateTemplate::get_arg_point(int i) { return args.at(i)->get_point(); }
 
 std::unique_ptr<Predicate> PredicateTemplate::instantiate() {
     return std::make_unique<Predicate>(*this);

@@ -55,13 +55,25 @@ public:
     Generator<bool> match_cyclic(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> match_para(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> match_perp(PredicateTemplate* pred_template, GeometricGraph &ggraph);
+    Generator<bool> __match_eqangle(PredicateTemplate* pred_template, GeometricGraph &ggraph, int i, std::array<Line*, 4> &ls);
+    Generator<bool> match_eqangle(PredicateTemplate* pred_template, GeometricGraph &ggraph);
+    Generator<bool> match_circle(PredicateTemplate* pred_template, GeometricGraph &ggraph);
+
+    Generator<bool> match_diff(PredicateTemplate* pred_template, GeometricGraph &ggraph);
+    Generator<bool> match_ncoll(PredicateTemplate* pred_template, GeometricGraph &ggraph);
+    Generator<bool> match_npara(PredicateTemplate* pred_template, GeometricGraph &ggraph);
 
     // Map from predicate type to matching function
     std::map<pred_t, Generator<bool>(DDEngine::*)(PredicateTemplate*, GeometricGraph &)> match_function_map = {
         {pred_t::COLL, &DDEngine::match_coll},
         {pred_t::CYCLIC, &DDEngine::match_cyclic},
         {pred_t::PARA, &DDEngine::match_para},
-        {pred_t::PERP, &DDEngine::match_perp}
+        {pred_t::PERP, &DDEngine::match_perp},
+        {pred_t::EQANGLE, &DDEngine::match_eqangle},
+        {pred_t::CIRCLE, &DDEngine::match_circle},
+        {pred_t::DIFF, &DDEngine::match_diff},
+        {pred_t::NCOLL, &DDEngine::match_ncoll},
+        {pred_t::NPARA, &DDEngine::match_npara}
     };
 
     Generator<bool> match(Theorem* theorem, int i, int n, GeometricGraph &ggraph);

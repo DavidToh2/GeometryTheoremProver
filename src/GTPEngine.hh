@@ -13,8 +13,7 @@ public:
 
     GTPEngine(
         std::string rule_filepath,
-        std::string construction_filepath,
-        std::string output_filepath
+        std::string construction_filepath
     );
 
     void load_problem(
@@ -24,6 +23,10 @@ public:
 
     void solve(
         int max_steps
+    );
+
+    void output(
+        std::string output_filepath
     );
 
 };

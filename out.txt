@@ -1,0 +1,10 @@
+diff a b
+diff e a
+ncoll d e a
+para a b e d
+para a e d c
+para c d e a
+para d c a e
+para e d a b
+perp d e e a
+perp e a a b

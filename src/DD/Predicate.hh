@@ -17,9 +17,22 @@ class Object;
 class Point;
 class Predicate;
 
+/* Arg class.
+
+Arguments may be set using the `set()` method. This returns a `char` which may take one of three values depending on
+the following:
+
+- Unsuccessful set, returns 0: if the argument was already set, is being set to a `Node*`, and is different to its
+previous value
+- Successful set, returns 1: if the argument was previously empty and is now set
+- Unchanged set, returns 2: if the argument was already set to the same `Node*`
+*/
 class Arg {
 
 public:
+	const static char UNSUCCESSFUL_SET = 0;
+	const static char SUCCESSFUL_SET = 1;
+	const static char UNCHANGED_SET = 2;
 	std::variant<std::monostate, Node*, Frac, char> arg;
 
 	Arg() {}
@@ -31,15 +44,18 @@ public:
 	bool empty();
 	bool filled();
 
-	void set(Node* node);
-	void set(Frac f);
-	void set(char c);
+	char set(Node* node);
+	char set(Frac f);
+	char set(char c);
 
 	/* Note: Returns `nullptr` if the argument stored is not an `Node*`.
 	Performs a `static_cast` to `Point*` regardless of whether the `Node*` argument's true type is a `Point*`. */
 	Point* get_point();
 
-	static void populate_args_and_argmap(const std::string arg_str, std::vector<std::unique_ptr<Arg>> &arg_unique_ptr_vec, std::map<std::string, Arg*> &argmap);
+	static void populate_args_and_argmap(
+		const std::string arg_str, 
+		std::vector<std::unique_ptr<Arg>> &arg_unique_ptr_vec, 
+		std::map<std::string, Arg*> &argmap);
 
 	void operator=(Node* node);
 	void operator=(Frac f);
@@ -65,14 +81,23 @@ public:
 	// This constructor literally only exists to convert the conclusion from a Predicate to a PredicateTemplate
 	PredicateTemplate(Predicate* pred, std::vector<std::unique_ptr<Arg>> &arglist);
 
-	void set_arg(int i, Node* node) noexcept;
-	void set_arg(int i, Frac f) noexcept;
-	void set_arg(int i, char c) noexcept;
+	/* See the `Arg` class documentation for more details about the return values. In short:
+	- Unsuccessful set, returns 0, if the argument was already set to a different `Node*` 
+	- Successful set, returns 1: if the argument was previously empty
+	- Unchanged set, returns 2: if the argument was already set to the same `Node*`*/
+	char set_arg(int i, Node* node) noexcept;
+	char set_arg(int i, Frac f) noexcept;
+	char set_arg(int i, char c) noexcept;
+	bool arg_empty(int i) noexcept;
 	void clear_arg(int i) noexcept;
 
-	void set_args(std::vector<Node*> nodes);
-	void set_args(std::vector<Node*> nodes, Frac f);
+	/* Note: Returns 0 or 1 depending on whether there were any unsuccessful sets */
+	char set_args(std::vector<Node*> nodes);
+	/* Note: Returns 0 or 1 depending on whether there were any unsuccessful sets */
+	char set_args(std::vector<Node*> nodes, Frac f);
 	void clear_args();
+
+	Point* get_arg_point(int i);
 
 	std::unique_ptr<Predicate> instantiate();
 
