@@ -99,6 +99,7 @@ public:
 	char set_args(std::vector<Node*> nodes);
 	/* Note: Returns 0 or 1 depending on whether there were any unsuccessful sets */
 	char set_args(std::vector<Node*> nodes, Frac f);
+	bool args_filled();
 	void clear_args();
 
 	Point* get_arg_point(int i);

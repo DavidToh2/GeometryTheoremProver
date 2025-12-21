@@ -834,20 +834,22 @@ Generator<bool> DDEngine::__match_eqangle(PredicateTemplate* pred_template, Geom
         } break;
         case 0b10: {
             for (auto l : d->root_objs) {
-                auto gen_points = l->all_points();
-                while (gen_points) {
-                    Point* pt = gen_points();
-                    if (pt != p1) {
-                        char c2 = pred_template->set_arg(i*2 + 1, pt);
-                        if (c2 != Arg::UNSUCCESSFUL_SET) {
-                            auto rec = __match_eqangle(pred_template, ggraph, i + 1, ds);
-                            while (rec) {
-                                if (rec()) {
-                                    co_yield true;
+                if (l->contains(p1)) {
+                    auto gen_points = l->all_points();
+                    while (gen_points) {
+                        Point* pt = gen_points();
+                        if (pt != p1) {
+                            char c2 = pred_template->set_arg(i*2 + 1, pt);
+                            if (c2 != Arg::UNSUCCESSFUL_SET) {
+                                auto rec = __match_eqangle(pred_template, ggraph, i + 1, ds);
+                                while (rec) {
+                                    if (rec()) {
+                                        co_yield true;
+                                    }
                                 }
                             }
+                            if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(i*2 + 1);
                         }
-                        if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(i*2 + 1);
                     }
                 }
             }
@@ -855,20 +857,22 @@ Generator<bool> DDEngine::__match_eqangle(PredicateTemplate* pred_template, Geom
         } break;
         case 0b01: {
             for (auto l : d->root_objs) {
-                auto gen_points = l->all_points();
-                while (gen_points) {
-                    Point* pt = gen_points();
-                    if (pt != p2) {
-                        char c1 = pred_template->set_arg(i*2, pt);
-                        if (c1 != Arg::UNSUCCESSFUL_SET) {
-                            auto rec = __match_eqangle(pred_template, ggraph, i + 1, ds);
-                            while (rec) {
-                                if (rec()) {
-                                    co_yield true;
+                if (l->contains(p2)) {
+                    auto gen_points = l->all_points();
+                    while (gen_points) {
+                        Point* pt = gen_points();
+                        if (pt != p2) {
+                            char c1 = pred_template->set_arg(i*2, pt);
+                            if (c1 != Arg::UNSUCCESSFUL_SET) {
+                                auto rec = __match_eqangle(pred_template, ggraph, i + 1, ds);
+                                while (rec) {
+                                    if (rec()) {
+                                        co_yield true;
+                                    }
                                 }
                             }
+                            if (c1 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(i*2);
                         }
-                        if (c1 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(i*2);
                     }
                 }
             }
@@ -876,7 +880,7 @@ Generator<bool> DDEngine::__match_eqangle(PredicateTemplate* pred_template, Geom
         } break;
         case 0b00: {
             for (auto l : d->root_objs) {
-                auto gen_point_pairs = l->all_point_pairs();
+                auto gen_point_pairs = l->all_point_pairs_ordered();
                 while (gen_point_pairs) {
                     auto [pt1, pt2] = gen_point_pairs();
                     char c1 = pred_template->set_arg(i*2, pt1);
@@ -900,29 +904,74 @@ Generator<bool> DDEngine::__match_eqangle(PredicateTemplate* pred_template, Geom
 }
 
 Generator<bool> DDEngine::match_eqangle(PredicateTemplate* pred_template, GeometricGraph &ggraph) {
-    
-    for (Measure* m : ggraph.root_measures) {
-        auto gen_angle_pairs = m->all_eq_pairs_ordered();
-        while (gen_angle_pairs) {
-            auto [angle1, angle2] = gen_angle_pairs();
 
-            // Match points for the first angle
-            Direction* d1 = angle1->direction1, *d2 = angle1->direction2, *d3 = angle2->direction1, *d4 = angle2->direction2;
-            std::array<std::array<Direction*, 4>, 4> dss = {
-                std::array<Direction*, 4>{d1, d2, d3, d4},
-                std::array<Direction*, 4>{d3, d4, d1, d2},
-                std::array<Direction*, 4>{d2, d1, d4, d3},
-                std::array<Direction*, 4>{d4, d3, d2, d1}
-            };
-            for (std::array<Direction*, 4> &ds : dss) {
-                auto gen =  __match_eqangle(pred_template, ggraph, 0, ds);
-                while (gen) {
-                    if (gen()) {
-                        co_yield true;
+    if (pred_template->args_filled()) {
+
+        Point* p[8] = {
+            pred_template->get_arg_point(0),
+            pred_template->get_arg_point(1),
+            pred_template->get_arg_point(2),
+            pred_template->get_arg_point(3),
+            pred_template->get_arg_point(4),
+            pred_template->get_arg_point(5),
+            pred_template->get_arg_point(6),
+            pred_template->get_arg_point(7)
+        };
+        Line* l[4] = {
+            ggraph.try_get_line(p[0], p[1]),
+            ggraph.try_get_line(p[2], p[3]),
+            ggraph.try_get_line(p[4], p[5]),
+            ggraph.try_get_line(p[6], p[7])
+        };
+        if (!l[0] || !l[1] || !l[2] || !l[3]) {
+            co_return;
+        }
+        if (!l[0]->has_direction() || !l[1]->has_direction() || !l[2]->has_direction() || !l[3]->has_direction()) {
+            co_return;
+        }
+        Direction* d[4] = {
+            l[0]->get_direction(),
+            l[1]->get_direction(),
+            l[2]->get_direction(),
+            l[3]->get_direction()
+        };
+        Angle* a[2] = {
+            ggraph.try_get_angle(d[0], d[1]),
+            ggraph.try_get_angle(d[2], d[3])
+        };
+        if (!a[0] || !a[1]) {
+            co_return;
+        }
+        if (ggraph.check_eqangle(a[0], a[1])) {
+            co_yield true;
+        }
+
+    } else {
+
+        for (Measure* m : ggraph.root_measures) {
+            auto gen_angle_pairs = m->all_eq_pairs_ordered();
+            while (gen_angle_pairs) {
+                auto [angle1, angle2] = gen_angle_pairs();
+
+                // Match points for the first angle
+                Direction* d1 = angle1->direction1, *d2 = angle1->direction2, *d3 = angle2->direction1, *d4 = angle2->direction2;
+                std::array<std::array<Direction*, 4>, 4> dss = {
+                    std::array<Direction*, 4>{d1, d2, d3, d4},
+                    std::array<Direction*, 4>{d3, d4, d1, d2},
+                    std::array<Direction*, 4>{d2, d1, d4, d3},
+                    std::array<Direction*, 4>{d4, d3, d2, d1}
+                };
+                for (std::array<Direction*, 4> &ds : dss) {
+                    auto gen =  __match_eqangle(pred_template, ggraph, 0, ds);
+                    while (gen) {
+                        if (gen()) {
+                            co_yield true;
+                        }
                     }
                 }
             }
         }
+        
     }
     co_return;
 }
@@ -933,28 +982,49 @@ Generator<bool> DDEngine::match_circle(PredicateTemplate* pred_template, Geometr
 }
 
 Generator<bool> DDEngine::match_diff(PredicateTemplate* pred_template, GeometricGraph &ggraph) {
-    if (!pred_template->args[0]->filled() || !pred_template->args[1]->filled()) {
-        throw DDInternalError("DIFF predicate requires both arguments to be set for matching.");
+    if (!pred_template->args_filled()) {
+        throw DDInternalError("DIFF predicate requires all arguments to be set for matching.");
     }
-    Point* p1 = pred_template->args[0]->get_point();
-    Point* p2 = pred_template->args[1]->get_point();
-    co_yield NodeUtils::same_as(p1, p2);
+    std::set<Point*> pts;
+    for (Arg* arg : pred_template->args) {
+        Point* p = arg->get_point();
+        p = NodeUtils::get_root(p);
+        if (pts.contains(p)) {
+            co_return;
+        }
+        pts.insert(p);
+    }
+    co_yield true;
     co_return;
 }
 
 Generator<bool> DDEngine::match_ncoll(PredicateTemplate* pred_template, GeometricGraph &ggraph) {
-    if (!pred_template->args[0]->filled() || !pred_template->args[1]->filled() || !pred_template->args[2]->filled()) {
-        throw DDInternalError("NCOLL predicate requires all three arguments to be set for matching.");
+    if (!pred_template->args_filled()) {
+        throw DDInternalError("NCOLL predicate requires all arguments to be set for matching.");
     }
-    Point* p1 = pred_template->args[0]->get_point();
-    Point* p2 = pred_template->args[1]->get_point();
-    Point* p3 = pred_template->args[2]->get_point();
-    Line* l = ggraph.try_get_line(p1, p2);
-    if (!l) {
-        co_yield true;
-        co_return;
+    int i = 0;
+    std::set<Point*> pts;
+    for (Arg* arg : pred_template->args) {
+        Point* p = arg->get_point();
+        p = NodeUtils::get_root(p);
+        if (i < 2) {
+            auto [_, res] = pts.insert(p);
+            if (res) i += 1;
+            continue;
+        }
+        for (auto it = pts.begin(); it != pts.end(); ++it) {
+            for (auto it2 = std::next(it); it2 != pts.end(); ++it2) {
+                Point* p1 = *it, *p2 = *it2;
+                Line* l = ggraph.try_get_line(p1, p2);
+                if (!l) continue;
+                if (l->contains(p)) {
+                    co_return;
+                }
+            }
+        }
+        pts.insert(p);
     }
-    co_yield !(l->contains(p3));
+    co_yield true;
     co_return;
 }
 
@@ -1018,7 +1088,7 @@ void DDEngine::search(GeometricGraph &ggraph) {
             gen();
             matches += 1;
         }
-        std::cout << "Matches for theorem " << theorem->to_string_with_placeholders() << ": " << matches << std::endl;
+        // std::cout << "Matches for theorem " << theorem->to_string_with_placeholders() << ": " << matches << std::endl;
         theorem->__clear_args();
     }
 
@@ -1063,4 +1133,19 @@ void DDEngine::__print_predicates(std::ostream& os) {
 
 void DDEngine::__print_conclusion(std::ostream& os) {
     os << "Conclusion: " << conclusion->to_string() << std::endl;
+}
+
+
+
+void DDEngine::reset_problem() {
+    predicates.clear();
+    predicate2s.clear();
+
+    recent_predicates.clear();
+    for (auto& [pt, pt_set] : predicates_by_type) {
+        pt_set.clear();
+    }
+
+    conclusion.reset();
+    conclusion_args.clear();
 }

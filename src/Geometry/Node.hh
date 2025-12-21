@@ -50,8 +50,7 @@ namespace NodeUtils {
         return res;
     }
 
-    /* Returns the root of any `Node` object. 
-    This function has the secondary purpose of lazily updating the `root` pointer for every node it passes through to the correct root. */
+    /* Checks if two objects have the same root. */
     template <std::derived_from<Node> Key>
     static bool same_as(Key* a, Key* b) {
         return (get_root(a) == get_root(b));

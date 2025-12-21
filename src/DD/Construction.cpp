@@ -67,12 +67,16 @@ void Construction::__clear_args() {
 
 std::tuple<std::string, std::string, std::string> Construction::parse_decl_string(const std::string c_decl) {
     int i = c_decl.find(" "), j = c_decl.find(":");
-    if (i == 0 || i == std::string::npos || j == 0 || j == std::string::npos || j <= i) {
+    if (i == 0 || i == std::string::npos || (j >= 0 && j <= i)) {
         throw InvalidTextualInputError("Error: Invalid construction declaration string: " + c_decl);
     }
-    std::string name = c_decl.substr(0, i), args_new = c_decl.substr(i+1, j-i-1), args_existing = c_decl.substr(j+1);
+    std::string name = c_decl.substr(0, i), args_new = c_decl.substr(i+1, j-i-1); 
     StrUtils::trim(args_new);
-    StrUtils::trim(args_existing);
+    std::string args_existing = "";
+    if (j != std::string::npos) {
+        args_existing = c_decl.substr(j+1);
+        StrUtils::trim(args_existing);
+    }
     return std::make_tuple(name, args_new, args_existing);
 }
 

@@ -88,4 +88,7 @@ public:
     void __print_constructions(std::ostream& os = std::cout);
     void __print_predicates(std::ostream& os = std::cout);
     void __print_conclusion(std::ostream& os = std::cout);
+
+
+    void reset_problem();
 };

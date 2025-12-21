@@ -30,17 +30,17 @@ public:
     uptrmap<Point> points;
     uptrmap<Line> lines;
     uptrmap<Circle> circles;
+    uptrmap<Segment> segments;
     uptrmap<Triangle> triangles;
 
-    uptrmap<Angle> angles;
-    uptrmap<Segment> segments;
-    uptrmap<Ratio> ratios;
-
     uptrmap<Direction> directions;
+    uptrmap<Length> lengths;
     uptrmap<Shape> shapes;
 
+    uptrmap<Angle> angles;
+    uptrmap<Ratio> ratios;
+
     uptrmap<Measure> measures;
-    uptrmap<Length> lengths;
     uptrmap<Fraction> fractions;
 
     // Root geometric objects
@@ -48,17 +48,17 @@ public:
     ptrset<Point> root_points;
     ptrset<Line> root_lines;
     ptrset<Circle> root_circles;
+    ptrset<Segment> root_segments;
     ptrset<Triangle> root_triangles;
 
-    ptrset<Angle> root_angles;
-    ptrset<Segment> root_segments;
-    ptrset<Ratio> root_ratios;
-
     ptrset<Direction> root_directions;
+    ptrset<Length> root_lengths;
     ptrset<Shape> root_shapes;
 
+    ptrset<Angle> root_angles;
+    ptrset<Ratio> root_ratios;
+
     ptrset<Measure> root_measures;
-    ptrset<Length> root_lengths;
     ptrset<Fraction> root_fractions;
 
     void __add_new_point(const std::string point_id);
@@ -180,6 +180,9 @@ public:
     Note: This method is not used. */
     Angle* __add_new_angle(Point* p1, Point* p2, Point* p3, Predicate* base_pred);
 
+    /* Gets the root angle with `direction1 == d1` and `direction2 == d2`. 
+    Returns `nullptr` if no such angle yet exists. */
+    Angle* __try_get_angle(Direction* d1, Direction* d2);
     /* Gets the root angle with `direction1 == l1.direction` and `direction2 == l2.direction`. 
     Returns `nullptr` if no such angle yet exists. 
     Note: `l1` and `l2` should be root lines. */
@@ -197,6 +200,9 @@ public:
     Note: This method is not used. */
     Angle* __try_get_angle(Point* p1, Point* p2, Point* p3);
 
+    /* Gets the root angle with `direction1 == d1` and `direction2 == d2`. 
+    Returns `nullptr` if no such angle yet exists. */
+    Angle* try_get_angle(Direction* d1, Direction* d2);
     /* Gets the root angle with `direction1 == root_l1.direction` and `direction2 == root_l2.direction`
     Returns `nullptr` if no such angle yet exists. */
     Angle* try_get_angle(Line* l1, Line* l2);
@@ -288,5 +294,14 @@ public:
     void unify_objects(DDEngine &dd);
     void unify_values(DDEngine &dd);
     
-    void __print_points(std::ostream &os = std::cout);
+    void __print_points(std::ostream &os);
+    void __print_lines(std::ostream &os);
+    void __print_circles(std::ostream &os);
+    void __print_directions(std::ostream &os);
+    void __print_angles(std::ostream &os);
+    void __print_measures(std::ostream &os);
+
+    void print(std::ostream &os = std::cout);
+
+    void reset_problem();
 };

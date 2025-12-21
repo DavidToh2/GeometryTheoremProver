@@ -120,6 +120,14 @@ char PredicateTemplate::set_args(std::vector<Node*> nodes, Frac f) {
     }
     return 1;
 }
+bool PredicateTemplate::args_filled() {
+    for (auto& argptr : args) {
+        if (argptr->empty()) {
+            return false;
+        }
+    }
+    return true;
+}
 void PredicateTemplate::clear_args() {
     for (int i=0; i<args.size(); i++) { 
         args.at(i)->clear(); 

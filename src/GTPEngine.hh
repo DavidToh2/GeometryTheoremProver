@@ -10,6 +10,11 @@ public:
     GeometricGraph ggraph;
     DDEngine dd;
     InputParser inputParser;
+    
+    std::string rule_filepath;
+    std::string construction_filepath;
+    std::string input_filepath;
+    std::string problem_name;
 
     GTPEngine(
         std::string rule_filepath,

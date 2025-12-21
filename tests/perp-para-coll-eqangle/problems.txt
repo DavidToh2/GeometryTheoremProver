@@ -1,8 +1,52 @@
-problem perp-para-coll-eqangle-1 {
-    a = free a : ;
-    b = free b : ;
-    e = on_tline e : a a b;
-    d = on_tline d : e e a;
-    c = on_pline c : d e a 
-    ? perp c d a b
+problem p1 {
+    a b c = r_triangle b a c;
+    d = on_tline d : c c b;
+    e = on_tline e : d d c;
+    f = on_line f : d e, on_line f : a b
+    ? perp b f d f
+}
+
+problem p2 {
+    a b c = r_triangle b a c;
+    d = on_dia d : a c;
+    e = on_line e : a d, on_tline e : c a c;
+    f = on_dia f : a e
+    ? eqangle b f f c b e e c
+}
+
+problem p3 {
+    a b c = triangle a b c;
+    d = foot d : a b c;
+    e = foot e : b a c;
+    h = on_line h : a d, on_line h : b e
+    ? perp c h a b
+}
+
+problem p4 {
+    a b c = triangle a b c;
+    d = on_circum d : a b c;
+    e = on_line e : a d;
+    f = on_line f : b c, on_circum f : c d e
+    ? para a b e f
+}
+
+problem p5 {
+    a b e = r_triangle b a e;
+    f = on_dia f : a e;
+    c = foot c : b a e;
+    d = foot d : a b f
+    ? para c d e f
+}
+
+problem p6 {
+    a b = segment a b;
+    c = free c;
+    d = on_tline d : c a b;
+    e f = segment e f;
+    g = free g;
+    h = on_tline h : g e f;
+    i k = segment i k;
+    j = on_pline j : i a b, on_pline j : k c d;
+    l = on_pline l : i g h, on_pline l : k e f
+    ? eqangle j i i k j l l k
 }

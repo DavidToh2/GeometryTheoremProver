@@ -13,6 +13,9 @@ GTPEngine::GTPEngine(
     std::string rule_filepath,
     std::string construction_filepath
 ) {
+    this->construction_filepath = construction_filepath;
+    this->rule_filepath = rule_filepath;
+
     dd = DDEngine();
     ggraph = GeometricGraph();
 
@@ -35,6 +38,9 @@ void GTPEngine::load_problem(
     std::string input_filepath,
     std::string problem_name
 ) {
+    this->input_filepath = input_filepath;
+    this->problem_name = problem_name;
+
     // Read in the problem and pass it to the DD engine.
     std::string problem_string = inputParser.extract_problem_from_file(input_filepath, problem_name);
     
@@ -49,51 +55,28 @@ void GTPEngine::load_problem(
     StrUtils::trim(_goal);
     dd.set_conclusion(Predicate::from_global_point_map(_goal, ggraph.points));
 
-    dd.__print_predicates();
-    dd.__print_conclusion();
-    ggraph.__print_points();
+    // dd.__print_predicates();
+    // dd.__print_conclusion();
 }
 
 void GTPEngine::solve(
     int max_steps
 ) {
+    std::cout << "Solving problem " << problem_name << std::endl;
     auto start_time = std::chrono::high_resolution_clock::now();
+
+    ggraph.synthesise_preds(dd);
 
     for (int step = 0; step < max_steps; step++) {
 
         std::cout << "Iteration " << step << std::endl;
 
-        /* Synthesises geometric Objects (Lines, Circles, Angles) based on the recently added 
-        predicates "coll", "cyclic". */
-        ggraph.synthesise_preds(dd);
-
-        /* Unify all points which have been shown to be identical. */
-        // ggraph.unify_points(dd);
-
-        /* Unify all Objects which have been shown to be identical based on the recently added
-        predicates "coll", "cyclic". */
-        // ggraph.unify_objects(dd);
-
-        /* Link lines which are related based on the recently added predicates "perp", "para". */
-        // ggraph.link_lines(dd);
-
-
-        /* Synthesize Object2 nodes (Angle, Segment, Ratio) based on the recently added predicates
-        "eqangle", "eqratio", "constangle", "constratio" and "cong". */
-        // ggraph.synthesise_object2s(dd);
-
-        /* Unify all Value nodes (Measure, Length, Fraction) which have been shown to be identical 
-        based on the recently added predicates "eqangle", "eqratio". */
-        // ggraph.unify_values(dd);
-
-
-        /* Search on the proof-state graph using the Level 1 Rules to generate new Predicates. */
         dd.search(ggraph);
 
-        /* Search on the proof-state graph using the Level 2 Rules to generate new Predicate2s. */
-        // dd.search2(ggraph);
+        ggraph.synthesise_preds(dd);
 
-        dd.__print_predicates();
+        // dd.__print_predicates();
+        // ggraph.print();
 
         /* Check if the conclusion was reached. */
         if (dd.check_conclusion(ggraph)) {
@@ -112,11 +95,15 @@ void GTPEngine::output(std::string output_filepath) {
     std::ofstream fbuf;
     fbuf.open(output_filepath);
 
+    fbuf << "Problem: " << problem_name << std::endl;
     dd.__print_predicates(fbuf);
+    ggraph.print(fbuf);
+    fbuf << std::endl;
 
     fbuf.close();
 }
 
 void GTPEngine::clear_problem() {
-    // TBA
+    dd.reset_problem();
+    ggraph.reset_problem();
 }

@@ -337,17 +337,23 @@ Angle* GeometricGraph::__add_new_angle(Point* p1, Point* p2, Point* p3, Predicat
     return __add_new_angle(l1, l2, base_pred);
 }
 
-Angle* GeometricGraph::__try_get_angle(Line* l1, Line* l2) {
-    auto gen = l1->on_angles_as_line1();
+Angle* GeometricGraph::__try_get_angle(Direction* d1, Direction* d2) {
+    auto gen = d1->on_angles_as_direction1();
     Angle* angle = nullptr;
     while (gen) {
         Angle* angle0 = gen();
-        if (angle0->direction2 == NodeUtils::get_root(l2)->get_direction()) {
+        if (NodeUtils::same_as(angle0->direction2, d2)) {
             angle = angle0;
             break;
         }
     }
     return angle;
+}
+Angle* GeometricGraph::__try_get_angle(Line* l1, Line* l2) {
+    if (!l1->has_direction() || !l2->has_direction()) {
+        return nullptr;
+    }
+    return __try_get_angle(l1->get_direction(), l2->get_direction());
 }
 Angle* GeometricGraph::__try_get_angle(Point* p1, Point* p2, Point* p3, Point* p4) {
     Line* l1 = __try_get_line(p1, p2);
@@ -366,6 +372,9 @@ Angle* GeometricGraph::__try_get_angle(Point* p1, Point* p2, Point* p3) {
     return nullptr;
 }
 
+Angle* GeometricGraph::try_get_angle(Direction* d1, Direction* d2) {
+    return __try_get_angle(d1, d2);
+}
 Angle* GeometricGraph::try_get_angle(Line* l1, Line* l2) {
     return __try_get_angle(NodeUtils::get_root(l1), NodeUtils::get_root(l2));
 }
@@ -714,9 +723,118 @@ void GeometricGraph::synthesise_preds(DDEngine &dd) {
 
 void GeometricGraph::__print_points(std::ostream& os) {
     os << "Points: ";
-    for (auto& p : points) {
-        Point* point = p.second.get();
-        os << point->to_string() << " ";
+    for (auto& p : root_points) {
+        os << p->to_string() << " ";
     }
     os << std::endl;
+}
+
+
+void GeometricGraph::__print_lines(std::ostream& os) {
+    os << "Lines:\n";
+    for (auto& l : lines) {
+        Line* line = l.second.get();
+        os << line->to_string() << " : ";
+        for (auto& [p, _] : line->points) {
+            os << p->to_string() << " ";
+        }
+        os << std::endl;
+    }
+    os << std::endl;
+}
+
+void GeometricGraph::__print_circles(std::ostream& os) {
+    os << "Circles:\n";
+    for (auto& c : circles) {
+        Circle* circ = c.second.get();
+        os << circ->to_string() << " : ";
+        for (auto& [p, _] : circ->points) {
+            os << p->to_string() << " ";
+        }
+        os << std::endl;
+    }
+    os << std::endl;
+}
+
+void GeometricGraph::__print_angles(std::ostream& os) {
+    os << "Angles:\n";
+    for (auto& a : angles) {
+        Angle* angle = a.second.get();
+        os << angle->to_string() << " : [" << angle->direction1->to_string() << ", " << angle->direction2->to_string() << "]\n";
+    }
+    os << std::endl;
+}
+
+void GeometricGraph::__print_directions(std::ostream& os) {
+    os << "Directions:\n";
+    for (auto& d : directions) {
+        Direction* dir = d.second.get();
+        os << dir->to_string() << " : ";
+        for (auto& [l, _] : dir->objs) {
+            os << l->to_string() << " ";
+        }
+        os << std::endl;
+    }
+    os << std::endl;
+}
+
+void GeometricGraph::__print_measures(std::ostream& os) {
+    os << "Measures:\n";
+    for (auto& m : measures) {
+        Measure* measure = m.second.get();
+        os << measure->to_string() << " : ";
+        for (auto& [a, _] : measure->obj2s) {
+            os << a->to_string() << " ";
+        }
+        os << std::endl;
+    }
+    os << std::endl;
+}
+
+
+void GeometricGraph::print(std::ostream& os) {
+    __print_points(os);
+    __print_lines(os);
+    __print_directions(os);
+    __print_circles(os);
+    __print_angles(os);
+    __print_measures(os);
+}
+
+
+void GeometricGraph::reset_problem() {
+
+    points.clear();
+    lines.clear();
+    circles.clear();
+    segments.clear();
+    triangles.clear();
+
+    directions.clear();
+    lengths.clear();
+    shapes.clear();
+
+    angles.clear();
+    ratios.clear();
+
+    measures.clear();
+    fractions.clear();
+
+    root_points.clear();
+    root_lines.clear();
+    root_circles.clear();
+    root_segments.clear();
+    root_triangles.clear();
+
+    root_directions.clear();
+    root_lengths.clear();
+    root_shapes.clear();
+
+    root_angles.clear();
+    root_ratios.clear();
+
+    root_measures.clear();
+    root_fractions.clear();
+
+    adhoc = 0;
 }
