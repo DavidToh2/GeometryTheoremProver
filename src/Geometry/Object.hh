@@ -264,7 +264,10 @@ public:
 
 // TBA
 class Segment : public Object {
+public:
+    std::tuple<Point*, Point*> endpoints;
 
+    Segment(std::string name) : Object(name) {}
 };
 
 

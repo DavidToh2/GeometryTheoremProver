@@ -8,171 +8,172 @@ diff c d
 diff e f
 diff g h
 diff i k
-eqangle b a e f c d h g
-eqangle b a e f c d l i
-eqangle b a e f j k h g
-eqangle b a e f j k l i
-eqangle b a h g c d e f
-eqangle b a h g c d l k
-eqangle b a h g j k e f
-eqangle b a h g j k l k
-eqangle b a l i c d e f
-eqangle b a l i c d l k
-eqangle b a l i j k e f
-eqangle b a l i j k l k
-eqangle b a l k c d h g
-eqangle b a l k c d l i
-eqangle b a l k j k h g
-eqangle b a l k j k l i
-eqangle c d e f b a h g
-eqangle c d e f b a l i
-eqangle c d e f j i h g
-eqangle c d e f j i l i
-eqangle c d h g b a e f
-eqangle c d h g b a l k
-eqangle c d h g j i e f
-eqangle c d h g j i l k
-eqangle c d l i b a e f
-eqangle c d l i b a l k
-eqangle c d l i j i e f
-eqangle c d l i j i l k
-eqangle c d l k b a h g
-eqangle c d l k b a l i
-eqangle c d l k j i h g
-eqangle c d l k j i l i
-eqangle e f b a h g c d
-eqangle e f b a h g j k
-eqangle e f b a l i c d
-eqangle e f b a l i j k
-eqangle e f c d h g b a
-eqangle e f c d h g j i
-eqangle e f c d l i b a
-eqangle e f c d l i j i
-eqangle e f j i h g c d
-eqangle e f j i h g j k
-eqangle e f j i l i c d
-eqangle e f j i l i j k
-eqangle e f j k h g b a
-eqangle e f j k h g j i
-eqangle e f j k l i b a
-eqangle e f j k l i j i
-eqangle h g b a e f c d
-eqangle h g b a e f j k
-eqangle h g b a l k c d
-eqangle h g b a l k j k
-eqangle h g c d e f b a
-eqangle h g c d e f j i
-eqangle h g c d l k b a
-eqangle h g c d l k j i
-eqangle h g j i e f c d
-eqangle h g j i e f j k
-eqangle h g j i l k c d
-eqangle h g j i l k j k
-eqangle h g j k e f b a
-eqangle h g j k e f j i
-eqangle h g j k l k b a
-eqangle h g j k l k j i
+eqangle b a f e c d g h
+eqangle b a f e c d i l
+eqangle b a f e j k g h
+eqangle b a f e j k i l
+eqangle b a g h c d f e
+eqangle b a g h c d k l
+eqangle b a g h j k f e
+eqangle b a g h j k k l
+eqangle b a i l c d f e
+eqangle b a i l c d k l
+eqangle b a i l j k f e
+eqangle b a i l j k k l
+eqangle b a k l c d g h
+eqangle b a k l c d i l
+eqangle b a k l j k g h
+eqangle b a k l j k i l
+eqangle c d f e b a g h
+eqangle c d f e b a i l
+eqangle c d f e i j g h
+eqangle c d f e i j i l
+eqangle c d g h b a f e
+eqangle c d g h b a k l
+eqangle c d g h i j f e
+eqangle c d g h i j k l
+eqangle c d i l b a f e
+eqangle c d i l b a k l
+eqangle c d i l i j f e
+eqangle c d i l i j k l
+eqangle c d k l b a g h
+eqangle c d k l b a i l
+eqangle c d k l i j g h
+eqangle c d k l i j i l
+eqangle f e b a g h c d
+eqangle f e b a g h j k
+eqangle f e b a i l c d
+eqangle f e b a i l j k
+eqangle f e c d g h b a
+eqangle f e c d g h i j
+eqangle f e c d i l b a
+eqangle f e c d i l i j
+eqangle f e i j g h c d
+eqangle f e i j g h j k
+eqangle f e i j i l c d
+eqangle f e i j i l j k
+eqangle f e j k g h b a
+eqangle f e j k g h i j
+eqangle f e j k i l b a
+eqangle f e j k i l i j
+eqangle g h b a f e c d
+eqangle g h b a f e j k
+eqangle g h b a k l c d
+eqangle g h b a k l j k
+eqangle g h c d f e b a
+eqangle g h c d f e i j
+eqangle g h c d k l b a
+eqangle g h c d k l i j
+eqangle g h i j f e c d
+eqangle g h i j f e j k
+eqangle g h i j k l c d
+eqangle g h i j k l j k
+eqangle g h j k f e b a
+eqangle g h j k f e i j
+eqangle g h j k k l b a
+eqangle g h j k k l i j
+eqangle i j f e c d g h
+eqangle i j f e c d i l
+eqangle i j f e j k g h
+eqangle i j f e j k i l
+eqangle i j g h c d f e
+eqangle i j g h c d k l
+eqangle i j g h j k f e
+eqangle i j g h j k k l
 eqangle i j i k l j l k
+eqangle i j i l c d f e
+eqangle i j i l c d k l
+eqangle i j i l j k f e
+eqangle i j i l j k k l
 eqangle i j i l k j k l
+eqangle i j k l c d g h
+eqangle i j k l c d i l
+eqangle i j k l j k g h
+eqangle i j k l j k i l
 eqangle i k i j l k l j
 eqangle i k i l j k j l
+eqangle i l b a f e c d
+eqangle i l b a f e j k
+eqangle i l b a k l c d
+eqangle i l b a k l j k
+eqangle i l c d f e b a
+eqangle i l c d f e i j
+eqangle i l c d k l b a
+eqangle i l c d k l i j
+eqangle i l i j f e c d
+eqangle i l i j f e j k
+eqangle i l i j k l c d
+eqangle i l i j k l j k
 eqangle i l i j k l k j
 eqangle i l i k j l j k
-eqangle j i e f c d h g
-eqangle j i e f c d l i
-eqangle j i e f j k h g
-eqangle j i e f j k l i
-eqangle j i h g c d e f
-eqangle j i h g c d l k
-eqangle j i h g j k e f
-eqangle j i h g j k l k
+eqangle i l j k f e b a
+eqangle i l j k f e i j
+eqangle i l j k k l b a
+eqangle i l j k k l i j
 eqangle j i j k l i l k
 eqangle j i j l k i k l
-eqangle j i l i c d e f
-eqangle j i l i c d l k
-eqangle j i l i j k e f
-eqangle j i l i j k l k
-eqangle j i l k c d h g
-eqangle j i l k c d l i
-eqangle j i l k j k h g
-eqangle j i l k j k l i
-eqangle j k e f b a h g
-eqangle j k e f b a l i
-eqangle j k e f j i h g
-eqangle j k e f j i l i
-eqangle j k h g b a e f
-eqangle j k h g b a l k
-eqangle j k h g j i e f
-eqangle j k h g j i l k
+eqangle j k f e b a g h
+eqangle j k f e b a i l
+eqangle j k f e i j g h
+eqangle j k f e i j i l
+eqangle j k g h b a f e
+eqangle j k g h b a k l
+eqangle j k g h i j f e
+eqangle j k g h i j k l
+eqangle j k i l b a f e
+eqangle j k i l b a k l
+eqangle j k i l i j f e
+eqangle j k i l i j k l
 eqangle j k j i l k l i
 eqangle j k j l i k i l
-eqangle j k l i b a e f
-eqangle j k l i b a l k
-eqangle j k l i j i e f
-eqangle j k l i j i l k
-eqangle j k l k b a h g
-eqangle j k l k b a l i
-eqangle j k l k j i h g
-eqangle j k l k j i l i
+eqangle j k k l b a g h
+eqangle j k k l b a i l
+eqangle j k k l i j g h
+eqangle j k k l i j i l
 eqangle j l j i k l k i
 eqangle j l j k i l i k
 eqangle k i k j l i l j
 eqangle k i k l j i j l
 eqangle k j k i l j l i
 eqangle k j k l i j i l
+eqangle k l b a g h c d
+eqangle k l b a g h j k
+eqangle k l b a i l c d
+eqangle k l b a i l j k
+eqangle k l c d g h b a
+eqangle k l c d g h i j
+eqangle k l c d i l b a
+eqangle k l c d i l i j
+eqangle k l i j g h c d
+eqangle k l i j g h j k
+eqangle k l i j i l c d
+eqangle k l i j i l j k
+eqangle k l j k g h b a
+eqangle k l j k g h i j
+eqangle k l j k i l b a
+eqangle k l j k i l i j
 eqangle k l k i j l j i
 eqangle k l k j i l i j
-eqangle l i b a e f c d
-eqangle l i b a e f j k
-eqangle l i b a l k c d
-eqangle l i b a l k j k
-eqangle l i c d e f b a
-eqangle l i c d e f j i
-eqangle l i c d l k b a
-eqangle l i c d l k j i
-eqangle l i j i e f c d
-eqangle l i j i e f j k
-eqangle l i j i l k c d
-eqangle l i j i l k j k
-eqangle l i j k e f b a
-eqangle l i j k e f j i
-eqangle l i j k l k b a
-eqangle l i j k l k j i
 eqangle l i l j k i k j
 eqangle l i l k j i j k
 eqangle l j l i k j k i
 eqangle l j l k i j i k
-eqangle l k b a h g c d
-eqangle l k b a h g j k
-eqangle l k b a l i c d
-eqangle l k b a l i j k
-eqangle l k c d h g b a
-eqangle l k c d h g j i
-eqangle l k c d l i b a
-eqangle l k c d l i j i
-eqangle l k j i h g c d
-eqangle l k j i h g j k
-eqangle l k j i l i c d
-eqangle l k j i l i j k
-eqangle l k j k h g b a
-eqangle l k j k h g j i
-eqangle l k j k l i b a
-eqangle l k j k l i j i
 eqangle l k l i j k j i
 eqangle l k l j i k i j
 ncoll i a b
 ncoll i g h
 ncoll k c d
 ncoll k e f
-para b a j i
+para b a i j
 para c d j k
-para e f l k
-para h g l i
+para f e k l
+para g h i l
+para i j b a
+para i l g h
 para j i a b
-para j i b a
 para j k c d
+para k l f e
 para l i g h
-para l i h g
 para l k e f
 perp a b c d
 perp a b d c
@@ -238,29 +239,29 @@ perp l k g h
 perp l k h g
 perp l k i l
 perp l k l i
-Points: e f c d j l k b a i h g 
+Points: i f b g e c h d j k a l 
 Lines:
 l_a_b : b a 
 l_c_d : c d 
-l_e_f : e f 
-l_g_h : h g 
-l_i_j : j i 
-l_i_k : k i 
-l_i_l : l i 
+l_e_f : f e 
+l_g_h : g h 
+l_i_j : i j 
+l_i_k : i k 
+l_i_l : i l 
 l_j_k : j k 
 l_j_l : j l 
-l_k_l : l k 
+l_k_l : k l 
 
 Directions:
-d_l_i_j : l_i_j l_a_b 
+d_l_i_j : l_a_b l_i_j 
 d_l_i_k : l_i_k 
-d_l_i_l : l_g_h l_i_l 
+d_l_i_l : l_i_l l_g_h 
 d_l_j_k : l_j_k l_c_d 
 d_l_j_l : l_j_l 
-d_l_k_l : l_k_l l_e_f 
+d_l_k_l : l_e_f l_k_l 
 
 Circles:
-c_i_j_l : j l k i 
+c_j_k_l : i j k l 
 
 Angles:
 a_d_l_i_j_d_l_i_k : [d_l_i_j, d_l_i_k]
@@ -293,19 +294,19 @@ a_d_l_k_l_d_l_j_k : [d_l_k_l, d_l_j_k]
 a_d_l_k_l_d_l_j_l : [d_l_k_l, d_l_j_l]
 
 Measures:
-m_a_d_l_i_j_d_l_i_k : a_d_l_i_j_d_l_i_k a_d_l_j_l_d_l_k_l 
-m_a_d_l_i_k_d_l_i_j : a_d_l_i_k_d_l_i_j a_d_l_k_l_d_l_j_l 
-m_a_d_l_i_k_d_l_i_l : a_d_l_i_k_d_l_i_l a_d_l_j_k_d_l_j_l 
-m_a_d_l_i_k_d_l_j_k : a_d_l_i_k_d_l_j_k a_d_l_i_l_d_l_j_l 
+m_a_d_l_i_j_d_l_i_l : a_d_l_i_j_d_l_i_l a_d_l_j_k_d_l_k_l 
+m_a_d_l_i_j_d_l_k_l : a_d_l_i_j_d_l_k_l a_d_l_j_k_d_l_i_l 
 m_a_d_l_i_k_d_l_k_l : a_d_l_i_k_d_l_k_l a_d_l_i_j_d_l_j_l 
 m_a_d_l_i_l_d_l_i_j : a_d_l_i_l_d_l_i_j a_d_l_k_l_d_l_j_k 
-m_a_d_l_i_l_d_l_i_k : a_d_l_i_l_d_l_i_k a_d_l_j_l_d_l_j_k 
 m_a_d_l_i_l_d_l_j_k : a_d_l_i_l_d_l_j_k a_d_l_k_l_d_l_i_j 
-m_a_d_l_i_l_d_l_k_l : a_d_l_i_j_d_l_j_k a_d_l_i_l_d_l_k_l 
-m_a_d_l_j_k_d_l_i_k : a_d_l_j_k_d_l_i_k a_d_l_j_l_d_l_i_l 
-m_a_d_l_j_k_d_l_i_l : a_d_l_j_k_d_l_i_l a_d_l_i_j_d_l_k_l 
-m_a_d_l_j_k_d_l_k_l : a_d_l_j_k_d_l_k_l a_d_l_i_j_d_l_i_l 
+m_a_d_l_i_l_d_l_j_l : a_d_l_i_l_d_l_j_l a_d_l_i_k_d_l_j_k 
+m_a_d_l_i_l_d_l_k_l : a_d_l_i_l_d_l_k_l a_d_l_i_j_d_l_j_k 
+m_a_d_l_j_k_d_l_j_l : a_d_l_j_k_d_l_j_l a_d_l_i_k_d_l_i_l 
+m_a_d_l_j_l_d_l_i_l : a_d_l_j_l_d_l_i_l a_d_l_j_k_d_l_i_k 
+m_a_d_l_j_l_d_l_j_k : a_d_l_i_l_d_l_i_k a_d_l_j_l_d_l_j_k 
+m_a_d_l_j_l_d_l_k_l : a_d_l_j_l_d_l_k_l a_d_l_i_j_d_l_i_k 
 m_a_d_l_k_l_d_l_i_k : a_d_l_k_l_d_l_i_k a_d_l_j_l_d_l_i_j 
 m_a_d_l_k_l_d_l_i_l : a_d_l_k_l_d_l_i_l a_d_l_j_k_d_l_i_j 
+m_a_d_l_k_l_d_l_j_l : a_d_l_k_l_d_l_j_l a_d_l_i_k_d_l_i_j 
 
 

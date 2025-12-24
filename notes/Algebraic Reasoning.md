@@ -8,3 +8,5 @@ The objective of the AR engine is to exhaustively deduce all new equalities and 
 - $s_{l_1} - s_{l_2} - s_{l_3} + s_{l_4} = 0$ or $\angle(d_1, d_2) = \angle(d_3, d_4)$
 - $s_{l_1} - s_{l_2} = \pi/2$ or $\angle(d_1, d_2) = \pi/2$
 - $s_{l_1} = s_{l_2}$ or $\angle(d_1, d_2) = 0$
+
+Let's go with AlphaGeo's implementation for now.

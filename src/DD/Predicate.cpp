@@ -65,7 +65,7 @@ std::string Arg::to_string() {
         return std::get<Node*>(arg)->name;
     }
     if (std::holds_alternative<Frac>(arg)) {
-        return std::get<Frac>(arg).to_string();
+        return Frac::to_string(std::get<Frac>(arg));
     }
     if (std::holds_alternative<char>(arg)) {
         return std::string{std::get<char>(arg)};

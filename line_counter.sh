@@ -6,7 +6,7 @@
 # does the same thing for the markdown files in notes/
 total_code_lines=0
 total_note_lines=0
-for file in src/**/*.cpp src/**/*.hh; do
+for file in src/**/*.cpp src/**/*.hh tests/**/*.cpp tests/**/*.hh; do
     if [[ -f "$file" ]]; then
         line_count=$(grep -cve '^\s*$' "$file" | grep -cvE '^\s{0,2}$' "$file")
         total_code_lines=$((total_code_lines + line_count))

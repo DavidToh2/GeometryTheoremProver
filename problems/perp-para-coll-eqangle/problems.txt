@@ -11,7 +11,7 @@ problem p2 {
     d = on_dia d : a c;
     e = on_line e : a d, on_tline e : c a c;
     f = on_dia f : a e
-    ? eqangle b f f c b e e c
+    ? eqangle c b b d c f f e
 }
 
 problem p3 {

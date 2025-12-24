@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
                 problem_name
             );
 
-            gtp.solve(5);
+            gtp.solve(10);
 
             gtp.output(
                 output_filepath
@@ -88,7 +88,7 @@ int main(int argc, char** argv) {
             problem_name
         );
 
-        gtp.solve(5);
+        gtp.solve(10);
 
         gtp.output(
             output_filepath
