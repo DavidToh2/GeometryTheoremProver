@@ -23,6 +23,12 @@ public:
         : std::runtime_error(message) {}
 };
 
+class ARInternalError : public std::runtime_error {
+public:
+    explicit ARInternalError(const std::string& message)
+        : std::runtime_error(message) {}
+};
+
 class NumericsError : public std::runtime_error {
 public:
     explicit NumericsError(const std::string& message)

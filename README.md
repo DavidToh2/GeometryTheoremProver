@@ -41,6 +41,6 @@ tests           (unit testing code)
 CMakeLists.txt
 ```
 
-Refer to [Outline.md](notes/Outline.md) for technical specifications
+Read [Outline.md](notes/Outline.md) for technical specifications, as well as [the other project notes](notes/).
 
-Current code length: 4669 lines
+Current code length: 5499 lines

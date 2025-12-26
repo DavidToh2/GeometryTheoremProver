@@ -4,7 +4,7 @@ project(myGTP LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_compile_options(-g)
+add_compile_options(-g -Wno-fortify-source)
 
 file(GLOB_RECURSE sources      src/*/*.cpp)
 file(GLOB_RECURSE headers      src/*.h)

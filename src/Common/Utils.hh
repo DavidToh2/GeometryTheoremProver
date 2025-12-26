@@ -39,6 +39,26 @@ namespace Utils {
     }
 
     template <typename T>
+    std::set<T> unify_sets(const std::set<T>& s1, const std::set<T>& s2) {
+        std::set<T> result;
+        std::set_union(
+            s1.begin(), s1.end(),
+            s2.begin(), s2.end(),
+            std::inserter(result, result.begin())
+        );
+        return result;
+    }
+
+    template <typename T>
+    void __unify_sets(std::set<T>& s1, const std::set<T>& s2) {
+        std::set_union(
+            s1.begin(), s1.end(),
+            s2.begin(), s2.end(),
+            std::inserter(s1, s1.end())
+        );
+    }
+
+    template <typename T>
     std::set<T> intersect_sets(const std::set<T>& s1, const std::set<T>& s2) {
         std::set<T> result;
         std::set_intersection(

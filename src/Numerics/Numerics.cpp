@@ -1,4 +1,5 @@
 
+#include <cmath>
 #include <numeric>
 #include <string>
 
@@ -12,6 +13,15 @@ Frac::Frac(int num, int den) {
     int d = std::gcd(num, den);
     this->num = num / d;
     this->den = den / d;
+}
+Frac::Frac(double d) {
+    double num_d = d;
+    this->den = 1;
+    while (std::abs(num_d - std::round(num_d)) > TOL) {
+        num_d += d;
+        this->den += 1;
+    }
+    this->num = static_cast<int>(std::round(num_d) + TOL);
 }
 
 Frac Frac::operator+(const Frac &other) const {
@@ -36,8 +46,21 @@ bool Frac::operator==(const Frac &other) {
 bool Frac::operator==(Frac &&other) {
     return (this->num == other.num) && (this->den == other.den);
 }
+bool Frac::operator<(const Frac &other) const {
+    return (this->num * other.den) < (other.num * this->den);
+}
+auto Frac::operator<=>(const Frac &other) const {
+    return (this->num * other.den) <=> (other.num * this->den);
+}
 
+double Frac::to_double() const {
+    return static_cast<double>(this->num) / static_cast<double>(this->den);
+}
+std::pair<Frac, double> Frac::from_double(double d) {
+    Frac f = Frac(d);
+    return {f, f.to_double()};
+}
 
-std::string Frac::to_string(Frac &f) {
-    return std::to_string(f.num) + "/" + std::to_string(f.den);
+std::string Frac::to_string() const {
+    return std::to_string(this->num) + "/" + std::to_string(this->den);
 }
