@@ -71,7 +71,7 @@ int Matrix::extend_columns(int j) {
     return j;
 }
 int Matrix::extend_rows(Matrix& other) {
-    if (other.n != n) return -1;
+    if (other.n != n) return 0;
     int c = extend_rows(other.m);
     for (int i = 0; i < other.m; i++) {
         for (int j = 0; j < n; j++) {
@@ -81,7 +81,7 @@ int Matrix::extend_rows(Matrix& other) {
     return c;
 }
 int Matrix::extend_columns(Matrix& other) {
-    if (other.m != m) return -1;
+    if (other.m != m) return 0;
     int c = extend_columns(other.n);
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < other.n; j++) {
@@ -115,4 +115,73 @@ std::string Matrix::__print_full_matrix() const {
     }
     repr += "]";
     return repr;
+}
+
+
+
+
+double SparseMatrix::get(int i, int j) const {
+    if (__in_bounds(i, j)) {
+        for (int idx = 0; idx < s; idx++) {
+            if (row_indices[j][idx] == i) {
+                return values[j][idx];
+            }
+        }
+        return 0.0;
+    }
+    throw NumericsError("SparseMatrix index out of bounds");
+}
+bool SparseMatrix::set(int i, int j, double value) {
+    if (__in_bounds(i, j)) {
+        int nearest_empty = -1;
+        for (int idx = 0; idx < s; idx++) {
+            if (row_indices[j][idx] == i) {
+                if (value) {
+                    values[j][idx] = value;
+                } else {
+                    row_indices[j][idx] = -1;
+                    values[j][idx] = 0.0;
+                }
+                return true;
+            }
+            if (nearest_empty < 0 && row_indices[j][idx] == -1) {
+                nearest_empty = idx;
+            }
+        }
+        if (nearest_empty >= 0) {
+            if (value) {
+                row_indices[j][nearest_empty] = i;
+                values[j][nearest_empty] = value;
+            }
+            return true;
+        }
+        return false;
+    }
+    throw NumericsError("SparseMatrix index out of bounds");
+}
+int SparseMatrix::extend_rows(int i) {
+    m += i;
+    return i;
+}
+int SparseMatrix::extend_columns(int j) {
+    n += j;
+    row_indices.resize(n);
+    values.resize(n);
+    for (int col = n - j; col < n; col++) {
+        row_indices[col] = std::vector<int>(s, -1);
+        values[col] = std::vector<double>(s, 0.0);
+    }
+    return j;
+}
+int SparseMatrix::extend_columns(SparseMatrix& other) {
+    if (other.m > m) return 0;
+    if (other.s > s) return 0;
+    for (int j = 0; j < other.n; j++) {
+        other.row_indices[j].resize(s, -1);
+        other.values[j].resize(s, 0.0);
+        row_indices.emplace_back(std::move(other.row_indices[j]));
+        values.emplace_back(std::move(other.values[j]));
+    }
+    n += other.n;
+    return other.n;
 }

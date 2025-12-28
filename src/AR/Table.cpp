@@ -139,6 +139,9 @@ std::pair<Expr::Var, Expr::Expr> Expr::get_subject(const Expr& expr, const Var c
 std::string Expr::to_string(const Var& var) {
     return var;
 }
+int Expr::len(const Expr& expr) {
+    return expr.size();
+}
 Expr::ExprHash Expr::hash(const Expr& expr) {
     // auto it = expr.cbegin();
     // std::string h = to_string(it->first) + "*" + std::to_string(it->second) + ",";
@@ -157,7 +160,7 @@ int Expr::hashlen(const ExprHash& expr_hash) {
 
 
 bool Table::add_free(const Expr::Var& var_name) {
-    var_to_expr[var_name] = {{var_name, 1}};
+    M_var_to_expr[var_name] = {{var_name, 1}};
     return true;
 }
 bool Table::add_expr(const Expr::Expr& expr) {
@@ -166,22 +169,22 @@ bool Table::add_expr(const Expr::Expr& expr) {
     Expr::Expr result;
 
     for (const auto& [var, d] : expr) {
-        if (var_to_expr.contains(var)) {
-            Expr::__add(result, Expr::mult(var_to_expr[var], d));
+        if (M_var_to_expr.contains(var)) {
+            Expr::__add(result, Expr::mult(M_var_to_expr[var], d));
         } else {
             new_vars.push_back({var, d});
         }
     }
 
     if (new_vars.size() == 0) {
-        if (Expr::all_zeroes(expr)) return false;
+        if (Expr::all_zeroes(result)) return false; // expression already known
         auto [subject, expr_subj] = Expr::get_subject(expr, one);
         if (subject.empty()) return false;
         replace(subject, expr_subj);
 
     } else if (new_vars.size() == 1) {
         auto [var, d] = new_vars[0];
-        var_to_expr[var] = Expr::div(result, -d);
+        M_var_to_expr[var] = Expr::div(result, -d);
 
     } else {
         Expr::Var dependent_var = "";
@@ -195,14 +198,14 @@ bool Table::add_expr(const Expr::Expr& expr) {
             add_free(var);
             Expr::__add(result, {{var, d}});
         }
-        var_to_expr[dependent_var] = Expr::div(result, -dependent_d);
+        M_var_to_expr[dependent_var] = Expr::div(result, -dependent_d);
     }
 
     return true;
 }
 
 void Table::replace(const Expr::Var& var, const Expr::Expr& sub_expr) {
-    for (auto& [_, expr] : var_to_expr) {
+    for (auto& [_, expr] : M_var_to_expr) {
         Expr::__replace(expr, var, sub_expr);
     }
 }
@@ -212,17 +215,17 @@ bool Table::register_expr(const Expr::Expr& expr, Predicate* pred) {
         return false;
     }
     for (const auto& [var, _] : expr) {
-        if (!var_to_expr.contains(var)) {
+        if (!M_var_to_expr.contains(var)) {
             var_to_row[var] = num_vars++;
         }
     }
     if (num_vars > A.m) {
         A.extend_rows(num_vars - A.m);
     }
-    Matrix new_columns = Matrix(num_vars, 2);
+    SparseMatrix new_columns = SparseMatrix(num_vars, 2, 4);
     for (const auto& [var, coeff] : expr) {
-        new_columns(var_to_row[var], 0) = coeff;
-        new_columns(var_to_row[var], 1) = -coeff;
+        new_columns.set(var_to_row[var], 0, coeff);
+        new_columns.set(var_to_row[var], 1, -coeff);
     }
     A.extend_columns(new_columns);
     c.emplace_back(1);
@@ -232,25 +235,27 @@ bool Table::register_expr(const Expr::Expr& expr, Predicate* pred) {
 }
 
 
-bool Table::register_2(const Expr::Var& var1, const Expr::Var& var2, float m, float n, Predicate* pred) {
-    return register_expr({{var1, m}, {var2, -n}}, pred);
-}
-bool Table::register_3(const Expr::Var& var1, const Expr::Var& var2, float f, Predicate* pred) {
-    return register_expr({{var1, 1}, {var2, -1}, {one, -f}}, pred);
-}
-bool Table::register_4(const Expr::Var& var1, const Expr::Var& var2, const Expr::Var& var3, const Expr::Var& var4, Predicate* pred) {
-    return register_expr({{var1, 1}, {var2, -1}, {var3, -1}, {var4, 1}}, pred);
-}
 
-
-bool Table::record_eq_2_as_seen(const Expr::VarPair& vp) {
-    return eq_2s_seen.insert(vp).second;
+bool Table::record_eq_2_as_seen(const Expr::Var& v1, const Expr::Var& v2) {
+    return eq_2s_seen.insert({v1, v2}).second;
 }
-bool Table::record_eq_3_as_seen(const Expr::VarPair& vp, const Frac f) {
-    return eq_3s_seen.insert({vp.first, vp.second, f}).second;
+bool Table::record_eq_3_as_seen(const Expr::Var& v1, const Expr::Var& v2, const Frac f) {
+    return eq_3s_seen.insert({v1, v2, f}).second;
 }
-bool Table::record_eq_4_as_seen(const Expr::VarPair& vp1, const Expr::VarPair& vp2) {
-    return eq_4s_seen.insert({vp1, vp2}).second;
+bool Table::record_eq_4_as_seen(const Expr::Var& v1, const Expr::Var& v2, const Expr::Var& v3, const Expr::Var& v4) {
+    return eq_4s_seen.insert({{v1, v2}, {v3, v4}}).second;
+}
+bool Table::is_eq_2_seen(const Expr::Var var1, const Expr::Var var2) {
+    return (
+        eq_2s_seen.contains({var1, var2}) 
+        || eq_2s_seen.contains({var2, var1})
+    );
+}
+bool Table::is_eq_3_seen(const Expr::Var var1, const Expr::Var var2, const Frac f) {
+    return (
+        eq_3s_seen.contains({var1, var2, f}) 
+        || eq_3s_seen.contains({var2, var1, Frac(1)-f})
+    );
 }
 bool Table::is_eq_4_seen(const Expr::Var var1, const Expr::Var var2, const Expr::Var var3, const Expr::Var var4) {
     return (
@@ -262,14 +267,33 @@ bool Table::is_eq_4_seen(const Expr::Var var1, const Expr::Var var2, const Expr:
 }
 
 
+bool Table::add_eq(const Expr::Expr& expr, Predicate* pred) {
+    return (
+        add_expr(expr) 
+        && register_expr(expr, pred)
+    );
+}
 bool Table::add_eq_2(const Expr::Var& var1, const Expr::Var& var2, float m, float n, Predicate* pred) {
-    return (add_expr({{var1, m}, {var2, -n}}) && register_2(var1, var2, m, n, pred));
+    return (
+        record_eq_2_as_seen(var1, var2)
+        && add_eq({{var1, m}, {var2, -n}}, pred)
+    );
 }
 bool Table::add_eq_3(const Expr::Var& var1, const Expr::Var& var2, float f, Predicate* pred) {
-    return (add_expr({{var1, 1}, {var2, -1}, {one, -f}}) && register_3(var1, var2, f, pred));
+    return (
+        record_eq_3_as_seen(var1, var2, Frac(f))
+        && add_eq({{var1, 1}, {var2, -1}, {one, -f}}, pred) 
+    );
 }
 bool Table::add_eq_4(const Expr::Var& var1, const Expr::Var& var2, const Expr::Var& var3, const Expr::Var& var4, Predicate* pred) {
-    return (add_expr({{var1, 1}, {var2, -1}, {var3, -1}, {var4, 1}}) && register_4(var1, var2, var3, var4, pred));
+    std::vector<std::pair<Expr::VarPair, Expr::VarPair>> links;
+    return (
+        record_eq_4_as_seen(var1, var2, var3, var4)
+        && record_eq_4_as_seen(var1, var3, var2, var4)
+        && add_eq({{var1, 1}, {var2, -1}, {var3, -1}, {var4, 1}}, pred)
+        && Table::update_equal_groups(equal_groups, {{var1, var2}, {var3, var4}}, links)
+        && Table::update_equal_groups(equal_groups, {{var2, var1}, {var4, var3}}, links)
+    );
 }
 
 
@@ -282,22 +306,19 @@ std::vector<Predicate*> Table::why(const Expr::Expr& expr) {
     Expr::strip(target);
     Expr::fix(target);
 
-    Matrix b(num_vars, 1);
+    SparseMatrix b(num_vars, 1, Expr::len(target));
     for (const auto& [var, coeff] : target) {
         if (!var_to_row.contains(var)) {
             throw ARInternalError("Cannot explain expression with unknown variable: " + var);
         }
-        b(var_to_row[var], 0) = -coeff;
+        b.set(var_to_row[var], 0, -coeff);
     }
 
-    Matrix A_ext = A;
-    A_ext.extend_columns(b);
-
-    // Solve the linear program min c^T * x subject to A_ext * x = 0
-    Matrix solution(1, 1);
+    // Solve the linear program min c^T * x subject to A * x = expr, x >= 0
+    SparseMatrix solution(1, 1, 4);
 
     for (int i = 0; i < deps.size(); i++) {
-        if (std::abs(solution(i, 0)) > Frac::TOL) {
+        if (std::abs(solution.get(i, 0)) > Frac::TOL) {
             result.push_back(deps[i]);
         }
     }
@@ -307,9 +328,9 @@ std::vector<Predicate*> Table::why(const Expr::Expr& expr) {
 
 
 Generator<Expr::VarPair> Table::all_varpairs() const {
-    for (const auto& [var1, _] : var_to_expr) {
+    for (const auto& [var1, _] : M_var_to_expr) {
         if (var1 == one) continue;
-        for (const auto& [var2, _] : var_to_expr) {
+        for (const auto& [var2, _] : M_var_to_expr) {
             if (var2 == one) continue;
             co_yield {var1, var2};
         }
@@ -325,7 +346,7 @@ void Table::get_all_eqs() {
     auto all_varpairs_gen = all_varpairs();
     while (all_varpairs_gen) {
         auto [var1, var2] = all_varpairs_gen();
-        Expr::Expr e1 = var_to_expr[var1], e2 = var_to_expr[var2];
+        Expr::Expr e1 = M_var_to_expr[var1], e2 = M_var_to_expr[var2];
         Expr::Expr e12 = Expr::minus(e1, e2);
         Expr::strip(e12);
         Expr::fix(e12);
@@ -343,26 +364,31 @@ void Table::get_all_eqs() {
 }
 
 Generator<std::tuple<Expr::Var, Expr::Var, std::vector<Predicate*>>> Table::get_all_eq_2s_and_why() {
-    for (const auto& [_, varpairs] : eq_2s) {
+    for (const auto& [eh, varpairs] : eq_2s) {
         for (const auto& [v1, v2] : varpairs) {
-            if (eq_2s_seen.contains({v1, v2}) || eq_2s_seen.contains({v2, v1})) continue;
-            record_eq_2_as_seen({v1, v2});
+            if (is_eq_2_seen(v1, v2)) continue;
+            record_eq_2_as_seen(v1, v2);
             
-            std::vector<Predicate*> _why = why(Expr::minus(var_to_expr[v1], var_to_expr[v2]));
+            Expr::Expr em = Expr::minus(M_var_to_expr[v1], M_var_to_expr[v2]);   // should be the same as eh
+            assert(Expr::hash(em) == eh);
+
+            std::vector<Predicate*> _why = why(em); 
             co_yield {v1, v2, _why};
         }
     }
     co_return;
 }
 Generator<std::tuple<Expr::Var, Expr::Var, Frac, std::vector<Predicate*>>> Table::get_all_eq_3s_and_why() {
-    for (auto& [h, varpairs] : eq_3s) {
-        Frac f(h.at(one));
+    for (auto& [eh, varpairs] : eq_3s) {
+        Frac f(eh.at(one));
         for (const auto& [v1, v2] : varpairs) {
-            if (eq_3s_seen.contains({v1, v2, f})) continue;
-            record_eq_3_as_seen({v1, v2}, f);
+            if (is_eq_3_seen(v1, v2, f)) continue;
+            record_eq_3_as_seen(v1, v2, f);
 
-            Expr::Expr e = Expr::minus(var_to_expr[v1], var_to_expr[v2]);
-            std::vector<Predicate*> _why = why(e);
+            Expr::Expr em = Expr::minus(M_var_to_expr[v1], M_var_to_expr[v2]);   // should be the same as eh
+            assert(Expr::hash(em) == eh);
+
+            std::vector<Predicate*> _why = why(em);
             co_yield {v1, v2, f, _why};
         }
     }
@@ -370,19 +396,25 @@ Generator<std::tuple<Expr::Var, Expr::Var, Frac, std::vector<Predicate*>>> Table
 }
 Generator<std::tuple<Expr::Var, Expr::Var, Expr::Var, Expr::Var, std::vector<Predicate*>>> Table::get_all_eq_4s_and_why() {
     std::vector<std::pair<Expr::VarPair, Expr::VarPair>> links;
-    for (const auto& [_, varpairs] : eq_4s) {
+    for (const auto& [eh, varpairs] : eq_4s) {
         Table::update_equal_groups<Expr::VarPair>(equal_groups, varpairs, links);
     }
     for (const auto& [vp1, vp2] : links) {
+        // Note: Any link {vp1, vp2} must have come from some EqualGroup varpairs, indexed by an
+        //  expression eh. It is thus not unreasonable to say that
+        // M_var_to_expr[v1] - M_var_to_expr[v2] == M_var_to_expr[v3] - M_var_to_expr[v4] == eh.
         auto& [v1, v2] = vp1;
         auto& [v3, v4] = vp2;
         if (is_eq_4_seen(v1, v2, v3, v4)) continue;
-        record_eq_4_as_seen(vp1, vp2);
+        record_eq_4_as_seen(v1, v2, v3, v4);
 
-        Expr::Expr e12 = Expr::minus(var_to_expr[v1], var_to_expr[v2]);
-        Expr::Expr e34 = Expr::minus(var_to_expr[v3], var_to_expr[v4]);
+        Expr::Expr e12 = Expr::minus(M_var_to_expr[v1], M_var_to_expr[v2]);
+        Expr::Expr e34 = Expr::minus(M_var_to_expr[v3], M_var_to_expr[v4]);
+        Expr::Expr em = Expr::minus(e12, e34);  // should be zero
+        assert(Expr::all_zeroes(em));
+
         Expr::Expr e{{v1, 1}, {v2, -1}, {v3, -1}, {v4, 1}};
-        Expr::__minus(e, Expr::minus(e12, e34));
+        Expr::__minus(e, em);
         std::vector<Predicate*> _why = why(e);
         co_yield {v1, v2, v3, v4, _why};
     }

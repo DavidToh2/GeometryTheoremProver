@@ -5,7 +5,7 @@
 #include "Common/Exceptions.hh"
 
 TEST_SUITE("Matrix") {
-    int i = 1 + 2;
+    
     TEST_CASE("Explicit get and set") {
         Matrix mat(3, 3);
         

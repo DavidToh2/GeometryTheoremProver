@@ -2,8 +2,9 @@
 
 #include "Numerics.hh"
 #include <vector>
+#include <map>
 
-/* Matrix class. 
+/* Matrix class. This class is not used.
 
 Here, `m` is the number of rows and `n` the number of columns that are
 currently in use. 
@@ -47,4 +48,34 @@ public:
 
     std::string __print_matrix() const;
     std::string __print_full_matrix() const;
+};
+
+/* Sparse matrix class (column-major).
+
+Here, `m` is the number of rows and `n` the number of columns that are
+currently in use. `s` is the maximum number of allowable stored elements
+per column. */
+class SparseMatrix {
+public:
+    int m;
+    int n;
+    int s;
+    std::vector<std::vector<int>> row_indices;
+    std::vector<std::vector<double>> values;
+
+    SparseMatrix(int m, int n, int s) : 
+        m(m), n(n), s(s), 
+        row_indices(n, std::vector<int>(s, -1)), 
+        values(n, std::vector<double>(s, 0.0)) {}
+
+    inline bool __in_bounds(int i, int j) const {
+        return (i >= 0) && (i < m) && (j >= 0) && (j < n);
+    }
+
+    double get(int i, int j) const;
+    bool set(int i, int j, double value = 0.0);
+
+    int extend_rows(int i);
+    int extend_columns(int j);
+    int extend_columns(SparseMatrix& other);
 };

@@ -45,7 +45,7 @@ Note that to switch to the `clang` compiler we need to add `-DCMAKE_C_COMPILER=/
 ## External Libraries
 
 All external libraries are installed to `lib/`. Each library needs to be added to the list of directories searched for both `include`s and linkage by CMake. In general, this is done by:
-- adding the parent folder(s) of the header file(s) we want to access;
+- adding the parent folder(s) of the header file(s) we want the compiler to access;
 - adding the parent folder(s) of the built object files for linking, if any.
 
 We use the [**HiGHS**](https://highs.dev/) linear programming library. Build instructions can be found [here](https://github.com/ERGO-Code/HiGHS/blob/master/cmake/README.md). Example program found [here](https://github.com/ERGO-Code/HiGHS/blob/master/examples/call_highs_from_cpp.cpp).
@@ -59,14 +59,14 @@ Build steps:
 To configure for use, add the following to our root `CMakeLists.txt` file:
 
 ```cmake
-include_directories("lib/HiGHS/include/highs")
-link_directories("lib/HiGHS/lib")
+include_directories("lib/HiGHS/include/highs")  # makes header files visible to compiler
+link_directories("lib/HiGHS/lib")               # makes object files visible to linker
 ```
 
 For `src/CMakeLists.txt`, add
 
 ```cmake
-target_link_libraries(main PRIVATE highs)
+target_link_libraries(main PRIVATE highs)   # adds object file libhighs.so for linking to target main
 ```
 
 Our library can now be imported with:

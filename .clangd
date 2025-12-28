@@ -1,3 +1,5 @@
 CompileFlags:
   Add: [-resource-dir=/usr/local/lib/clang/20]
   CompilationDatabase: build/
+Documentation:
+  CommentFormat: Markdown
