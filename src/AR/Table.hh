@@ -8,7 +8,6 @@
 #include "Numerics/Numerics.hh"
 #include "Numerics/Matrix.hh"
 #include "DD/Predicate.hh"
-#include <Highs.h>
 
 namespace Expr {
     typedef std::string Var;
@@ -165,7 +164,8 @@ public:
     /* Register an expression of the form `v0*c0 + v1*c1 + ... = 0` into the
     matrix `A`, along with an associated predicate. 
     This function is called by `add_eq`. Note that all the expressions we
-    add contain at most 4 terms. */
+    add contain at most 4 terms. 
+    Also adds new variables to `var_to_row`. */
     bool register_expr(const Expr::Expr& expr, Predicate* pred);
 
 

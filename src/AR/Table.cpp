@@ -228,6 +228,7 @@ bool Table::register_expr(const Expr::Expr& expr, Predicate* pred) {
         new_columns.set(var_to_row[var], 1, -coeff);
     }
     A.extend_columns(new_columns);
+    num_eqs += 1;
     c.emplace_back(1);
     c.emplace_back(-1);
     deps.push_back(pred);
@@ -300,25 +301,27 @@ bool Table::add_eq_4(const Expr::Var& var1, const Expr::Var& var2, const Expr::V
 
 std::vector<Predicate*> Table::why(const Expr::Expr& expr) {
     std::vector<Predicate*> result;
-    return result;
 
     Expr::Expr target = expr;
     Expr::strip(target);
     Expr::fix(target);
 
-    SparseMatrix b(num_vars, 1, Expr::len(target));
+    // Convert the target expr into a std::vector<double> b
+    std::vector<double> b_vec(num_vars, 0.0);
     for (const auto& [var, coeff] : target) {
-        if (!var_to_row.contains(var)) {
-            throw ARInternalError("Cannot explain expression with unknown variable: " + var);
-        }
-        b.set(var_to_row[var], 0, -coeff);
+        b_vec[var_to_row[var]] = coeff;
     }
+    lp_solver.populate(A, b_vec, c);
 
-    // Solve the linear program min c^T * x subject to A * x = expr, x >= 0
-    SparseMatrix solution(1, 1, 4);
+    // Solve the linear program min c^T * x subject to A * x = b, x >= 0
+    std::vector<double> solution;
+    if (!lp_solver.solve(solution)) {
+        return result;
+    }
+    assert(solution.size() == num_eqs);
 
-    for (int i = 0; i < deps.size(); i++) {
-        if (std::abs(solution.get(i, 0)) > Frac::TOL) {
+    for (int i = 0; i < num_eqs; i++) {
+        if (std::abs(solution[i]) > Frac::TOL) {
             result.push_back(deps[i]);
         }
     }

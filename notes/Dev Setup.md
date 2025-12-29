@@ -72,7 +72,7 @@ target_link_libraries(main PRIVATE highs)   # adds object file libhighs.so for l
 Our library can now be imported with:
 
 ```cpp
-#include <Highs.h>
+#include "Highs.h"
 ```
 
 ## Unit Testing
