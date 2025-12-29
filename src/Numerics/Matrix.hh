@@ -77,5 +77,9 @@ public:
 
     int extend_rows(int i);
     int extend_columns(int j);
+    int extend_columns(std::map<int, double>& col_data);
+    int extend_columns(std::map<int, double>&& col_data);
     int extend_columns(SparseMatrix& other);
+
+    std::string __print_matrix() const;
 };

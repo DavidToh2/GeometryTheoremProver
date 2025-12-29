@@ -80,7 +80,7 @@ only contains variables before `v` in the ordering.
 
 - `equal_groups : list of std::set<VarPair>`: 
 Every set stores ordered pairs `(vi, vj)` of variables which are known to have the 
-same value. For example, the set `{ (v1, v2), (v3, v4), (v5, v6) } would indicate
+same value. For example, the set `{ (v1, v2), (v3, v4), (v5, v6) }` would indicate
 that `v1 - v2 = v3 - v4 = v5 - v6`. This is known as an `EqualGroup`.
 
 - `eq_Ns : std::map<ExprHash, EqualGroup>`:
@@ -283,8 +283,19 @@ public:
 
 
     Generator<Expr::VarPair> all_varpairs() const;
+
+    /* Populate the `eq_Ns` maps. */
     void get_all_eqs();
+
+    /* Used by `AngleTable` to `get_all_paras`.
+    Used by `RatioTable` to `get_all_congs`. */
     Generator<std::tuple<Expr::Var, Expr::Var, std::vector<Predicate*>>> get_all_eq_2s_and_why();
+
+    /* Used by `AngleTable` to `get_all_const_angles`.
+    Used by `RatioTable` to `get_all_const_ratios`. */
     Generator<std::tuple<Expr::Var, Expr::Var, Frac, std::vector<Predicate*>>> get_all_eq_3s_and_why();
+
+    /* Used by `AngleTable` to `get_all_eqangles`.
+    Used by `RatioTable` to `get_all_eqratios`. */
     Generator<std::tuple<Expr::Var, Expr::Var, Expr::Var, Expr::Var, std::vector<Predicate*>>> get_all_eq_4s_and_why();
 };

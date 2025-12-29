@@ -21,7 +21,11 @@ Frac::Frac(double d) {
         num_d += d;
         this->den += 1;
     }
-    this->num = static_cast<int>(std::round(num_d) + TOL);
+    if (d < 0) {
+        this->num = static_cast<int>(std::round(num_d) - TOL);
+    } else {
+        this->num = static_cast<int>(std::round(num_d) + TOL);
+    }
 }
 
 Frac Frac::operator+(const Frac &other) const {

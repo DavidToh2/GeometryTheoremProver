@@ -12,7 +12,7 @@
 #include "Value.hh"
 #include "Value2.hh"
 #include "DD/DDEngine.hh"
-#include "Common/Generator.hh"
+#include "AR/AREngine.hh"
 
 template<typename T>    // "alias declaration"
 using uptrmap = std::map<std::string, std::unique_ptr<T>>;
@@ -242,17 +242,6 @@ public:
     void set_measures_equal(Measure* dest, Measure* src, Predicate* pred);
 
 
-    void make_coll(Predicate* pred, DDEngine &dd);
-    void make_cyclic(Predicate* pred, DDEngine &dd);
-    void make_para(Predicate* pred, DDEngine &dd);
-    void make_perp(Predicate* pred, DDEngine &dd);
-    void make_cong(Predicate* pred, DDEngine &dd);
-    void make_eqangle(Predicate* pred, DDEngine &dd);
-    void make_eqratio(Predicate* pred, DDEngine &dd);
-    void make_contri(Predicate* pred, DDEngine &dd);
-    void make_simtri(Predicate* pred, DDEngine &dd);
-    void make_circle(Predicate* pred, DDEngine &dd);
-
 
     /* Check collinearity. This is done by checking if the root lines `p1p2` and `p1p3` are identical. */
     bool check_coll(Point* p1, Point* p2, Point* p3);
@@ -276,13 +265,30 @@ public:
     bool check_eqangle(Line* l1, Line* l2, Line* l3, Line* l4);
     bool check_eqangle(Angle* a1, Angle* a2);
 
-    bool check_center(Point* c, Point* p1, Point* p2, Point* p3);
-    bool check_center(Point* c, Circle* circ);
+    bool check_circle(Point* c, Point* p1, Point* p2, Point* p3);
+    bool check_circle(Point* c, Circle* circ);
+
+    bool check_postcondition(PredicateTemplate* pred);
+
+
+
+
+    bool make_coll(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool make_cyclic(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool make_para(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool make_perp(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool make_cong(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool make_eqangle(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool make_eqratio(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool make_contri(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool make_simtri(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool make_circle(Predicate* pred, DDEngine &dd, AREngine &ar);
+
+
 
     /* Synthesize new geometric objects based on recently added predicates.
-    
     Note: All `make_` functions should be idempotent. */
-    void synthesise_preds(DDEngine &dd);
+    void synthesise_preds(DDEngine &dd, AREngine &ar);
     void synthesise_pred2s(DDEngine &dd);
 
     /* Link objects which are related. */

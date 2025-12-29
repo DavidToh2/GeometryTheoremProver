@@ -13,7 +13,8 @@
 #include "Common/Exceptions.hh"
 #include "Common/Utils.hh"
 #include "DD/DDEngine.hh"
-
+#include "AR/AREngine.hh"
+#include "Common/Generator.hh"
 
 
 
@@ -460,164 +461,6 @@ void GeometricGraph::set_measures_equal(Measure* m1, Measure* m2, Predicate* pre
 
 
 
-
-void GeometricGraph::make_coll(Predicate* pred, DDEngine &dd) {
-    Point* p1 = static_cast<Point*>(pred->args[0]);
-    Point* p2 = static_cast<Point*>(pred->args[1]);
-    Point* p3 = static_cast<Point*>(pred->args[2]);
-
-    auto [rp1, rp2, rp3] = NodeUtils::get_roots<Point, 3>({p1, p2, p3});
-
-    Line* p1p2 = __try_get_line(rp1, rp2);
-    Line* p2p3 = __try_get_line(rp2, rp3);
-    Line* p3p1 = __try_get_line(rp3, rp1);
-    Point* tp = rp3;
-    Line* l = p1p2;
-
-    if (p2p3) {
-        tp = rp1;
-        l = p2p3;
-    } else if (p3p1) {
-        tp = rp2;
-        l = p3p1;
-    } else if (p1p2 == nullptr) {
-        tp = rp3;
-        l = __add_new_line(rp1, rp2, dd.base_pred.get());
-    }
-
-    tp->set_this_on(l, pred);
-
-    if (p2p3) {
-        if (p3p1) merge_lines(p2p3, p3p1, pred);
-        if (p1p2) merge_lines(p2p3, p1p2, pred);
-    } else if (p3p1) {
-        if (p1p2) merge_lines(p3p1, p1p2, pred);
-    }
-}
-
-void GeometricGraph::make_cyclic(Predicate* pred, DDEngine &dd) {
-    Point* p1 = static_cast<Point*>(pred->args[0]);
-    Point* p2 = static_cast<Point*>(pred->args[1]);
-    Point* p3 = static_cast<Point*>(pred->args[2]);
-    Point* p4 = static_cast<Point*>(pred->args[3]);
-
-    auto [rp1, rp2, rp3, rp4] = NodeUtils::get_roots<Point, 4>({p1, p2, p3, p4});
-
-    auto [c123, c412] = __try_get_circles(rp1, rp2, rp3, rp4);
-    auto [c341, c234] = __try_get_circles(rp3, rp4, rp1, rp2);
-
-    Point* tp = rp4;
-    Circle* c = c123;
-
-    if (c234) {
-        tp = rp1;
-        c = c234;
-    } else if (c341) {
-        tp = rp2;
-        c = c341;
-    } else if (c412) {
-        tp = rp3;
-        c = c412;
-    } else if (c123 == nullptr) {
-        tp = rp4;
-        c = __add_new_circle(rp1, rp2, rp3, dd.base_pred.get());
-    }
-
-    tp->set_this_on(c, pred);
-
-    if (c234) {
-        if (c341) merge_circles(c234, c341, pred);
-        if (c412) merge_circles(c234, c412, pred);
-        if (c123) merge_circles(c234, c123, pred);
-    } else if (c341) {
-        if (c412) merge_circles(c341, c412, pred);
-        if (c123) merge_circles(c341, c123, pred);
-    } else if (c412) {
-        if (c123) merge_circles(c412, c123, pred);
-    }
-}
-
-void GeometricGraph::make_para(Predicate* pred, DDEngine &dd) {
-    Point* p1 = static_cast<Point*>(pred->args[0]);
-    Point* p2 = static_cast<Point*>(pred->args[1]);
-    Point* p3 = static_cast<Point*>(pred->args[2]);
-    Point* p4 = static_cast<Point*>(pred->args[3]);
-
-    auto [rp1, rp2, rp3, rp4] = NodeUtils::get_roots<Point, 4>({p1, p2, p3, p4});
-
-    Line* p1p2 = get_or_add_line(rp1, rp2, dd);
-    Line* p3p4 = get_or_add_line(rp3, rp4, dd);
-
-    Direction* d12 = get_or_add_direction(p1p2, dd);
-    if (p3p4->has_direction()) {
-        Direction* d34 = get_or_add_direction(p3p4, dd);
-        set_directions_para(d12, d34, pred);
-    } else {
-        d12->add_line(p3p4, pred);
-    }
-
-}
-
-void GeometricGraph::make_perp(Predicate* pred, DDEngine &dd) {
-    Point* p1 = static_cast<Point*>(pred->args[0]);
-    Point* p2 = static_cast<Point*>(pred->args[1]);
-    Point* p3 = static_cast<Point*>(pred->args[2]);
-    Point* p4 = static_cast<Point*>(pred->args[3]);
-
-    auto [rp1, rp2, rp3, rp4] = NodeUtils::get_roots<Point, 4>({p1, p2, p3, p4});
-
-    Line* p1p2 = get_or_add_line(rp1, rp2, dd);
-    Line* p3p4 = get_or_add_line(rp3, rp4, dd);
-
-    Direction* d12 = get_or_add_direction(p1p2, dd);
-    Direction* d34 = get_or_add_direction(p3p4, dd);
-    set_directions_perp(d12, d34, pred);
-}
-
-void GeometricGraph::make_eqangle(Predicate* pred, DDEngine &dd) {
-    Point* p1 = static_cast<Point*>(pred->args[0]);
-    Point* p2 = static_cast<Point*>(pred->args[1]);
-    Point* p3 = static_cast<Point*>(pred->args[2]);
-    Point* p4 = static_cast<Point*>(pred->args[3]);
-    Point* p5 = static_cast<Point*>(pred->args[4]);
-    Point* p6 = static_cast<Point*>(pred->args[5]);
-    Point* p7 = static_cast<Point*>(pred->args[6]);
-    Point* p8 = static_cast<Point*>(pred->args[7]);
-
-    Angle* a1 = get_or_add_angle(p1, p2, p3, p4, dd);
-    Angle* a2 = get_or_add_angle(p5, p6, p7, p8, dd);
-    
-    if (a1->has_measure()) {
-        if (a2->has_measure()) {
-            Measure* m1 = a1->get_measure();
-            Measure* m2 = a2->get_measure();
-            set_measures_equal(m1, m2, pred);
-        } else {
-            Measure* m1 = a1->get_measure();
-            a2->set_measure(m1, pred);
-        }
-    } else if (a2->has_measure()) {
-        Measure* m2 = a2->get_measure();
-        a1->set_measure(m2, pred);
-    } else {
-        Measure* m = __add_new_measure(a1, pred);
-        a2->set_measure(m, pred);
-    }
-}
-
-void GeometricGraph::make_circle(Predicate* pred, DDEngine &dd) {
-    Point* c = static_cast<Point*>(pred->args[0]);
-    Point* p1 = static_cast<Point*>(pred->args[1]);
-    Point* p2 = static_cast<Point*>(pred->args[2]);
-    Point* p3 = static_cast<Point*>(pred->args[3]);
-
-    Circle* circ = get_or_add_circle(p1, p2, p3, dd);
-    circ->set_center(c, pred);
-}
-
-
-
-
 bool GeometricGraph::check_coll(Point* p1, Point* p2, Point* p3) {
     Line* l = try_get_line(p1, p2);
     if (!l) { return false; }
@@ -688,7 +531,241 @@ bool GeometricGraph::check_eqangle(Line* l1a, Line* l1b, Line* l2a, Line* l2b) {
 bool GeometricGraph::check_eqangle(Angle* a1, Angle* a2) { return Angle::is_equal(a1, a2); }
 
 
-void GeometricGraph::synthesise_preds(DDEngine &dd) {
+bool GeometricGraph::check_postcondition(PredicateTemplate* pred) {
+    
+    if (!pred->args_filled()) return false;
+
+    switch(pred->name) {
+        case pred_t::COLL:
+            return check_coll(pred->get_arg_point(0),
+                              pred->get_arg_point(1),
+                              pred->get_arg_point(2));
+            break;
+        case pred_t::CYCLIC:
+            return check_cyclic(pred->get_arg_point(0),
+                                pred->get_arg_point(1),
+                                pred->get_arg_point(2),
+                                pred->get_arg_point(3));
+            break;
+        case pred_t::PARA:
+            return check_para(pred->get_arg_point(0),
+                              pred->get_arg_point(1),
+                              pred->get_arg_point(2),
+                              pred->get_arg_point(3));
+            break;
+        case pred_t::PERP:
+            return check_perp(pred->get_arg_point(0),
+                              pred->get_arg_point(1),
+                              pred->get_arg_point(2),
+                              pred->get_arg_point(3));
+            break;
+        case pred_t::EQANGLE:
+            return check_eqangle(pred->get_arg_point(0),
+                                pred->get_arg_point(1),
+                                pred->get_arg_point(2),
+                                pred->get_arg_point(3),
+                                pred->get_arg_point(4),
+                                pred->get_arg_point(5),
+                                pred->get_arg_point(6),
+                                pred->get_arg_point(7));
+            break;
+        case pred_t::CIRCLE:
+            return check_circle(pred->get_arg_point(0),
+                                pred->get_arg_point(1),
+                                pred->get_arg_point(2),
+                                pred->get_arg_point(3));
+            break;
+        default:
+            return false;
+    }
+}
+
+
+
+
+bool GeometricGraph::make_coll(Predicate* pred, DDEngine &dd, AREngine &ar) {
+    Point* p1 = static_cast<Point*>(pred->args[0]);
+    Point* p2 = static_cast<Point*>(pred->args[1]);
+    Point* p3 = static_cast<Point*>(pred->args[2]);
+
+    auto [rp1, rp2, rp3] = NodeUtils::get_roots<Point, 3>({p1, p2, p3});
+
+    if (check_coll(rp1, rp2, rp3)) return false;
+
+    Line* p1p2 = __try_get_line(rp1, rp2);
+    Line* p2p3 = __try_get_line(rp2, rp3);
+    Line* p3p1 = __try_get_line(rp3, rp1);
+    Point* tp = rp3;
+    Line* l = p1p2;
+
+    if (p2p3) {
+        tp = rp1;
+        l = p2p3;
+    } else if (p3p1) {
+        tp = rp2;
+        l = p3p1;
+    } else if (p1p2 == nullptr) {
+        tp = rp3;
+        l = __add_new_line(rp1, rp2, dd.base_pred.get());
+    }
+
+    tp->set_this_on(l, pred);
+
+    if (p2p3) {
+        if (p3p1) merge_lines(p2p3, p3p1, pred);
+        if (p1p2) merge_lines(p2p3, p1p2, pred);
+    } else if (p3p1) {
+        if (p1p2) merge_lines(p3p1, p1p2, pred);
+    }
+    return true;
+}
+
+bool GeometricGraph::make_cyclic(Predicate* pred, DDEngine &dd, AREngine &ar) {
+    Point* p1 = static_cast<Point*>(pred->args[0]);
+    Point* p2 = static_cast<Point*>(pred->args[1]);
+    Point* p3 = static_cast<Point*>(pred->args[2]);
+    Point* p4 = static_cast<Point*>(pred->args[3]);
+
+    auto [rp1, rp2, rp3, rp4] = NodeUtils::get_roots<Point, 4>({p1, p2, p3, p4});
+
+    if (check_cyclic(rp1, rp2, rp3, rp4)) return false;
+
+    auto [c123, c412] = __try_get_circles(rp1, rp2, rp3, rp4);
+    auto [c341, c234] = __try_get_circles(rp3, rp4, rp1, rp2);
+
+    Point* tp = rp4;
+    Circle* c = c123;
+
+    if (c234) {
+        tp = rp1;
+        c = c234;
+    } else if (c341) {
+        tp = rp2;
+        c = c341;
+    } else if (c412) {
+        tp = rp3;
+        c = c412;
+    } else if (c123 == nullptr) {
+        tp = rp4;
+        c = __add_new_circle(rp1, rp2, rp3, dd.base_pred.get());
+    }
+
+    tp->set_this_on(c, pred);
+
+    if (c234) {
+        if (c341) merge_circles(c234, c341, pred);
+        if (c412) merge_circles(c234, c412, pred);
+        if (c123) merge_circles(c234, c123, pred);
+    } else if (c341) {
+        if (c412) merge_circles(c341, c412, pred);
+        if (c123) merge_circles(c341, c123, pred);
+    } else if (c412) {
+        if (c123) merge_circles(c412, c123, pred);
+    }
+    return true;
+}
+
+bool GeometricGraph::make_para(Predicate* pred, DDEngine &dd, AREngine &ar) {
+    Point* p1 = static_cast<Point*>(pred->args[0]);
+    Point* p2 = static_cast<Point*>(pred->args[1]);
+    Point* p3 = static_cast<Point*>(pred->args[2]);
+    Point* p4 = static_cast<Point*>(pred->args[3]);
+
+    auto [rp1, rp2, rp3, rp4] = NodeUtils::get_roots<Point, 4>({p1, p2, p3, p4});
+
+    if (check_para(rp1, rp2, rp3, rp4)) return false;
+
+    Line* p1p2 = get_or_add_line(rp1, rp2, dd);
+    Line* p3p4 = get_or_add_line(rp3, rp4, dd);
+
+    Direction* d12 = get_or_add_direction(p1p2, dd);
+    if (p3p4->has_direction()) {
+        Direction* d34 = get_or_add_direction(p3p4, dd);
+        set_directions_para(d12, d34, pred);
+
+        ar.add_para(d12, d34, pred);
+    } else {
+        d12->add_line(p3p4, pred);
+    }
+    return true;
+}
+
+bool GeometricGraph::make_perp(Predicate* pred, DDEngine &dd, AREngine &ar) {
+    Point* p1 = static_cast<Point*>(pred->args[0]);
+    Point* p2 = static_cast<Point*>(pred->args[1]);
+    Point* p3 = static_cast<Point*>(pred->args[2]);
+    Point* p4 = static_cast<Point*>(pred->args[3]);
+
+    auto [rp1, rp2, rp3, rp4] = NodeUtils::get_roots<Point, 4>({p1, p2, p3, p4});
+
+    if (check_perp(rp1, rp2, rp3, rp4)) return false;
+
+    Line* p1p2 = get_or_add_line(rp1, rp2, dd);
+    Line* p3p4 = get_or_add_line(rp3, rp4, dd);
+
+    Direction* d12 = get_or_add_direction(p1p2, dd);
+    Direction* d34 = get_or_add_direction(p3p4, dd);
+    set_directions_perp(d12, d34, pred);
+
+    ar.add_perp(d12, d34, pred);
+
+    return true;
+}
+
+bool GeometricGraph::make_eqangle(Predicate* pred, DDEngine &dd, AREngine &ar) {
+    Point* p1 = static_cast<Point*>(pred->args[0]);
+    Point* p2 = static_cast<Point*>(pred->args[1]);
+    Point* p3 = static_cast<Point*>(pred->args[2]);
+    Point* p4 = static_cast<Point*>(pred->args[3]);
+    Point* p5 = static_cast<Point*>(pred->args[4]);
+    Point* p6 = static_cast<Point*>(pred->args[5]);
+    Point* p7 = static_cast<Point*>(pred->args[6]);
+    Point* p8 = static_cast<Point*>(pred->args[7]);
+
+    Angle* a1 = get_or_add_angle(p1, p2, p3, p4, dd);
+    Angle* a2 = get_or_add_angle(p5, p6, p7, p8, dd);
+
+    if (check_eqangle(a1, a2)) return false;
+    
+    if (a1->has_measure()) {
+        if (a2->has_measure()) {
+            Measure* m1 = a1->get_measure();
+            Measure* m2 = a2->get_measure();
+            set_measures_equal(m1, m2, pred);
+        } else {
+            Measure* m1 = a1->get_measure();
+            a2->set_measure(m1, pred);
+        }
+    } else if (a2->has_measure()) {
+        Measure* m2 = a2->get_measure();
+        a1->set_measure(m2, pred);
+    } else {
+        Measure* m = __add_new_measure(a1, pred);
+        a2->set_measure(m, pred);
+    }
+    ar.add_eqangle(a1, a2, pred);
+    
+    return true;
+}
+
+bool GeometricGraph::make_circle(Predicate* pred, DDEngine &dd, AREngine &ar) {
+    Point* c = static_cast<Point*>(pred->args[0]);
+    Point* p1 = static_cast<Point*>(pred->args[1]);
+    Point* p2 = static_cast<Point*>(pred->args[2]);
+    Point* p3 = static_cast<Point*>(pred->args[3]);
+
+    if (check_circle(c, p1, p2, p3)) return false;
+
+    Circle* circ = get_or_add_circle(p1, p2, p3, dd);
+    circ->set_center(c, pred);
+    return true;
+}
+
+
+
+
+
+void GeometricGraph::synthesise_preds(DDEngine &dd, AREngine &ar) {
 
     auto recent_preds_gen = dd.get_recent_predicates();
 
@@ -697,22 +774,22 @@ void GeometricGraph::synthesise_preds(DDEngine &dd) {
 
         switch(pred->name) {
             case pred_t::COLL:
-                make_coll(pred, dd);
+                make_coll(pred, dd, ar);
                 break;
             case pred_t::CYCLIC:
-                make_cyclic(pred, dd);
+                make_cyclic(pred, dd, ar);
                 break;
             case pred_t::PARA:
-                make_para(pred, dd);
+                make_para(pred, dd, ar);
                 break;
             case pred_t::PERP:
-                make_perp(pred, dd);
+                make_perp(pred, dd, ar);
                 break;
             case pred_t::EQANGLE:
-                make_eqangle(pred, dd);
+                make_eqangle(pred, dd, ar);
                 break;
             case pred_t::CIRCLE:
-                make_circle(pred, dd);
+                make_circle(pred, dd, ar);
                 break;
             default:
                 break;

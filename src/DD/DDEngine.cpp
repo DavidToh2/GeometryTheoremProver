@@ -1048,8 +1048,11 @@ Generator<bool> DDEngine::match_npara(PredicateTemplate* pred_template, Geometri
 
 Generator<bool> DDEngine::match(Theorem* theorem, int i, int n, GeometricGraph &ggraph) {
     if (i == n) {
-        insert_predicate(theorem->instantiate_postcondition());
-        co_yield true;
+        // Skip over matches where the postcondition is already known
+        if (!ggraph.check_postcondition(theorem->postcondition.get())) {
+            insert_predicate(theorem->instantiate_postcondition());
+            co_yield true;
+        }
         co_return;
     }
     PredicateTemplate* pred_template = theorem->preconditions.predicates[i].get();
@@ -1062,6 +1065,9 @@ Generator<bool> DDEngine::match(Theorem* theorem, int i, int n, GeometricGraph &
     
     while (pred_matcher) {
         if (pred_matcher()) {
+            // Skip over matches where the postcondition is already known
+            if (ggraph.check_postcondition(theorem->postcondition.get())) continue;
+
             Generator<bool> rec = match(theorem, i + 1, n, ggraph);
             while (rec) {
                 if (rec()) {

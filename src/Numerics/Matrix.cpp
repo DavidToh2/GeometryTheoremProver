@@ -173,6 +173,22 @@ int SparseMatrix::extend_columns(int j) {
     }
     return j;
 }
+int SparseMatrix::extend_columns(std::map<int, double>& col_data) {
+    return this->extend_columns(std::move(col_data));
+}
+int SparseMatrix::extend_columns(std::map<int, double>&& col_data) {
+    row_indices.emplace_back(std::vector<int>(s, -1));
+    values.emplace_back(std::vector<double>(s, 0.0));
+    int idx = 0;
+    for (const auto& [i, v] : col_data) {
+        row_indices[n][idx] = i;
+        values[n][idx] = v;
+        idx++;
+        if (idx >= s) break;
+    }
+    n += 1;
+    return 1;
+}
 int SparseMatrix::extend_columns(SparseMatrix& other) {
     if (other.m > m) return 0;
     if (other.s > s) return 0;
@@ -184,4 +200,19 @@ int SparseMatrix::extend_columns(SparseMatrix& other) {
     }
     n += other.n;
     return other.n;
+}
+
+std::string SparseMatrix::__print_matrix() const {
+    std::string repr = "[";
+    for (int i = 0; i < m; i++) {
+        repr += "[ ";
+        for (int j = 0; j < n; j++) {
+            double d = this->get(i, j);
+            Frac f = Frac(d);
+            repr += f.to_string() + ", ";
+        }
+        repr += "]\n";
+    }
+    repr += "]";
+    return repr;
 }

@@ -5,9 +5,10 @@
 
 #include "GTPEngine.hh"
 #include "DD/Predicate.hh"
+#include "AR/AREngine.hh"
+#include "Geometry/GeometricGraph.hh"
 #include "Parsers/InputParser.hh"
-#include <Common/StrUtils.hh>
-#include <Geometry/GeometricGraph.hh>
+#include "Common/StrUtils.hh"
 
 GTPEngine::GTPEngine(
     std::string rule_filepath,
@@ -15,11 +16,6 @@ GTPEngine::GTPEngine(
 ) {
     this->construction_filepath = construction_filepath;
     this->rule_filepath = rule_filepath;
-
-    dd = DDEngine();
-    ggraph = GeometricGraph();
-
-    inputParser = InputParser();
 
     // Read in the constructions and pass them to the DD engine.
     auto constructions = inputParser.parse_constructions_from_file(construction_filepath);
@@ -65,7 +61,7 @@ void GTPEngine::solve(
     std::cout << "Solving problem " << problem_name << std::endl;
     auto start_time = std::chrono::high_resolution_clock::now();
 
-    ggraph.synthesise_preds(dd);
+    ggraph.synthesise_preds(dd, ar);
 
     for (int step = 0; step < max_steps; step++) {
 
@@ -73,7 +69,7 @@ void GTPEngine::solve(
 
         dd.search(ggraph);
 
-        ggraph.synthesise_preds(dd);
+        ggraph.synthesise_preds(dd, ar);
 
         // dd.__print_predicates();
         // ggraph.print();

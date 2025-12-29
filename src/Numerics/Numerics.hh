@@ -32,6 +32,10 @@ typedef struct Frac {
 	std::string to_string() const;
 } Frac;
 
+inline bool __is_close(double a, double b, double tol = Frac::TOL)  {
+    return std::abs(a - b) < tol;
+}
+
 typedef struct Coords {
 	Frac x;
 	Frac y;

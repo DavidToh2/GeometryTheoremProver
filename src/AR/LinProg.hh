@@ -1,4 +1,6 @@
 
+#pragma once
+
 #include "Highs.h"
 #include <vector>
 
@@ -19,7 +21,9 @@ public:
 
     int last;
 
-    LinProg();
+    LinProg(
+        bool verbose=false
+    );
 
     void populate(
         const SparseMatrix& A,
@@ -27,9 +31,26 @@ public:
         const std::vector<double>& c
     );
 
+    void populate_matrix_A(
+        const SparseMatrix& A
+    );
+
+    void populate_target(
+        const std::vector<double>& b
+    );
+
+    void populate_cost(
+        const std::vector<double>& c
+    );
+
     bool solve(
-        std::vector<double>& result
+        std::vector<double>& result,
+        bool verbose=false
     );
 
     std::string __print_matrix_A() const;
+
+    static std::string __print_result(
+        const std::vector<double>& result
+    );
 };
