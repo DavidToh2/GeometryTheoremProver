@@ -45,12 +45,14 @@ public:
     void __add_construction_template_from_texts(const std::tuple<std::string, std::string, std::string> v);
     void set_conclusion(std::unique_ptr<Predicate> predicate);
 
-    void insert_predicate(std::unique_ptr<Predicate> &&predicate);
+    /* Inserts a predicate into the engine (specifically `utrmap<Predicate> predicates`).
+    Returns a raw pointer to the predicate, whether it was newly inserted or already existed.
+    Also adds new predicates into `std::vector<Predicate*> recent_predicates`. */
+    Predicate* insert_predicate(std::unique_ptr<Predicate> &&predicate);
     bool has_predicate_by_hash(const std::string hash);
 
     Generator<Predicate*> get_recent_predicates();
 
-    /* Predicate matching functions */
     Generator<bool> match_coll(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> match_cyclic(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> match_para(PredicateTemplate* pred_template, GeometricGraph &ggraph);

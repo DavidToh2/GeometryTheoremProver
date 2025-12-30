@@ -1,6 +1,7 @@
 
 #include "AREngine.hh"
 #include "Table.hh"
+#include "DD/DDEngine.hh"
 #include "DD/Predicate.hh"
 #include "Geometry/Object.hh"
 #include "Geometry/Value.hh"
@@ -88,7 +89,7 @@ void AREngine::add_cong(
 }
 
 
-Generator<std::tuple<Direction*, Direction*, float, std::vector<Predicate*>>> 
+Generator<std::tuple<Direction*, Direction*, double, std::vector<Predicate*>>> 
 AREngine::get_all_const_angles_and_why() {
     auto gen = angle_table.get_all_eq_3s_and_why();
     while (gen) {
@@ -124,7 +125,7 @@ AREngine::get_all_paras_and_why() {
     co_return;
 }
 
-Generator<std::tuple<Length*, Length*, float, std::vector<Predicate*>>> 
+Generator<std::tuple<Length*, Length*, double, std::vector<Predicate*>>> 
 AREngine::get_all_const_ratios_and_why() {
     auto gen = ratio_table.get_all_eq_3s_and_why();
     while (gen) {
@@ -160,7 +161,25 @@ AREngine::get_all_congs_and_why() {
     co_return;
 }
 
-void AREngine::derive(GeometricGraph& ggraph) {
-    // To be implemented
-    
+void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
+
+    angle_table.get_all_eqs();
+
+    auto gen_const_angle = get_all_const_angles_and_why();
+    while (gen_const_angle) {
+        auto [d1, d2, f, why] = gen_const_angle();
+        if (__is_close(f, 90)) {
+            dd.insert_predicate(
+                std::make_unique<Predicate>(
+                    pred_t::PERP, std::vector<Node*>{d1, d2}, std::move(why))
+            );
+        } else {
+            dd.insert_predicate(
+                std::make_unique<Predicate>(
+                    pred_t::CONSTANGLE, std::vector<Node*>{d1, d2}, std::move(why))
+            );
+        }
+    }
+
+    ratio_table.get_all_eqs();
 }

@@ -53,14 +53,15 @@ void DDEngine::set_conclusion(std::unique_ptr<Predicate> predicate) {
 
 
 
-void DDEngine::insert_predicate(std::unique_ptr<Predicate> &&predicate) {
+Predicate* DDEngine::insert_predicate(std::unique_ptr<Predicate> &&predicate) {
     Predicate* p = predicate.get();
     if (has_predicate_by_hash(p->hash)) {
         predicate.reset();
-        return;
+        return predicates.at(p->hash).get();
     }
     predicates.insert({p->hash, std::move(predicate)});
     recent_predicates.emplace_back(p);
+    return p;
 }
 
 bool DDEngine::has_predicate_by_hash(const std::string hash) {

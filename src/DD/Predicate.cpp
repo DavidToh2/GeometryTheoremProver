@@ -192,18 +192,46 @@ bool PredicateTemplate::validate_degeneracy_args(GeometricGraph &ggraph) {
 
 
 
-Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes) {
-    args = std::move(nodes);
-    name = pred_name;
+Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes)
+: args(std::move(nodes)), name(pred_name) {
     hash = Utils::to_pred_str(pred_name);
     for (Node* node : args) {
         hash = hash + " " + node->name;
     }
 }
+Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, Frac f)
+: Predicate(pred_name, std::move(nodes)) {
+    frac_arg = f;
+    hash = hash + " " + f.to_string();
+}
+Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, PredVec &&why)
+: args(std::move(nodes)), name(pred_name), why(std::move(why)) {
+    hash = Utils::to_pred_str(pred_name);
+    for (Node* node : args) {
+        hash = hash + " " + node->name;
+    }
+}
+Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, Frac f, PredVec &&why)
+: Predicate(pred_name, std::move(nodes), std::move(why)) {
+    frac_arg = f;
+    hash = hash + " " + f.to_string();
+}
+Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, std::vector<Predicate*> &&why)
+: args(std::move(nodes)), name(pred_name), why(std::move(why)) {
+    hash = Utils::to_pred_str(pred_name);
+    for (Node* node : args) {
+        hash = hash + " " + node->name;
+    }
+}
+Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, Frac f, std::vector<Predicate*> &&why)
+: Predicate(pred_name, std::move(nodes), std::move(why)) {
+    frac_arg = f;
+    hash = hash + " " + f.to_string();
+}
 
-Predicate::Predicate(const std::string pred_name, std::vector<Node*> &&nodes) : Predicate(Utils::to_pred_t(pred_name), std::move(nodes)) {}
-
-std::unique_ptr<Predicate> Predicate::from_global_point_map(const std::string pred_string, std::map<std::string, std::unique_ptr<Point>> &global_point_map) {
+std::unique_ptr<Predicate> Predicate::from_global_point_map(
+    const std::string pred_string, std::map<std::string, std::unique_ptr<Point>> &global_point_map
+) {
     std::vector<std::string> v = StrUtils::split(pred_string, " ");
     std::string pred_name = v[0];
 
@@ -222,8 +250,7 @@ std::unique_ptr<Predicate> Predicate::from_global_point_map(const std::string pr
         }
     }
 
-    // Create Predicate from PredicateTemplate
-    return std::make_unique<Predicate>(pred_name, std::move(nodes));
+    return std::make_unique<Predicate>(Utils::to_pred_t(pred_name), std::move(nodes));
 }
 
 Predicate::Predicate(PredicateTemplate &pt) {
@@ -246,9 +273,6 @@ Predicate::Predicate(PredicateTemplate &pt) {
 
 std::string Predicate::to_string() { return hash; }
 
-void PredVec::emplace_back(Predicate* pred) {
-    preds.emplace_back(pred);
-}
 void PredVec::operator+=(Predicate* pred) {
     preds.emplace_back(pred);
 }

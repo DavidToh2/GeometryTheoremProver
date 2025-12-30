@@ -52,6 +52,17 @@ bool Object::contains(Point *p) {
     return NodeUtils::get_root(this)->__contains(p);
 }
 
+Predicate* Object::__why_contains(Point* p) {
+    Point* rp = NodeUtils::get_root(p);
+    if (points.contains(rp)) {
+        return points[rp];
+    }
+    return nullptr;
+}
+Predicate* Object::why_contains(Point *p) {
+    return NodeUtils::get_root(this)->__why_contains(p);
+}
+
 
 
 
@@ -60,12 +71,11 @@ void Point::set_this_on(Line* l, Predicate* pred) {
     if (on_root_line.contains(rl)) return;
 
     if (!Utils::isinmap(l, on_line)) {
-        on_line[l] = std::map<Point*, PredVec>();
+        on_line[l] = std::map<Point*, Predicate*>();
     }
     if (!Utils::isinmap(this, on_line[l])) {
-        on_line[l][this] = PredVec();
+        on_line[l][this] = pred;
     }
-    on_line[l][this] += pred;
     on_root_line.insert(rl);
     rl->points[this] = pred;
 }
@@ -74,12 +84,11 @@ void Point::set_this_on(Circle* c, Predicate* pred) {
     if (on_root_circle.contains(rc)) return;
 
     if (!Utils::isinmap(c, on_circle)) {
-        on_circle[c] = std::map<Point*, PredVec>();
+        on_circle[c] = std::map<Point*, Predicate*>();
     }
     if (!Utils::isinmap(this, on_circle[c])) {
-        on_circle[c][this] = PredVec();
+        on_circle[c][this] = pred;
     }
-    on_circle[c][this] += pred;
     on_root_circle.insert(rc);
     rc->points[this] = pred;
 }
@@ -87,7 +96,6 @@ void Point::set_this_on(Circle* c, Predicate* pred) {
 bool Point::is_this_on(Line* l) {
     return on_root_line.contains(NodeUtils::get_root(l));
 }
-
 bool Point::is_this_on(Circle* c) {
     return on_root_circle.contains(NodeUtils::get_root(c));
 }
@@ -96,7 +104,6 @@ void Point::set_on(Line* l, Predicate* pred) {
     Point* rp = NodeUtils::get_root(this);
     rp->set_this_on(l, pred);
 }
-
 void Point::set_on(Circle* c, Predicate* pred) {
     Point* rp = NodeUtils::get_root(this);
     rp->set_this_on(c, pred);
@@ -106,10 +113,27 @@ bool Point::is_on(Line* l) {
     Point* rp = NodeUtils::get_root(this);
     return rp->is_this_on(l);
 }
-
 bool Point::is_on(Circle* c) {
     Point* rp = NodeUtils::get_root(this);
     return rp->is_this_on(c);
+}
+
+Predicate* Point::__why_on(Line* l) {
+    Line* rl = NodeUtils::get_root(l);
+    Point* rp = NodeUtils::get_root(this);
+    if (rp->on_root_line.contains(rl)) {
+        if (Utils::isinmap(l, rp->on_line)) {
+            if (Utils::isinmap(this, rp->on_line[l])) {
+                return rp->on_line[l][this];
+            }
+        }
+    }
+    return nullptr;
+}
+Predicate* Point::why_on(Line* l) {
+    Line* rl = NodeUtils::get_root(l);
+    Point* rp = NodeUtils::get_root(this);
+    return NodeUtils::get_root(this)->__why_on(l);
 }
 
 Generator<Line*> Point::on_lines() {
@@ -139,15 +163,15 @@ void Point::merge(Point* other, Predicate* pred) {
     root_other->parent_why = pred;
     root_other->root = root_this;
 
-    for (const auto& [l, _] : root_other->on_line) {
+    for (const auto& l : root_other->on_root_line) {
         Utils::replace_key_in_map(l->points, root_other, root_this);
     }
-    for (const auto& [c, _] : root_other->on_circle) {
+    for (const auto& c : root_other->on_root_circle) {
         Utils::replace_key_in_map(c->points, root_other, root_this);
     }
 
-    Point::merge_dmaps(root_this->on_line, root_other->on_line, pred);
-    Point::merge_dmaps(root_this->on_circle, root_other->on_circle, pred);
+    Point::merge_dmaps(root_this->on_line, root_other->on_line);
+    Point::merge_dmaps(root_this->on_circle, root_other->on_circle);
 
     // std::set::merge has move semantics
     root_this->on_root_line.merge(root_other->on_root_line);

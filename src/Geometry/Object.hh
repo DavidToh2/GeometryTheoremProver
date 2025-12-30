@@ -22,7 +22,8 @@ class Angle;
 
 /* Object class.
 
-`points` always stores root points. */
+`points` always stores root points. The most up-to-date copies of `points are stored
+by root objects. */
 class Object : public Node {
 
 public:
@@ -49,6 +50,12 @@ public:
     bool __contains(Point *p);
     /* Checks if the root node of `this` contains the root node of `p` */
     bool contains(Point *p);
+
+    /* Gets the predicate explaining why `root_p` lies on `root_this`
+    Note: assumes that `this` is a root node */
+    Predicate* __why_contains(Point* p);
+    /* Gets the predicate explaining why `root_p` lies on `root_this` */
+    Predicate* why_contains(Point *p);
 };
 
 
@@ -57,18 +64,18 @@ public:
 
 `on_circle` and `on_line` need not store root circles and line nodes. As a result, multiple `Object` keys may 
 exist in these maps with the same root.
-They are read by predicate unification purposes by the DDEngine, as well as for traceback purposes, and are 
-only written to when Point nodes are merged. 
+They are only read for traceback purposes, and are only written to when Point nodes are merged (using the
+`Point::merge_dmaps` function).
 
-`on_root_circle` and `on_root_line` store the root circles and lines that this point lies on.
-They are written to when other `Object` nodes are merged.
-
-Only root nodes populate their `on_` maps and `on_root_` sets.
+`on_root_circle` and `on_root_line` store the root circles and lines that this point lies on. They are written 
+to when other `Object` nodes are merged.
+Only root point nodes populate their `on_` maps and `on_root_` sets. All other points have empty `on_` maps and 
+`on_root_` sets.
 */
 class Point : public Node {
 public:
-    std::map<Line*, std::map<Point*, PredVec>> on_line;
-    std::map<Circle*, std::map<Point*, PredVec>> on_circle;
+    std::map<Line*, std::map<Point*, Predicate*>> on_line;
+    std::map<Circle*, std::map<Point*, Predicate*>> on_circle;
     std::set<Line*> on_root_line;
     std::set<Circle*> on_root_circle;
 
@@ -89,10 +96,10 @@ public:
     - Inserts `this` into `c->points` along with `pred`.
     Note: Assumes that `this` is a root node.
     Note: This function is idempotent. */
+
     void set_this_on(Circle* c, Predicate* pred);
     /* Checks if `this` point lies on the root of node `l`. This is done by checking against the 
     set `on_root_line` of `this`.
-    
     Note: Assumes that `this` is a root node. */
     bool is_this_on(Line* l);
     bool is_this_on(Circle* c);
@@ -108,6 +115,11 @@ public:
     bool is_on(Line* l);
     bool is_on(Circle* c);
 
+    /* Gets the predicate `on_line[l][this]` as stored in `root_this`. */
+    Predicate* __why_on(Line* l);
+    Predicate* why_on(Line* l);
+    Predicate* why_on(Circle* c);
+
     /* Returns the root line nodes that this point is on */
     Generator<Line*> on_lines();
     /* Returns the root circle nodes that this point is on*/
@@ -119,22 +131,18 @@ public:
     Note: This function has no effect if `this` and `other` already have the same root.*/
     void merge(Point* other, Predicate* pred);
 
-    /* Merge two `on_` records in some `Point` object. This empties the second record. 
-    Note: Duplicate `Key*`s may remain in the `dest` after merge, in the sense that there may be two or 
-    more `Key*`s with the same root. */
+    /* Merge two `on_` records in some `Point` object. This empties the second record. */
     template <std::derived_from<Object> Key>
     static void merge_dmaps(
-        std::map<Key*, std::map<Point*, PredVec>> &dest, 
-        std::map<Key*, std::map<Point*, PredVec>> &src, 
-        Predicate* pred) 
-    {
+        std::map<Key*, std::map<Point*, Predicate*>> &dest, 
+        std::map<Key*, std::map<Point*, Predicate*>> &src
+    ) {
         for (const auto& [obj, _] : src) {
             if (!Utils::isinmap(obj, dest)) {
-                dest[obj] = std::map<Point*, PredVec>();
+                dest[obj] = std::map<Point*, Predicate*>();
             }
-            for (const auto& [pt, _] : src[obj]) {
-                src[obj][pt] += pred;
-            }
+            // Note: dest[obj] and src[obj] should not have any overlapping keys, since the only possible
+            // keys are the children of dest and src respectively
             dest[obj].merge(src[obj]);
             src.erase(obj);
         }
@@ -185,6 +193,8 @@ public:
     /* Gets the root direction node of this line.
     Note: This function also lazily updates `direction` to the root `Direction` node. */
     Direction* get_direction();
+
+    Predicate* why_direction();
 
     /* Checks if `l1` and `l2` are parallel.
     This is done by fetching the roots of `l1` and `l2`, then checking if their root directions are the same.
@@ -246,6 +256,8 @@ public:
     Point* __get_center();
     /* Gets the root node representing the center of the root of `this` circle. */
     Point* get_center();
+
+    Predicate* why_center();
 
     /* Returns all circles passing through the chord `p1p2`.
     This is done by looking at the intersection of the two `on_root_circle` sets of `p1` and `p2` respectively. 

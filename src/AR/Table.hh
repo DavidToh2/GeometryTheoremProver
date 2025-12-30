@@ -106,12 +106,30 @@ added are already known to the `Table`.
 
 When an expression is added to the `Table` via `add_eq_N()`,
 - we first call `record_eq_N_as_seen()`, which returns `false` if an exact copy of the
-  expression has already been added before;
+  expression has already been added before,
 - we then call `add_expr()`, which returns `false` if the expression is already known
   to the `Table` (i.e., it can be derived from existing expressions in `M_var_to_expr`),
   and adds it to `M_var_to_expr` otherwise;
 - finally we call `register_expr()`, which adds the expression to the matrix `A` along
   with its associated predicate.
+
+## Fetching equalities
+
+When `get_all_eqs()` is called, we iterate through all ordered distinct variable pairs 
+`(v1, v2)`, storing them in:
+- `eq_2s` if they satisfy `v1 - v2 = 0`, otherwise
+- `eq_3s` if they satisfy `v1 - v2 = f`, otherwise
+- `eq_4s` in the general case
+
+We then call each of `get_all_eq_Ns_and_why()`, which returns all newly derived, unordered 
+variable pairs (or quadruples) satisfying each of the three equality types above. This is
+done by
+- iterating through the corresponding `eq_Ns` map,
+- calling `is_eq_N_seen()` to skip unordered pairs (or quadruples) which have already been
+  seen,
+- calling `record_eq_N_as_seen()` to mark the pair (or quadruple) as seen,
+- and calling `why()` on the corresponding expression to fetch the list of predicates
+  which imply the equality.
 */
 class Table {
 public:
@@ -281,21 +299,39 @@ public:
     Called by `get_all_eq_Ns_and_why()`. */
     std::vector<Predicate*> why(const Expr::Expr& expr);
 
-
+    /* Gets all pairs of distinct variables `(v1, v2)`. */
     Generator<Expr::VarPair> all_varpairs() const;
 
-    /* Populate the `eq_Ns` maps. */
+    /* Populate the `eq_Ns` maps. 
+
+    Note: All ordered pairs will be populated. This is necessary as some `eh` might have
+    two variable pairs `(v1, v2)` and `(v4, v3)` corresponding to it, satisfying the
+    ordering `v1 < v2` and `v4 > v3`. In other words, we cannot make assumptions on the
+    ordering of the variables being stored in `eq_Ns`. */
     void get_all_eqs();
 
-    /* Used by `AngleTable` to `get_all_paras`.
+    /* Returns all unordered pairs of distinct variables `(v1, v2)` which have been deduced 
+    to be the same, i.e. satisfying `v1 - v2 = 0`.
+    Note: Because of the way `is_eq_2_seen()` works, each unordered pair is only yielded once.
+
+    Used by `AngleTable` to `get_all_paras`.
     Used by `RatioTable` to `get_all_congs`. */
     Generator<std::tuple<Expr::Var, Expr::Var, std::vector<Predicate*>>> get_all_eq_2s_and_why();
 
-    /* Used by `AngleTable` to `get_all_const_angles`.
+    /* Returns all unordered pairs of distinct variables `(v1, v2)` and float `f` which have
+    been deduced to satisfy `v1 - v2 = f`.
+    Note: Because of the way `is_eq_3_seen()` works, each unordered pair is only yielded once.
+
+    Used by `AngleTable` to `get_all_const_angles`.
     Used by `RatioTable` to `get_all_const_ratios`. */
     Generator<std::tuple<Expr::Var, Expr::Var, Frac, std::vector<Predicate*>>> get_all_eq_3s_and_why();
 
-    /* Used by `AngleTable` to `get_all_eqangles`.
+    /* Returns all unordered 4-tuples of distinct variables `((v1, v2), (v3, v4))` which have
+    been deduced to satisfy `v1 - v2 = v3 - v4`.
+    Note: Because of the way `is_eq_4_seen()` works, each unordered 4-tuple is only yielded 
+    once.
+
+    Used by `AngleTable` to `get_all_eqangles`.
     Used by `RatioTable` to `get_all_eqratios`. */
     Generator<std::tuple<Expr::Var, Expr::Var, Expr::Var, Expr::Var, std::vector<Predicate*>>> get_all_eq_4s_and_why();
 };

@@ -7,6 +7,8 @@
 #include "Geometry/Value.hh"
 #include "Geometry/Object2.hh"
 
+class DDEngine;
+
 class AREngine {
 public:
     Table angle_table;
@@ -42,19 +44,23 @@ public:
     void add_eqratio(Length* l1, Length* l2, Length* l3, Length* l4, Predicate* pred);
     void add_cong(Length* l1, Length* l2, Predicate* pred);
 
-    Generator<std::tuple<Direction*, Direction*, float, std::vector<Predicate*>>> 
+    /* Returns all unordered pairs of directions `(d1, d2)` and a double `f` satisfying
+    `Angle(d1, d2) = f`. Here, `f` is a decimal between 0 and 180. Perpendicular pairs
+    of directions are returned with `f = 90`. */
+    Generator<std::tuple<Direction*, Direction*, double, std::vector<Predicate*>>> 
     get_all_const_angles_and_why();
     Generator<std::tuple<Direction*, Direction*, Direction*, Direction*, std::vector<Predicate*>>> 
     get_all_eqangles_and_why();
     Generator<std::tuple<Direction*, Direction*, std::vector<Predicate*>>> 
     get_all_paras_and_why();
 
-    Generator<std::tuple<Length*, Length*, float, std::vector<Predicate*>>> 
+    Generator<std::tuple<Length*, Length*, double, std::vector<Predicate*>>> 
     get_all_const_ratios_and_why();
     Generator<std::tuple<Length*, Length*, Length*, Length*, std::vector<Predicate*>>> 
     get_all_eqratios_and_why();
     Generator<std::tuple<Length*, Length*, std::vector<Predicate*>>> 
     get_all_congs_and_why();
 
-    void derive(GeometricGraph& ggraph);
+    /* Derive new predicates. */
+    void derive(GeometricGraph& ggraph, DDEngine& dd);
 };

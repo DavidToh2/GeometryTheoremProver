@@ -334,7 +334,7 @@ Generator<Expr::VarPair> Table::all_varpairs() const {
     for (const auto& [var1, _] : M_var_to_expr) {
         if (var1 == one) continue;
         for (const auto& [var2, _] : M_var_to_expr) {
-            if (var2 == one) continue;
+            if (var2 == one || var2 == var1) continue;
             co_yield {var1, var2};
         }
     }

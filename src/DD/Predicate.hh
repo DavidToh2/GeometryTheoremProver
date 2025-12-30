@@ -114,6 +114,20 @@ public:
 	bool validate_degeneracy_args(GeometricGraph &ggraph);
 };
 
+class PredVec {
+public:
+	std::vector<Predicate*> preds;
+
+	PredVec() {}
+	PredVec(std::initializer_list<Predicate*> init_list) : preds(init_list) {}
+	PredVec(std::vector<Predicate*> &&vec) : preds(std::move(vec)) {}
+
+	void operator+=(Predicate* pred);
+	void operator+=(const PredVec& other);
+
+	explicit operator std::vector<Predicate*>() const { return preds; }
+};
+
 class Predicate {
 public:
 	std::string hash;
@@ -121,30 +135,21 @@ public:
 	pred_t name;
 	std::vector<Node*> args;
 	Frac frac_arg;
-	std::set<Predicate*> why; // keep
+	PredVec why; // keep
 
-	Predicate() : name(pred_t::BASE), hash("BASE") {};
+	Predicate() : name(pred_t::BASE), hash(Utils::to_pred_str(pred_t::BASE)) {};
 	Predicate(const pred_t name, std::vector<Node*> &&nodes);
-	Predicate(const std::string pred_name, std::vector<Node*> &&nodes);
+	Predicate(const pred_t name, std::vector<Node*> &&nodes, Frac f);
+	Predicate(const pred_t name, std::vector<Node*> &&nodes, PredVec &&why);
+	Predicate(const pred_t name, std::vector<Node*> &&nodes, Frac f, PredVec &&why);
+	Predicate(const pred_t name, std::vector<Node*> &&nodes, std::vector<Predicate*> &&why);
+	Predicate(const pred_t name, std::vector<Node*> &&nodes, Frac f, std::vector<Predicate*> &&why);
 	Predicate(PredicateTemplate &pred_template);
 
-	static std::unique_ptr<Predicate> from_global_point_map(const std::string pred_string, std::map<std::string, std::unique_ptr<Point>> &global_point_map);
+	static std::unique_ptr<Predicate> 
+	from_global_point_map(const std::string pred_string, std::map<std::string, std::unique_ptr<Point>> &global_point_map);
 
 	std::string to_string();
-};
-
-class PredVec {
-public:
-	std::vector<Predicate*> preds;
-
-	PredVec() {}
-	PredVec(std::initializer_list<Predicate*> init_list) : preds(init_list) {}
-
-	void emplace_back(Predicate* pred);
-	void operator+=(Predicate* pred);
-	void operator+=(const PredVec& other);
-
-	explicit operator std::vector<Predicate*>() const { return preds;}
 };
 
 class ClauseTemplate {

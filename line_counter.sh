@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# iterates over the .cpp and .hh files in src/ and count the number of non-empty lines in each file
+# iterates over the .cpp and .hh files in src/ and tests/ and count the number of non-empty lines per file
 # also exclude lines with 2 or fewer characters (to ignore lines with just braces or very short comments)
 # return the total number of lines over all files
 # does the same thing for the markdown files in notes/

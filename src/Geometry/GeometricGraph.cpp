@@ -665,7 +665,7 @@ bool GeometricGraph::make_cyclic(Predicate* pred, DDEngine &dd, AREngine &ar) {
     return true;
 }
 
-bool GeometricGraph::make_para(Predicate* pred, DDEngine &dd, AREngine &ar) {
+bool GeometricGraph::make_para(Predicate* pred, DDEngine &dd, AREngine &ar, bool do_ar) {
     Point* p1 = static_cast<Point*>(pred->args[0]);
     Point* p2 = static_cast<Point*>(pred->args[1]);
     Point* p3 = static_cast<Point*>(pred->args[2]);
@@ -683,14 +683,14 @@ bool GeometricGraph::make_para(Predicate* pred, DDEngine &dd, AREngine &ar) {
         Direction* d34 = get_or_add_direction(p3p4, dd);
         set_directions_para(d12, d34, pred);
 
-        ar.add_para(d12, d34, pred);
+        if (do_ar) ar.add_para(d12, d34, pred);
     } else {
         d12->add_line(p3p4, pred);
     }
     return true;
 }
 
-bool GeometricGraph::make_perp(Predicate* pred, DDEngine &dd, AREngine &ar) {
+bool GeometricGraph::make_perp(Predicate* pred, DDEngine &dd, AREngine &ar, bool do_ar) {
     Point* p1 = static_cast<Point*>(pred->args[0]);
     Point* p2 = static_cast<Point*>(pred->args[1]);
     Point* p3 = static_cast<Point*>(pred->args[2]);
@@ -707,12 +707,12 @@ bool GeometricGraph::make_perp(Predicate* pred, DDEngine &dd, AREngine &ar) {
     Direction* d34 = get_or_add_direction(p3p4, dd);
     set_directions_perp(d12, d34, pred);
 
-    ar.add_perp(d12, d34, pred);
+    if (do_ar) ar.add_perp(d12, d34, pred);
 
     return true;
 }
 
-bool GeometricGraph::make_eqangle(Predicate* pred, DDEngine &dd, AREngine &ar) {
+bool GeometricGraph::make_eqangle(Predicate* pred, DDEngine &dd, AREngine &ar, bool do_ar) {
     Point* p1 = static_cast<Point*>(pred->args[0]);
     Point* p2 = static_cast<Point*>(pred->args[1]);
     Point* p3 = static_cast<Point*>(pred->args[2]);
@@ -743,7 +743,7 @@ bool GeometricGraph::make_eqangle(Predicate* pred, DDEngine &dd, AREngine &ar) {
         Measure* m = __add_new_measure(a1, pred);
         a2->set_measure(m, pred);
     }
-    ar.add_eqangle(a1, a2, pred);
+    if (do_ar) ar.add_eqangle(a1, a2, pred);
     
     return true;
 }
@@ -765,7 +765,7 @@ bool GeometricGraph::make_circle(Predicate* pred, DDEngine &dd, AREngine &ar) {
 
 
 
-void GeometricGraph::synthesise_preds(DDEngine &dd, AREngine &ar) {
+void GeometricGraph::synthesise_preds(DDEngine &dd, AREngine &ar, bool do_ar) {
 
     auto recent_preds_gen = dd.get_recent_predicates();
 
@@ -780,13 +780,13 @@ void GeometricGraph::synthesise_preds(DDEngine &dd, AREngine &ar) {
                 make_cyclic(pred, dd, ar);
                 break;
             case pred_t::PARA:
-                make_para(pred, dd, ar);
+                make_para(pred, dd, ar, do_ar);
                 break;
             case pred_t::PERP:
-                make_perp(pred, dd, ar);
+                make_perp(pred, dd, ar, do_ar);
                 break;
             case pred_t::EQANGLE:
-                make_eqangle(pred, dd, ar);
+                make_eqangle(pred, dd, ar, do_ar);
                 break;
             case pred_t::CIRCLE:
                 make_circle(pred, dd, ar);

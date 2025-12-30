@@ -24,7 +24,8 @@ Theorem::Theorem(const std::string &s) {
 
 std::unique_ptr<Predicate> Theorem::instantiate_postcondition() {
     // std::cout << "Instantiating: " << to_string() << std::endl;
-    return postcondition.get()->instantiate();
+    std::unique_ptr<Predicate> pred = postcondition.get()->instantiate();
+    return pred;
 }
 
 void Theorem::__set_placeholder_args() {

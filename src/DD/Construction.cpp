@@ -112,12 +112,12 @@ Generator<std::unique_ptr<Predicate>> Construction::__instantiate_no_checks(
     auto preconditions_ = preconditions.instantiate();
     while (preconditions_) {
         auto pre = std::move(preconditions_());
-        pre.get()->why.insert(base_pred);
+        pre.get()->why = {base_pred};
         co_yield std::move(pre);
     }
     for (auto& postptr : postconditions) {
         auto post = std::move(postptr.get()->instantiate());
-        post.get()->why.insert(base_pred);
+        post.get()->why = {base_pred};
         co_yield std::move(post);
     }
 

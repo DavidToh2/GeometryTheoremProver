@@ -272,33 +272,31 @@ public:
 
 
 
-
     bool make_coll(Predicate* pred, DDEngine &dd, AREngine &ar);
     bool make_cyclic(Predicate* pred, DDEngine &dd, AREngine &ar);
-    bool make_para(Predicate* pred, DDEngine &dd, AREngine &ar);
-    bool make_perp(Predicate* pred, DDEngine &dd, AREngine &ar);
-    bool make_cong(Predicate* pred, DDEngine &dd, AREngine &ar);
-    bool make_eqangle(Predicate* pred, DDEngine &dd, AREngine &ar);
-    bool make_eqratio(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool make_para(Predicate* pred, DDEngine &dd, AREngine &ar, bool do_ar);
+    bool make_perp(Predicate* pred, DDEngine &dd, AREngine &ar, bool do_ar);
+    bool make_cong(Predicate* pred, DDEngine &dd, AREngine &ar, bool do_ar);
+    bool make_eqangle(Predicate* pred, DDEngine &dd, AREngine &ar, bool do_ar);
+    bool make_eqratio(Predicate* pred, DDEngine &dd, AREngine &ar, bool do_ar);
     bool make_contri(Predicate* pred, DDEngine &dd, AREngine &ar);
     bool make_simtri(Predicate* pred, DDEngine &dd, AREngine &ar);
     bool make_circle(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool make_constangle(Predicate* pred, DDEngine &dd, AREngine &ar, bool do_ar);
+    bool make_constratio(Predicate* pred, DDEngine &dd, AREngine &ar, bool do_ar);
 
 
 
     /* Synthesize new geometric objects based on recently added predicates.
     Note: All `make_` functions should be idempotent. */
-    void synthesise_preds(DDEngine &dd, AREngine &ar);
+    void synthesise_preds(DDEngine &dd, AREngine &ar, bool do_ar);
     void synthesise_pred2s(DDEngine &dd);
 
-    /* Link objects which are related. */
-    void link_lines(DDEngine &dd);
-    
 
-    /* Unify nodes which have been shown to be identical. */
-    void unify_points(DDEngine &dd);
-    void unify_objects(DDEngine &dd);
-    void unify_values(DDEngine &dd);
+
+    Predicate* why(Predicate* pred, DDEngine &dd);
+
+
     
     void __print_points(std::ostream &os);
     void __print_lines(std::ostream &os);

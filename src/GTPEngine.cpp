@@ -61,7 +61,7 @@ void GTPEngine::solve(
     std::cout << "Solving problem " << problem_name << std::endl;
     auto start_time = std::chrono::high_resolution_clock::now();
 
-    ggraph.synthesise_preds(dd, ar);
+    ggraph.synthesise_preds(dd, ar, true);
 
     for (int step = 0; step < max_steps; step++) {
 
@@ -69,7 +69,11 @@ void GTPEngine::solve(
 
         dd.search(ggraph);
 
-        ggraph.synthesise_preds(dd, ar);
+        ggraph.synthesise_preds(dd, ar, true);
+
+        ar.derive(ggraph, dd);
+
+        ggraph.synthesise_preds(dd, ar, false);
 
         // dd.__print_predicates();
         // ggraph.print();
