@@ -176,10 +176,17 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
         } else {
             dd.insert_predicate(
                 std::make_unique<Predicate>(
-                    pred_t::CONSTANGLE, std::vector<Node*>{d1, d2}, std::move(why))
+                    pred_t::CONSTANGLE, std::vector<Node*>{d1, d2}, f, std::move(why))
             );
         }
     }
 
     ratio_table.get_all_eqs();
+}
+
+void AREngine::reset_problem() {
+    angle_table.reset();
+    ratio_table.reset();
+    var_to_direction.clear();
+    var_to_length.clear();
 }

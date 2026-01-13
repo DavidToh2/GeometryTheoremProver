@@ -54,15 +54,18 @@ public:
     /* Checks if the root node of `this` has a measure. */
     bool has_measure();
     /* Gets the root measure node of this angle.
+    Note: Assumes that the angle already has a measure.
     Note: This function also lazily updates `measure` to the root `Measure` node. */
     Measure* __get_measure();
     /* Gets the root measure node of this angle.
+    Note: Assumes that the angle already has a measure.
     Note: This function also lazily updates `measure` to the root `Measure` node. */
     Measure* get_measure();
 
     /* Checks if angles `a1` and `a2` are equal. 
     This is done by fetching the roots of `a1` and `a2`, then checking if their root measures are the same. */
     static bool is_equal(Angle* a1, Angle* a2);
+    static bool is_equal(Angle* a, Frac f);
     static bool sum_to_180(Angle* a1, Angle* a2);
     static bool sum_to_90(Angle* a1, Angle* a2);
 

@@ -94,6 +94,14 @@ Line* GeometricGraph::try_get_line(Point* p1, Point* p2) {
     return __try_get_line(NodeUtils::get_root(p1), NodeUtils::get_root(p2));
 }
 
+constexpr std::pair<Point*, Point*> GeometricGraph::__get_points_on_line(Line* l) {
+    return {l->points.begin()->first, std::next(l->points.begin())->first};
+}
+
+constexpr std::pair<Point*, Point*> GeometricGraph::get_points_on_line(Line* l) {
+    return __get_points_on_line(NodeUtils::get_root(l));
+}
+
 void GeometricGraph::merge_lines(Line* dest, Line* src, Predicate* pred) {
     if (dest == src) return;
     root_lines.erase(NodeUtils::get_root(src));
@@ -122,6 +130,10 @@ Direction* GeometricGraph::get_or_add_direction(Line* l, DDEngine &dd) {
         return root_l->get_direction();
     }
     return __add_new_direction(root_l, dd.base_pred.get());
+}
+
+constexpr Line* GeometricGraph::get_line_from_direction(Direction* d) {
+    return *(d->root_objs.begin());
 }
 
 void GeometricGraph::set_directions_para(Direction* dest, Direction* src, Predicate* pred) {
@@ -218,7 +230,7 @@ Circle* GeometricGraph::__try_get_circle(Point* c, Point* p1) {
     Circle* circ = nullptr;
     while (gen) {
         Circle* circ0 = gen();
-        if (circ0->get_center() == NodeUtils::get_root(c)) {
+        if (NodeUtils::same_as(circ0->__get_center(), c)) {
             circ = circ0;
             break;
         }
@@ -396,6 +408,15 @@ Angle* GeometricGraph::try_get_angle(Point* p1, Point* p2, Point* p3) {
     return nullptr;
 }
 
+Angle* GeometricGraph::get_or_add_angle(Direction* d1, Direction* d2, DDEngine& dd) {
+    Direction* rd1 = NodeUtils::get_root(d1);
+    Direction* rd2 = NodeUtils::get_root(d2);
+    Angle* a = __try_get_angle(rd1, rd2);
+    if (!a) {
+        a = __add_new_angle(rd1, rd2, dd.base_pred.get());
+    }
+    return a;
+}
 Angle* GeometricGraph::get_or_add_angle(Line* l1, Line* l2, DDEngine& dd) {
     Line* rl1 = NodeUtils::get_root(l1);
     Line* rl2 = NodeUtils::get_root(l2);
@@ -423,6 +444,19 @@ Angle* GeometricGraph::get_or_add_angle(Point* p1, Point* p2, Point* p3, DDEngin
     }
     return a;
 }
+
+
+constexpr std::pair<Line*, Line*> GeometricGraph::get_lines_from_angle(Angle* a) {
+    return {get_line_from_direction(a->direction1), get_line_from_direction(a->direction2)};
+}
+constexpr std::pair<std::pair<Point*, Point*>, std::pair<Point*, Point*>> GeometricGraph::get_points_from_angle(Angle* a) {
+    return {
+        __get_points_on_line(get_line_from_direction(a->direction1)),
+        __get_points_on_line(get_line_from_direction(a->direction2)),
+    };
+}
+
+
 void GeometricGraph::merge_angles(Angle* dest, Angle* src, Predicate* pred) {
     if (dest == src) return;
     root_angles.erase(NodeUtils::get_root(src));
@@ -451,12 +485,23 @@ Measure* GeometricGraph::get_or_add_measure(Angle* a, DDEngine& dd) {
     }
     return __add_new_measure(ra, dd.base_pred.get());
 }
+
+
+constexpr Angle* GeometricGraph::get_angle_from_measure(Measure* m) {
+    return *(m->root_obj2s.begin());
+}
+
+
 void GeometricGraph::set_measures_equal(Measure* m1, Measure* m2, Predicate* pred) {
     if (m1 == m2) return;
     root_measures.erase(NodeUtils::get_root(m2));
     m1->merge(m2, pred);
 }
 
+void GeometricGraph::set_measure_val(Measure* m, Frac f, Predicate* pred) {
+    m->val = f;
+    m->val_why = pred;
+}
 
 
 
@@ -491,6 +536,7 @@ bool GeometricGraph::check_para(Point* p1, Point* p2, Line* l1) {
 
 bool GeometricGraph::check_para(Line* l1, Line* l2) { return Line::is_para(l1, l2); }
 
+bool GeometricGraph::check_para(Direction* d1, Direction* d2) { return Direction::is_para(d1, d2); }
 
 bool GeometricGraph::check_perp(Point* p1, Point* p2, Point* p3, Point* p4) {
     Line* p1p2 = try_get_line(p1, p2);
@@ -506,6 +552,7 @@ bool GeometricGraph::check_perp(Point* p1, Point* p2, Line* l1) {
 
 bool GeometricGraph::check_perp(Line* l1, Line* l2) { return Line::is_perp(l1, l2); }
 
+bool GeometricGraph::check_perp(Direction* d1, Direction* d2) { return Direction::is_perp(d1, d2); }
 
 
 bool GeometricGraph::check_eqangle(Point* p1, Point* p2, Point* p3, Point* p4,
@@ -530,6 +577,18 @@ bool GeometricGraph::check_eqangle(Line* l1a, Line* l1b, Line* l2a, Line* l2b) {
 }
 bool GeometricGraph::check_eqangle(Angle* a1, Angle* a2) { return Angle::is_equal(a1, a2); }
 
+
+bool GeometricGraph::check_circle(Point* c, Point* p1, Point* p2, Point* p3) {
+    Circle* circ = try_get_circle(p1, p2, p3);
+    return check_circle(c, circ);
+}
+
+bool GeometricGraph::check_circle(Point* c, Circle* circ) {
+    return NodeUtils::same_as(c, circ->__get_center());
+}
+
+
+bool GeometricGraph::check_constangle(Angle* a, Frac f) { return Angle::is_equal(a, f); }
 
 bool GeometricGraph::check_postcondition(PredicateTemplate* pred) {
     
@@ -583,7 +642,7 @@ bool GeometricGraph::check_postcondition(PredicateTemplate* pred) {
 
 
 
-bool GeometricGraph::make_coll(Predicate* pred, DDEngine &dd, AREngine &ar) {
+bool GeometricGraph::make_coll(Predicate* pred, DDEngine &dd) {
     Point* p1 = static_cast<Point*>(pred->args[0]);
     Point* p2 = static_cast<Point*>(pred->args[1]);
     Point* p3 = static_cast<Point*>(pred->args[2]);
@@ -620,7 +679,7 @@ bool GeometricGraph::make_coll(Predicate* pred, DDEngine &dd, AREngine &ar) {
     return true;
 }
 
-bool GeometricGraph::make_cyclic(Predicate* pred, DDEngine &dd, AREngine &ar) {
+bool GeometricGraph::make_cyclic(Predicate* pred, DDEngine &dd) {
     Point* p1 = static_cast<Point*>(pred->args[0]);
     Point* p2 = static_cast<Point*>(pred->args[1]);
     Point* p3 = static_cast<Point*>(pred->args[2]);
@@ -665,7 +724,7 @@ bool GeometricGraph::make_cyclic(Predicate* pred, DDEngine &dd, AREngine &ar) {
     return true;
 }
 
-bool GeometricGraph::make_para(Predicate* pred, DDEngine &dd, AREngine &ar, bool do_ar) {
+bool GeometricGraph::make_para(Predicate* pred, DDEngine &dd, AREngine &ar) {
     Point* p1 = static_cast<Point*>(pred->args[0]);
     Point* p2 = static_cast<Point*>(pred->args[1]);
     Point* p3 = static_cast<Point*>(pred->args[2]);
@@ -683,14 +742,36 @@ bool GeometricGraph::make_para(Predicate* pred, DDEngine &dd, AREngine &ar, bool
         Direction* d34 = get_or_add_direction(p3p4, dd);
         set_directions_para(d12, d34, pred);
 
-        if (do_ar) ar.add_para(d12, d34, pred);
+        ar.add_para(d12, d34, pred);
     } else {
         d12->add_line(p3p4, pred);
     }
     return true;
 }
 
-bool GeometricGraph::make_perp(Predicate* pred, DDEngine &dd, AREngine &ar, bool do_ar) {
+bool GeometricGraph::make_ar_para(Predicate* pred) {
+    Direction* d1 = static_cast<Direction*>(pred->args[0]);
+    Direction* d2 = static_cast<Direction*>(pred->args[1]);
+
+    if (check_para(d1, d2)) return false;
+
+    auto [rd1, rd2] = NodeUtils::get_roots<Direction, 2>({d1, d2});
+
+    Line* l1 = get_line_from_direction(rd1);
+    Line* l2 = get_line_from_direction(rd2);
+
+    auto [p1, p2] = get_points_on_line(l1);
+    auto [p3, p4] = get_points_on_line(l2);
+    pred->args[0] = p1;
+    pred->args[1] = p2;
+    pred->args.emplace_back(p3);
+    pred->args.emplace_back(p4);
+
+    set_directions_para(rd1, rd2, pred);
+    return true;
+}
+
+bool GeometricGraph::make_perp(Predicate* pred, DDEngine &dd, AREngine &ar) {
     Point* p1 = static_cast<Point*>(pred->args[0]);
     Point* p2 = static_cast<Point*>(pred->args[1]);
     Point* p3 = static_cast<Point*>(pred->args[2]);
@@ -707,12 +788,35 @@ bool GeometricGraph::make_perp(Predicate* pred, DDEngine &dd, AREngine &ar, bool
     Direction* d34 = get_or_add_direction(p3p4, dd);
     set_directions_perp(d12, d34, pred);
 
-    if (do_ar) ar.add_perp(d12, d34, pred);
+    ar.add_perp(d12, d34, pred);
 
     return true;
 }
 
-bool GeometricGraph::make_eqangle(Predicate* pred, DDEngine &dd, AREngine &ar, bool do_ar) {
+bool GeometricGraph::make_ar_perp(Predicate* pred) {
+    // Exactly the same as make_ar_para.
+    Direction* d1 = static_cast<Direction*>(pred->args[0]);
+    Direction* d2 = static_cast<Direction*>(pred->args[1]);
+
+    if (check_perp(d1, d2)) return false;
+
+    auto [rd1, rd2] = NodeUtils::get_roots<Direction, 2>({d1, d2});
+
+    Line* l1 = get_line_from_direction(rd1);
+    Line* l2 = get_line_from_direction(rd2);
+
+    auto [p1, p2] = get_points_on_line(l1);
+    auto [p3, p4] = get_points_on_line(l2);
+    pred->args[0] = p1;
+    pred->args[1] = p2;
+    pred->args.emplace_back(p3);
+    pred->args.emplace_back(p4);
+
+    set_directions_perp(rd1, rd2, pred);
+    return true;
+}
+
+bool GeometricGraph::make_eqangle(Predicate* pred, DDEngine &dd, AREngine &ar) {
     Point* p1 = static_cast<Point*>(pred->args[0]);
     Point* p2 = static_cast<Point*>(pred->args[1]);
     Point* p3 = static_cast<Point*>(pred->args[2]);
@@ -743,12 +847,49 @@ bool GeometricGraph::make_eqangle(Predicate* pred, DDEngine &dd, AREngine &ar, b
         Measure* m = __add_new_measure(a1, pred);
         a2->set_measure(m, pred);
     }
-    if (do_ar) ar.add_eqangle(a1, a2, pred);
+    ar.add_eqangle(a1, a2, pred);
     
     return true;
 }
 
-bool GeometricGraph::make_circle(Predicate* pred, DDEngine &dd, AREngine &ar) {
+bool GeometricGraph::make_ar_eqangle(Predicate* pred, DDEngine& dd) {
+    Direction* d1 = static_cast<Direction*>(pred->args[0]);
+    Direction* d2 = static_cast<Direction*>(pred->args[1]);
+    Direction* d3 = static_cast<Direction*>(pred->args[2]);
+    Direction* d4 = static_cast<Direction*>(pred->args[3]);
+
+    Angle* a1 = get_or_add_angle(d1, d2, dd);
+    Angle* a2 = get_or_add_angle(d3, d4, dd);
+
+    if (check_eqangle(a1, a2)) return false;
+
+    Measure* m1 = get_or_add_measure(a1, dd);
+    Measure* m2 = get_or_add_measure(a2, dd);
+
+    Line* l1 = get_line_from_direction(d1);
+    Line* l2 = get_line_from_direction(d2);
+    Line* l3 = get_line_from_direction(d3);
+    Line* l4 = get_line_from_direction(d4);
+
+    auto [p1, p2] = get_points_on_line(l1);
+    auto [p3, p4] = get_points_on_line(l2);
+    auto [p5, p6] = get_points_on_line(l3);
+    auto [p7, p8] = get_points_on_line(l4);
+
+    pred->args[0] = p1;
+    pred->args[1] = p2;
+    pred->args[2] = p3;
+    pred->args[3] = p4;
+    pred->args.emplace_back(p5);
+    pred->args.emplace_back(p6);
+    pred->args.emplace_back(p7);
+    pred->args.emplace_back(p8);
+
+    set_measures_equal(m1, m2, pred);
+    return true;
+}
+
+bool GeometricGraph::make_circle(Predicate* pred, DDEngine &dd) {
     Point* c = static_cast<Point*>(pred->args[0]);
     Point* p1 = static_cast<Point*>(pred->args[1]);
     Point* p2 = static_cast<Point*>(pred->args[2]);
@@ -761,41 +902,109 @@ bool GeometricGraph::make_circle(Predicate* pred, DDEngine &dd, AREngine &ar) {
     return true;
 }
 
+bool GeometricGraph::make_constangle(Predicate* pred, DDEngine &dd, AREngine &ar) {
+    Frac f = pred->frac_arg;
+    Point* p1 = static_cast<Point*>(pred->args[0]);
+    Point* p2 = static_cast<Point*>(pred->args[1]);
+    Point* p3 = static_cast<Point*>(pred->args[2]);
+    Point* p4 = static_cast<Point*>(pred->args[3]);
+
+    Angle* a = get_or_add_angle(p1, p2, p3, p4, dd);
+    Measure* m = get_or_add_measure(a, dd);
+    
+    set_measure_val(m, f, pred);
+    return true;
+}
+
+bool GeometricGraph::make_ar_constangle(Predicate* pred, DDEngine& dd) {
+    Direction* d1 = static_cast<Direction*>(pred->args[0]);
+    Direction* d2 = static_cast<Direction*>(pred->args[1]);
+    Frac f = pred->frac_arg;
+    
+    Angle* a = get_or_add_angle(d1, d2, dd);
+    Measure* m = get_or_add_measure(a, dd);
+
+    Line* l1 = get_line_from_direction(d1);
+    Line* l2 = get_line_from_direction(d2);
+
+    auto [p1, p2] = get_points_on_line(l1);
+    auto [p3, p4] = get_points_on_line(l2);
+
+    pred->args[0] = p1;
+    pred->args[1] = p2;
+    pred->args.emplace_back(p3);
+    pred->args.emplace_back(p4);
+
+    set_measure_val(m, f, pred);
+    return true;
+}
 
 
 
+int GeometricGraph::synthesise_preds(DDEngine &dd, AREngine &ar) {
 
-void GeometricGraph::synthesise_preds(DDEngine &dd, AREngine &ar, bool do_ar) {
+    int num = 0;
 
     auto recent_preds_gen = dd.get_recent_predicates();
 
     while (recent_preds_gen) {
         Predicate* pred = recent_preds_gen();
+        num += 1;
 
         switch(pred->name) {
             case pred_t::COLL:
-                make_coll(pred, dd, ar);
+                make_coll(pred, dd);
                 break;
             case pred_t::CYCLIC:
-                make_cyclic(pred, dd, ar);
+                make_cyclic(pred, dd);
                 break;
             case pred_t::PARA:
-                make_para(pred, dd, ar, do_ar);
+                make_para(pred, dd, ar);
                 break;
             case pred_t::PERP:
-                make_perp(pred, dd, ar, do_ar);
+                make_perp(pred, dd, ar);
                 break;
             case pred_t::EQANGLE:
-                make_eqangle(pred, dd, ar, do_ar);
+                make_eqangle(pred, dd, ar);
                 break;
             case pred_t::CIRCLE:
-                make_circle(pred, dd, ar);
+                make_circle(pred, dd);
                 break;
             default:
+                num -= 1;
                 break;
         }
         
     }
+    return num;
+}
+
+int GeometricGraph::synthesise_ar_preds(DDEngine &dd) {
+
+    int num = 0;
+
+    auto recent_preds_gen = dd.get_recent_predicates();
+
+    while (recent_preds_gen) {
+        Predicate* pred = recent_preds_gen();
+        num += 1;
+
+        switch(pred->name) {
+            case pred_t::PARA:
+                make_ar_para(pred);
+                break;
+            case pred_t::PERP:
+                make_ar_perp(pred);
+                break;
+            case pred_t::EQANGLE:
+                make_ar_eqangle(pred, dd);
+                break;
+            default:
+                num -= 1;
+                break;
+        }
+    }
+    return num;
 }
 
 void GeometricGraph::__print_points(std::ostream& os) {

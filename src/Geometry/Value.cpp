@@ -143,3 +143,13 @@ void Direction::__merge_perps(Direction* other, Predicate* pred) {
     // No need to populate root_other->perp, as the most up-to-date records of `perp` are always stored by
     // the root node
 }
+
+bool Direction::is_para(Direction *d1, Direction *d2) {
+    return (NodeUtils::get_root(d1) == NodeUtils::get_root(d2));
+}
+bool Direction::is_perp(Direction* d1, Direction* d2) {
+    if (!d1->has_perp()) {
+        return false;
+    }
+    return (d1->get_perp() == NodeUtils::get_root(d2));
+}

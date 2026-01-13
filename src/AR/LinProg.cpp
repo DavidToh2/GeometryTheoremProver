@@ -10,8 +10,8 @@ LinProg::LinProg(
 ) : last(0) {
     highs.setOptionValue("log_to_console", verbose);
     model.lp_.a_matrix_.start_ = {0};
-    model.lp_.sense_ = ObjSense::kMinimize;
     model.lp_.a_matrix_.format_ = MatrixFormat::kColwise;
+    model.lp_.sense_ = ObjSense::kMinimize;
 }
 
 void LinProg::populate(
@@ -33,7 +33,6 @@ void LinProg::populate_matrix_A(
     model.lp_.col_lower_ = std::vector<double>(A.n, 0.0);
     model.lp_.col_upper_ = std::vector<double>(A.n, 1.0e30);
 
-    model.lp_.a_matrix_.format_ = MatrixFormat::kColwise;
     while (last < A.n) {
         for (int k=0; k<A.s; k++) {
             if (A.row_indices[last][k] >= 0) {
@@ -108,4 +107,9 @@ std::string LinProg::__print_result(
     }
     s += "]";
     return s;
+}
+
+void LinProg::reset() {
+    model.lp_.a_matrix_.start_ = {0};
+    
 }

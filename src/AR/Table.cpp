@@ -2,13 +2,24 @@
 #include "Table.hh"
 #include "Numerics/Matrix.hh"
 #include "Numerics/Numerics.hh"
-#include "Common/Exceptions.hh"
+
+#define DEBUG_TABLE 0
+
+#if DEBUG_TABLE
+    #define LOG(x) do {std::cout << x << std::endl;} while(0)
+#else 
+    #define LOG(x)
+#endif
 
 double Expr::fix_v(const double d) {
     return Frac(d).to_double();
 }
 void Expr::fix(Expr& expr) {
     for (auto& [var, coeff] : expr) {
+        // HOTFIX: remove integer parts from pi
+        if (var == "pi") {
+            coeff = coeff - floorf(coeff);
+        }
         coeff = fix_v(coeff);
     }
 }
@@ -22,8 +33,16 @@ void Expr::strip(Expr& expr) {
     }
 }
 bool Expr::all_zeroes(const Expr& expr) {
+
     for (const auto& [var, coeff] : expr) {
-        if (std::abs(coeff) >= Frac::TOL) {
+        // HOTFIX: allow pi to be non-zero integer multiples
+        if (var == "pi") {
+            if (std::abs(coeff - roundf(coeff)) > Frac::TOL) {
+                return false;
+            }
+            continue;
+        }
+        if (std::abs(coeff) > Frac::TOL) {
             return false;
         }
     }
@@ -156,6 +175,20 @@ Expr::ExprHash Expr::hash(const Expr& expr) {
 int Expr::hashlen(const ExprHash& expr_hash) {
     return expr_hash.size();
 }
+std::string Expr::to_string(const Expr& expr) {
+    std::string s = "";
+    auto it = expr.cbegin();
+    if (it == expr.cend()) {
+        return "0";
+    }
+    s += to_string(it->first) + "*" + std::to_string(it->second);
+    ++it;
+    while(it != expr.cend()) {
+        const auto& [var, coeff] = *(it++);
+        s += " + " + to_string(var) + "*" + std::to_string(coeff);
+    }
+    return s;
+}
 
 
 
@@ -168,6 +201,8 @@ bool Table::add_expr(const Expr::Expr& expr) {
     std::vector<std::pair<Expr::Var, double>> new_vars;
     Expr::Expr result;
 
+    LOG("Adding the expression " << Expr::to_string(expr));
+
     for (const auto& [var, d] : expr) {
         if (M_var_to_expr.contains(var)) {
             Expr::__add(result, Expr::mult(M_var_to_expr[var], d));
@@ -176,15 +211,25 @@ bool Table::add_expr(const Expr::Expr& expr) {
         }
     }
 
+    Expr::strip(result);
+    Expr::fix(result);
+
     if (new_vars.size() == 0) {
-        if (Expr::all_zeroes(result)) return false; // expression already known
+        if (Expr::all_zeroes(result)) {
+            LOG("(-1) Expression already known!");
+            return false; // expression already known
+        }
         auto [subject, expr_subj] = Expr::get_subject(expr, one);
         if (subject.empty()) return false;
         replace(subject, expr_subj);
 
+        LOG("(0) Replaced occurrences of " << Expr::to_string(subject) << " with " << Expr::to_string(expr_subj));
+
     } else if (new_vars.size() == 1) {
         auto [var, d] = new_vars[0];
         M_var_to_expr[var] = Expr::div(result, -d);
+        
+        LOG("(1) Added the expression " << Expr::to_string(var) << " = " << Expr::to_string(M_var_to_expr[var]));
 
     } else {
         Expr::Var dependent_var = "";
@@ -199,6 +244,8 @@ bool Table::add_expr(const Expr::Expr& expr) {
             Expr::__add(result, {{var, d}});
         }
         M_var_to_expr[dependent_var] = Expr::div(result, -dependent_d);
+
+        LOG("(2) Added the expression " << Expr::to_string(dependent_var) << " = " << Expr::to_string(M_var_to_expr[dependent_var]));
     }
 
     return true;
@@ -215,7 +262,7 @@ bool Table::register_expr(const Expr::Expr& expr, Predicate* pred) {
         return false;
     }
     for (const auto& [var, _] : expr) {
-        if (!M_var_to_expr.contains(var)) {
+        if (!var_to_row.contains(var)) {
             var_to_row[var] = num_vars++;
         }
     }
@@ -309,7 +356,7 @@ std::vector<Predicate*> Table::why(const Expr::Expr& expr) {
     // Convert the target expr into a std::vector<double> b
     std::vector<double> b_vec(num_vars, 0.0);
     for (const auto& [var, coeff] : target) {
-        b_vec[var_to_row[var]] = coeff;
+        b_vec[var_to_row.at(var)] = coeff;
     }
     lp_solver.populate(A, b_vec, c);
 
@@ -373,7 +420,9 @@ Generator<std::tuple<Expr::Var, Expr::Var, std::vector<Predicate*>>> Table::get_
             record_eq_2_as_seen(v1, v2);
             
             Expr::Expr em = Expr::minus(M_var_to_expr[v1], M_var_to_expr[v2]);   // should be the same as eh
-            assert(Expr::hash(em) == eh);
+            Expr::strip(em);
+            Expr::fix(em);
+            assert(Expr::hash(em) == eh);        // only true with a Expr::strip() surrounding it
 
             std::vector<Predicate*> _why = why(em); 
             co_yield {v1, v2, _why};
@@ -389,7 +438,9 @@ Generator<std::tuple<Expr::Var, Expr::Var, Frac, std::vector<Predicate*>>> Table
             record_eq_3_as_seen(v1, v2, f);
 
             Expr::Expr em = Expr::minus(M_var_to_expr[v1], M_var_to_expr[v2]);   // should be the same as eh
-            assert(Expr::hash(em) == eh);
+            Expr::strip(em);
+            Expr::fix(em);
+            assert(Expr::hash(em) == eh);        // only true with a Expr::strip() surrounding it
 
             std::vector<Predicate*> _why = why(em);
             co_yield {v1, v2, f, _why};
@@ -414,7 +465,9 @@ Generator<std::tuple<Expr::Var, Expr::Var, Expr::Var, Expr::Var, std::vector<Pre
         Expr::Expr e12 = Expr::minus(M_var_to_expr[v1], M_var_to_expr[v2]);
         Expr::Expr e34 = Expr::minus(M_var_to_expr[v3], M_var_to_expr[v4]);
         Expr::Expr em = Expr::minus(e12, e34);  // should be zero
-        assert(Expr::all_zeroes(em));
+        Expr::strip(em);
+        Expr::fix(em);
+        assert(Expr::all_zeroes(em));        // only true with a Expr::strip() surrounding it
 
         Expr::Expr e{{v1, 1}, {v2, -1}, {v3, -1}, {v4, 1}};
         Expr::__minus(e, em);
@@ -422,4 +475,21 @@ Generator<std::tuple<Expr::Var, Expr::Var, Expr::Var, Expr::Var, std::vector<Pre
         co_yield {v1, v2, v3, v4, _why};
     }
     co_return;
+}
+
+void Table::reset() {
+    num_vars = 0;
+    num_eqs = 0;
+    A = SparseMatrix(0, 0, 4);
+    var_to_row.clear();
+    c.clear();
+    deps.clear();
+    M_var_to_expr.clear();
+    equal_groups.clear();
+    eq_2s_seen.clear();
+    eq_3s_seen.clear();
+    eq_4s_seen.clear();
+    eq_2s.clear();
+    eq_3s.clear();
+    eq_4s.clear();
 }

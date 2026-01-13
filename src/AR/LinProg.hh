@@ -53,4 +53,6 @@ public:
     static std::string __print_result(
         const std::vector<double>& result
     );
+
+    void reset();
 };

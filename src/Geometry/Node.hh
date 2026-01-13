@@ -50,7 +50,7 @@ namespace NodeUtils {
         return res;
     }
 
-    /* Checks if two objects have the same root. */
+    /* Checks if two objects are the same, by checking if they have the same root. */
     template <std::derived_from<Node> Key>
     static bool same_as(Key* a, Key* b) {
         return (get_root(a) == get_root(b));

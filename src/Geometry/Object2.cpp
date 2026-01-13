@@ -36,6 +36,11 @@ bool Angle::is_equal(Angle *a1, Angle *a2) {
     Measure* m2 = ra2->get_measure();
     return (m1 == m2);
 }
+bool Angle::is_equal(Angle* a, Frac f) {
+    Angle* ra = NodeUtils::get_root(a);
+    if (!a->has_measure()) return false;
+    return (a->measure->val == f);
+}
 
 Generator<std::pair<Line*, Line*>> Angle::all_line_pairs() {
     Angle* root_a = NodeUtils::get_root(this);

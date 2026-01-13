@@ -26,10 +26,10 @@ public:
         return var_to_length.insert({l->name, l}).first->first;
     }
     inline constexpr Direction* __get_direction(const Expr::Var& var) {
-        return var_to_direction[var];
+        return var_to_direction.at(var);
     }
     inline constexpr Length* __get_length(const Expr::Var& var) {
-        return var_to_length[var];
+        return var_to_length.at(var);
     }
     std::vector<Direction*> __get_directions(const std::vector<Expr::Var>& vars);
     std::vector<Length*> __get_lengths(const std::vector<Expr::Var>& vars);
@@ -63,4 +63,6 @@ public:
 
     /* Derive new predicates. */
     void derive(GeometricGraph& ggraph, DDEngine& dd);
+
+    void reset_problem();
 };

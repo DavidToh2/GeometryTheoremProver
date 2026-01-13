@@ -42,6 +42,7 @@ namespace Expr {
     int len(const Expr& expr);
     ExprHash hash(const Expr& expr);
     inline int hashlen(const ExprHash& expr_hash);
+    std::string to_string(const Expr& expr);
 }
 
 /* Table class.
@@ -334,4 +335,8 @@ public:
     Used by `AngleTable` to `get_all_eqangles`.
     Used by `RatioTable` to `get_all_eqratios`. */
     Generator<std::tuple<Expr::Var, Expr::Var, Expr::Var, Expr::Var, std::vector<Predicate*>>> get_all_eq_4s_and_why();
+
+
+
+    void reset();
 };

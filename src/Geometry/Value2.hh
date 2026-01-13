@@ -22,6 +22,8 @@ class Value2 : public Node {
 public:
     std::map<T*, Predicate*> obj2s;
     std::set<T*> root_obj2s;
+    Frac val;
+    Predicate* val_why;
 
     Value2(std::string name) : Node(name) {}
 };

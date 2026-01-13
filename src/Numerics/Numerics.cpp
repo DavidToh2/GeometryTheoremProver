@@ -44,13 +44,16 @@ void Frac::operator=(const Frac &other) {
     this->num = other.num;
     this->den = other.den;
 }
-bool Frac::operator==(const Frac &other) {
+const bool Frac::operator==(const Frac &other) {
     return (this->num == other.num) && (this->den == other.den);
 }
 bool Frac::operator==(Frac &&other) {
     return (this->num == other.num) && (this->den == other.den);
 }
-bool Frac::operator<(const Frac &other) const {
+const bool Frac::operator!=(const Frac &other) {
+    return (this->num != other.num) || (this->den != other.den);
+}
+const bool Frac::operator<(const Frac &other) const {
     return (this->num * other.den) < (other.num * this->den);
 }
 auto Frac::operator<=>(const Frac &other) const {

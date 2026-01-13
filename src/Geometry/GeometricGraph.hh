@@ -89,6 +89,12 @@ public:
     Returns `nullptr` if no such line exists yet. */
     Line* try_get_line(Point* p1, Point* p2);
 
+    /* Gets any two points on a line.
+    Note: The given line should be a root line, so `points` is populated. */
+    constexpr std::pair<Point*, Point*> __get_points_on_line(Line* l);
+    /* Gets any two points on root_line. */
+    constexpr std::pair<Point*, Point*> get_points_on_line(Line* l);
+
     /* Merges `src` line into `dest` line. 
     When the lines are merged, `dest` receives the roots of all `points` from `src` using `merge_maps_with_roots()`. */
     void merge_lines(Line* dest, Line* src, Predicate* pred);
@@ -102,6 +108,9 @@ public:
     /* Gets the root direction of the root node of line `l`, or creates a new direction for the root of `l` if none
     yet exists. */
     Direction* get_or_add_direction(Line* l, DDEngine &dd);
+
+    /* Gets any root_line in a given root_direction. */
+    constexpr Line* get_line_from_direction(Direction* d);
 
     /* Sets `dest` and `src` to be parallel by merging `root_src` into `root_dest`, as well as `root_src->perp` 
     into `root_dest->perp` (if both exist - see `Direction::merge()` for more info). */
@@ -215,6 +224,8 @@ public:
     Returns `nullptr` if either of the lines, or the angle itself, does not yet exist. */
     Angle* try_get_angle(Point* p1, Point* p2, Point* p3);
 
+    /* Gets the root angle with directions as specified. */
+    Angle* get_or_add_angle(Direction* d1, Direction* d2, DDEngine& dd);
     /* Gets the root angle with `direction1 == root_l1.direction` and `direction2 == root_l2.direction`, creating
     this new angle if it does not yet exist. */
     Angle* get_or_add_angle(Line* l1, Line* l2, DDEngine& dd);
@@ -227,6 +238,11 @@ public:
     The angle is created if it does not yet exist. */
     Angle* get_or_add_angle(Point* p1, Point* p2, Point* p3, DDEngine& dd);
 
+    /* Gets a pair of root lines making up an angle. */
+    constexpr std::pair<Line*, Line*> get_lines_from_angle(Angle* a);
+    /* Gets a quadruple of root points a, b, c, d making up an angle. */
+    constexpr std::pair<std::pair<Point*, Point*>, std::pair<Point*, Point*>> get_points_from_angle(Angle* a);
+
     /* Merges the root of `src` angle into the root of `dest` angle. */
     void merge_angles(Angle* dest, Angle* src, Predicate* pred);
 
@@ -238,9 +254,16 @@ public:
     /* Gets the root measure of the root node of angle `a`, or creates a new measure for the root of `a` if none
     yet exists. */
     Measure* get_or_add_measure(Angle* a, DDEngine& dd);
+
+    /* Gets a root angle equal to this measure. */
+    constexpr Angle* get_angle_from_measure(Measure* m);
+
     /* Sets measures `dest` and `src` equal by merging the root of `src` into the root of `dest`. */
     void set_measures_equal(Measure* dest, Measure* src, Predicate* pred);
 
+    /* Sets measure `m` to be equal to the constant `f`.
+    Here, `f` should be given in degrees. */
+    void set_measure_val(Measure* m, Frac f, Predicate* pred);
 
 
     /* Check collinearity. This is done by checking if the root lines `p1p2` and `p1p3` are identical. */
@@ -255,10 +278,12 @@ public:
     bool check_para(Point* p1, Point* p2, Point* p3, Point* p4);
     bool check_para(Point* p1, Point* p2, Line* l1);
     bool check_para(Line* l1, Line* l2);
+    bool check_para(Direction* d1, Direction* d2);
 
     bool check_perp(Point* p1, Point* p2, Point* p3, Point* p4);
     bool check_perp(Point* p1, Point* p2, Line* l1);
     bool check_perp(Line* l1, Line* l2);
+    bool check_perp(Direction* d1, Direction* d2);
 
     bool check_eqangle(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Point* p7, Point* p8);
     bool check_eqangle(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6);
@@ -268,28 +293,38 @@ public:
     bool check_circle(Point* c, Point* p1, Point* p2, Point* p3);
     bool check_circle(Point* c, Circle* circ);
 
+    bool check_constangle(Angle* a, Frac f);
+
     bool check_postcondition(PredicateTemplate* pred);
 
 
 
-    bool make_coll(Predicate* pred, DDEngine &dd, AREngine &ar);
-    bool make_cyclic(Predicate* pred, DDEngine &dd, AREngine &ar);
-    bool make_para(Predicate* pred, DDEngine &dd, AREngine &ar, bool do_ar);
-    bool make_perp(Predicate* pred, DDEngine &dd, AREngine &ar, bool do_ar);
-    bool make_cong(Predicate* pred, DDEngine &dd, AREngine &ar, bool do_ar);
-    bool make_eqangle(Predicate* pred, DDEngine &dd, AREngine &ar, bool do_ar);
-    bool make_eqratio(Predicate* pred, DDEngine &dd, AREngine &ar, bool do_ar);
-    bool make_contri(Predicate* pred, DDEngine &dd, AREngine &ar);
-    bool make_simtri(Predicate* pred, DDEngine &dd, AREngine &ar);
-    bool make_circle(Predicate* pred, DDEngine &dd, AREngine &ar);
-    bool make_constangle(Predicate* pred, DDEngine &dd, AREngine &ar, bool do_ar);
-    bool make_constratio(Predicate* pred, DDEngine &dd, AREngine &ar, bool do_ar);
+    bool make_coll(Predicate* pred, DDEngine &dd);
+    bool make_cyclic(Predicate* pred, DDEngine &dd);
+    bool make_para(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool make_ar_para(Predicate* pred);
+    bool make_perp(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool make_ar_perp(Predicate* pred);
+    bool make_cong(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool make_ar_cong(Predicate* pred);
+    bool make_eqangle(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool make_ar_eqangle(Predicate* pred, DDEngine& dd);
+    bool make_eqratio(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool make_ar_eqratio(Predicate* pred);
+    bool make_contri(Predicate* pred, DDEngine &dd);
+    bool make_simtri(Predicate* pred, DDEngine &dd);
+    bool make_circle(Predicate* pred, DDEngine &dd);
+    bool make_constangle(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool make_ar_constangle(Predicate* pred, DDEngine& dd);
+    bool make_constratio(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool make_ar_constratio(Predicate* pred);
 
 
 
     /* Synthesize new geometric objects based on recently added predicates.
     Note: All `make_` functions should be idempotent. */
-    void synthesise_preds(DDEngine &dd, AREngine &ar, bool do_ar);
+    int synthesise_preds(DDEngine &dd, AREngine &ar);
+    int synthesise_ar_preds(DDEngine &dd);
     void synthesise_pred2s(DDEngine &dd);
 
 

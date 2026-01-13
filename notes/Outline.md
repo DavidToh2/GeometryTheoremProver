@@ -10,7 +10,7 @@
 
 Associations between `Value`s and `Object2`s, or between themselves, shall always store root nodes.
 
-Associations between `Object(2)s` and `Value(2)s` need not store root nodes.
+Associations between `Object(2)s` and `Value(2)s` need not store root nodes. (However, `Value(2)s` will always contain a `root_obj(2)s` set that must store root nodes.)
 
 | Declarations |  |  |
 |---|---|---|

@@ -18,6 +18,7 @@ class Value : public Node {
 public:
     std::map<T*, Predicate*> objs;
     std::set<T*> root_objs;
+
     Value(std::string name) : Node(name) {}
 };
 
@@ -87,6 +88,9 @@ public:
     /* Merges `this->perp` and `other->perp`.
     Note: Assumes that `this` and `other` are root nodes. */
     void __merge_perps(Direction* other, Predicate* pred);
+
+    static bool is_para(Direction* d1, Direction* d2);
+    static bool is_perp(Direction* d1, Direction* d2);
 };
 
 

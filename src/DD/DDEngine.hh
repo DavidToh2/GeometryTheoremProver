@@ -84,6 +84,7 @@ public:
     void search(GeometricGraph &ggraph);
     void search2(GeometricGraph &ggraph);
 
+    bool check_postcondition_exact(PredicateTemplate* pred_template);
     bool check_conclusion(GeometricGraph &ggraph);
 
     void __print_theorems(std::ostream& os = std::cout);
