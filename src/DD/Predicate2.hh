@@ -3,7 +3,8 @@
 #include <string>
 
 #include "Predicate.hh"
-#include <Geometry/Object2.hh>
+#include "Common/Arg.hh"
+#include "Geometry/Object2.hh"
 
 class Predicate2 {
 	std::string id;

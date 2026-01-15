@@ -1,6 +1,5 @@
 
 #include "Matrix.hh"
-#include "Numerics.hh"
 #include "Common/Exceptions.hh"
 
 Matrix::Matrix(int m, int n) {

@@ -27,7 +27,7 @@ std::vector<std::string> InputParser::parse_rules_from_file(std::string rule_fil
     return rules;
 }
 
-std::vector<std::tuple<std::string, std::string, std::string>> 
+std::vector<std::tuple<std::string, std::string, std::string, std::string>> 
 InputParser::parse_constructions_from_file(std::string construction_filepath) {
 
     if (fbuf.is_open()) { fbuf.close(); }
@@ -36,22 +36,37 @@ InputParser::parse_constructions_from_file(std::string construction_filepath) {
         throw InvalidTextualInputError("Error: Could not open construction file: " + construction_filepath);
     }
 
-    std::string c_decl, c_pres, c_posts;
-    std::vector<std::tuple<std::string, std::string, std::string>> constructions;
+    std::string c_decl, c_pres, c_posts, c_numerics;
+    std::vector<std::tuple<std::string, std::string, std::string, std::string>> constructions;
+    int i = 0;
 
     while (std::getline(fbuf, line)) {
         if (line.empty() || line[0] == '#') {
             continue;
         }
-        c_decl = line;
-
-        std::getline(fbuf, line);
-        c_pres = line;
-
-        std::getline(fbuf, line);
-        c_posts = line;
-
-        constructions.emplace_back(std::tuple<std::string, std::string, std::string>{c_decl, c_pres, c_posts});
+        if (i > 0 && line[0] != '-') {
+            continue;
+        }
+        switch(i) {
+            case 0:
+                c_decl = line;
+                break;
+            case 1:
+                c_pres = line.substr(1);
+                break;
+            case 2:
+                c_posts = line.substr(1);
+                break;
+            case 3:
+                c_numerics = line.substr(1);
+                break;
+            default:
+                throw InvalidTextualInputError("Error: Construction definition in file " + construction_filepath + " has more than 3 lines.");
+        }
+        if (++i == 4) {
+            constructions.emplace_back(std::tuple<std::string, std::string, std::string, std::string>{c_decl, c_pres, c_posts, c_numerics});
+            i = 0;
+        }
     }
     return constructions;
 }

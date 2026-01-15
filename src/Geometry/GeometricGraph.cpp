@@ -132,8 +132,11 @@ Direction* GeometricGraph::get_or_add_direction(Line* l, DDEngine &dd) {
     return __add_new_direction(root_l, dd.base_pred.get());
 }
 
-constexpr Line* GeometricGraph::get_line_from_direction(Direction* d) {
+constexpr Line* GeometricGraph::__get_line_from_direction(Direction* d) {
     return *(d->root_objs.begin());
+}
+constexpr Line* GeometricGraph::get_line_from_direction(Direction* d) {
+    return __get_line_from_direction(NodeUtils::get_root(d));
 }
 
 void GeometricGraph::set_directions_para(Direction* dest, Direction* src, Predicate* pred) {

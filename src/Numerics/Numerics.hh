@@ -1,53 +1,67 @@
 #pragma once
 
-#include <string>
+#include "Common/Constants.hh"
+#include "Common/Utils.hh"
+#include "Common/Arg.hh"
+#include "Geometry/Object.hh"
 
-/* Fraction class.
+class Numeric;
 
-The `Frac` constructor applies `std::gcd` by default, so that fractions
-are always in their lowest forms. */
-typedef struct Frac {
-	int num;
-	int den;
-	static constexpr double TOL = 1e-6;
+class NumericTemplate {
+    std::string id;
 
-	Frac() : num(0), den(1) {}
-	Frac(int n): num(n), den(1) {};
-	Frac(int num, int den);
-	Frac(double d);
+public:
+    num_t name;
+    std::vector<Arg*> args;
+    std::vector<Arg*> outs;
 
-	Frac operator+(const Frac &other) const;
-	Frac operator-(const Frac &other) const;
-	Frac operator*(const Frac &other) const;
-	Frac operator/(const Frac &other) const;
-	void operator=(const Frac &other);
-	const bool operator==(const Frac &other);
-	const bool operator!=(const Frac &other);
-	bool operator==(Frac &&other);
-	const bool operator<(const Frac &other) const;
-	auto operator<=>(const Frac &other) const;
+    NumericTemplate(const num_t name) : name(name) {}
+    NumericTemplate(const std::string name) : name(Utils::to_num_t(name)) {}
 
-	double to_double() const;
-	static std::pair<Frac, double> from_double(double d);
+    NumericTemplate(const num_t name, std::vector<Arg*> &args, std::vector<Arg*> &outs) 
+    : name(name), args(std::move(args)), outs(std::move(outs)) {}
+    NumericTemplate(const std::string name, std::vector<Arg*> &args, std::vector<Arg*> &outs) 
+    : name(Utils::to_num_t(name)), args(std::move(args)), outs(std::move(outs)) {}
 
-	std::string to_string() const;
-} Frac;
+    // This constructor is used to parse Numeric strings from textual input.
+    NumericTemplate(const std::string outs, const std::string num, std::map<std::string, Arg*> &argmap);
+    
+    char set_arg(int i, Node* node) noexcept;
+    bool arg_empty(int i) const noexcept;
+    void clear_arg(int i) noexcept;
+    Point* get_arg_point(int i) const;
 
-inline bool __is_close(double a, double b, double tol = Frac::TOL)  {
-    return std::abs(a - b) < tol;
-}
+    char set_args(std::vector<Node*> nodes);
+    bool args_filled() const;
+    void clear_args();
 
-typedef struct Coords {
-	Frac x;
-	Frac y;
-} Coords;
+    bool no_args();
 
-typedef struct EqLine {
-	Frac m;
-	Frac c;
-} EqLine;
+    char set_out(int i, Node* node) noexcept;
+    bool out_empty(int i) const noexcept;
+    void clear_out(int i) noexcept;
+    Point* get_out_point(int i) const;
 
-typedef struct EqCircle {
-	Coords c;
-	Frac r;
-} EqCircle;
+    char set_outs(std::vector<Node*> nodes);
+    bool outs_filled() const;
+    void clear_outs();
+
+    std::unique_ptr<Numeric> instantiate();
+
+    std::string to_string() const;
+    std::string to_hash_with_args() const;
+};
+
+class Numeric {
+public:
+    std::string hash;
+
+    num_t name;
+    std::vector<Point*> args;
+    std::vector<Point*> outs;
+
+    Numeric(const NumericTemplate &nt);
+
+    bool is_base_numeric();
+    std::string to_string() const;
+};

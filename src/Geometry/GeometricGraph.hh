@@ -109,7 +109,9 @@ public:
     yet exists. */
     Direction* get_or_add_direction(Line* l, DDEngine &dd);
 
-    /* Gets any root_line in a given root_direction. */
+    /* Gets any root_line in a given root direction d. */
+    constexpr Line* __get_line_from_direction(Direction* d);
+    /* Gets any root_line in a given direction. */
     constexpr Line* get_line_from_direction(Direction* d);
 
     /* Sets `dest` and `src` to be parallel by merging `root_src` into `root_dest`, as well as `root_src->perp` 

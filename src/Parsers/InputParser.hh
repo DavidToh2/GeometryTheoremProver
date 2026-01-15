@@ -31,7 +31,7 @@ public:
 
     Constructions are separated by a blank line.
     */
-    std::vector<std::tuple<std::string, std::string, std::string>> parse_constructions_from_file(std::string construction_filepath);
+    std::vector<std::tuple<std::string, std::string, std::string, std::string>> parse_constructions_from_file(std::string construction_filepath);
 
     /* Extracts a given problem from a file and returns it as a string.
     

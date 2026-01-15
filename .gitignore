@@ -2,4 +2,4 @@
 .vscode
 build
 lib
-HiGHS
+out.txt

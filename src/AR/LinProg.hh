@@ -4,8 +4,7 @@
 #include "Highs.h"
 #include <vector>
 
-#include "Numerics/Matrix.hh"
-#include "Numerics/Numerics.hh"
+#include "Matrix.hh"
 
 /* Linear program solver wrapper class.
 

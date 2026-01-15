@@ -5,8 +5,8 @@
 #include <set>
 
 #include "AR/LinProg.hh"
-#include "Numerics/Numerics.hh"
-#include "Numerics/Matrix.hh"
+#include "Common/Frac.hh"
+#include "Matrix.hh"
 #include "DD/Predicate.hh"
 
 namespace Expr {
@@ -31,11 +31,11 @@ namespace Expr {
     void __replace(Expr& expr, const Var& var, const Expr& sub_expr);
     Expr replace(const Expr& expr, const Var& var, const Expr& sub_expr);
     /* Given an expression of the form `v0*c0 + v1*c1 + ... + vn*cn = 0`, extracts
-    the lexicographically largest variable `vn` as the subject of the equivalent
-    expression `vn = -(v0*c0 + ... + v[n-1]*c[n-1]) / cn`.
-    The lexicographical invariant is necessary to maintain an ordering of variables
-    for the Table class, and is contingent on the underlying `std::map` being 
-    sorted. */
+    a random variable `vn` as the subject of the equivalent expression 
+    `vn = -(v0*c0 + ... + v[n-1]*c[n-1]) / cn`.
+    No variable ordering is necessary as we are working with a reduced row-echelon
+    form of the matrix M. See documentation of Table class for more info.
+    The variable `c` is "ignored during extraction". */
     std::pair<Var, Expr> get_subject(const Expr& expr, const Var c);
 
     std::string to_string(const Var& var);
@@ -57,7 +57,7 @@ column corresponds to a zero-equality between the variables, of the
 form `v0*c0 + v1*c1 + ... + vn*cn = 0`, where `vi` are variables and `ci` are `Frac`s.
 Columns are stored in pairs, with one positive and one negative version.
 
-- `var_to_row : std::map<Var, int>`: 
+- `var_to_idx : std::map<Var, int>`: 
 Stores the mapping from variable names to their corresponding row indices in the 
 matrix `A`.
 
@@ -76,8 +76,6 @@ See the `why()` method for details on how this is implemented.
 Stores expressions representing each variable as a linear combination of other 
 variables. Variables are stored in the format `v: {v0: c0, v1: c1, ...}` and 
 indicate that `v = v0*c0 + v1*c1 + ...`.
-A global ordering of variables is imposed, so that the expression for a variable `v` 
-only contains variables before `v` in the ordering. 
 
 - `equal_groups : list of std::set<VarPair>`: 
 Every set stores ordered pairs `(vi, vj)` of variables which are known to have the 
@@ -98,10 +96,14 @@ With `N = 4`, we store the general case.
 For each `N = 2, 3, 4`, stores all variable sets which have passed through `eq_Ns`. This
 is either `(v1, v2)`, `(v1, v2, f)`, or `((v1, v2), (v3, v4))` respectively.
 
-The map `M_var_to_expr` is a matrix in packed form that stores the Gaussian-eliminated
-form of `A` based on the global variable ordering. It stores the most-up-to-date and
-simplified expressions for each variable, and is used to check if expressions being
-added are already known to the `Table`.
+The map `M_var_to_expr` is a matrix in packed, *reduced* row-echelon form that stores the 
+Gauss-Jordan eliminated form of `A`. It stores the most-up-to-date and simplified expressions 
+for each variable, and is used to check if expressions being added are already known to 
+the `Table`.
+
+Invariant: Every expression in `M_var_to_expr` should only contain free variables. As a
+result, no variable ordering is necessary here - any variable is either free or not free,
+and that is sufficient.
 
 ## Adding expressions
 
@@ -141,7 +143,7 @@ public:
     const Expr::Var one;
 
     SparseMatrix A;
-    std::map<Expr::Var, int> var_to_row;
+    std::map<Expr::Var, int> var_to_idx;
     std::vector<double> c;
     std::vector<Predicate*> deps;
     LinProg lp_solver;
@@ -156,13 +158,17 @@ public:
     std::map<Expr::ExprHash, EqualGroup> eq_3s;
     std::map<Expr::ExprHash, EqualGroup> eq_4s;
 
-    Table(Expr::Var one_var = "1") : num_vars(0), num_eqs(0), one(one_var), A(0, 0, 4) {}
+    Table(Expr::Var one_var = "1") : num_vars(0), num_eqs(0), one(one_var), A(0, 0, 4) {
+        add_free(one);
+    }
 
     /* Add a free variable. */
     bool add_free(const Expr::Var& var_name);
 
+    /* Check if a variable is free. */
+    bool is_free(const Expr::Var& var_name) const;
+
     /* Add an expression of the form `v0*c0 + v1*c1 + ... = 0` to `M_var_to_expr`.
-    The addition of expressions must respect the global ordering of variables. 
 
     If all variables are already present in the `Table`, then:
     - If the expression is already known, we do nothing and return `false`.
@@ -175,9 +181,7 @@ public:
     bool add_expr(const Expr::Expr& expr);
 
     /* Simplifies all expressions in `M_var_to_expr` by replacing occurrences of `var` 
-    with `expr`. 
-    Note: In order to respect the global variable ordering requirement, `expr` 
-    should only contain variables before `var` in the ordering. */
+    with `expr`. */
     void replace(const Expr::Var& var, const Expr::Expr& expr);
 
     /* Register an expression of the form `v0*c0 + v1*c1 + ... = 0` into the
@@ -229,6 +233,7 @@ public:
     minimal list of element pairs, called `links`, applied during the update. 
     Note: For our purposes, every element will be a `VarPair`. Hence, `links` will
     contain a minimal list of pairs of `VarPair` s.
+    Note: Always returns `true`.
     
     Parameters:
     - `groups : std::set<std::set<T>>` (usually `std::set<EqualGroup>`)
@@ -337,6 +342,8 @@ public:
     Generator<std::tuple<Expr::Var, Expr::Var, Expr::Var, Expr::Var, std::vector<Predicate*>>> get_all_eq_4s_and_why();
 
 
+    std::string __print_A() const;
+    std::string __print_M() const;
 
     void reset();
 };

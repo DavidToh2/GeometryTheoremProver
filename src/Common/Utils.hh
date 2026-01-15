@@ -6,7 +6,7 @@
 #include <set>
 #include <iterator>
 
-#include "Common/Constants.hh"
+#include "Constants.hh"
 
 namespace Utils {
 
@@ -82,5 +82,8 @@ namespace Utils {
 
     pred_t to_pred_t(const std::string s);
     std::string to_pred_str(pred_t p);
+
+    num_t to_num_t(const std::string s);
+    std::string to_num_str(num_t n);
 
 } // namespace Utils

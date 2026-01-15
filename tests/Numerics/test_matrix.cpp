@@ -1,7 +1,7 @@
 
 #include "doctest.h"
 
-#include "Numerics/Matrix.hh"
+#include "AR/Matrix.hh"
 #include "Common/Exceptions.hh"
 
 TEST_SUITE("Matrix") {

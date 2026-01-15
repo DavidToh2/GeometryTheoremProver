@@ -165,10 +165,12 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
 
     angle_table.get_all_eqs();
 
+    std::cout << angle_table.__print_A() << std::endl << angle_table.__print_M() << std::endl;
+
     auto gen_const_angle = get_all_const_angles_and_why();
     while (gen_const_angle) {
         auto [d1, d2, f, why] = gen_const_angle();
-        if (__is_close(f, 90)) {
+        if (NumUtils::is_close(f, 90)) {
             dd.insert_predicate(
                 std::make_unique<Predicate>(
                     pred_t::PERP, std::vector<Node*>{d1, d2}, std::move(why))
@@ -181,7 +183,25 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
         }
     }
 
-    ratio_table.get_all_eqs();
+    auto gen_eqangle = get_all_eqangles_and_why();
+    while (gen_eqangle) {
+        auto [d1, d2, d3, d4, why] = gen_eqangle();
+        dd.insert_predicate(
+            std::make_unique<Predicate>(
+                pred_t::EQANGLE, std::vector<Node*>{d1, d2, d3, d4}, std::move(why))
+        );
+    }
+
+    auto gen_para = get_all_paras_and_why();
+    while (gen_para) {
+        auto [d1, d2, why] = gen_para();
+        dd.insert_predicate(
+            std::make_unique<Predicate>(
+                pred_t::PARA, std::vector<Node*>{d1, d2}, std::move(why))
+        );
+    }   
+
+    // ratio_table.get_all_eqs();
 }
 
 void AREngine::reset_problem() {

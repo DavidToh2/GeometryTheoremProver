@@ -1,0 +1,60 @@
+problem p1 {
+    a b = segment a b;
+    c = on_bline c : a b;
+    d = on_bline d : a b
+    ? eqangle c a a d d b b c
+}
+
+#problem p2 {
+    a c = segment a c;
+    d = midpoint d : a c;
+    b = risos b : d a, risos b : d c
+    ? perp a b b c
+}
+
+problem p3 {
+    a b = segment a b;
+    c = risos c : a b;
+    e = on_line e : a c;
+    f = on_line f : a b, on_circum f : b c e;
+    d = intersection_ll d : b e c f
+    ? eqangle d b b a a c c d
+}
+
+#problem p4 {
+    a b d = triangle a b d;
+    c = risos c : d a, risos c : b a
+    ? perp b c c d
+}
+
+#problem p5 {
+    a b = segment a b;
+    c = equi_triangle c : a b;
+    d = equi_triangle d : a c;
+    e = equi_triangle e : a d
+    ? coll b a e
+}
+
+problem p6 {
+    a b c = triangle a b c;
+    d = on_circum d : a b c;
+    e = on_line e : a c;
+    f = on_line f : b d, on_circum f : a d e
+    ? eqangle b a a f e d d c
+}
+
+#problem p7 {
+    a b c = triangle a b c;
+    i = incenter i : a b c;
+    j = on_line j : b i, on_circum j : a i c
+    ? perp i c c j
+}
+
+problem p8 {
+    a b c = triangle a b c;
+    d = on_line d : a c;
+    e = on_line e : a b;
+    f = intersection_ll f : b c d e;
+    g = on_circum g : a d e, on_circum g : a b c
+    ? cyclic b e g f
+}

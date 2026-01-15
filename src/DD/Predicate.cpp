@@ -1,77 +1,15 @@
 
 #include <string>
 #include <variant>
-#include <iostream>
 
 #include "Predicate.hh"
 #include "Geometry/GeometricGraph.hh"
-#include "Numerics/Numerics.hh"
+#include "Common/Frac.hh"
 #include "Common/StrUtils.hh"
 #include "Common/Exceptions.hh"
 #include "Common/Constants.hh"
 #include "Common/Utils.hh"
 #include "Common/Generator.hh"
-
-void Arg::clear() { arg = std::monostate{}; }
-bool Arg::empty() { return (arg.index() == 0); }
-bool Arg::filled() { return (arg.index() != 0); }
-
-char Arg::set(Node* node) { 
-    if (!empty()) {
-        if (std::get<Node*>(arg) != node) {
-            return UNSUCCESSFUL_SET;
-        }
-        return UNCHANGED_SET;
-    }
-    arg = node;
-    return SUCCESSFUL_SET;
-}
-char Arg::set(Frac f) { 
-    if (!empty()) { return UNSUCCESSFUL_SET; }
-    arg = f; 
-    return SUCCESSFUL_SET;
-}
-char Arg::set(char c) { 
-    if (!empty()) { return UNSUCCESSFUL_SET; }
-    arg = c; 
-    return SUCCESSFUL_SET;
-}
-
-Point* Arg::get_point() {
-    if (!std::holds_alternative<Node*>(arg)) { return nullptr; }
-    return static_cast<Point*>(std::get<Node*>(arg));
-}
-
-void Arg::operator=(Node* node) { arg = node; }
-void Arg::operator=(Frac f) { arg = f; }
-void Arg::operator=(char c) { arg = c; }
-
-void Arg::populate_args_and_argmap(const std::string s, std::vector<std::unique_ptr<Arg>> &args, std::map<std::string, Arg*> &argmap) {
-    
-    std::vector<std::string> _args = StrUtils::split(s, " ");
-    for (std::string a : _args) {
-        if (!argmap.contains(a)) {
-            args.emplace_back(std::make_unique<Arg>());
-            argmap.insert({a, (args.back()).get()});
-        }
-    }
-}
-
-std::string Arg::to_string() {
-    if (arg.index() == 0) {
-        return "EMPTY";
-    }
-    if (std::holds_alternative<Node*>(arg)) {
-        return std::get<Node*>(arg)->name;
-    }
-    if (std::holds_alternative<Frac>(arg)) {
-        return std::get<Frac>(arg).to_string();
-    }
-    if (std::holds_alternative<char>(arg)) {
-        return std::string{std::get<char>(arg)};
-    }
-    return "0";
-}
 
 
 
@@ -86,7 +24,7 @@ PredicateTemplate::PredicateTemplate(const std::string s, std::map<std::string, 
     name = Utils::to_pred_t(v[0]);
 
     for (auto iter = v.begin() + 1; iter != v.end(); iter++) {
-        args.emplace_back(argmap[*iter]);
+        args.emplace_back(argmap.at(*iter));
     }
 }
 
@@ -100,7 +38,7 @@ PredicateTemplate::PredicateTemplate(Predicate* pred, std::vector<std::unique_pt
 char PredicateTemplate::set_arg(int i, Node* node) noexcept { return args.at(i)->set(node); }
 char PredicateTemplate::set_arg(int i, Frac f) noexcept { return args.at(i)->set(f); }
 char PredicateTemplate::set_arg(int i, char c) noexcept { return args.at(i)->set(c); }
-bool PredicateTemplate::arg_empty(int i) noexcept { return args.at(i)->empty(); }
+bool PredicateTemplate::arg_empty(int i) const noexcept { return args.at(i)->empty(); }
 void PredicateTemplate::clear_arg(int i) noexcept { args.at(i)->clear(); }
 
 char PredicateTemplate::set_args(std::vector<Node*> nodes) {
@@ -120,7 +58,7 @@ char PredicateTemplate::set_args(std::vector<Node*> nodes, Frac f) {
     }
     return 1;
 }
-bool PredicateTemplate::args_filled() {
+bool PredicateTemplate::args_filled() const {
     for (auto& argptr : args) {
         if (argptr->empty()) {
             return false;
@@ -140,7 +78,7 @@ std::unique_ptr<Predicate> PredicateTemplate::instantiate() {
     return std::make_unique<Predicate>(*this);
 }
 
-std::string PredicateTemplate::to_string() {
+std::string PredicateTemplate::to_string() const {
     std::string res = Utils::to_pred_str(name);
     for (Arg* arg : args) {
         res = res + " " + arg->to_string();
@@ -148,7 +86,7 @@ std::string PredicateTemplate::to_string() {
     return res;
 }
 
-std::string PredicateTemplate::to_hash_with_args() {
+std::string PredicateTemplate::to_hash_with_args() const {
     // For now, just use the same as to_string()
     // This is the same as the hash as implemented in the Predicate constructors
     return to_string(); 
@@ -257,13 +195,12 @@ Predicate::Predicate(PredicateTemplate &pt) {
     hash = pt.to_hash_with_args();
     name = pt.name;
 
-    for (Arg* argptr : pt.args) {
-        if (std::holds_alternative<Node*>(argptr->arg)) {
-            Node* node = std::get<Node*>(argptr->arg);
-            args.emplace_back(node);
+    for (int i=0; i<pt.args.size(); i++) {
+        if (std::holds_alternative<Node*>(pt.args[i]->arg)) {
+            args.emplace_back(pt.get_arg_point(i));
 
-        } else if (std::holds_alternative<Frac>(argptr->arg)) {
-            frac_arg = std::get<Frac>(argptr->arg);
+        } else if (std::holds_alternative<Frac>(pt.args[i]->arg)) {
+            frac_arg = std::get<Frac>(pt.args[i]->arg);
 
         } else {
             throw DDInternalError("Predicate: Invalid argument in predicate template: " + pt.to_string());
@@ -271,7 +208,7 @@ Predicate::Predicate(PredicateTemplate &pt) {
     }
 }
 
-std::string Predicate::to_string() { return hash; }
+std::string Predicate::to_string() const { return hash; }
 
 void PredVec::operator+=(Predicate* pred) {
     preds.emplace_back(pred);
@@ -298,7 +235,7 @@ ClauseTemplate::ClauseTemplate(std::string s, std::map<std::string, Arg*> &argma
         std::vector<std::string> v = StrUtils::split(pr, " ");
         std::vector<Arg*> pred_args;
 
-        for (auto vIter = v.begin() + 1; vIter != v.end(); vIter++) { pred_args.emplace_back(argmap[*vIter]); }
+        for (auto vIter = v.begin() + 1; vIter != v.end(); vIter++) { pred_args.emplace_back(argmap.at(*vIter)); }
 
         if (iter == (preds.end() - 1)) {
             name = name + v[0];

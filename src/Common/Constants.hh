@@ -2,6 +2,9 @@
 
 #include <string>
 
+constexpr double TOL = 1e-9;
+constexpr double TOL2 = 1e-6;
+
 namespace Constants {
 
 const std::string DEFAULT_RULE_FILEPATH = "rules.txt";
@@ -19,6 +22,22 @@ const std::string PREDICATE_NAMES[] = {
     "constangle", "constratio",
     "diff", "ncoll", "npara",
     "sameside", "convex",
+    "last"
+};
+
+const std::string NUMERIC_NAMES[] = {
+    "free",
+    "segment",
+    "triangle", "iso_triangle", "r_triangle", "riso_triangle", "equi_triangle", "r_triangle_p", "r_triangle_n",
+    "quadrilateral", "rectangle", "square", "square_off", "pentagon", "trapezoid", "eq_trapezoid",
+    "line", "line_at_angle", "line_at_angle2",  "line_bisect", "line_para", "line_perp",
+    "ray",
+    "circle", "circum", "diameter",
+    "midpoint",
+    "trisegment",
+    "mirror", "reflect",
+    "angle_eq2", "angle_eq3", "angle_mirror", "angle_bisect", "angle_trisect",
+    "tangents",  "common_tangent", "common_tangent2",
     "last"
 };
 
@@ -44,5 +63,48 @@ enum class pred_t {
     NPARA,
     SAMESIDE,
     CONVEX,
-    LAST // "sentinel value", not to be used
+    LAST    // not used
+};
+
+enum class num_t {
+    FREE,
+    SEGMENT,
+    TRIANGLE,
+    ISO_TRIANGLE,
+    R_TRIANGLE,
+    RISO_TRIANGLE,
+    EQUI_TRIANGLE,
+    R_TRIANGLE_P,
+    R_TRIANGLE_N,
+    EQUI_TRIANGLE_P,
+    QUADRILATERAL,
+    RECTANGLE,
+    SQUARE,
+    SQUARE_OFF,
+    PENTAGON,
+    TRAPEZOID,
+    EQ_TRAPEZOID,
+    LINE,
+    LINE_AT_ANGLE,
+    LINE_AT_ANGLE2,
+    LINE_BISECT,
+    LINE_PARA,
+    LINE_PERP,
+    RAY,
+    CIRCLE,
+    CIRCUM,
+    DIAMETER,
+    MIDPOINT,
+    TRISEGMENT,
+    MIRROR,
+    REFLECT,
+    ANGLE_EQ2,
+    ANGLE_EQ3,
+    ANGLE_MIRROR,
+    ANGLE_BISECT,
+    ANGLE_TRISECT,
+    TANGENTS,
+    COMMON_TANGENT,
+    COMMON_TANGENT2,
+    LAST    // not used
 };

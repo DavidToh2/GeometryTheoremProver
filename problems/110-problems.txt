@@ -8,4 +8,4 @@ problem 110-3
 triangle a b c : , orthocenter2 d e f h : a b c, midpoint p : b e, midpoint q : c f ? cyclic p q h d
 
 problem 110-4
-free a : , free b : , on_line c : a b, on_pline d : a b c, on_pline e : c a d ? coll b d e
+free a : , free b : , on_line c : a b, on_para_line d : a b c, on_para_line e : c a d ? coll b d e

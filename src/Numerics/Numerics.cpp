@@ -1,73 +1,111 @@
 
-#include <cmath>
-#include <numeric>
-#include <string>
-
 #include "Numerics.hh"
+#include "Common/StrUtils.hh"
 #include "Common/Exceptions.hh"
+#include "Common/Utils.hh"
 
-Frac::Frac(int num, int den) {
-    if (den == 0) {
-        throw NumericsError("Denominator cannot be zero");
+NumericTemplate::NumericTemplate(const std::string outs, const std::string num, std::map<std::string, Arg*> &argmap) {
+    std::vector<std::string> v = StrUtils::split(num, " ");
+    if (!Utils::isin(v[0], Constants::NUMERIC_NAMES)) {
+        throw InvalidTextualInputError("NumericTemplate: Invalid numeric name: " + v[0]);
     }
-    int d = std::gcd(num, den);
-    this->num = num / d;
-    this->den = den / d;
-}
-Frac::Frac(double d) {
-    double num_d = d;
-    this->den = 1;
-    while (std::abs(num_d - std::round(num_d)) > TOL) {
-        num_d += d;
-        this->den += 1;
+    name = Utils::to_num_t(v[0]);
+
+    for (auto iter = v.begin() + 1; iter != v.end(); iter++) {
+        this->args.emplace_back(argmap.at(*iter));
     }
-    if (d < 0) {
-        this->num = static_cast<int>(std::round(num_d) - TOL);
-    } else {
-        this->num = static_cast<int>(std::round(num_d) + TOL);
+    v = StrUtils::split(outs, " ");
+    for (auto iter = v.begin(); iter != v.end(); iter++) {
+        this->outs.emplace_back(argmap.at(*iter));
     }
 }
 
-Frac Frac::operator+(const Frac &other) const {
-    return Frac(this->num * other.den + other.num * this->den, this->den * other.den);
+char NumericTemplate::set_arg(int i, Node* node) noexcept { return args.at(i)->set(node); }
+bool NumericTemplate::arg_empty(int i) const noexcept { return args.at(i)->empty(); }
+void NumericTemplate::clear_arg(int i) noexcept { args.at(i)->clear(); }
+bool NumericTemplate::no_args() { return args.empty(); }
+
+char NumericTemplate::set_args(std::vector<Node*> nodes) {
+    int i = 0; 
+    for (auto node : nodes) {
+        if (!args.at(i)->set(node)) { return 0; }
+        i++;
+    }
+    return 1;
 }
-Frac Frac::operator-(const Frac &other) const {
-    return Frac(this->num * other.den - other.num * this->den, this->den * other.den);
+bool NumericTemplate::args_filled() const {
+    for (auto& argptr : args) {
+        if (argptr->empty()) {
+            return false;
+        }
+    }
+    return true;
 }
-Frac Frac::operator*(const Frac &other) const {
-    return Frac(this->num * other.num, this->den * other.den);
-}
-Frac Frac::operator/(const Frac &other) const {
-    return Frac(this->num * other.den, this->den * other.num);
-}
-void Frac::operator=(const Frac &other) {
-    this->num = other.num;
-    this->den = other.den;
-}
-const bool Frac::operator==(const Frac &other) {
-    return (this->num == other.num) && (this->den == other.den);
-}
-bool Frac::operator==(Frac &&other) {
-    return (this->num == other.num) && (this->den == other.den);
-}
-const bool Frac::operator!=(const Frac &other) {
-    return (this->num != other.num) || (this->den != other.den);
-}
-const bool Frac::operator<(const Frac &other) const {
-    return (this->num * other.den) < (other.num * this->den);
-}
-auto Frac::operator<=>(const Frac &other) const {
-    return (this->num * other.den) <=> (other.num * this->den);
+void NumericTemplate::clear_args() {
+    for (int i=0; i<args.size(); i++) { 
+        args.at(i)->clear(); 
+    }
 }
 
-double Frac::to_double() const {
-    return static_cast<double>(this->num) / static_cast<double>(this->den);
+char NumericTemplate::set_out(int i, Node* node) noexcept { return outs.at(i)->set(node); }
+bool NumericTemplate::out_empty(int i) const noexcept { return outs.at(i)->empty(); }
+void NumericTemplate::clear_out(int i) noexcept { outs.at(i)->clear(); }
+
+char NumericTemplate::set_outs(std::vector<Node*> nodes) {
+    int i = 0; 
+    for (auto node : nodes) {
+        if (!outs.at(i)->set(node)) { return 0; }
+        i++;
+    }
+    return 1;
 }
-std::pair<Frac, double> Frac::from_double(double d) {
-    Frac f = Frac(d);
-    return {f, f.to_double()};
+bool NumericTemplate::outs_filled() const {
+    for (auto& outptr : outs) {
+        if (outptr->empty()) {
+            return false;
+        }
+    }
+    return true;
+}
+void NumericTemplate::clear_outs() {
+    for (int i=0; i<outs.size(); i++) { 
+        outs.at(i)->clear(); 
+    }
 }
 
-std::string Frac::to_string() const {
-    return std::to_string(this->num) + "/" + std::to_string(this->den);
+std::unique_ptr<Numeric> NumericTemplate::instantiate() {
+    return std::make_unique<Numeric>(*this);
+}
+
+
+std::string NumericTemplate::to_string() const {
+    std::string res = outs[0]->to_string();
+    for (int i=1; i<outs.size(); i++) {
+        res = res + " " + outs[i]->to_string();
+    }
+    res += " = " + Utils::to_num_str(name);
+    for (Arg* arg : args) {
+        res = res + " " + arg->to_string();
+    }
+    return res;
+}
+std::string NumericTemplate::to_hash_with_args() const {
+    return to_string();
+}
+
+
+
+Numeric::Numeric(const NumericTemplate &nt) {
+    hash = nt.to_hash_with_args();
+    name = nt.name;
+
+    for (int i=0; i<nt.args.size(); i++) {
+        args.emplace_back(nt.get_arg_point(i));
+    }
+    for (int i=0; i<nt.outs.size(); i++) {
+        outs.emplace_back(nt.get_out_point(i));
+    }
+}
+bool Numeric::is_base_numeric() {
+    return args.empty();
 }

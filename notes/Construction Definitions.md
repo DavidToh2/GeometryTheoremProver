@@ -45,7 +45,7 @@ In the case when we have a single object introduced in two or more constructions
 
 ```
 Let the perpendicular to a through bc intersect the circumcircle of ade at p.
-p = on_pline p : a b c, on_circum p : a d e; ...
+p = on_para_line p : a b c, on_circum p : a d e; ...
 
 Let the circumcircles of pqr and pxy intersect at z.
 z = on_circum z : p q r, on_circum z : x y z; ...
@@ -83,7 +83,7 @@ Some auxiliary conditions are easy to work with and may be simply treated as com
 
 ```
 Let ad and be intersect at g. [Given that og is perpendicular to ab], ...
-g = on_line g : a d, on_line g : b e, [on_pline g : o a b]; ...
+g = on_line g : a d, on_line g : b e, [on_para_line g : o a b]; ...
 ```
 
 Some others, however, are troublesome, especially when their subjects involve points which were defined a very long time ago. Consider the following example:
@@ -125,10 +125,10 @@ For example, the mixtilinear incenter `j` and intouch `t` may be defined as foll
 
 ```
 i = incenter i : a b c;
-y = iso_triangle y : b c, on_tline y : a a i, on_circum y : a b c;
+y = iso_triangle y : b c, on_perp_line y : a a i, on_circum y : a b c;
 t = on_line t : i y, on_circum t : a b c;
-d = on_tline d : i i a, on_line d : a b;
-j = on_pline j : d a b, on_line j : a i
+d = on_perp_line d : i i a, on_line d : a b;
+j = on_para_line j : d a b, on_line j : a i
 ```
 
 ## Why not just use predicates?

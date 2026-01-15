@@ -3,7 +3,6 @@
 #include <string>
 #include <memory>
 #include <map>
-#include <array>
 #include <iostream>
 
 #include "Construction.hh"
@@ -13,21 +12,38 @@
 #include "Common/Generator.hh"
 #include "Geometry/GeometricGraph.hh"
 #include "DD/DDEngine.hh"
+#include "Numerics/NumEngine.hh"
 
-Construction::Construction(const std::string _c_decl, const std::string _c_pres, const std::string _c_posts) {
+Construction::Construction(const std::string _c_decl, const std::string _c_pres, const std::string _c_posts, const std::string _c_nums) {
 
     std::map<std::string, Arg*> argmap;
 
+    // Populate arguments from declaration string
     auto [_n, _args_new, _args_existing] = parse_decl_string(_c_decl);
     name = _n;
     Arg::populate_args_and_argmap(_args_new, args_new, argmap);
     Arg::populate_args_and_argmap(_args_existing, args_existing, argmap);
 
+    // Create precondition template
     preconditions = ClauseTemplate(_c_pres, argmap);
 
+    // Create postcondition templates
     std::vector<std::string> c_posts = StrUtils::split(_c_posts, ", ");
     for (std::string _c_post : c_posts) {
         postconditions.emplace_back(std::make_unique<PredicateTemplate>(_c_post, argmap));
+    }
+
+    // Create numeric templates
+    std::vector<std::string> c_nums = StrUtils::split(_c_nums, ";");
+    for (std::string _c_num : c_nums) {
+        auto [outs, nums] = StrUtils::split_first(_c_num, "=");
+        StrUtils::trim(outs);
+        StrUtils::trim(nums);
+        std::vector<std::string> num_list = StrUtils::split(nums, ",");
+        for (std::string num : num_list) {
+            StrUtils::trim(num);
+            numerics.emplace_back(std::make_unique<NumericTemplate>(outs, num, argmap));
+        }
     }
 }
 
@@ -80,76 +96,71 @@ std::tuple<std::string, std::string, std::string> Construction::parse_decl_strin
     return std::make_tuple(name, args_new, args_existing);
 }
 
-Generator<std::unique_ptr<Predicate>> Construction::__instantiate(
-    std::vector<Node*> &nodes_existing, std::vector<Node*> &nodes_new, DDEngine &dd
+Generator<std::unique_ptr<Predicate>> Construction::__instantiate_preds(
+    DDEngine &dd
 ) {
-    __set_node_args(nodes_existing, nodes_new);
-    if (!__instantiation_check(nodes_existing, dd)) {
-        __clear_args();
-        co_return;
-    }
-    
-    for (auto& postptr : postconditions) {
-        co_yield postptr.get()->instantiate();
-    }
-
-    __clear_args();
+    // Not implemented
     co_return;
 }
 
 bool Construction::__instantiation_check(
-    std::vector<Node*> &nodes_existing, DDEngine &dd
+    DDEngine &dd
 ) {
-    std::cerr << "Construction: Instantiation checks for degeneracy conditions not implemented. Assuming success." << std::endl;
+    // Not implemented
     return true;
 }
 
-Generator<std::unique_ptr<Predicate>> Construction::__instantiate_no_checks(
-    std::vector<Node*> &nodes_existing, std::vector<Node*> &nodes_new, Predicate* base_pred
+Generator<std::unique_ptr<Predicate>> Construction::__instantiate_preds_no_checks(
+    Predicate* base_pred
 ) {
-    __set_node_args(nodes_existing, nodes_new);
-
     auto preconditions_ = preconditions.instantiate();
     while (preconditions_) {
         auto pre = std::move(preconditions_());
         pre.get()->why = {base_pred};
         co_yield std::move(pre);
     }
+
     for (auto& postptr : postconditions) {
         auto post = std::move(postptr.get()->instantiate());
         post.get()->why = {base_pred};
         co_yield std::move(post);
     }
+}
 
-    __clear_args();
+Generator<std::unique_ptr<Numeric>> Construction::__instantiate_numerics() {
+    for (auto& numptr : numerics) {
+        co_yield std::move(numptr.get()->instantiate());
+    }
     co_return;
 }
 
 void Construction::construct(
-    const std::string c_string, DDEngine &dd, GeometricGraph &ggraph
+    const std::string cstage_string, DDEngine &dd, NumEngine &nm, GeometricGraph &ggraph
 ) {
     throw std::runtime_error("Construction::construct not implemented");
 }
 
 void Construction::construct_no_checks(
-    const std::string c_string, DDEngine &dd, GeometricGraph &ggraph
+    const std::string cstage_string, DDEngine &dd, NumEngine &nm, GeometricGraph &ggraph
 ) {
-    auto [_ps, _cs] = StrUtils::split_first(c_string, "=");
+    auto [_ps, _cs] = StrUtils::split_first(cstage_string, "=");
     StrUtils::trim(_ps);
     StrUtils::trim(_cs);
-    int i=0;
 
     std::vector<std::string> c_new_nodes_all = StrUtils::split(_ps, " ");   // unused
 
-    std::vector<std::string> constructions = StrUtils::split(_cs, ",");
+    // Text processing of construction stages
 
-    for (std::string _c : constructions) {
+    std::vector<std::string> _construction_stage = StrUtils::split(_cs, ",");
+
+    for (std::string _c : _construction_stage) {
         StrUtils::trim(_c);
         auto [c_name, c_new_nodes_str, c_existing_nodes_str] = parse_decl_string(_c);
 
         std::vector<std::string> c_existing_nodes = StrUtils::split(c_existing_nodes_str, " ");
         std::vector<std::string> c_new_nodes = StrUtils::split(c_new_nodes_str, " ");
-
+        
+        // Extract existing and create new Nodes from the GeometricGraph as arguments
         std::vector<Node*> nodes_existing;
         std::vector<Node*> nodes_new;
         for (std::string obj_ : c_existing_nodes) {
@@ -161,14 +172,23 @@ void Construction::construct_no_checks(
 
         Construction* c_template = dd.constructions.at(c_name).get();
 
-        // Instantiate a new construction with the nodes supplied in the c_string.
-        auto gen = c_template->__instantiate_no_checks(
-            nodes_existing, nodes_new, dd.base_pred.get()
+        // Populate args with given nodes
+        c_template->__set_node_args(nodes_existing, nodes_new);
+
+        // Instantiate a new construction by generating its predicates and numerics
+        auto pred_gen = c_template->__instantiate_preds_no_checks(
+            dd.base_pred.get()
         );
-        while (gen) {
-            i++;
-            dd.insert_predicate(std::move(gen()));
+        while (pred_gen) {
+            dd.insert_predicate(std::move(pred_gen()));
         }
+        auto num_gen = c_template->__instantiate_numerics();
+        while (num_gen) {
+            nm.insert_numeric(std::move(num_gen()));
+        }
+
+        // Clear args, ready for the next instantiation
+        c_template->__clear_args();
     }
 }
 

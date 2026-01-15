@@ -1,255 +1,290 @@
-angle_bisector x : a b c
-ncoll a b c
-eqangle b a b x b x b c
 
-angle_mirror x : a b c
-ncoll a b c
-eqangle b a b c b c b x
-
-circle x : a b c
-ncoll a b c
-cong x a x b, cong x b x c
-
-circumcenter x : a b c
-ncoll a b c
-cong x a x b, cong x b x c
-
-eq_quadrangle d : a b c
-
-cong d a b c
-
-eq_trapezoid d : a b c
-
-para d c a b, cong d a b c
-
-eq_triangle x : b c
-diff b c
-cong x b b c, cong b c c x, eqangle b x b c c b c x, eqangle x c x b b x b c
-
-eqangle2 x : a b c
-ncoll a b c
-eqangle a b a x c x c b
-
-eqdia_quadrangle d : a b c
-
-cong d b a c
-
-eqdistance x : a b c
-diff b c
-cong x a b c
-
-foot x : a b c
-ncoll a b c
-perp x a b c, coll x b c
+##### FREE POINT AND SEGMENT
 
 free a : 
-
-
-
-incenter x : a b c
-ncoll a b c
-eqangle a b a x a x a c, eqangle c a c x c x c b, eqangle b c b x b x b a
-
-incenter2 x y z i : a b c
-ncoll a b c
-eqangle a b a i a i a c, eqangle c a c i c i c b, eqangle b c b i b i b a, coll x b c, perp i x b c, coll y c a, perp i y c a, coll z a b, perp i z a b, cong i x i y, cong i y i z
-
-excenter x : a b c
-ncoll a b c
-eqangle a b a x a x a c, eqangle c a c x c x c b, eqangle b c b x b x b a
-
-excenter2 x y z i : a b c
-ncoll a b c
-eqangle a b a i a i a c, eqangle c a c i c i c b, eqangle b c b i b i b a, coll x b c, perp i x b c, coll y c a, perp i y c a, coll z a b, perp i z a b, cong i x i y, cong i y i z
-
-centroid x y z i : a b c
-ncoll a b c
-coll x b c, cong x b x c, coll y c a, cong y c y a, coll z a b, cong z a z b, coll a x i, coll b y i, coll c z i
-
-ninepoints x y z i : a b c
-ncoll a b c
-coll x b c, cong x b x c, coll y c a, cong y c y a, coll z a b, cong z a z b, cong i x i y, cong i y i z
-
-intersection_cc x : o w a
-ncoll o w a
-cong o a o x, cong w a w x
-
-intersection_lc x : a o b
-diff a b, diff o b, nperp b o b a
-coll x a b, cong o b o x
-
-intersection_ll x : a b c d
-npara a b c d, ncoll a b c d
-coll x a b, coll x c d
-
-intersection_lp x : a b c m n
-npara m n a b, ncoll a b c, ncoll c m n
-coll x a b, para c x m n
-
-intersection_lt x : a b c d e
-ncoll a b c, nperp a b d e
-coll x a b, perp x c d e
-
-intersection_pp x : a b c d e f
-diff a d, npara b c e f
-para x a b c, para x d e f
-
-intersection_tt x : a b c d e f
-diff a d, npara b c e f
-perp x a b c, perp x d e f
-
-iso_triangle c : a b
-diff a b
-eqangle b a b c c b c a, cong a b a c
-
-lc_tangent x : a o
-diff a o
-perp a x a o
-
-midpoint x : a b
-diff a b
-coll x a b, cong x a x b
-
-mirror x : a b
-diff a b
-coll x a b, cong b a b x
-
-nsquare x : a b
-diff a b
-cong x a a b, perp x a a b
-
-on_aline x : a b c d e
-ncoll c d e
-eqangle a x a b d c d e
-
-on_aline2 x : a b c d e
-ncoll c d e
-eqangle x a x b d c d e
-
-on_bline x : a b
-diff a b
-cong x a x b, eqangle a x a b b a b x
-
-on_circle x : o a
-diff o a
-cong o x o a
-
-on_line x : a b
-diff a b
-coll x a b
-
-on_pline x : a b c
-diff b c, ncoll a b c
-para x a b c
-
-on_tline x : a b c
-diff b c
-perp x a b c
-
-orthocenter h : a b c
-ncoll a b c
-perp h a b c, perp h b c a, perp h c a b
-
-orthocenter2 x y z h : a b c
-ncoll a b c
-perp a x b c, perp b y a c, perp c z a b, coll a h x, coll b h y, coll c h z, coll b x c, coll c y a, coll a z b
-
-parallelogram x : a b c
-ncoll a b c
-para a b c x, para a x b c, cong a b c x, cong a x b c
-
-pentagon a b c d e : 
-
-
-
-psquare x : a b
-diff a b
-cong x a a b, perp x a a b
-
-quadrangle a b c d : 
-
-
-
-r_trapezoid d : a b c
-ncoll a b c
-para a b c d, perp a b a d
-
-r_triangle a b c : 
-
-perp a b a c
-
-rectangle c d : a b
-diff a b
-perp a b b c, para a b c d, para a d b c, perp a b a d, cong a b c d, cong a d b c, cong a c b d
-
-reflect x : a b c
-diff b c, ncoll a b c
-cong b a b x, cong c a c x, perp b c a x
-
-risos c : a b
-
-perp a b a c, cong a b a c, eqangle b a b c c b c a
+-
+-
+- a = free
 
 segment a b : 
-diff a b
+- diff a b
+-
+- a b = segment
 
-
-shift x : b c d
-diff d b
-cong x b c d, cong x c b d
-
-square x y : a b
-diff a b
-perp a b b x, cong a b b x, para a b x y, para a y b x, perp a y y x, cong b x x y, cong x y y a, perp a x b y, cong a x b y
-
-isquare a b c d : 
-
-perp a b b c, cong a b b c, para a b c d, para a d b c, perp a d d c, cong b c c d, cong c d d a, perp a c b d, cong a c b d
-
-trapezoid a b c d : 
-
-para a b c d
+##### TRIANGLES
 
 triangle a b c : 
+-
+-
+- a b c = triangle
 
+iso_triangle a b c : 
+- 
+- eqangle b a b c c b c a, cong a b a c
+- a b c = iso_triangle
 
+r_triangle a b c : 
+-
+- perp a b a c
+- a b c = r_triangle
 
-trisect x y : a b c
-ncoll a b c
-coll x a c, coll y a c, eqangle b a b x b x b y, eqangle b x b y b y b c
+riso_triangle a b c : 
+- 
+- perp a b a c, cong a b a c, eqangle b a b c c b c a
+- a b c = riso_triangle
 
-trisegment x y : a b
-diff a b
-coll x a b, coll y a b, cong x a x y, cong y x y b
+equi_triangle a b c : 
+- diff a b
+- cong a b b c, cong b c c a, eqangle a b a c c a c b, eqangle c a c b b c b a
+- a b c = equi_triangle
 
-on_dia x : a b
-diff a b
-perp x a x b
+r_triangle_p x : a b
+- diff a b
+- cong x a a b, perp x a a b
+- x = r_triangle_p a b
 
-ieq_triangle a c : a b
-diff a b
-cong a b b c, cong b c c a, eqangle a b a c c a c b, eqangle c a c b b c b a
+r_triangle_n x : a b
+- diff a b
+- cong x a a b, perp x a a b
+- x = r_triangle_n a b
 
-on_opline x : a b
-diff a b
-coll x a b
+equi_triangle_p x : b c
+- diff b c
+- cong x b b c, cong b c c x, eqangle b x b c c b c x, eqangle x c x b b x b c
+- x = circle b b c, circle c b c
 
-cc_tangent0 x y : o a w b
-diff o a, diff w b, diff o w
-cong o x o a, cong w y w b, perp x o x y, perp y w y x
+##### POLYGONS
 
-cc_tangent x y z i : o a w b
-diff o a, diff w b, diff o w
-cong o x o a, cong w y w b, perp x o x y, perp y w y x, cong o z o a, cong w i w b, perp z o z i, perp i w i z
+quadrilateral a b c d : 
+-
+-
+- a b c d = quadrilateral
 
-eqangle3 x : a b d e f
-ncoll d e f, diff a b, diff d e, diff e f
-eqangle x a x b d e d f
+rectangle a b c d : 
+- diff a b
+- perp a b b c, para a b c d, para a d b c, perp a b a d, cong a b c d, cong a d b c, cong a c b d
+- a b c d = rectangle
 
-tangent x y : a o b
-diff o a, diff o b, diff a b
-cong o x o b, perp a x o x, cong o y o b, perp a y o y
+square a b c d : 
+- 
+- perp a b b c, cong a b b c, para a b c d, para a d b c, perp a d d c, cong b c c d, cong c d d a, perp a c b d, cong a c b d
+- a b c d = square
+
+square_off x y : a b
+- diff a b
+- perp a b b x, cong a b b x, para a b x y, para a y b x, perp a y y x, cong b x x y, cong x y y a, perp a x b y, cong a x b y
+- x y = square a b
+
+pentagon a b c d e : 
+-
+-
+- a b c d e = pentagon
+
+trapezoid a b c d : 
+- 
+- para a b c d
+- a b c d = trapezoid
+
+eq_trapezoid a b c d : 
+- 
+- para d c a b, cong d a b c
+- a b c d = eq_trapezoid
+
+parallelogram x : a b c
+- ncoll a b c
+- para a b c x, para a x b c, cong a b c x, cong a x b c
+- x = line_para a b c, line_para c a b
+
+##### ARBITRARY POINT ON OBJECTS
+
+on_line x : a b
+- diff a b
+- coll x a b
+- x = line a b
+
+on_line_at_angle x : a b c d e
+- ncoll c d e
+- eqangle a x a b d c d e
+- x = line_at_angle a b c d e
+
+on_line_at_angle2 x : a b c d e
+- ncoll c d e
+- eqangle x a x b d c d e
+- x = line_at_angle2 a b c d e
+
+on_line_bisect x : a b
+- diff a b
+- cong x a x b, eqangle a x a b b a b x
+- x = line_bisect a b
+
+on_line_para x : a b c
+- diff b c, ncoll a b c
+- para x a b c
+- x = line_para a b c
+
+on_line_perp x : a b c
+- diff b c
+- perp x a b c
+- x = line_perp a b c
+
+on_ray x : a b
+- diff a b
+- coll x a b
+- x = ray a b
+
+on_circle x : o a
+- diff o a
+- cong o x o a
+- x = circle o o a
 
 on_circum x : a b c
-ncoll a b c
-cyclic a b c x
+- ncoll a b c
+- cyclic a b c x
+- x = circum a b c
+
+eqdistance x : a b c
+- diff b c
+- cong x a b c
+- x = circle a b c
+
+on_diameter x : a b
+- diff a b
+- perp x a x b
+- x = diameter a b
+
+##### POINT OF INTERSECTIONS OR FIXED POINTS
+
+foot x : a b c
+- ncoll a b c
+- perp x a b c, coll x b c
+- x = line_perp a b c, line b c
+
+midpoint x : a b
+- diff a b
+- coll x a b, cong x a x b
+- x = midpoint a b
+
+trisegment x y : a b
+- diff a b
+- coll x a b, coll y a b, cong x a x y, cong y x y b
+- x y = trisegment a b
+
+mirror x : a b
+- diff a b
+- coll x a b, cong b a b x
+- x = mirror a b
+
+reflect x : a b c
+- diff b c, ncoll a b c
+- cong b a b x, cong c a c x, perp b c a x
+- x = reflect a b c
+
+intersection_cc x : o w a
+- ncoll o w a
+- cong o a o x, cong w a w x
+- x = circle o o a, circle w w a
+
+intersection_lc x : a o b
+- diff a b, diff o b, nperp b o b a
+- coll x a b, cong o b o x
+- x = line a b, circle o o b
+
+intersection_ll x : a b c d
+- npara a b c d, ncoll a b c d
+- coll x a b, coll x c d
+- x = line a b, line c d
+
+##### ANGLES
+
+on_angle_eq2 x : a b c
+- ncoll a b c
+- eqangle a b a x c x c b
+- x = angle_eq2 a b c
+
+on_angle_eq3 x : a b d e f
+- ncoll d e f, diff a b, diff d e, diff e f
+- eqangle x a x b d e d f
+- x = angle_eq3 a b d e f
+
+on_angle_mirror x : a b c
+- ncoll a b c
+- eqangle b a b c b c b x
+- x = angle_mirror a b c
+
+on_angle_bisect x : a b c
+- ncoll a b c
+- eqangle b a b x b x b c
+- x = angle_bisect a b c
+
+on_angle_trisect x y : a b c
+- ncoll a b c
+- coll x a c, coll y a c, eqangle b a b x b x b y, eqangle b x b y b y b c
+- x y = angle_trisect a b c
+
+##### TRIANGLE CENTERS
+
+circumcenter x : a b c
+- ncoll a b c
+- cong x a x b, cong x b x c
+- x = line_bisect a b, line_bisect a c
+
+incenter i : a b c
+- ncoll a b c
+- eqangle a b a i a i a c, eqangle c a c i c i c b, eqangle b c b i b i b a
+- i = angle_bisect a b c, angle_bisect b c a
+
+incenter2 x y z i : a b c
+- ncoll a b c
+- eqangle a b a i a i a c, eqangle c a c i c i c b, eqangle b c b i b i b a, coll x b c, perp i x b c, coll y c a, perp i y c a, coll z a b, perp i z a b, cong i x i y, cong i y i z
+- i = angle_bisect a b c, angle_bisect b c a; x = line_perp i b c, line b c; y = line_perp i c a, line c a; z = line_perp i a b, line a b
+
+excenter i : a b c
+- ncoll a b c
+- eqangle a b a i a i a c, eqangle c a c i c i c b, eqangle b c b i b i b a
+- i = angle_bisect b a c, angle_exbisect b c a
+
+excenter2 x y z i : a b c
+- ncoll a b c
+- eqangle a b a i a i a c, eqangle c a c i c i c b, eqangle b c b i b i b a, coll x b c, perp i x b c, coll y c a, perp i y c a, coll z a b, perp i z a b, cong i x i y, cong i y i z
+- i = angle_bisect b a c, angle_exbisect b c a; x = line_perp i b c, line b c; y = line_perp i c a, line c a; z = line_perp i a b, line a b
+
+centroid x y z g : a b c
+- ncoll a b c
+- coll x b c, cong x b x c, coll y c a, cong y c y a, coll z a b, cong z a z b, coll a x g, coll b y g, coll c z g
+- x = midpoint b c; y = midpoint c a; z = midpoint a b; g = line a x, line b y
+
+orthocenter h : a b c
+- ncoll a b c
+- perp h a b c, perp h b c a, perp h c a b
+- h = line_perp a b c, line_perp b c a
+
+orthocenter2 x y z h : a b c
+- ncoll a b c
+- perp a x b c, perp b y a c, perp c z a b, coll a h x, coll b h y, coll c h z, coll b x c, coll c y a, coll a z b
+- x = line_perp a b c, line b c; y = line_perp b a c, line a c; z = line_perp c a b, line a b; h = line a x, line b y
+
+##### TANGENTS
+
+# Tangent to circle centered at o at point a
+lc_tangent x : a o
+- diff a o
+- perp a x a o
+- x = line_perp a a o
+
+# Tangents from point a to circle centered at o with radius ob
+tangents x y : a o b
+- diff o a, diff o b, diff a b
+- cong o x o b, perp a x o x, cong o y o b, perp a y o y
+- x y = tangents a o b
+
+# Single common tangent
+common_tangent x y : o a i b
+- diff o a, diff i b, diff o i
+- cong o x o a, cong i y i b, perp x o x y, perp y i y x
+- x y = common_tangent o a i b
+
+# A pair of common tangents
+common_tangent2 x y z w : o a i b
+- diff o a, diff i b, diff o i
+- cong o x o a, cong i y i b, perp x o x y, perp y i y x, cong o z o a, cong i w i b, perp z o z w, perp w i w z
+- x y z w = common_tangent2 o a i b

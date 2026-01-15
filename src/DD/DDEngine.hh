@@ -10,6 +10,7 @@
 #include "Predicate2.hh"
 #include "Theorem.hh"
 #include "Construction.hh"
+#include "Common/Arg.hh"
 #include "Common/Generator.hh"
 #include "Common/Constants.hh"
 #include "Geometry/GeometricGraph.hh"
@@ -41,8 +42,8 @@ public:
     uptrmap<Theorem> theorems;
     uptrmap<Construction> constructions;
 
-    void __add_theorem_template_from_text(const std::string s);
-    void __add_construction_template_from_texts(const std::tuple<std::string, std::string, std::string> v);
+    void add_theorem_template_from_text(const std::string s);
+    void add_construction_template_from_texts(const std::tuple<std::string, std::string, std::string, std::string> v);
     void set_conclusion(std::unique_ptr<Predicate> predicate);
 
     /* Inserts a predicate into the engine (specifically `utrmap<Predicate> predicates`).

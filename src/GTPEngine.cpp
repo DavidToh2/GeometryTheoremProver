@@ -20,13 +20,13 @@ GTPEngine::GTPEngine(
     // Read in the constructions and pass them to the DD engine.
     auto constructions = inputParser.parse_constructions_from_file(construction_filepath);
     for (auto construction : constructions) {
-        dd.__add_construction_template_from_texts(construction);
+        dd.add_construction_template_from_texts(construction);
     }
 
     // Read in the rules and pass them to the DD engine.
     auto rules = inputParser.parse_rules_from_file(rule_filepath);
     for (auto rule : rules) {
-        dd.__add_theorem_template_from_text(rule);
+        dd.add_theorem_template_from_text(rule);
     }
 }
 
@@ -45,7 +45,7 @@ void GTPEngine::load_problem(
 
     for (std::string _construction_stage : _construction_stages) {
         StrUtils::trim(_construction_stage);
-        Construction::construct_no_checks(_construction_stage, dd, ggraph);
+        Construction::construct_no_checks(_construction_stage, dd, nm, ggraph);
     }
 
     StrUtils::trim(_goal);
@@ -65,7 +65,7 @@ void GTPEngine::solve(
 
     for (int step = 0; step < max_steps; step++) {
 
-        std::cout << "Iteration " << step << std::endl;
+        std::cout << "-------- Iteration " << step << ": --------\n";
 
         dd.search(ggraph);
 
@@ -83,7 +83,12 @@ void GTPEngine::solve(
 
         /* Check if the conclusion was reached. */
         if (dd.check_conclusion(ggraph)) {
-            std::cout << "Conclusion reached at iteration " << step << "!" << std::endl;
+            std::cout << "SOLVED!! Conclusion reached at iteration " << step << "!" << std::endl;
+            break;
+        }
+
+        if (dd_num_preds == 0 && ar_num_preds == 0) {
+            std::cout << "UNSOLVED!! No new predicates derived." << std::endl;
             break;
         }
     }

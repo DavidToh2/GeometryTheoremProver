@@ -1,7 +1,7 @@
 
 #include "Table.hh"
-#include "Numerics/Matrix.hh"
-#include "Numerics/Numerics.hh"
+#include "Matrix.hh"
+#include "Common/NumUtils.hh"
 
 #define DEBUG_TABLE 0
 
@@ -25,7 +25,7 @@ void Expr::fix(Expr& expr) {
 }
 void Expr::strip(Expr& expr) {
     for (auto it = expr.cbegin(); it != expr.cend(); ) {
-        if (std::abs(it->second) < Frac::TOL) {
+        if (NumUtils::is_close(it->second, 0.0)) {
             it = expr.erase(it);
         } else {
             ++it;
@@ -37,12 +37,12 @@ bool Expr::all_zeroes(const Expr& expr) {
     for (const auto& [var, coeff] : expr) {
         // HOTFIX: allow pi to be non-zero integer multiples
         if (var == "pi") {
-            if (std::abs(coeff - roundf(coeff)) > Frac::TOL) {
+            if (!NumUtils::is_close(coeff, roundf(coeff))) {
                 return false;
             }
             continue;
         }
-        if (std::abs(coeff) > Frac::TOL) {
+        if (!NumUtils::is_close(coeff, 0.0)) {
             return false;
         }
     }
@@ -140,8 +140,7 @@ std::pair<Expr::Var, Expr::Expr> Expr::get_subject(const Expr& expr, const Var c
     strip(result);
     Var subject = "";
     double subject_c;
-    for (auto it = result.rbegin(); it != result.rend(); ++it) {
-        const auto& [var, coeff] = *it;
+    for (const auto& [var, coeff] : result) {
         if (var != c) {
             subject = var;
             subject_c = coeff;
@@ -192,12 +191,24 @@ std::string Expr::to_string(const Expr& expr) {
 
 
 
+
+
+
 bool Table::add_free(const Expr::Var& var_name) {
-    M_var_to_expr[var_name] = {{var_name, 1}};
+    M_var_to_expr[var_name] = {{var_name, 1.0}};
     return true;
 }
+bool Table::is_free(const Expr::Var& var_name) const {
+    if (!M_var_to_expr.contains(var_name)) {
+        return false;
+    }
+    const Expr::Expr& expr = M_var_to_expr.at(var_name);
+    return (expr.size() == 1) && (expr.contains(var_name)) && (NumUtils::is_close(expr.at(var_name), 1.0));
+}
 bool Table::add_expr(const Expr::Expr& expr) {
-    // find new variables
+    // Invariant: Every expression in M_var_to_expr should only contain free variables.
+
+    // Find new variables
     std::vector<std::pair<Expr::Var, double>> new_vars;
     Expr::Expr result;
 
@@ -206,6 +217,7 @@ bool Table::add_expr(const Expr::Expr& expr) {
     for (const auto& [var, d] : expr) {
         if (M_var_to_expr.contains(var)) {
             Expr::__add(result, Expr::mult(M_var_to_expr[var], d));
+            // By the invariant, result only contains free variables
         } else {
             new_vars.push_back({var, d});
         }
@@ -217,10 +229,12 @@ bool Table::add_expr(const Expr::Expr& expr) {
     if (new_vars.size() == 0) {
         if (Expr::all_zeroes(result)) {
             LOG("(-1) Expression already known!");
-            return false; // expression already known
+            return false; // Expression already known
         }
-        auto [subject, expr_subj] = Expr::get_subject(expr, one);
+        auto [subject, expr_subj] = Expr::get_subject(result, one);
         if (subject.empty()) return false;
+        // By the invariant, subject must be a free variable, which is about to become non-free
+        // as it is substituted by expr_subj and replaced in all other expressions.
         replace(subject, expr_subj);
 
         LOG("(0) Replaced occurrences of " << Expr::to_string(subject) << " with " << Expr::to_string(expr_subj));
@@ -228,6 +242,7 @@ bool Table::add_expr(const Expr::Expr& expr) {
     } else if (new_vars.size() == 1) {
         auto [var, d] = new_vars[0];
         M_var_to_expr[var] = Expr::div(result, -d);
+        // Invariant maintained: M_var_to_expr[var] only contains free variables
         
         LOG("(1) Added the expression " << Expr::to_string(var) << " = " << Expr::to_string(M_var_to_expr[var]));
 
@@ -244,6 +259,7 @@ bool Table::add_expr(const Expr::Expr& expr) {
             Expr::__add(result, {{var, d}});
         }
         M_var_to_expr[dependent_var] = Expr::div(result, -dependent_d);
+        // Invariant maintained: M_var_to_expr[var] only contains free variables
 
         LOG("(2) Added the expression " << Expr::to_string(dependent_var) << " = " << Expr::to_string(M_var_to_expr[dependent_var]));
     }
@@ -252,9 +268,23 @@ bool Table::add_expr(const Expr::Expr& expr) {
 }
 
 void Table::replace(const Expr::Var& var, const Expr::Expr& sub_expr) {
+    // Invariant: This function is only ever invoked with var being a free variable.
     for (auto& [_, expr] : M_var_to_expr) {
         Expr::__replace(expr, var, sub_expr);
     }
+    return;
+
+    // The code from here on should never run, due to the invariant mentioned above.
+
+    Expr::Expr new_expr = Expr::minus(M_var_to_expr[var], sub_expr);
+    Expr::strip(new_expr);
+    Expr::fix(new_expr);
+    if (Expr::all_zeroes(new_expr)) return;
+
+    assert(new_expr.size() >= 2);
+
+    auto [subject, expr_subj] = Expr::get_subject(new_expr, one);
+    replace(subject, expr_subj);
 }
 
 bool Table::register_expr(const Expr::Expr& expr, Predicate* pred) {
@@ -262,8 +292,8 @@ bool Table::register_expr(const Expr::Expr& expr, Predicate* pred) {
         return false;
     }
     for (const auto& [var, _] : expr) {
-        if (!var_to_row.contains(var)) {
-            var_to_row[var] = num_vars++;
+        if (!var_to_idx.contains(var)) {
+            var_to_idx[var] = num_vars++;
         }
     }
     if (num_vars > A.m) {
@@ -271,8 +301,8 @@ bool Table::register_expr(const Expr::Expr& expr, Predicate* pred) {
     }
     SparseMatrix new_columns = SparseMatrix(num_vars, 2, 4);
     for (const auto& [var, coeff] : expr) {
-        new_columns.set(var_to_row[var], 0, coeff);
-        new_columns.set(var_to_row[var], 1, -coeff);
+        new_columns.set(var_to_idx[var], 0, coeff);
+        new_columns.set(var_to_idx[var], 1, -coeff);
     }
     A.extend_columns(new_columns);
     num_eqs += 1;
@@ -336,9 +366,8 @@ bool Table::add_eq_3(const Expr::Var& var1, const Expr::Var& var2, float f, Pred
 bool Table::add_eq_4(const Expr::Var& var1, const Expr::Var& var2, const Expr::Var& var3, const Expr::Var& var4, Predicate* pred) {
     std::vector<std::pair<Expr::VarPair, Expr::VarPair>> links;
     return (
-        record_eq_4_as_seen(var1, var2, var3, var4)
-        && record_eq_4_as_seen(var1, var3, var2, var4)
-        && add_eq({{var1, 1}, {var2, -1}, {var3, -1}, {var4, 1}}, pred)
+        (record_eq_4_as_seen(var1, var2, var3, var4) || record_eq_4_as_seen(var1, var3, var2, var4))
+        && add_eq(Expr::add({{var1, 1}, {var2, -1}}, {{var3, -1}, {var4, 1}}), pred)
         && Table::update_equal_groups(equal_groups, {{var1, var2}, {var3, var4}}, links)
         && Table::update_equal_groups(equal_groups, {{var2, var1}, {var4, var3}}, links)
     );
@@ -356,7 +385,7 @@ std::vector<Predicate*> Table::why(const Expr::Expr& expr) {
     // Convert the target expr into a std::vector<double> b
     std::vector<double> b_vec(num_vars, 0.0);
     for (const auto& [var, coeff] : target) {
-        b_vec[var_to_row.at(var)] = coeff;
+        b_vec[var_to_idx.at(var)] = coeff;
     }
     lp_solver.populate(A, b_vec, c);
 
@@ -365,10 +394,10 @@ std::vector<Predicate*> Table::why(const Expr::Expr& expr) {
     if (!lp_solver.solve(solution)) {
         return result;
     }
-    assert(solution.size() == num_eqs);
+    assert(solution.size() == 2*num_eqs);
 
     for (int i = 0; i < num_eqs; i++) {
-        if (std::abs(solution[i]) > Frac::TOL) {
+        if (!(NumUtils::is_close(solution[2*i], 0.0) && NumUtils::is_close(solution[2*i + 1], 0.0))) {
             result.push_back(deps[i]);
         }
     }
@@ -469,7 +498,7 @@ Generator<std::tuple<Expr::Var, Expr::Var, Expr::Var, Expr::Var, std::vector<Pre
         Expr::fix(em);
         assert(Expr::all_zeroes(em));        // only true with a Expr::strip() surrounding it
 
-        Expr::Expr e{{v1, 1}, {v2, -1}, {v3, -1}, {v4, 1}};
+        Expr::Expr e = Expr::add_fold(std::vector<Expr::Expr>{{{v1, 1}}, {{v2, -1}}, {{v3, -1}}, {{v4, 1}}});
         Expr::__minus(e, em);
         std::vector<Predicate*> _why = why(e);
         co_yield {v1, v2, v3, v4, _why};
@@ -477,11 +506,25 @@ Generator<std::tuple<Expr::Var, Expr::Var, Expr::Var, Expr::Var, std::vector<Pre
     co_return;
 }
 
+
+
+std::string Table::__print_A() const {
+    return A.__print_matrix();
+}
+
+std::string Table::__print_M() const {
+    std::string s = "M_var_to_expr:\n";
+    for (const auto& [var, expr] : M_var_to_expr) {
+        s += "  " + Expr::to_string(var) + " = " + Expr::to_string(expr) + "\n";
+    }
+    return s;
+}
+
 void Table::reset() {
     num_vars = 0;
     num_eqs = 0;
     A = SparseMatrix(0, 0, 4);
-    var_to_row.clear();
+    var_to_idx.clear();
     c.clear();
     deps.clear();
     M_var_to_expr.clear();

@@ -2,71 +2,14 @@
 
 #include <map>
 #include <memory>
-#include <variant>
-#include <set>
 #include <string>
 #include <vector>
 
-#include "Numerics/Numerics.hh"
+#include "Common/Frac.hh"
 #include "Common/Generator.hh"
 #include "Common/Constants.hh"
 #include "Common/Utils.hh"
-
-class Node;
-class Object;
-class Point;
-class Predicate;
-
-/* Arg class.
-
-Arguments may be set using the `set()` method. This returns a `char` which may take one of three values depending on
-the following:
-
-- Unsuccessful set, returns 0: if the argument was already set, is being set to a `Node*`, and is different to its
-previous value
-- Successful set, returns 1: if the argument was previously empty and is now set
-- Unchanged set, returns 2: if the argument was already set to the same `Node*`
-*/
-class Arg {
-
-public:
-	const static char UNSUCCESSFUL_SET = 0;
-	const static char SUCCESSFUL_SET = 1;
-	const static char UNCHANGED_SET = 2;
-	std::variant<std::monostate, Node*, Frac, char> arg;
-
-	Arg() {}
-	Arg(Node* node) : arg(node) {}
-	Arg(Frac f) : arg(f) {}
-	Arg(char c) : arg(c) {}
-
-	void clear();
-	bool empty();
-	bool filled();
-
-	char set(Node* node);
-	char set(Frac f);
-	char set(char c);
-
-	/* Note: Returns `nullptr` if the argument stored is not an `Node*`.
-	Performs a `static_cast` to `Point*` regardless of whether the `Node*` argument's true type is a `Point*`. */
-	Point* get_point();
-
-	/* Given a string of Argument names (e.g. `p q r s t`), add new `std::unique_ptr<Arg>` and `Arg*` entries
-	to the provided maps `arg_unique_ptr_vec` and `argmap` respectively, one corresponding to each Arg name, provided
-	they are not already present 
-	Note: If an Arg name is already present in `argmap`, then nothing happens */
-	static void populate_args_and_argmap(
-		const std::string arg_str, 
-		std::vector<std::unique_ptr<Arg>> &arg_unique_ptr_vec, 
-		std::map<std::string, Arg*> &argmap);
-
-	void operator=(Node* node);
-	void operator=(Frac f);
-	void operator=(char c);
-
-	std::string to_string();
-};
+#include "Common/Arg.hh"
 
 class GeometricGraph;
 
@@ -77,11 +20,18 @@ public:
 	pred_t name;
 	std::vector<Arg*> args;
 	
-	PredicateTemplate(const pred_t name) : name(name) {};
-	PredicateTemplate(const std::string name) : name(Utils::to_pred_t(name)) {};
-	PredicateTemplate(const pred_t name, std::vector<Arg*> &args) : name(name), args(std::move(args)) {};
-	PredicateTemplate(const std::string name, std::vector<Arg*> &args) : name(Utils::to_pred_t(name)), args(std::move(args)) {};
+	PredicateTemplate(const pred_t name) : name(name) {}
+	PredicateTemplate(const std::string name) : name(Utils::to_pred_t(name)) {}
+
+	PredicateTemplate(const pred_t name, std::vector<Arg*> &args) 
+	: name(name), args(std::move(args)) {}
+	PredicateTemplate(const std::string name, std::vector<Arg*> &args) 
+	: name(Utils::to_pred_t(name)), args(std::move(args)) {}
+
+	/* This constructor is used to parse predicate strings from textual input. 
+	Note: Assumes the input is already StrUtils::strip()-ed */ 
 	PredicateTemplate(const std::string pred_string, std::map<std::string, Arg*> &argmap);
+
 	// This constructor literally only exists to convert the conclusion from a Predicate to a PredicateTemplate
 	PredicateTemplate(Predicate* pred, std::vector<std::unique_ptr<Arg>> &arglist);
 
@@ -92,22 +42,22 @@ public:
 	char set_arg(int i, Node* node) noexcept;
 	char set_arg(int i, Frac f) noexcept;
 	char set_arg(int i, char c) noexcept;
-	bool arg_empty(int i) noexcept;
+	bool arg_empty(int i) const noexcept;
 	void clear_arg(int i) noexcept;
 
 	/* Note: Returns 0 or 1 depending on whether there were any unsuccessful sets */
 	char set_args(std::vector<Node*> nodes);
 	/* Note: Returns 0 or 1 depending on whether there were any unsuccessful sets */
 	char set_args(std::vector<Node*> nodes, Frac f);
-	bool args_filled();
+	bool args_filled() const;
 	void clear_args();
 
 	Point* get_arg_point(int i);
 
 	std::unique_ptr<Predicate> instantiate();
 
-	std::string to_string();
-	std::string to_hash_with_args();
+	std::string to_string() const;
+	std::string to_hash_with_args() const;
 
 	bool __validate_neq(GeometricGraph &ggraph);
 	bool __validate_ncoll(GeometricGraph &ggraph);
@@ -137,7 +87,7 @@ public:
 	Frac frac_arg;
 	PredVec why; // keep
 
-	Predicate() : name(pred_t::BASE), hash(Utils::to_pred_str(pred_t::BASE)) {};
+	Predicate() : name(pred_t::BASE), hash(Utils::to_pred_str(pred_t::BASE)) {}
 	Predicate(const pred_t name, std::vector<Node*> &&nodes);
 	Predicate(const pred_t name, std::vector<Node*> &&nodes, Frac f);
 	Predicate(const pred_t name, std::vector<Node*> &&nodes, PredVec &&why);
@@ -149,7 +99,7 @@ public:
 	static std::unique_ptr<Predicate> 
 	from_global_point_map(const std::string pred_string, std::map<std::string, std::unique_ptr<Point>> &global_point_map);
 
-	std::string to_string();
+	std::string to_string() const;
 };
 
 class ClauseTemplate {

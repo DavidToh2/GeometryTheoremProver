@@ -3,8 +3,8 @@
 #include <iostream>
 
 #include "AR/LinProg.hh"
-#include "Numerics/Matrix.hh"
-#include "Numerics/Numerics.hh"
+#include "AR/Matrix.hh"
+#include "Common/NumUtils.hh"
 
 TEST_SUITE("LinProg") {
     /* A = [1, 1,
@@ -27,8 +27,8 @@ TEST_SUITE("LinProg") {
 
         CHECK(success);
         CHECK(result.size() == 2);
-        CHECK(__is_close(result[0], 2.66666667));
-        CHECK(__is_close(result[1], 1.33333333));
+        CHECK(NumUtils::is_close(result[0], 2.66666667));
+        CHECK(NumUtils::is_close(result[1], 1.33333333));
     }
 
     /* A = [1,  1,  0,  0,

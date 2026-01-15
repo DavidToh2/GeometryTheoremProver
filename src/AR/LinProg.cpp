@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "LinProg.hh"
-#include "Numerics/Matrix.hh"
+#include "Matrix.hh"
 
 LinProg::LinProg(
     bool verbose

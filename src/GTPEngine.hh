@@ -2,6 +2,7 @@
 
 #include "DD/DDEngine.hh"
 #include "AR/AREngine.hh"
+#include "Numerics/NumEngine.hh"
 #include "Geometry/GeometricGraph.hh"
 #include "Parsers/InputParser.hh"
 
@@ -11,6 +12,7 @@ public:
     GeometricGraph ggraph;
     DDEngine dd;
     AREngine ar;
+    NumEngine nm;
     InputParser inputParser;
     
     std::string rule_filepath;

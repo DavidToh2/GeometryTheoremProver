@@ -7,12 +7,21 @@
 
 #include "DD/DDEngine.hh"
 #include "Common/Exceptions.hh"
-#include "Common/Utils.hh"
+#include "Common/Arg.hh"
 #include "Geometry/Object.hh"
 #include "Predicate.hh"
 #include "Common/Generator.hh"
 #include "Common/Constants.hh"
 #include "Geometry/GeometricGraph.hh"
+
+#define DEBUG_DDENGINE 0
+
+#if DEBUG_DDENGINE
+    #define LOG(x) do {std::cout << x << std::endl;} while(0)
+#else 
+    #define LOG(x)
+#endif
+
 
 /* Initialisation and adding theorems from rules.txt */
 
@@ -27,14 +36,14 @@ DDEngine::DDEngine() {
     }
 }
 
-void DDEngine::__add_theorem_template_from_text(const std::string s) { 
+void DDEngine::add_theorem_template_from_text(const std::string s) { 
 
     std::unique_ptr<Theorem> _thr = std::make_unique<Theorem>(s);
     std::string name = _thr.get()->name;
     theorems.insert({name, std::move(_thr)});
 }
 
-void DDEngine::__add_construction_template_from_texts(const std::tuple<std::string, std::string, std::string> v) { 
+void DDEngine::add_construction_template_from_texts(const std::tuple<std::string, std::string, std::string, std::string> v) { 
 
     std::unique_ptr<Construction> _c = std::make_unique<Construction>(v);
     std::string name = _c.get()->name;
@@ -57,9 +66,11 @@ Predicate* DDEngine::insert_predicate(std::unique_ptr<Predicate> &&predicate) {
     Predicate* p = predicate.get();
     std::string hash = p->hash;
     if (has_predicate_by_hash(hash)) {
+        LOG("Predicate " << hash << " already exists!");
         predicate.reset();
         return predicates.at(hash).get();
     }
+    LOG("Inserting new predicate " << hash);
     predicates.insert({hash, std::move(predicate)});
     recent_predicates.emplace_back(p);
     return p;
