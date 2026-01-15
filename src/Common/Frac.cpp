@@ -8,7 +8,7 @@
 
 Frac::Frac(int num, int den) {
     if (den == 0) {
-        throw NumericsError("Denominator cannot be zero");
+        throw ARInternalError("Denominator cannot be zero");
     }
     int d = std::gcd(num, den);
     this->num = num / d;

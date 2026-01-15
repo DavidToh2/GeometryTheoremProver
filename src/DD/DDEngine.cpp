@@ -1071,7 +1071,7 @@ Generator<bool> DDEngine::match(Theorem* theorem, int i, int n, GeometricGraph &
     PredicateTemplate* pred_template = theorem->preconditions.predicates[i].get();
     pred_t ptype = pred_template->name;
 
-    if (match_function_map.find(ptype) == match_function_map.end()) {
+    if (!match_function_map.contains(ptype)) {
         co_return;
     }
     Generator<bool> pred_matcher = (this->*match_function_map[ptype])(pred_template, ggraph);
@@ -1104,8 +1104,9 @@ void DDEngine::search(GeometricGraph &ggraph) {
         int n = theorem->preconditions.predicates.size();
         Generator<bool> gen = match(theorem, 0, n, ggraph);
         while (gen) {
-            gen();
-            matches += 1;
+            if (gen()) {
+                matches += 1;
+            }
         }
         // std::cout << "Matches for theorem " << theorem->to_string_with_placeholders() << ": " << matches << std::endl;
         theorem->__clear_args();

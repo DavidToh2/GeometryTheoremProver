@@ -5,11 +5,12 @@
 #include "Predicate.hh"
 #include "Geometry/GeometricGraph.hh"
 #include "Common/Frac.hh"
+#include "Common/Utils.hh"
 #include "Common/StrUtils.hh"
 #include "Common/Exceptions.hh"
 #include "Common/Constants.hh"
-#include "Common/Utils.hh"
 #include "Common/Generator.hh"
+#include "Geometry/Object.hh"
 
 
 
@@ -196,15 +197,13 @@ Predicate::Predicate(PredicateTemplate &pt) {
     name = pt.name;
 
     for (int i=0; i<pt.args.size(); i++) {
-        if (std::holds_alternative<Node*>(pt.args[i]->arg)) {
-            args.emplace_back(pt.get_arg_point(i));
-
-        } else if (std::holds_alternative<Frac>(pt.args[i]->arg)) {
-            frac_arg = std::get<Frac>(pt.args[i]->arg);
-
-        } else {
-            throw DDInternalError("Predicate: Invalid argument in predicate template: " + pt.to_string());
-        }
+        std::visit( overloaded {
+            /* ampersands [&] make capture-by-reference the default for our lambda. In
+            other words, all variables outside the lambda can be accessed by reference. */ 
+            [&](Node* node) { args.emplace_back(static_cast<Point*>(node)); },
+            [&](Frac f) { frac_arg = f; },
+            [&](auto&) { throw DDInternalError("Predicate: Invalid argument in predicate template: " + pt.to_string()); }
+        }, pt.args[i]->arg );
     }
 }
 

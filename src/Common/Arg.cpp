@@ -2,7 +2,7 @@
 #include "Arg.hh"
 #include "Geometry/Object.hh"
 #include "Common/StrUtils.hh"
-
+#include "Common/Utils.hh"
 
 void Arg::clear() { arg = std::monostate{}; }
 bool Arg::empty() { return (arg.index() == 0); }
@@ -30,8 +30,11 @@ char Arg::set(char c) {
 }
 
 Point* Arg::get_point() {
-    if (!std::holds_alternative<Node*>(arg)) { return nullptr; }
-    return static_cast<Point*>(std::get<Node*>(arg));
+    /* std::get_if() returns nullptr should Node* not be present */
+    if (auto* p = std::get_if<Node*>(&arg)) {
+        return static_cast<Point*>(*p);
+    }
+    return nullptr;
 }
 
 void Arg::operator=(Node* node) { arg = node; }
@@ -50,17 +53,12 @@ void Arg::populate_args_and_argmap(const std::string s, std::vector<std::unique_
 }
 
 std::string Arg::to_string() {
-    if (arg.index() == 0) {
-        return "EMPTY";
-    }
-    if (std::holds_alternative<Node*>(arg)) {
-        return std::get<Node*>(arg)->name;
-    }
-    if (std::holds_alternative<Frac>(arg)) {
-        return std::get<Frac>(arg).to_string();
-    }
-    if (std::holds_alternative<char>(arg)) {
-        return std::string{std::get<char>(arg)};
-    }
-    return "0";
+    /* ampersands [&] make capture-by-reference the default for our lambda. In
+    other words, all variables outside the lambda can be accessed by reference. */ 
+    return std::visit(overloaded {
+        [](std::monostate) -> std::string { return "EMPTY"; },
+        [](Node* node) -> std::string { return node->name; },
+        [](Frac f) -> std::string { return f.to_string(); },
+        [](char c) -> std::string { return std::string{c}; }
+    }, arg);
 }

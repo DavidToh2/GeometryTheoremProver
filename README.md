@@ -43,4 +43,4 @@ CMakeLists.txt
 
 Read [Outline.md](notes/Outline.md) for technical specifications, as well as [the other project notes](notes/).
 
-Current code length: 7389 lines
+Current code length: 7735 lines

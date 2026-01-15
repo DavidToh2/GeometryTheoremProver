@@ -10,12 +10,15 @@
 
 namespace Utils {
 
+    /* Convenience function to check if a C-style array contains an element. */
     template <typename Range, typename T>
     constexpr bool isin(const T& v, const Range& r) {
         using std::begin, std::end;
         return std::find(begin(r), end(r), v) != end(r);
     }
 
+    /* Technically this function is not necessary. We can just use m.contains().
+    TODO: To remove. */
     template <typename Key, typename Map>
     constexpr bool isinmap(const Key& key, const Map& m) {
         return m.find(key) != m.end();
@@ -74,7 +77,7 @@ namespace Utils {
     template <typename Map, typename Value>
     void merge_maps(Map& dest, const Map& src, Value& overwrite_value) {
         for (const auto& [key, _] : src) {
-            if (!isinmap(key, dest)) {
+            if (!dest.contains(key)) {
                 dest[key] = overwrite_value;
             }
         }
@@ -87,3 +90,9 @@ namespace Utils {
     std::string to_num_str(num_t n);
 
 } // namespace Utils
+
+// For std::visit with multiple lambdas
+template<class... Ts> 
+struct overloaded : Ts... { 
+    using Ts::operator()...; 
+};

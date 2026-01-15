@@ -15,20 +15,20 @@ Matrix::Matrix(int m, int n) {
 
 double Matrix::get(int i, int j) const {
     if (__in_bounds(i, j)) return data[i * n_s + j];
-    throw NumericsError("Matrix index out of bounds");
+    throw ARInternalError("Matrix index out of bounds");
 }
 void Matrix::set(int i, int j, double value) {
     if (__in_bounds(i, j)) data[i * n_s + j] = value;
-    else throw NumericsError("Matrix index out of bounds");
+    else throw ARInternalError("Matrix index out of bounds");
 }
 
 double& Matrix::operator()(int i, int j) {
     if (__in_bounds(i, j)) return data[i * n_s + j];
-    throw NumericsError("Matrix index out of bounds");
+    throw ARInternalError("Matrix index out of bounds");
 }
 const double& Matrix::operator()(int i, int j) const {
     if (__in_bounds(i, j)) return data[i * n_s + j];
-    throw NumericsError("Matrix index out of bounds");
+    throw ARInternalError("Matrix index out of bounds");
 }
 
 int Matrix::extend_rows(int i) {
@@ -128,7 +128,7 @@ double SparseMatrix::get(int i, int j) const {
         }
         return 0.0;
     }
-    throw NumericsError("SparseMatrix index out of bounds");
+    throw ARInternalError("SparseMatrix index out of bounds");
 }
 bool SparseMatrix::set(int i, int j, double value) {
     if (__in_bounds(i, j)) {
@@ -156,7 +156,7 @@ bool SparseMatrix::set(int i, int j, double value) {
         }
         return false;
     }
-    throw NumericsError("SparseMatrix index out of bounds");
+    throw ARInternalError("SparseMatrix index out of bounds");
 }
 int SparseMatrix::extend_rows(int i) {
     m += i;

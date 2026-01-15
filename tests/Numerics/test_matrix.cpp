@@ -27,8 +27,8 @@ TEST_SUITE("Matrix") {
         }
         CHECK(all_pass);
 
-        CHECK_THROWS_AS(mat.get(3, 0), NumericsError);
-        CHECK_THROWS_AS(mat.set(0, 3, 1), NumericsError);
+        CHECK_THROWS_AS(mat.get(3, 0), ARInternalError);
+        CHECK_THROWS_AS(mat.set(0, 3, 1), ARInternalError);
     }
     /* [1, 2, 3,
         4, 5, 6,
@@ -50,8 +50,8 @@ TEST_SUITE("Matrix") {
         }
         CHECK(all_pass);
 
-        CHECK_THROWS_AS(mat(3, 0), NumericsError);
-        CHECK_THROWS_AS(mat(0, 3) = 1, NumericsError);
+        CHECK_THROWS_AS(mat(3, 0), ARInternalError);
+        CHECK_THROWS_AS(mat(0, 3) = 1, ARInternalError);
     }
 
     /* [1,  2,  3,
@@ -67,8 +67,8 @@ TEST_SUITE("Matrix") {
             }
         }
 
-        CHECK_THROWS_AS(mat(2, 0), NumericsError);
-        CHECK_THROWS_AS(mat(0, 3) = 7, NumericsError);
+        CHECK_THROWS_AS(mat(2, 0), ARInternalError);
+        CHECK_THROWS_AS(mat(0, 3) = 7, ARInternalError);
 
         mat.extend_rows(2);
 
@@ -101,9 +101,9 @@ TEST_SUITE("Matrix") {
         }
 
         CHECK(all_pass);
-        CHECK_THROWS_AS(mat(4, 2), NumericsError);
-        CHECK_THROWS_AS(mat(2, 3), NumericsError);
-        CHECK_THROWS_AS(mat(3, 3) = 1, NumericsError);
+        CHECK_THROWS_AS(mat(4, 2), ARInternalError);
+        CHECK_THROWS_AS(mat(2, 3), ARInternalError);
+        CHECK_THROWS_AS(mat(3, 3) = 1, ARInternalError);
     }
     /* [1,  2,       [3,  4,
         5,  6, concat 7,  8,
@@ -116,8 +116,8 @@ TEST_SUITE("Matrix") {
             }
         }
 
-        CHECK_THROWS_AS(mat(0, 2) = 7, NumericsError);
-        CHECK_THROWS_AS(mat(3, 0), NumericsError);
+        CHECK_THROWS_AS(mat(0, 2) = 7, ARInternalError);
+        CHECK_THROWS_AS(mat(3, 0), ARInternalError);
 
         mat.extend_columns(2);
 
@@ -143,9 +143,9 @@ TEST_SUITE("Matrix") {
         }
 
         CHECK(all_pass);
-        CHECK_THROWS_AS(mat(2, 4) , NumericsError);
-        CHECK_THROWS_AS(mat(3, 3) , NumericsError);
-        CHECK_THROWS_AS(mat(3, 4) = 1, NumericsError);
+        CHECK_THROWS_AS(mat(2, 4) , ARInternalError);
+        CHECK_THROWS_AS(mat(3, 3) , ARInternalError);
+        CHECK_THROWS_AS(mat(3, 4) = 1, ARInternalError);
     }
 
     /* [1,  2,  3,
@@ -177,9 +177,9 @@ TEST_SUITE("Matrix") {
             }
         }
         CHECK(all_pass);
-        CHECK_THROWS_AS(mat(4, 0) = 7, NumericsError);
-        CHECK_THROWS_AS(mat(0, 3) = 7, NumericsError);
-        CHECK_THROWS_AS(mat(2, 3) = 7, NumericsError);
+        CHECK_THROWS_AS(mat(4, 0) = 7, ARInternalError);
+        CHECK_THROWS_AS(mat(0, 3) = 7, ARInternalError);
+        CHECK_THROWS_AS(mat(2, 3) = 7, ARInternalError);
     }
     /* [1,  2,       [3,  4,
         5,  6, concat 7,  8,
@@ -208,9 +208,9 @@ TEST_SUITE("Matrix") {
             }
         }
         CHECK(all_pass);
-        CHECK_THROWS_AS(mat(2, 4) = 7, NumericsError);
-        CHECK_THROWS_AS(mat(3, 0) = 7, NumericsError);
-        CHECK_THROWS_AS(mat(3, 2) = 7, NumericsError);
+        CHECK_THROWS_AS(mat(2, 4) = 7, ARInternalError);
+        CHECK_THROWS_AS(mat(3, 0) = 7, ARInternalError);
+        CHECK_THROWS_AS(mat(3, 2) = 7, ARInternalError);
     }
 
     /* 19x19 -> extend_rows to 24x19 -> extend_columns to 24x22 */
@@ -246,8 +246,8 @@ TEST_SUITE("Matrix") {
             }
         }
         CHECK(all_pass);
-        CHECK_THROWS_AS(mat(24, 1) = 7, NumericsError);
-        CHECK_THROWS_AS(mat(1, 22) = 7, NumericsError);
-        CHECK_THROWS_AS(mat(24, 22) = 7, NumericsError);
+        CHECK_THROWS_AS(mat(24, 1) = 7, ARInternalError);
+        CHECK_THROWS_AS(mat(1, 22) = 7, ARInternalError);
+        CHECK_THROWS_AS(mat(24, 22) = 7, ARInternalError);
     }
 }

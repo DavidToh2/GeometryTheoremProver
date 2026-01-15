@@ -40,8 +40,8 @@ TEST_SUITE("SparseMatrix") {
                 mat.set(i, j, 5*i + j + 1);
             }
         }
-        CHECK_THROWS_AS(mat.set(5, 0, 1), NumericsError);
-        CHECK_THROWS_AS(mat.get(0, 5), NumericsError);
+        CHECK_THROWS_AS(mat.set(5, 0, 1), ARInternalError);
+        CHECK_THROWS_AS(mat.get(0, 5), ARInternalError);
 
         bool all_pass_2 = true;
         for (int j=0; j<5; j++) {

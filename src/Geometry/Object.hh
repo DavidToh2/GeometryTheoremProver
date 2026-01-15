@@ -78,8 +78,6 @@ public:
     std::set<Line*> on_root_line;
     std::set<Circle*> on_root_circle;
 
-    EqPoint num;
-
     Point(std::string name) : Node(name) {}
 
     /* Set `this` point to be on the line `l`. What this does:
@@ -169,8 +167,6 @@ public:
     Direction* direction = nullptr;
     Predicate* direction_why = nullptr;
 
-    EqLine num;
-
     Line(std::string name) : Object(name) {}
     Line(std::string name, Point* p1, Point* p2, Predicate* base_pred) : Object(name) {
         points[p1] = base_pred;
@@ -235,8 +231,6 @@ class Circle : public Object {
 public:
     Point* center = nullptr;
     Predicate* center_why = nullptr;
-
-    EqCircle num;
 
     Circle(std::string name) : Object(name) {}
     Circle(std::string name, Point* p1, Point* p2, Point* p3, Predicate* base_pred) : Object(name) {

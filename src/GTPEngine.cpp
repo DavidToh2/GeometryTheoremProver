@@ -2,6 +2,7 @@
 #include <vector>
 #include <chrono>
 #include <fstream>
+#include <random>
 
 #include "GTPEngine.hh"
 #include "DD/Predicate.hh"
@@ -9,6 +10,9 @@
 #include "Geometry/GeometricGraph.hh"
 #include "Parsers/InputParser.hh"
 #include "Common/StrUtils.hh"
+
+std::random_device rd;
+std::mt19937 gen(rd());
 
 GTPEngine::GTPEngine(
     std::string rule_filepath,

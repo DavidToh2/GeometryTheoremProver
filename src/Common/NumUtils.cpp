@@ -9,4 +9,9 @@ namespace NumUtils {
         double sqrtD = std::sqrt(D);
         return {true, {(-b - sqrtD) / a, (-b + sqrtD) / a}};
     }
+
+    double urand(double lower, double upper) {
+        std::uniform_real_distribution<> dis(lower, upper);
+        return dis(gen);
+    }
 } // namespace NumUtils

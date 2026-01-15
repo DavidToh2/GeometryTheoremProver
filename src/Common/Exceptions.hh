@@ -29,8 +29,8 @@ public:
         : std::runtime_error(message) {}
 };
 
-class NumericsError : public std::runtime_error {
+class NumericsInternalError : public std::runtime_error {
 public:
-    explicit NumericsError(const std::string& message)
+    explicit NumericsInternalError(const std::string& message)
         : std::runtime_error(message) {}
 };
