@@ -35,8 +35,7 @@ public:
     std::vector<Length*> __get_lengths(const std::vector<Expr::Var>& vars);
 
     void add_const_angle(Direction* d1, Direction* d2, float f, Predicate* pred);
-    void add_eqangle(Direction* d1, Direction* d2, Direction* d3, Direction* d4, Predicate* pred);
-    void add_eqangle(Angle* a1, Angle* a2, Predicate* pred);
+    void add_eqangle(Direction* d1, Direction* d2, Direction* d3, Direction* d4, Predicate* pred, int pi_offset = 0);
     void add_para(Direction* d1, Direction* d2, Predicate* pred);
     void add_perp(Direction* d1, Direction* d2, Predicate* pred);
 

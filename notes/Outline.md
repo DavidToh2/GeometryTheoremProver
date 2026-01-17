@@ -26,7 +26,7 @@ Associations between `Object(2)s` and `Value(2)s` need not store root nodes. (Ho
 |  | `reflect p y x1 x2` | `p` is the reflection of `y` across the line `x1x2` |
 |  | `inbisect x a b c`<br>`exbisect x a b c` | `x` lies on the internal angle bisector of angle `abc`<br>`x` lies on the external angle bisector of angle `abc` |
 |  | `tangent p o x`<br>`ptangent p o1 x1 o2 x2` | `p` lies on the tangent to circle centered at `o` at `x`<br>`p` is the common tangency point of two circles centered at `o1` and `o2` respectively |
-|  | `equilateral a b c`<br>`risos a b c`<br>`square a b c d`<br>`parallelogram a b c d` | `abc` is an equilateral / right-angled isosceles triangle<br>`abcd` is a square / parallelogram |
+|  | `equilateral a b c`<br>`r_triangle_p a b c`<br>`square a b c d`<br>`parallelogram a b c d` | `abc` is an equilateral / right-angled isosceles triangle<br>`abcd` is a square / parallelogram |
 |  | `congtri a b c p q r`<br>`simtri a b c p q r` | Triangles `abc` and `pqr` are congruent / similar, with vertices oriented in this order |
 
 ### Syntax

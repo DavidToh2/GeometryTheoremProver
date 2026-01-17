@@ -68,13 +68,6 @@ Expr::Expr Expr::add(const Expr& expr1, const Expr& expr2) {
     }
     return result;
 }
-Expr::Expr Expr::add_fold(const std::vector<Expr>& exprs) {
-    Expr result = {};
-    for (const auto& expr : exprs) {
-        __add(result, expr);
-    }
-    return result;
-}
 void Expr::__mult(Expr& expr, const double c) {
     for (auto& [var, coeff] : expr) {
         coeff *= c;
@@ -363,13 +356,13 @@ bool Table::add_eq_3(const Expr::Var& var1, const Expr::Var& var2, float f, Pred
         && add_eq({{var1, 1}, {var2, -1}, {one, -f}}, pred) 
     );
 }
-bool Table::add_eq_4(const Expr::Var& var1, const Expr::Var& var2, const Expr::Var& var3, const Expr::Var& var4, Predicate* pred) {
+bool Table::add_eq_4(const Expr::Var& var1, const Expr::Var& var2, const Expr::Var& var3, const Expr::Var& var4, Predicate* pred, Expr::Expr offset) {
     std::vector<std::pair<Expr::VarPair, Expr::VarPair>> links;
     return (
         (record_eq_4_as_seen(var1, var2, var3, var4) || record_eq_4_as_seen(var1, var3, var2, var4))
-        && add_eq(Expr::add({{var1, 1}, {var2, -1}}, {{var3, -1}, {var4, 1}}), pred)
-        && Table::update_equal_groups(equal_groups, {{var1, var2}, {var3, var4}}, links)
-        && Table::update_equal_groups(equal_groups, {{var2, var1}, {var4, var3}}, links)
+        && add_eq(Expr::add({{var1, 1}, {var2, -1},{var3, -1}, {var4, 1}}, offset), pred)
+        // && Table::update_equal_groups(equal_groups, {{var1, var2}, {var3, var4}}, links)
+        // && Table::update_equal_groups(equal_groups, {{var2, var1}, {var4, var3}}, links)
     );
 }
 
@@ -417,7 +410,7 @@ Generator<Expr::VarPair> Table::all_varpairs() const {
     co_return;
 }
 
-void Table::get_all_eqs() {
+void Table::generate_all_eqs() {
     eq_2s.clear();
     eq_3s.clear();
     eq_4s.clear();
@@ -498,7 +491,7 @@ Generator<std::tuple<Expr::Var, Expr::Var, Expr::Var, Expr::Var, std::vector<Pre
         Expr::fix(em);
         assert(Expr::all_zeroes(em));        // only true with a Expr::strip() surrounding it
 
-        Expr::Expr e = Expr::add_fold(std::vector<Expr::Expr>{{{v1, 1}}, {{v2, -1}}, {{v3, -1}}, {{v4, 1}}});
+        Expr::Expr e{{v1, 1}, {v2, -1}, {v3, -1}, {v4, 1}};
         Expr::__minus(e, em);
         std::vector<Predicate*> _why = why(e);
         co_yield {v1, v2, v3, v4, _why};

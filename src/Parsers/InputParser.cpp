@@ -5,8 +5,8 @@
 #include <vector>
 
 #include "Parsers/InputParser.hh"
-#include "DD/DDEngine.hh"
 #include "Common/Exceptions.hh"
+#include "Common/StrUtils.hh"
 
 std::vector<std::string> InputParser::parse_rules_from_file(std::string rule_filepath) {
     
@@ -22,7 +22,7 @@ std::vector<std::string> InputParser::parse_rules_from_file(std::string rule_fil
         if (line.empty() || line[0] == '#') {
             continue;
         }
-        rules.push_back(line);
+        rules.push_back(StrUtils::trim_copy(line));
     }
     return rules;
 }
@@ -49,16 +49,16 @@ InputParser::parse_constructions_from_file(std::string construction_filepath) {
         }
         switch(i) {
             case 0:
-                c_decl = line;
+                c_decl = StrUtils::trim_copy(line);
                 break;
             case 1:
-                c_pres = line.substr(1);
+                c_pres = StrUtils::trim_copy(line.substr(1));
                 break;
             case 2:
-                c_posts = line.substr(1);
+                c_posts = StrUtils::trim_copy(line.substr(1));
                 break;
             case 3:
-                c_numerics = line.substr(1);
+                c_numerics = StrUtils::trim_copy(line.substr(1));
                 break;
             default:
                 throw InvalidTextualInputError("Error: Construction definition in file " + construction_filepath + " has more than 3 lines.");

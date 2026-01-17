@@ -30,6 +30,10 @@ public:
     CartesianPoint operator*(double scalar) const;
     CartesianPoint operator/(double scalar) const;
 
+    /* Comparison operator for CartesianPoints. Compares x-coordinates followed by y-coordinates.
+    Useful for signed lengths for the AREngine. */
+    auto operator<=>(const CartesianPoint &other) const;
+
     bool is_same(const CartesianPoint& other) const;
     static bool is_same(const CartesianPoint& p1, const CartesianPoint& p2);
     static bool is_close(const CartesianPoint& p1, const CartesianPoint& p2);
@@ -48,6 +52,8 @@ public:
     CartesianPoint& shift(const CartesianPoint &offset);
 };
 
+CartesianPoint operator*(double scalar, const CartesianPoint &point);
+
 namespace Cartesian {
 
     CartesianPoint from_polar(double r, double theta);
@@ -64,8 +70,6 @@ namespace Cartesian {
     double dot(const CartesianPoint &p1, const CartesianPoint &p2);
 }
 
-CartesianPoint operator*(double scalar, const CartesianPoint &point);
-
 class CartesianLine {
 public:
 	double a;
@@ -78,7 +82,9 @@ public:
 
     bool contains(const CartesianPoint &p) const;
 
-    /* Compares the gradients of the two lines. */
+    /* Compares the gradients of the two lines. Useful for signed angles for the AREngine. (Note:
+    This functionality is not used as Cartesian::angle_of() is less prone to numerical instability
+    and serves the same purpose.) */
     auto operator<=>(const CartesianLine &other) const;
 };
 

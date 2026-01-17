@@ -71,8 +71,17 @@ public:
     std::map<Direction*, double> direction_gradients;
 
 
+    /* Populate newly resolved CartesianPoints from the NumEngine into our numeric
+    maps */
+    void initialise_point_numerics(NumEngine &nm);
+    
+    CartesianLine compute_line_from_points(Point* p1, Point* p2);
+    CartesianRay compute_ray_from_points(Point* start, Point* head);
+    CartesianCircle compute_circle_from_points(Point* c, Point* p1);
+    CartesianCircle compute_circle_from_points(Point* p1, Point* p2, Point* p3);
+    double compute_direction_angle(Direction* d);
 
-    // Member functions
+
 
     void __add_new_point(const std::string point_id);
     void __try_add_point(const std::string point_id);
@@ -342,11 +351,6 @@ public:
     int synthesise_ar_preds(DDEngine &dd);
     void synthesise_pred2s(DDEngine &dd);
 
-
-
-    /* Populate newly resolved numerics from the NumEngine into our numeric
-    maps */
-    void populate_resolved_numerics(NumEngine &nm);
 
 
     Predicate* why(Predicate* pred, DDEngine &dd);

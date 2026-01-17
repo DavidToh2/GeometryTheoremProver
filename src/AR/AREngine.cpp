@@ -9,6 +9,14 @@
 #include "Geometry/GeometricGraph.hh"
 #include "Common/NumUtils.hh"
 
+#define DEBUG_ARENGINE 0
+
+#if DEBUG_ARENGINE
+    #define LOG(x) do {std::cout << x << std::endl;} while(0)
+#else 
+    #define LOG(x)
+#endif
+
 std::vector<Direction*> AREngine::__get_directions(const std::vector<Expr::Var>& vars) {
     std::vector<Direction*> result(vars.size(), nullptr);
     for (int i=0; i<vars.size(); i++) {
@@ -33,22 +41,13 @@ void AREngine::add_const_angle(
     angle_table.add_eq_3(var1, var2, ang.to_double(), pred);
 }
 void AREngine::add_eqangle(
-    Direction* d1, Direction* d2, Direction* d3, Direction* d4, Predicate* pred
+    Direction* d1, Direction* d2, Direction* d3, Direction* d4, Predicate* pred, int pi_offset
 ) {
     Expr::Var var1 = __get_var(d1);
     Expr::Var var2 = __get_var(d2);
     Expr::Var var3 = __get_var(d3);
     Expr::Var var4 = __get_var(d4);
-    angle_table.add_eq_4(var1, var2, var3, var4, pred);
-}
-void AREngine::add_eqangle(
-    Angle* a1, Angle* a2, Predicate* pred
-) {
-    add_eqangle(
-        a1->direction1, a1->direction2,
-        a2->direction1, a2->direction2,
-        pred
-    );
+    angle_table.add_eq_4(var1, var2, var3, var4, pred, {{angle_table.one, pi_offset}});
 }
 void AREngine::add_para(
     Direction* d1, Direction* d2, Predicate* pred
@@ -164,9 +163,9 @@ AREngine::get_all_congs_and_why() {
 
 void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
 
-    angle_table.get_all_eqs();
+    angle_table.generate_all_eqs();
 
-    std::cout << angle_table.__print_A() << std::endl << angle_table.__print_M() << std::endl;
+    LOG(angle_table.__print_A() << std::endl << angle_table.__print_M());
 
     auto gen_const_angle = get_all_const_angles_and_why();
     while (gen_const_angle) {

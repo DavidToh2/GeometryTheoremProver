@@ -27,6 +27,7 @@ public:
     enum ComputationStatus {
         UNCOMPUTED,
         COMPUTING,
+        TO_RESOLVE,
         RESOLVED,
         RESOLVED_WITH_DISCREPANCY
     };
@@ -34,7 +35,6 @@ public:
     int num_resolved;
     CartesianPoint sum_of_resolved_points;
     double max_dist;
-    std::vector<Point*> recently_resolved;
 
     Numeric* insert_numeric(std::unique_ptr<Numeric>&& num);
 
@@ -73,11 +73,11 @@ public:
     Generator<CartesianLine> compute_line(Numeric* num);
     /* Given five points A, B, C, D, E: generate a line of points X such that
     the directed angles <(XA, AB) = <(CD, DE). */
-    Generator<CartesianLine> compute_line_at_angle(Numeric* num);
+    Generator<CartesianRay> compute_line_at_angle(Numeric* num);
     Generator<CartesianLine> compute_line_bisect(Numeric* num);
     Generator<CartesianLine> compute_line_para(Numeric* num);
     Generator<CartesianLine> compute_line_perp(Numeric* num);
-    // Generator<Cartesian> compute_ray(Numeric* num);
+    Generator<CartesianRay> compute_ray(Numeric* num);
 
     Generator<CartesianCircle> compute_circle(Numeric* num);
     Generator<CartesianCircle> compute_circum(Numeric* num);
@@ -98,9 +98,12 @@ public:
     Generator<CartesianCircle> compute_angle_eq3(Numeric* num);
     /* Given three points A, B, C: generate the locus of all points X such that
     the directed angles <(BA, BC) = <(BC, BX). */
-    Generator<CartesianLine> compute_angle_mirror(Numeric* num);
+    Generator<CartesianRay> compute_angle_mirror(Numeric* num);
     /* Given three points A, B, C: generate the bisector of the angle ABC. */
     Generator<CartesianLine> compute_angle_bisect(Numeric* num);
+    /* Given three points A, B, C: generate the external bisector of the angle
+    ABC. */
+    Generator<CartesianLine> compute_angle_exbisect(Numeric* num);
     /* Given three points A, B, C: generate the loci of points X, followed by
     the loci of points Y, such that BA, BX, BY, BC form equal directed angles
     in this order. */
@@ -150,16 +153,20 @@ public:
         {num_t::COMMON_TANGENT2, &NumEngine::compute_common_tangent2}
     };
 
+    std::map<num_t, Generator<CartesianRay>(NumEngine::*)(Numeric*)> compute_function_map_ray = {
+        {num_t::LINE_AT_ANGLE, &NumEngine::compute_line_at_angle},
+        {num_t::ANGLE_MIRROR, &NumEngine::compute_angle_mirror},
+        {num_t::RAY, &NumEngine::compute_ray},
+    };
+
     std::map<num_t, Generator<CartesianLine>(NumEngine::*)(Numeric*)> compute_function_map_line = {
         {num_t::LINE, &NumEngine::compute_line},
-        {num_t::LINE_AT_ANGLE, &NumEngine::compute_line_at_angle},
         {num_t::LINE_BISECT, &NumEngine::compute_line_bisect},
         {num_t::LINE_PARA, &NumEngine::compute_line_para},
         {num_t::LINE_PERP, &NumEngine::compute_line_perp},
-        // {num_t::RAY, &NumEngine::compute_ray},
 
-        {num_t::ANGLE_MIRROR, &NumEngine::compute_angle_mirror},
         {num_t::ANGLE_BISECT, &NumEngine::compute_angle_bisect},
+        {num_t::ANGLE_EXBISECT, &NumEngine::compute_angle_exbisect},
         {num_t::ANGLE_TRISECT, &NumEngine::compute_angle_trisect},
     };
 
@@ -187,11 +194,17 @@ public:
     Returns `true` if the point is successfully resolved without discrepancy.
     In either case, all possible coordinates are stored in `point_to_cartesian`. */
     bool resolve_one(Point* p);
-    /* Resolves all currently computing points.
+    /* Resolves all points slated to be resolved.
     Returns `false` if at least one point is resolved with a discrepancy: it will
     then have multiple coordinates in its `point_to_cartesian` entry.
     Returns `true` if all points are successfully resolved without discrepancy. */
     bool resolve();
+    /* Resolves all remaining points which are still in COMPUTING or TO_RESOLVE 
+    status.
+    Returns `false` if at least one point is resolved with a discrepancy: it will
+    then have multiple coordinates in its `point_to_cartesian` entry.
+    Returns `true` if all points are successfully resolved without discrepancy. */
+    bool final_resolve();
 
     void reset_computation();
     void reset_problem();

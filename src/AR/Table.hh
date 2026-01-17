@@ -21,7 +21,14 @@ namespace Expr {
     bool all_zeroes(const Expr& expr);
     void __add(Expr& expr1, const Expr& expr2);
     Expr add(const Expr& expr1, const Expr& expr2);
-    Expr add_fold(const std::vector<Expr>& exprs);
+    // Unused
+    template <typename... T>
+    requires (std::same_as<T, Expr> && ...)
+    Expr add_fold(T&... exprs) {
+        Expr result = {};
+        ( __add(result, exprs), ... );
+        return result;
+    }
     void __mult(Expr& expr, const double c);
     Expr mult(const Expr& expr, const double c);
     void __minus(Expr& expr1, const Expr& expr2);
@@ -222,7 +229,7 @@ public:
     Used by `RatioTable` to `add_eqratio`.
     Used by `AngleTable` to `add_eqangle`.
     Used by `DistanceTable` to `add_cong`. */
-    bool add_eq_4(const Expr::Var& var1, const Expr::Var& var2, const Expr::Var& var3, const Expr::Var& var4, Predicate* pred);
+    bool add_eq_4(const Expr::Var& var1, const Expr::Var& var2, const Expr::Var& var3, const Expr::Var& var4, Predicate* pred, Expr::Expr offset = {});
 
 
     /* A group is a set of variables which are equivalent according to some
@@ -314,7 +321,7 @@ public:
     two variable pairs `(v1, v2)` and `(v4, v3)` corresponding to it, satisfying the
     ordering `v1 < v2` and `v4 > v3`. In other words, we cannot make assumptions on the
     ordering of the variables being stored in `eq_Ns`. */
-    void get_all_eqs();
+    void generate_all_eqs();
 
     /* Returns all unordered pairs of distinct variables `(v1, v2)` which have been deduced 
     to be the same, i.e. satisfying `v1 - v2 = 0`.

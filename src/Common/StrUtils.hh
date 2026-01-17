@@ -22,9 +22,10 @@ inline void rtrim(std::string &s) {
     }).base(), s.end());
 }
 
-inline void trim(std::string &s) {
+inline std::string trim(std::string &s) {
     rtrim(s);
     ltrim(s);
+    return s;
 }
 
 inline std::string trim_copy(std::string s) {

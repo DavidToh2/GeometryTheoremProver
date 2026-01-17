@@ -4,8 +4,9 @@
 #include "NumEngine.hh"
 #include "Common/Exceptions.hh"
 #include "Numerics/Cartesian.hh"
+#include "Numerics/Numerics.hh"
 
-#define DEBUG_NUMENGINE 1
+#define DEBUG_NUMENGINE 0
 
 #if DEBUG_NUMENGINE
     #define LOG(x) do {std::cout << x << std::endl;} while(0)
@@ -210,7 +211,7 @@ Generator<CartesianLine> NumEngine::compute_line(Numeric* num) {
     co_yield CartesianLine(a, b);
     co_return;
 }
-Generator<CartesianLine> NumEngine::compute_line_at_angle(Numeric* num) {
+Generator<CartesianRay> NumEngine::compute_line_at_angle(Numeric* num) {
     CartesianPoint a = get_arg_cartesian(num, 0);
     CartesianPoint b = get_arg_cartesian(num, 1);
     CartesianPoint c = get_arg_cartesian(num, 2);
@@ -221,7 +222,7 @@ Generator<CartesianLine> NumEngine::compute_line_at_angle(Numeric* num) {
     double new_angle = base_angle + angle;
     CartesianPoint dir(std::cos(new_angle), std::sin(new_angle));
     // TODO: This should be a CartesianRay
-    co_yield CartesianLine(a, a + dir);
+    co_yield CartesianRay(a, a + dir);
     co_return;
 }
 Generator<CartesianLine> NumEngine::compute_line_bisect(Numeric* num) {
@@ -242,6 +243,12 @@ Generator<CartesianLine> NumEngine::compute_line_perp(Numeric* num) {
     CartesianPoint b = get_arg_cartesian(num, 1);
     CartesianPoint c = get_arg_cartesian(num, 2);
     co_yield Cartesian::perp_line(c, CartesianLine(a, b));
+    co_return;
+}
+Generator<CartesianRay> NumEngine::compute_ray(Numeric* num) {
+    CartesianPoint a = get_arg_cartesian(num, 0);
+    CartesianPoint b = get_arg_cartesian(num, 1);
+    co_yield CartesianRay(a, b);
     co_return;
 }
 
@@ -334,12 +341,12 @@ Generator<CartesianCircle> NumEngine::compute_angle_eq3(Numeric* num) {
     co_yield CartesianCircle(c, r);
     co_return;
 }
-Generator<CartesianLine> NumEngine::compute_angle_mirror(Numeric* num) {
+Generator<CartesianRay> NumEngine::compute_angle_mirror(Numeric* num) {
     CartesianPoint a = get_arg_cartesian(num, 0);
     CartesianPoint b = get_arg_cartesian(num, 1);
     CartesianPoint c = get_arg_cartesian(num, 2);
     // TODO: Should be CartesianRay
-    co_yield CartesianLine(b, Cartesian::reflect(a, CartesianLine(b, c)));
+    co_yield CartesianRay(b, Cartesian::reflect(a, CartesianLine(b, c)));
     co_return;
 }
 Generator<CartesianLine> NumEngine::compute_angle_bisect(Numeric* num) {
@@ -348,6 +355,14 @@ Generator<CartesianLine> NumEngine::compute_angle_bisect(Numeric* num) {
     CartesianPoint c = get_arg_cartesian(num, 2);
     CartesianPoint a0 = b + (a - b) * Cartesian::distance(b, c) / Cartesian::distance(b, a);
     co_yield CartesianLine(b, Cartesian::midpoint(a0, c));
+    co_return;
+}
+Generator<CartesianLine> NumEngine::compute_angle_exbisect(Numeric* num) {
+    CartesianPoint a = get_arg_cartesian(num, 0);
+    CartesianPoint b = get_arg_cartesian(num, 1);
+    CartesianPoint c = get_arg_cartesian(num, 2);
+    CartesianPoint a0 = b + (a - b) * Cartesian::distance(b, c) / Cartesian::distance(b, a);
+    co_yield Cartesian::para_line(b, CartesianLine(a0, c));
     co_return;
 }
 Generator<CartesianLine> NumEngine::compute_angle_trisect(Numeric* num) {
@@ -495,17 +510,22 @@ Generator<CartesianPoint> NumEngine::compute_common_tangent2(Numeric* num) {
 
 bool NumEngine::compute_one(Numeric* num) {
 
+    bool args_resolved = true;
     for (Point* p : num->args) {
         if (point_status[p] < ComputationStatus::RESOLVED) {
-            LOG("Point argument " << p->name << " not yet resolved computation.");
-            return false;
+            LOG("NumEngine::compute_one(): Point argument " << p->name << " not yet resolved computation in numeric " << num->to_string());
+            point_status[p] = ComputationStatus::TO_RESOLVE;
+            args_resolved = false;
         }
     }
+    if (!args_resolved) { return false; }
+
     for (Point* p : num->outs) {
-        if (point_status[p] >= ComputationStatus::RESOLVED) {
-            LOG("Point output " << p->name << " already resolved computation.");
+        if (point_status[p] >= ComputationStatus::TO_RESOLVE) {
+            LOG("NumEngine::compute_one(): Point output " << p->name << " already resolved computation in numeric " << num->to_string());
             return false;
         }
+        point_status[p] = ComputationStatus::COMPUTING;
     }
     num_t name = num->name;
 
@@ -526,7 +546,7 @@ bool NumEngine::compute_one(Numeric* num) {
             point_to_cartesian_objs[num->outs[i++]].emplace_back(gen());
         }
     } else {
-        LOG("No compute function for numeric " << Utils::to_num_str(name));
+        LOG("NumEngine::compute_one(): No compute function for numeric " << Utils::to_num_str(name));
     }
     return true;
 }
@@ -542,16 +562,16 @@ void NumEngine::compute() {
             it++;
         } else {
             if (!computing) {
-                throw NumericsInternalError("Could not compute numeric " + Utils::to_num_str(num->name) + " due to unresolved dependencies.");
+                throw NumericsInternalError("NumEngine::compute(): Could not compute numeric " + Utils::to_num_str(num->name) + " due to unresolved dependencies.");
                 return;
             }
             computing = false;
             if (!resolve()) {
-                LOG("Could not resolve all points needed for numeric " << Utils::to_num_str(num->name));
+                LOG("NumEngine::compute(): Could not resolve all points needed for numeric " << Utils::to_num_str(num->name));
             }
         }
     }
-    resolve();
+    final_resolve();
 }
 
 
@@ -611,7 +631,7 @@ bool NumEngine::resolve_one(Point* p) {
                 update_resolved_radius(point_to_cartesian[p][0]);
                 return true;
             }
-            throw NumericsInternalError("Insufficient information to resolve point " + p->name + " to Cartesian coordinates.");
+            throw NumericsInternalError("NumEngine::resolve_one(): Insufficient information to resolve point " + p->name + " to Cartesian coordinates.");
         case 1:
             update_resolved_radius(point_to_cartesian[p][0]);
             return true;
@@ -622,14 +642,27 @@ bool NumEngine::resolve_one(Point* p) {
 bool NumEngine::resolve() {
     bool res = true;
     for (auto& [p, status] : point_status) {
-        if (status == ComputationStatus::COMPUTING) {
+        if (status == ComputationStatus::TO_RESOLVE) {
             if (resolve_one(p)) {
                 status = ComputationStatus::RESOLVED;
             } else {
                 status = ComputationStatus::RESOLVED_WITH_DISCREPANCY;
                 res = false;
             }
-            recently_resolved.emplace_back(p);
+        }
+    }
+    return res;
+}
+bool NumEngine::final_resolve() {
+    bool res = true;
+    for (auto& [p, status] : point_status) {
+        if (status >= ComputationStatus::COMPUTING) {
+            if (resolve_one(p)) {
+                status = ComputationStatus::RESOLVED;
+            } else {
+                status = ComputationStatus::RESOLVED_WITH_DISCREPANCY;
+                res = false;
+            }
         }
     }
     return res;
@@ -643,7 +676,6 @@ void NumEngine::reset_computation() {
         point_to_cartesian_objs[p].clear();
         point_status[p] = ComputationStatus::UNCOMPUTED;
     }
-    recently_resolved.clear();
 }
 void NumEngine::reset_problem() {
     numerics.clear();

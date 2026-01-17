@@ -51,6 +51,10 @@ CartesianPoint operator*(double scalar, const CartesianPoint &point) {
     return CartesianPoint(scalar * point.x, scalar * point.y);
 }
 
+auto CartesianPoint::operator<=>(const CartesianPoint &other) const {
+    return (x <=> other.x != 0) ? (x <=> other.x) : (y <=> other.y);
+}
+
 bool CartesianPoint::is_same(const CartesianPoint& other) const {
     return (NumUtils::is_close(x, other.x) && NumUtils::is_close(y, other.y));
 }

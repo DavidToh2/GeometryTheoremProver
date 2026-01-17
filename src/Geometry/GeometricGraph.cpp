@@ -19,6 +19,67 @@
 
 
 
+void GeometricGraph::initialise_point_numerics(NumEngine &nm) {
+    // Fill in the points
+    for (auto& [p, vc] : nm.point_to_cartesian) {
+        if (point_nums.contains(p)) continue;
+        switch(vc.size()) {
+            case 0: {
+                throw GGraphInternalError("Error: No resolved numeric for point " + p->to_string());
+                break;
+            }
+            case 1: {
+                point_nums[p] = vc[0];
+                break;
+            }
+            default: {
+                std::vector<std::pair<CartesianPoint, int>> candidates;
+                for (auto& c : vc) {
+                    bool found = false;
+                    for (auto& [avg, i] : candidates) {
+                        if (CartesianPoint::is_close(c, avg)) {
+                            avg = (avg * i + c) / (i + 1);
+                            i += 1;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        candidates.emplace_back(c, 1);
+                    }
+                }
+                int max = 0;
+                for (auto& [avg, i] : candidates) {
+                    if (i > max) {
+                        point_nums[p] = avg;
+                        max = i;
+                    }
+                }
+                break;
+            }
+        }
+    }
+}
+CartesianLine GeometricGraph::compute_line_from_points(Point* p1, Point* p2) {
+    return CartesianLine(point_nums.at(p1), point_nums.at(p2));
+}
+CartesianRay GeometricGraph::compute_ray_from_points(Point* start, Point* head) {
+    return CartesianRay(point_nums.at(start), point_nums.at(head));
+}
+CartesianCircle GeometricGraph::compute_circle_from_points(Point* center, Point* p) {
+    return CartesianCircle(point_nums.at(center), Cartesian::distance(point_nums.at(center), point_nums.at(p)));
+}
+CartesianCircle GeometricGraph::compute_circle_from_points(Point* p1, Point* p2, Point* p3) {
+    return CartesianCircle(point_nums.at(p1),point_nums.at(p2),point_nums.at(p3));
+}
+double GeometricGraph::compute_direction_angle(Direction* d) {
+    if (!(d->root_objs.empty())) {
+        return Cartesian::angle_of(line_nums.at(*d->root_objs.begin()));
+    }
+    return 0.0;
+}
+
+
 void GeometricGraph::__add_new_point(const std::string point_id) {
     if (Utils::isinmap(point_id, points)) {
         throw GGraphInternalError("Error: Point with id " + point_id + " already exists in GeometricGraph.");
@@ -64,6 +125,9 @@ Line* GeometricGraph::__add_new_line(Point* p1, Point* p2, Predicate* base_pred)
     p1->set_this_on(l, base_pred);
     p2->set_this_on(l, base_pred);
     root_lines.insert(l);
+
+    line_nums[l] = compute_line_from_points(p1, p2);
+
     return l;
 }
 
@@ -121,6 +185,9 @@ Direction* GeometricGraph::__add_new_direction(Line* l, Predicate* base_pred) {
     dir->add_line(l, base_pred);
     l->set_direction(dir, base_pred);
     root_directions.insert(dir);
+
+    direction_gradients[dir] = compute_direction_angle(dir);
+
     return dir;
 }
 
@@ -192,6 +259,9 @@ Circle* GeometricGraph::__add_new_circle(Point* p1, Point* p2, Point* p3, Predic
     p2->set_this_on(circ, base_pred);
     p3->set_this_on(circ, base_pred);
     root_circles.insert(circ);
+
+    circle_nums[circ] = compute_circle_from_points(p1, p2, p3);
+
     return circ;
 }
 Circle* GeometricGraph::__add_new_circle(Point* c, Point* p1, Predicate* base_pred) {
@@ -203,6 +273,9 @@ Circle* GeometricGraph::__add_new_circle(Point* c, Point* p1, Predicate* base_pr
     Circle* circ = circles[circle_id].get();
     p1->set_this_on(circ, base_pred);
     root_circles.insert(circ);
+
+    circle_nums[circ] = compute_circle_from_points(c, p1);
+
     return circ;
 }
 Circle* GeometricGraph::__add_new_circle(Point* c, Predicate* base_pred) {
@@ -213,6 +286,10 @@ Circle* GeometricGraph::__add_new_circle(Point* c, Predicate* base_pred) {
     circles[circle_id] = std::make_unique<Circle>(circle_id, c, base_pred);
     Circle* circ = circles[circle_id].get();
     root_circles.insert(circ);
+
+    // TODO: No numeric added. Not sure if any is necessary in fact.
+    // This constructor is unused
+
     return circ;
 }
 
@@ -850,7 +927,19 @@ bool GeometricGraph::make_eqangle(Predicate* pred, DDEngine &dd, AREngine &ar) {
         Measure* m = __add_new_measure(a1, pred);
         a2->set_measure(m, pred);
     }
-    ar.add_eqangle(a1, a2, pred);
+    
+    Direction* d1 = a1->direction1;
+    Direction* d2 = a1->direction2;
+    Direction* d3 = a2->direction1;
+    Direction* d4 = a2->direction2;
+    int pi_offset = 0;
+    if (direction_gradients[d1] < direction_gradients[d2]) {
+        pi_offset += 1;
+    }
+    if (direction_gradients[d3] < direction_gradients[d4]) {
+        pi_offset -= 1;
+    }
+    ar.add_eqangle(d1, d2, d3, d4, pred, pi_offset);
     
     return true;
 }
@@ -983,15 +1072,11 @@ int GeometricGraph::synthesise_preds(DDEngine &dd, AREngine &ar) {
 }
 
 int GeometricGraph::synthesise_ar_preds(DDEngine &dd) {
-
     int num = 0;
-
     auto recent_preds_gen = dd.get_recent_predicates();
-
     while (recent_preds_gen) {
         Predicate* pred = recent_preds_gen();
         num += 1;
-
         switch(pred->name) {
             case pred_t::PARA:
                 make_ar_para(pred);
@@ -1008,14 +1093,6 @@ int GeometricGraph::synthesise_ar_preds(DDEngine &dd) {
         }
     }
     return num;
-}
-
-
-
-void GeometricGraph::populate_resolved_numerics(NumEngine &nm) {
-    for (Point* p : nm.recently_resolved) {
-        
-    }
 }
 
 

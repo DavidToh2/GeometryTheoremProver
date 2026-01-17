@@ -36,7 +36,7 @@ const std::string NUMERIC_NAMES[] = {
     "midpoint",
     "trisegment",
     "mirror", "reflect",
-    "angle_eq2", "angle_eq3", "angle_mirror", "angle_bisect", "angle_trisect",
+    "angle_eq2", "angle_eq3", "angle_mirror", "angle_bisect", "angle_exbisect","angle_trisect",
     "tangents",  "common_tangent", "common_tangent2",
     "last"
 };
@@ -101,6 +101,7 @@ enum class num_t {
     ANGLE_EQ3,
     ANGLE_MIRROR,
     ANGLE_BISECT,
+    ANGLE_EXBISECT,
     ANGLE_TRISECT,
     TANGENTS,
     COMMON_TANGENT,

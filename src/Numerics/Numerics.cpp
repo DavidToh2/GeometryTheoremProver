@@ -111,3 +111,6 @@ Numeric::Numeric(const NumericTemplate &nt) {
 bool Numeric::is_base_numeric() {
     return args.empty();
 }
+std::string Numeric::to_string() const {
+    return hash;
+}

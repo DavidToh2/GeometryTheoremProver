@@ -8,9 +8,9 @@ problem p1 {
 
 problem p2 {
     a b c = r_triangle b a c;
-    d = on_dia d : a c;
+    d = on_diameter d : a c;
     e = on_line e : a d, on_perp_line e : c a c;
-    f = on_dia f : a e
+    f = on_diameter f : a e
     ? eqangle c b b d c f f e
 }
 
@@ -32,7 +32,7 @@ problem p4 {
 
 problem p5 {
     a b e = r_triangle b a e;
-    f = on_dia f : a e;
+    f = on_diameter f : a e;
     c = foot c : b a e;
     d = foot d : a b f
     ? para c d e f

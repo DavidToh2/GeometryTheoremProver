@@ -38,10 +38,12 @@ void GTPEngine::load_problem(
     std::string input_filepath,
     std::string problem_name
 ) {
+    std::cout << "Loading problem " << problem_name << std::endl;
+    
     this->input_filepath = input_filepath;
     this->problem_name = problem_name;
 
-    // Read in the problem and pass it to the DD engine.
+    // Read in the problem.
     std::string problem_string = inputParser.extract_problem_from_file(input_filepath, problem_name);
     
     auto [_construction_steps, _goal] = StrUtils::split_first(problem_string, "?");
@@ -49,14 +51,18 @@ void GTPEngine::load_problem(
 
     for (std::string _construction_stage : _construction_stages) {
         StrUtils::trim(_construction_stage);
+        /* This function:
+        - populates the DDEngine with the initial predicates;
+        - populates the GeometricGraph with the initial points only;
+        - populates the NumEngine with Numeric's.*/
         Construction::construct_no_checks(_construction_stage, dd, nm, ggraph);
     }
 
     StrUtils::trim(_goal);
     dd.set_conclusion(Predicate::from_global_point_map(_goal, ggraph.points));
 
-    // dd.__print_predicates();
-    // dd.__print_conclusion();
+    // Numerically compute and resolve points in the NumEngine.
+    nm.compute();
 }
 
 void GTPEngine::solve(
@@ -65,6 +71,10 @@ void GTPEngine::solve(
     std::cout << "Solving problem " << problem_name << std::endl;
     auto start_time = std::chrono::high_resolution_clock::now();
 
+    // Add numeric values from the NumEngine
+    ggraph.initialise_point_numerics(nm);
+
+    // Add initial geometric objects (lines, circles, directions etc.) from the initial predicates
     ggraph.synthesise_preds(dd, ar);
 
     for (int step = 0; step < max_steps; step++) {
@@ -119,4 +129,5 @@ void GTPEngine::clear_problem() {
     dd.reset_problem();
     ggraph.reset_problem();
     ar.reset_problem();
+    nm.reset_problem();
 }
