@@ -7,6 +7,7 @@
 #include "Geometry/Value.hh"
 #include "Geometry/Object2.hh"
 #include "Geometry/GeometricGraph.hh"
+#include "Common/NumUtils.hh"
 
 std::vector<Direction*> AREngine::__get_directions(const std::vector<Expr::Var>& vars) {
     std::vector<Direction*> result(vars.size(), nullptr);

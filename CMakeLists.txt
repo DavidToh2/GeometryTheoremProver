@@ -10,7 +10,7 @@ file(GLOB_RECURSE sources      src/*/*.cpp)
 file(GLOB_RECURSE headers      src/*.h)
 file(GLOB_RECURSE sources_test tests/*/*.cpp)
 
-file(GLOB entry_main src/main.cpp)
+file(GLOB entry_main src/main.cpp) 
 file(GLOB entry_test tests/test_main.cpp)
 
 include_directories(src tests "lib/HiGHS/include/highs" "lib/doctest")

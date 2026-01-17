@@ -1,8 +1,7 @@
 #pragma once
 
-#include <map>
-#include <set>
 #include "Object.hh"
+#include "Value.hh"
 
 class Predicate;
 class Predicate2;

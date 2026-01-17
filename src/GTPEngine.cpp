@@ -11,7 +11,7 @@
 #include "Parsers/InputParser.hh"
 #include "Common/StrUtils.hh"
 
-std::random_device rd;
+std::random_device rd = std::random_device();
 std::mt19937 gen(rd());
 
 GTPEngine::GTPEngine(

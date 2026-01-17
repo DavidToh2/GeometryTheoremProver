@@ -38,20 +38,23 @@ equi_triangle a b c :
 - cong a b b c, cong b c c a, eqangle a b a c c a c b, eqangle c a c b b c b a
 - a b c = equi_triangle
 
+# _p: counterclockwise rotation
 r_triangle_p x : a b
 - diff a b
 - cong x a a b, perp x a a b
 - x = r_triangle_p a b
 
+# _n: clockwise rotation
 r_triangle_n x : a b
 - diff a b
 - cong x a a b, perp x a a b
 - x = r_triangle_n a b
 
+# _p: counterclockwise rotation of c about b
 equi_triangle_p x : b c
 - diff b c
 - cong x b b c, cong b c c x, eqangle b x b c c b c x, eqangle x c x b b x b c
-- x = circle b b c, circle c b c
+- x = equi_triangle_p b c
 
 ##### POLYGONS
 
@@ -70,10 +73,11 @@ square a b c d :
 - perp a b b c, cong a b b c, para a b c d, para a d b c, perp a d d c, cong b c c d, cong c d d a, perp a c b d, cong a c b d
 - a b c d = square
 
-square_off x y : a b
+# _p: square is built in a counterclockwise fashion around a, with vertices b, x, y in this order
+square_off_p x y : a b
 - diff a b
 - perp a b b x, cong a b b x, para a b x y, para a y b x, perp a y y x, cong b x x y, cong x y y a, perp a x b y, cong a x b y
-- x y = square a b
+- x y = square_off_p a b
 
 pentagon a b c d e : 
 -
@@ -106,11 +110,6 @@ on_line_at_angle x : a b c d e
 - ncoll c d e
 - eqangle a x a b d c d e
 - x = line_at_angle a b c d e
-
-on_line_at_angle2 x : a b c d e
-- ncoll c d e
-- eqangle x a x b d c d e
-- x = line_at_angle2 a b c d e
 
 on_line_bisect x : a b
 - diff a b
@@ -164,6 +163,7 @@ midpoint x : a b
 - coll x a b, cong x a x b
 - x = midpoint a b
 
+# a, x, y, b are in this order
 trisegment x y : a b
 - diff a b
 - coll x a b, coll y a b, cong x a x y, cong y x y b
@@ -256,12 +256,12 @@ centroid x y z g : a b c
 orthocenter h : a b c
 - ncoll a b c
 - perp h a b c, perp h b c a, perp h c a b
-- h = line_perp a b c, line_perp b c a
+- h = line_perp a b c, line_perp b c a, line_perp c a b
 
 orthocenter2 x y z h : a b c
 - ncoll a b c
 - perp a x b c, perp b y a c, perp c z a b, coll a h x, coll b h y, coll c h z, coll b x c, coll c y a, coll a z b
-- x = line_perp a b c, line b c; y = line_perp b a c, line a c; z = line_perp c a b, line a b; h = line a x, line b y
+- x = line_perp a b c, line b c; y = line_perp b a c, line a c; z = line_perp c a b, line a b; h = line a x, line b y, line c z
 
 ##### TANGENTS
 
@@ -277,13 +277,13 @@ tangents x y : a o b
 - cong o x o b, perp a x o x, cong o y o b, perp a y o y
 - x y = tangents a o b
 
-# Single common tangent
+# Single common EXTERNAL tangent
 common_tangent x y : o a i b
 - diff o a, diff i b, diff o i
 - cong o x o a, cong i y i b, perp x o x y, perp y i y x
 - x y = common_tangent o a i b
 
-# A pair of common tangents
+# A pair of common EXTERNAL tangents
 common_tangent2 x y z w : o a i b
 - diff o a, diff i b, diff o i
 - cong o x o a, cong i y i b, perp x o x y, perp y i y x, cong o z o a, cong i w i b, perp z o z w, perp w i w z

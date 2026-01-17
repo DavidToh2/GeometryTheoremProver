@@ -23,7 +23,7 @@ NumericTemplate::NumericTemplate(const std::string outs, const std::string num, 
 char NumericTemplate::set_arg(int i, Node* node) noexcept { return args.at(i)->set(node); }
 bool NumericTemplate::arg_empty(int i) const noexcept { return args.at(i)->empty(); }
 void NumericTemplate::clear_arg(int i) noexcept { args.at(i)->clear(); }
-bool NumericTemplate::no_args() { return args.empty(); }
+Point* NumericTemplate::get_arg_point(int i) const { return args.at(i)->get_point(); }
 
 char NumericTemplate::set_args(std::vector<Node*> nodes) {
     int i = 0; 
@@ -46,10 +46,12 @@ void NumericTemplate::clear_args() {
         args.at(i)->clear(); 
     }
 }
+bool NumericTemplate::no_args() { return args.empty(); }
 
 char NumericTemplate::set_out(int i, Node* node) noexcept { return outs.at(i)->set(node); }
 bool NumericTemplate::out_empty(int i) const noexcept { return outs.at(i)->empty(); }
 void NumericTemplate::clear_out(int i) noexcept { outs.at(i)->clear(); }
+Point* NumericTemplate::get_out_point(int i) const { return outs.at(i)->get_point(); }
 
 char NumericTemplate::set_outs(std::vector<Node*> nodes) {
     int i = 0; 

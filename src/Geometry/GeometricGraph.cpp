@@ -1010,6 +1010,16 @@ int GeometricGraph::synthesise_ar_preds(DDEngine &dd) {
     return num;
 }
 
+
+
+void GeometricGraph::populate_resolved_numerics(NumEngine &nm) {
+    for (Point* p : nm.recently_resolved) {
+        
+    }
+}
+
+
+
 void GeometricGraph::__print_points(std::ostream& os) {
     os << "Points: ";
     for (auto& p : root_points) {
@@ -1124,6 +1134,8 @@ void GeometricGraph::reset_problem() {
 
     root_measures.clear();
     root_fractions.clear();
+
+    point_nums.clear();
 
     adhoc = 0;
 }

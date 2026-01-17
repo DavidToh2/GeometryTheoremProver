@@ -13,6 +13,8 @@
 #include "Value2.hh"
 #include "DD/DDEngine.hh"
 #include "AR/AREngine.hh"
+#include "Numerics/Cartesian.hh"
+#include "Numerics/NumEngine.hh"
 
 template<typename T>    // "alias declaration"
 using uptrmap = std::map<std::string, std::unique_ptr<T>>;
@@ -60,6 +62,17 @@ public:
 
     ptrset<Measure> root_measures;
     ptrset<Fraction> root_fractions;
+
+    // Numerics
+
+    std::map<Point*, CartesianPoint> point_nums;
+    std::map<Line*, CartesianLine> line_nums;
+    std::map<Circle*, CartesianCircle> circle_nums;
+    std::map<Direction*, double> direction_gradients;
+
+
+
+    // Member functions
 
     void __add_new_point(const std::string point_id);
     void __try_add_point(const std::string point_id);
@@ -331,8 +344,12 @@ public:
 
 
 
-    Predicate* why(Predicate* pred, DDEngine &dd);
+    /* Populate newly resolved numerics from the NumEngine into our numeric
+    maps */
+    void populate_resolved_numerics(NumEngine &nm);
 
+
+    Predicate* why(Predicate* pred, DDEngine &dd);
 
     
     void __print_points(std::ostream &os);

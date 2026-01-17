@@ -27,8 +27,8 @@ TEST_SUITE("LinProg") {
 
         CHECK(success);
         CHECK(result.size() == 2);
-        CHECK(NumUtils::is_close(result[0], 2.66666667));
-        CHECK(NumUtils::is_close(result[1], 1.33333333));
+        CHECK(NumUtils::is_close(result[0], 8.0 / 3.0));
+        CHECK(NumUtils::is_close(result[1], 4.0 / 3.0));
     }
 
     /* A = [1,  1,  0,  0,

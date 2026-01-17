@@ -3,7 +3,6 @@
 #include <map>
 
 #include "Node.hh"
-#include "Numerics/Cartesian.hh"
 #include "Common/Generator.hh"
 
 class Predicate;

@@ -3,7 +3,7 @@
 #include <string>
 
 constexpr double TOL = 1e-9;
-constexpr double TOL2 = 1e-6;
+constexpr double TOL2 = 1e-3;
 
 namespace Constants {
 
@@ -28,9 +28,9 @@ const std::string PREDICATE_NAMES[] = {
 const std::string NUMERIC_NAMES[] = {
     "free",
     "segment",
-    "triangle", "iso_triangle", "r_triangle", "riso_triangle", "equi_triangle", "r_triangle_p", "r_triangle_n",
-    "quadrilateral", "rectangle", "square", "square_off", "pentagon", "trapezoid", "eq_trapezoid",
-    "line", "line_at_angle", "line_at_angle2",  "line_bisect", "line_para", "line_perp",
+    "triangle", "iso_triangle", "r_triangle", "riso_triangle", "equi_triangle", "r_triangle_p", "r_triangle_n", "equi_triangle_p",
+    "quadrilateral", "rectangle", "square", "square_off_p", "pentagon", "trapezoid", "eq_trapezoid",
+    "line", "line_at_angle", "line_bisect", "line_para", "line_perp",
     "ray",
     "circle", "circum", "diameter",
     "midpoint",
@@ -80,13 +80,12 @@ enum class num_t {
     QUADRILATERAL,
     RECTANGLE,
     SQUARE,
-    SQUARE_OFF,
+    SQUARE_OFF_P,
     PENTAGON,
     TRAPEZOID,
     EQ_TRAPEZOID,
     LINE,
     LINE_AT_ANGLE,
-    LINE_AT_ANGLE2,
     LINE_BISECT,
     LINE_PARA,
     LINE_PERP,
