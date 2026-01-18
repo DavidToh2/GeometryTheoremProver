@@ -32,9 +32,10 @@ public:
         RESOLVED_WITH_DISCREPANCY
     };
     std::map<Point*, ComputationStatus> point_status;
-    int num_resolved;
+    int num_resolved = 0;
     CartesianPoint sum_of_resolved_points;
     double max_dist;
+    std::vector<Point*> order_of_resolution;
 
     Numeric* insert_numeric(std::unique_ptr<Numeric>&& num);
 

@@ -16,23 +16,35 @@
 #include "AR/AREngine.hh"
 #include "Common/Generator.hh"
 
+#define DEBUG_GGRAPH 1
 
+#if DEBUG_GGRAPH
+    #define LOG(x) do {std::cout << x << std::endl;} while(0)
+#else 
+    #define LOG(x)
+#endif
 
 
 void GeometricGraph::initialise_point_numerics(NumEngine &nm) {
     // Fill in the points
-    for (auto& [p, vc] : nm.point_to_cartesian) {
+    for (Point* p : nm.order_of_resolution) {
         if (point_nums.contains(p)) continue;
+        vector<CartesianPoint> vc = nm.point_to_cartesian[p];
         switch(vc.size()) {
             case 0: {
                 throw GGraphInternalError("Error: No resolved numeric for point " + p->to_string());
                 break;
             }
             case 1: {
+                if (check_against_existing_point_numerics(vc[0])) {
+                    throw GGraphInternalError("GeometricGraph::initialise_point_numerics(): No viable candidate numeric for point " + p->to_string());
+                }
                 point_nums[p] = vc[0];
                 break;
             }
             default: {
+                // Extract a list of numerically distinct candidate points.
+                // A valid candidate cannot coincide with any previously resolved points.
                 std::vector<std::pair<CartesianPoint, int>> candidates;
                 for (auto& c : vc) {
                     bool found = false;
@@ -45,20 +57,38 @@ void GeometricGraph::initialise_point_numerics(NumEngine &nm) {
                         }
                     }
                     if (!found) {
-                        candidates.emplace_back(c, 1);
+                        if (check_against_existing_point_numerics(c)) {
+                            found = true;
+                            continue;
+                        }
                     }
+                    if (!found) { candidates.emplace_back(c, 1); }
+                }
+                if (candidates.empty()) {
+                    throw GGraphInternalError("GeometricGraph::initialise_point_numerics(): No viable candidate numeric for point " + p->to_string());
                 }
                 int max = 0;
-                for (auto& [avg, i] : candidates) {
-                    if (i > max) {
-                        point_nums[p] = avg;
-                        max = i;
+                for (auto it = candidates.begin(); it != candidates.end(); ) {
+                    if (it->second > max) {
+                        max = it->second;
+                        ++it;
+                    } else {
+                        it = candidates.erase(it);
                     }
                 }
+                point_nums[p] = candidates.rbegin()->first;
                 break;
             }
         }
     }
+}
+bool GeometricGraph::check_against_existing_point_numerics(CartesianPoint &c) {
+    for (auto& [p, c_existing] : point_nums) {
+        if (CartesianPoint::is_close(c, c_existing)) {
+            return true;
+        }
+    }
+    return false;
 }
 CartesianLine GeometricGraph::compute_line_from_points(Point* p1, Point* p2) {
     return CartesianLine(point_nums.at(p1), point_nums.at(p2));

@@ -1,7 +1,7 @@
 problem p1 {
     a b c = r_triangle b a c;
-    d = on_perp_line d : c c b;
-    e = on_perp_line e : d d c;
+    d = on_line_perp d : c c b;
+    e = on_line_perp e : d d c;
     f = on_line f : d e, on_line f : a b
     ? perp b f d f
 }
@@ -9,7 +9,7 @@ problem p1 {
 problem p2 {
     a b c = r_triangle b a c;
     d = on_diameter d : a c;
-    e = on_line e : a d, on_perp_line e : c a c;
+    e = on_line e : a d, on_line_perp e : c a c;
     f = on_diameter f : a e
     ? eqangle c b b d c f f e
 }
@@ -41,12 +41,12 @@ problem p5 {
 problem p6 {
     a b = segment a b;
     c = free c;
-    d = on_perp_line d : c a b;
+    d = on_line_perp d : c a b;
     e f = segment e f;
     g = free g;
-    h = on_perp_line h : g e f;
+    h = on_line_perp h : g e f;
     i k = segment i k;
-    j = on_para_line j : i a b, on_para_line j : k c d;
-    l = on_para_line l : i g h, on_para_line l : k e f
+    j = on_line_para j : i a b, on_line_para j : k c d;
+    l = on_line_para l : i g h, on_line_para l : k e f
     ? eqangle j i i k j l l k
 }

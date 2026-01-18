@@ -8,7 +8,7 @@ problem p1 {
 problem p2 {
     a c = segment a c;
     d = midpoint d : a c;
-    b = r_triangle_p b : d a, r_triangle_p b : d c
+    b = r_triangle_n b : d a, r_triangle_p b : d c
     ? perp a b b c
 }
 
@@ -29,9 +29,9 @@ problem p4 {
 
 problem p5 {
     a b = segment a b;
-    c = equi_triangle c : a b;
-    d = equi_triangle d : a c;
-    e = equi_triangle e : a d
+    c = equi_triangle_p c : a b;
+    d = equi_triangle_p d : a c;
+    e = equi_triangle_p e : a d
     ? coll b a e
 }
 

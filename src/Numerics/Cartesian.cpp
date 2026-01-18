@@ -282,7 +282,7 @@ CartesianPoint get_random_point_on_line(CartesianLine &line, CartesianPoint &nea
     auto [p1, p2] = intersect(line, CartesianCircle(near, max_dist));
     if (p1 && p2) {
         double r = NumUtils::urand(0.1, 0.9);
-        return p1.value() * (1 - r) + p2.value() * r;
+        return p1.value() * (1-r) + p2.value() * r;
     }
     throw NumericsInternalError("Unable to satisfy max_dist requirement getting random point on line.");
 }
@@ -293,6 +293,19 @@ CartesianPoint get_random_point_on_circle(CartesianCircle &circle) {
         circle.c.y + circle.r * std::sin(theta)
     );
 }
+CartesianPoint get_random_point_on_ray(CartesianRay &ray, CartesianPoint &near, double max_dist) {
+    auto [p1, p2] = intersect(static_cast<const CartesianLine&>(ray), CartesianCircle(near, max_dist));
+    if (p1) {
+        if (p2) {
+            double r = NumUtils::urand(0.1, 0.9);
+            return p1.value() * (1-r) + p2.value() * r;
+        }
+        double r = NumUtils::urand(0.1, 0.9);
+        return ray.start * (1-r) + p1.value() * r;
+    }
+    throw NumericsInternalError("Unable to satisfy max_dist requirement getting random point on ray.");
+
+}
 CartesianPoint get_random_point(CartesianObject &obj, CartesianPoint near, double max_dist) {
     return std::visit( overloaded {
         [&](CartesianLine &line) -> CartesianPoint {
@@ -300,6 +313,9 @@ CartesianPoint get_random_point(CartesianObject &obj, CartesianPoint near, doubl
         },
         [&](CartesianCircle &circle) -> CartesianPoint {
             return get_random_point_on_circle(circle);
+        },
+        [&](CartesianRay &ray) -> CartesianPoint {
+            return get_random_point_on_ray(ray, near, max_dist);
         },
         [&](auto&) -> CartesianPoint {
             throw NumericsInternalError("Random point generation not defined for given Cartesian object type.");

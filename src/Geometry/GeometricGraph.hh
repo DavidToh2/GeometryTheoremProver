@@ -74,6 +74,7 @@ public:
     /* Populate newly resolved CartesianPoints from the NumEngine into our numeric
     maps */
     void initialise_point_numerics(NumEngine &nm);
+    bool check_against_existing_point_numerics(CartesianPoint &c);
     
     CartesianLine compute_line_from_points(Point* p1, Point* p2);
     CartesianRay compute_ray_from_points(Point* start, Point* head);

@@ -50,6 +50,10 @@ public:
     CartesianPoint& scale(double factor);
     /* Shifts the point by the given offset. */
     CartesianPoint& shift(const CartesianPoint &offset);
+
+    constexpr std::string to_string() const {
+        return "(" + std::to_string(x) + ", " + std::to_string(y) + ")";
+    }
 };
 
 CartesianPoint operator*(double scalar, const CartesianPoint &point);
@@ -86,6 +90,10 @@ public:
     This functionality is not used as Cartesian::angle_of() is less prone to numerical instability
     and serves the same purpose.) */
     auto operator<=>(const CartesianLine &other) const;
+
+    constexpr std::string to_string() const {
+        return std::to_string(a) + "x + " + std::to_string(b) + "y + " + std::to_string(c) + " = 0";
+    }
 };
 
 class CartesianRay : public CartesianLine {
@@ -110,6 +118,10 @@ public:
     CartesianCircle(CartesianPoint p1, CartesianPoint p2, CartesianPoint p3);
 
     bool contains(const CartesianPoint &p) const;
+
+    constexpr std::string to_string() const {
+        return "Circ[ (" + c.to_string() + "), " + std::to_string(r) + " ]";
+    }
 };
 
 typedef std::variant<CartesianLine, CartesianRay, CartesianCircle> CartesianObject;

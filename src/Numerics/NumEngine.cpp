@@ -1,4 +1,5 @@
 
+#include <cassert>
 #include <iostream>
 
 #include "NumEngine.hh"
@@ -6,7 +7,7 @@
 #include "Numerics/Cartesian.hh"
 #include "Numerics/Numerics.hh"
 
-#define DEBUG_NUMENGINE 0
+#define DEBUG_NUMENGINE 1
 
 #if DEBUG_NUMENGINE
     #define LOG(x) do {std::cout << x << std::endl;} while(0)
@@ -235,14 +236,14 @@ Generator<CartesianLine> NumEngine::compute_line_para(Numeric* num) {
     CartesianPoint a = get_arg_cartesian(num, 0);
     CartesianPoint b = get_arg_cartesian(num, 1);
     CartesianPoint c = get_arg_cartesian(num, 2);
-    co_yield Cartesian::para_line(c, CartesianLine(a, b));
+    co_yield Cartesian::para_line(a, CartesianLine(b, c));
     co_return;
 }
 Generator<CartesianLine> NumEngine::compute_line_perp(Numeric* num) {
     CartesianPoint a = get_arg_cartesian(num, 0);
     CartesianPoint b = get_arg_cartesian(num, 1);
     CartesianPoint c = get_arg_cartesian(num, 2);
-    co_yield Cartesian::perp_line(c, CartesianLine(a, b));
+    co_yield Cartesian::perp_line(a, CartesianLine(b, c));
     co_return;
 }
 Generator<CartesianRay> NumEngine::compute_ray(Numeric* num) {
@@ -513,7 +514,7 @@ bool NumEngine::compute_one(Numeric* num) {
     bool args_resolved = true;
     for (Point* p : num->args) {
         if (point_status[p] < ComputationStatus::RESOLVED) {
-            LOG("NumEngine::compute_one(): Point argument " << p->name << " not yet resolved computation in numeric " << num->to_string());
+            // LOG("NumEngine::compute_one(): Point argument " << p->name << " not yet resolved computation in numeric " << num->to_string());
             point_status[p] = ComputationStatus::TO_RESOLVE;
             args_resolved = false;
         }
@@ -522,7 +523,7 @@ bool NumEngine::compute_one(Numeric* num) {
 
     for (Point* p : num->outs) {
         if (point_status[p] >= ComputationStatus::TO_RESOLVE) {
-            LOG("NumEngine::compute_one(): Point output " << p->name << " already resolved computation in numeric " << num->to_string());
+            // LOG("NumEngine::compute_one(): Point output " << p->name << " already resolved computation in numeric " << num->to_string());
             return false;
         }
         point_status[p] = ComputationStatus::COMPUTING;
@@ -546,7 +547,7 @@ bool NumEngine::compute_one(Numeric* num) {
             point_to_cartesian_objs[num->outs[i++]].emplace_back(gen());
         }
     } else {
-        LOG("NumEngine::compute_one(): No compute function for numeric " << Utils::to_num_str(name));
+        throw NumericsInternalError("NumEngine::compute_one(): No compute function for numeric " + Utils::to_num_str(name));
     }
     return true;
 }
@@ -567,7 +568,7 @@ void NumEngine::compute() {
             }
             computing = false;
             if (!resolve()) {
-                LOG("NumEngine::compute(): Could not resolve all points needed for numeric " << Utils::to_num_str(num->name));
+                LOG("NumEngine::compute(): Resolution for numeric " << Utils::to_num_str(num->name) << " has discrepancies.");
             }
         }
     }
@@ -620,6 +621,7 @@ bool NumEngine::resolve_one(Point* p) {
         case 0: 
             if (point_to_cartesian_objs[p].size() > 0) {
                 // We should only reach here if we only had one CartesianObject to work with
+                assert(point_to_cartesian_objs[p].size() == 1);
                 // Simply pick a random point off this CartesianObject
                 point_to_cartesian[p].emplace_back(
                     Cartesian::get_random_point(
@@ -629,13 +631,21 @@ bool NumEngine::resolve_one(Point* p) {
                     )
                 );
                 update_resolved_radius(point_to_cartesian[p][0]);
+                LOG("Resolved point " << p->to_string() << " to Cartesian " << point_to_cartesian[p][0].to_string() << " picking random point off object");
                 return true;
             }
             throw NumericsInternalError("NumEngine::resolve_one(): Insufficient information to resolve point " + p->name + " to Cartesian coordinates.");
         case 1:
             update_resolved_radius(point_to_cartesian[p][0]);
+            LOG("Resolved point " << p->to_string() << " to Cartesian " << point_to_cartesian[p][0].to_string());
             return true;
         default:
+            LOG("Resolved point " << p->to_string() << " to Cartesian " << point_to_cartesian[p][0].to_string() << " with discrepancies");
+            std::string other_candidates = "";
+            for (size_t i = 1; i < point_to_cartesian[p].size(); i++) {
+                other_candidates += point_to_cartesian[p][i].to_string() + " ";
+            }
+            LOG("Other candidates were: " << other_candidates);
             return false;
     }
 }
@@ -649,6 +659,7 @@ bool NumEngine::resolve() {
                 status = ComputationStatus::RESOLVED_WITH_DISCREPANCY;
                 res = false;
             }
+            order_of_resolution.push_back(p);
         }
     }
     return res;
@@ -656,13 +667,14 @@ bool NumEngine::resolve() {
 bool NumEngine::final_resolve() {
     bool res = true;
     for (auto& [p, status] : point_status) {
-        if (status >= ComputationStatus::COMPUTING) {
+        if (status <= ComputationStatus::TO_RESOLVE) {
             if (resolve_one(p)) {
                 status = ComputationStatus::RESOLVED;
             } else {
                 status = ComputationStatus::RESOLVED_WITH_DISCREPANCY;
                 res = false;
             }
+            order_of_resolution.push_back(p);
         }
     }
     return res;
@@ -676,10 +688,20 @@ void NumEngine::reset_computation() {
         point_to_cartesian_objs[p].clear();
         point_status[p] = ComputationStatus::UNCOMPUTED;
     }
+
+    num_resolved = 0;
+    sum_of_resolved_points = CartesianPoint();
+    max_dist = 0;
+    order_of_resolution.clear();
 }
 void NumEngine::reset_problem() {
     numerics.clear();
     point_to_cartesian.clear();
     point_to_cartesian_objs.clear();
     point_status.clear();
+
+    num_resolved = 0;
+    sum_of_resolved_points = CartesianPoint();
+    max_dist = 0;
+    order_of_resolution.clear();
 }
