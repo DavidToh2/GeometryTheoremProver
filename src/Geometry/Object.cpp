@@ -184,13 +184,13 @@ void Point::merge(Point* other, Predicate* pred) {
 
     Point::merge_dmaps(root_this->on_line, root_other->on_line);
     Point::merge_dmaps(root_this->on_circle, root_other->on_circle);
-    Point::merge_dmaps(root_this->endpoint_of_segment, root_other->endpoint_of_segment);
 
     // std::set::merge has move semantics
     root_this->on_root_line.merge(root_other->on_root_line);
     root_this->on_root_circle.merge(root_other->on_root_circle);
 
     Segment::check_segments_with_endpoint(root_this, root_other, pred);
+    Point::merge_dmaps(root_this->endpoint_of_segment, root_other->endpoint_of_segment);
 }
 
 
@@ -222,6 +222,30 @@ Direction* Line::__get_direction() {
 }
 Direction* Line::get_direction() {
     return NodeUtils::get_root(this->__get_direction());
+}
+
+bool Line::is_para(Line *l1, Line *l2) {
+    l1 = NodeUtils::get_root(l1);
+    l2 = NodeUtils::get_root(l2);
+    if (!l1->has_direction() || !l2->has_direction()) {
+        return false;
+    }
+    Direction* d1 = l1->get_direction();
+    Direction* d2 = l2->get_direction();
+    return (d1 == d2);
+}
+bool Line::is_perp(Line *l1, Line *l2) {
+    l1 = NodeUtils::get_root(l1);
+    l2 = NodeUtils::get_root(l2);
+    if (!l1->has_direction() || !l2->has_direction()) {
+        return false;
+    }
+    Direction* d1 = l1->get_direction();
+    Direction* d2 = l2->get_direction();
+    if (!d1->has_perp() || !d2->has_perp()) {
+        return false;
+    }
+    return (d1->get_perp() == d2);
 }
 
 Generator<Angle*> Line::on_angles_as_line1() {
@@ -256,31 +280,6 @@ void Line::merge(Line* other, Predicate* pred) {
             root_this->set_direction(root_other->direction, pred);
         }
     }
-}
-
-bool Line::is_para(Line *l1, Line *l2) {
-    l1 = NodeUtils::get_root(l1);
-    l2 = NodeUtils::get_root(l2);
-    if (!l1->has_direction() || !l2->has_direction()) {
-        return false;
-    }
-    Direction* d1 = l1->get_direction();
-    Direction* d2 = l2->get_direction();
-    return (d1 == d2);
-}
-
-bool Line::is_perp(Line *l1, Line *l2) {
-    l1 = NodeUtils::get_root(l1);
-    l2 = NodeUtils::get_root(l2);
-    if (!l1->has_direction() || !l2->has_direction()) {
-        return false;
-    }
-    Direction* d1 = l1->get_direction();
-    Direction* d2 = l2->get_direction();
-    if (!d1->has_perp() || !d2->has_perp()) {
-        return false;
-    }
-    return (d1->get_perp() == d2);
 }
 
 
@@ -381,6 +380,14 @@ Line* Segment::get_line() {
     return NodeUtils::get_root(this->__get_line());
 }
 
+Generator<Ratio*> Segment::on_ratios_as_segment1() {
+    return this->get_length()->on_ratios_as_length1();
+}
+Generator<Ratio*> Segment::on_ratios_as_segment2() {
+    return this->get_length()->on_ratios_as_length2();
+}
+
+
 void Segment::merge(Segment* other, Predicate* pred) {
     Segment* root_this = NodeUtils::get_root(this);
     Segment* root_other = NodeUtils::get_root(other);
@@ -390,6 +397,9 @@ void Segment::merge(Segment* other, Predicate* pred) {
     root_other->parent = root_this;
     root_other->parent_why = pred;
     root_other->root = root_this;
+
+    root_other->endpoints[0]->endpoint_of_root_segment.erase(root_other);
+    root_other->endpoints[1]->endpoint_of_root_segment.erase(root_other);
 
     root_this->points.merge(root_other->points);
 
@@ -405,17 +415,30 @@ void Segment::check_segments_with_endpoint(Point *p, Point *other_p, Predicate *
         }
         stp1[p1] = s;
     }
-    for (Segment* s : other_p->endpoint_of_root_segment) {
+    for (auto it = other_p->endpoint_of_root_segment.begin(); it != other_p->endpoint_of_root_segment.end();) {
+        Segment* s = *it;
         Point* p2 = s->other_endpoint(other_p);
         if (p2 == p) {
             throw GGraphInternalError("Segment::check_segments_with_endpoint(): The segment " 
                     + s->name + " has the two endpoints " + p->name + " and " + other_p->name + ", which are being merged.");
         }
+
+        // Replace other_p with p in s.endpoints
+        if (s->endpoints[0] == other_p) {
+            s->endpoints[0] = p;
+        } else if (s->endpoints[1] == other_p) {
+            s->endpoints[1] = p;
+        }
+
+        // If the segments s1 = p-p2 and s = other_p-p2 exist, merge s1 into s
         if (stp1.contains(p2)) {
             Segment* s1 = stp1[p2];
             s->merge(s1, pred);
             p->endpoint_of_root_segment.erase(s1);
             p2->endpoint_of_root_segment.erase(s1);
         }
+        
+        p->endpoint_of_root_segment.insert(s);
+        it = other_p->endpoint_of_root_segment.erase(it);
     }
 }

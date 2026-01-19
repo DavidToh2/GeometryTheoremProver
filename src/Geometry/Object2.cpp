@@ -66,7 +66,7 @@ void Angle::__merge(Angle* other, Predicate* pred) {
     direction2->on_angles_2.erase(other);
 
     if (other->__has_measure()) {
-        other->measure->obj2s.erase(other);
+        other->measure->root_obj2s.erase(other);
         if (__has_measure()) {
             measure->merge(other->measure, pred);
         } else {
@@ -94,4 +94,73 @@ void Ratio::set_fraction(Fraction* f, Predicate* base_pred) {
     root_this->fraction_why = base_pred;
     root_f->obj2s[this] = base_pred;
     root_f->root_obj2s.insert(root_this);
+}
+bool Ratio::__has_fraction() {
+    return (fraction != nullptr);
+}
+bool Ratio::has_fraction() {
+    return NodeUtils::get_root(this)->__has_fraction();
+}
+Fraction* Ratio::__get_fraction() {
+    Fraction* f = NodeUtils::get_root(fraction);
+    if (f != fraction) fraction = f;
+    return f;
+}
+Fraction* Ratio::get_fraction() {
+    return NodeUtils::get_root(this)->__get_fraction();
+}
+
+bool Ratio::is_equal(Ratio* r1, Ratio* r2) {
+    Ratio* rr1 = NodeUtils::get_root(r1);
+    Ratio* rr2 = NodeUtils::get_root(r2);
+    if (!rr1->has_fraction() || !rr2->has_fraction()) {
+        return false;
+    }
+    Fraction* f1 = rr1->get_fraction();
+    Fraction* f2 = rr2->get_fraction();
+    return (f1 == f2);
+}
+bool Ratio::is_equal(Ratio* r, Frac f) {
+    Ratio* rr = NodeUtils::get_root(r);
+    if (!r->has_fraction()) return false;
+    return (r->fraction->val == f);
+}
+
+Generator<std::pair<Segment*, Segment*>> Ratio::all_segment_pairs() {
+    Ratio* root_r = NodeUtils::get_root(this);
+    for (Segment* s1 : root_r->length1->root_objs) {
+        for (Segment* s2 : root_r->length2->root_objs) {
+            co_yield {s1, s2};
+        }
+    }
+    co_return;
+}
+
+void Ratio::__merge(Ratio* other, Predicate* pred) {
+    if (this == other) {
+        return;
+    }
+    other->parent = this;
+    other->parent_why = pred;
+    other->root = this;
+
+    length1->on_ratio_1.erase(other);
+    length2->on_ratio_2.erase(other);
+
+    if (other->__has_fraction()) {
+        other->fraction->root_obj2s.erase(other);
+        if (__has_fraction()) {
+            fraction->merge(other->fraction, pred);
+        } else {
+            set_fraction(other->fraction, pred);
+        }
+    }
+}
+void Ratio::merge(Ratio* other, Predicate* pred) {
+    Ratio* root_this = NodeUtils::get_root(this);
+    Ratio* root_other = NodeUtils::get_root(other);
+    if (root_this->length1 != root_other->length1 || root_this->length2 != root_other->length2) {
+        throw GGraphInternalError("Error: Cannot merge ratios " + root_this->name + " and " + root_other->name + " with different lengths.");
+    }
+    root_this->__merge(root_other, pred);
 }

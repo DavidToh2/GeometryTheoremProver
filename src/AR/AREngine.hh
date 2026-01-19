@@ -92,7 +92,7 @@ public:
     std::vector<Direction*> __get_directions(const std::vector<Expr::Var>& vars);
     std::vector<Length*> __get_lengths(const std::vector<Expr::Var>& vars);
 
-    void add_const_angle(Direction* d1, Direction* d2, float f, Predicate* pred);
+    void add_constangle(Direction* d1, Direction* d2, float f, Predicate* pred);
     void add_eqangle(Direction* d1, Direction* d2, Direction* d3, Direction* d4, Predicate* pred, int pi_offset = 0);
     void add_para(Direction* d1, Direction* d2, Predicate* pred);
     void add_perp(Direction* d1, Direction* d2, Predicate* pred);
@@ -104,10 +104,13 @@ public:
     void update_point_merger(Point* dest, Point* src, Predicate* pred);
     void update_line_merger(Line* dest, Line* src, Predicate* pred);
     /* Sets segments `s1, s2` to be congruent.
-    Warning: This is the only `add_...()` member function which does not take the Value
-    node directly, instead taking the Object node. As such, it is imperative that 
-    the Segments already have Length nodes created. */
+    Warning: This member function does not take the Value node directly, instead taking 
+    an Object node. As such, it is imperative that the Segments already have Length nodes 
+    created. */
     void add_cong(Segment* s1, Segment* s2, Predicate* pred);
+    /* Sets segments `s1, s2` to be congruent. 
+    Note: The points `s1, s2` are such that `s1 = p1-m, s2 = m-p2`.*/
+    void add_midp(Segment* s1, Segment* s2, Predicate* pred);
 
 
 

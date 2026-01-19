@@ -19,6 +19,7 @@ class Length;
 class Shape;
 
 class Angle;
+class Ratio;
 
 /* Object class.
 
@@ -348,8 +349,12 @@ public:
 
     constexpr Point* other_endpoint(Point* p) { return (endpoints[0] == p) ? endpoints[1] : endpoints[0]; } 
 
+    Generator<Ratio*> on_ratios_as_segment1();
+    Generator<Ratio*> on_ratios_as_segment2();
+
     /* Merge two segment nodes which have been shown to be identical. This only occurs when their endpoints
-    have been shown to be identical. Only called by `check_segments_with_endpoint()`. */
+    have been shown to be identical. Only called by `check_segments_with_endpoint()`.
+    Warning: Assumes that `this.endpoints == other.endpoints`. */
     void merge(Segment* other, Predicate* pred);
 
     /* Called by `p.merge(other_p)`. 

@@ -28,7 +28,7 @@ public:
 /* Angle class. 
 
 Every Angle stores a pair of `direction` s. These `direction` s must always be root nodes. The most up-to-date
-copies are always stored in the root node.
+copies are always stored in the root node. These are kept up-to-date by `Direction::merge()`.
 
 Every angle also stores a `measure (Value2)`. The `measure` need not necessarily be a root node. Always use 
 the `get_measure()` method to obtain the `measure` (which also lazily updates it to root). */
@@ -39,7 +39,10 @@ public:
     Measure* measure = nullptr;
     Predicate* measure_why = nullptr;
 
-    Angle(std::string name, Direction* d1, Direction* d2) : Object2(name), direction1(d1), direction2(d2) {}
+    Angle(std::string name, Direction* d1, Direction* d2) : Object2(name), direction1(d1), direction2(d2) {
+        d1->on_angles_1.insert(this);
+        d2->on_angles_2.insert(this);
+    }
     
     /* Adds the root node of `m` as the measure of the root node of `this`.
     This updates the `obj2s` and `root_obj2s` of `root_m`, as well as the `measure` and `measure_why` of `root_this`.
@@ -86,12 +89,15 @@ public:
     Fraction* fraction = nullptr;
     Predicate* fraction_why = nullptr;
 
-    Ratio(std::string name, Length* l1, Length* l2) : Object2(name), length1(l1), length2(l2) {}
+    Ratio(std::string name, Length* l1, Length* l2) : Object2(name), length1(l1), length2(l2) {
+        l1->on_ratio_1.insert(this);
+        l2->on_ratio_2.insert(this);
+    }
 
     /* Adds the root node of `f` as the fraction of the root node of `this`.
     This updates the `obj2s` and `root_obj2s` of `root_f`, as well as the `fraction` and `fraction_why` of `root_this`.
     Warning: If the root node of `this` already has a fraction, the new fraction is merged into the old.
-    Warning: Code using this function should manually check if `this` already has a fraction. */ 
+    Warning: Code using this function should manually check if `this` already has a fraction. */
     void set_fraction(Fraction* f, Predicate* base_pred);
     /* Checks if `this` has a fraction.
     Note: assumes that `this` is a root node */

@@ -61,6 +61,8 @@ public:
     Generator<bool> match_cong(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> __match_eqangle(PredicateTemplate* pred_template, GeometricGraph &ggraph, int i, std::array<Direction*, 4> &ls);
     Generator<bool> match_eqangle(PredicateTemplate* pred_template, GeometricGraph &ggraph);
+    Generator<bool> __match_eqratio(PredicateTemplate* pred_template, GeometricGraph &ggraph, int i, std::array<Length*, 4> &ls);
+    Generator<bool> match_eqratio(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> match_circle(PredicateTemplate* pred_template, GeometricGraph &ggraph);
 
     Generator<bool> match_diff(PredicateTemplate* pred_template, GeometricGraph &ggraph);

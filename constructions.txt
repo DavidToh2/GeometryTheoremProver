@@ -160,7 +160,7 @@ foot x : a b c
 
 midpoint x : a b
 - diff a b
-- coll x a b, cong x a x b
+- midp x a b
 - x = midpoint a b
 
 # a, x, y, b are in this order

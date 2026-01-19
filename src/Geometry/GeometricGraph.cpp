@@ -130,13 +130,6 @@ Line* GeometricGraph::try_get_line(Point* p1, Point* p2) {
     return __try_get_line(NodeUtils::get_root(p1), NodeUtils::get_root(p2));
 }
 
-constexpr std::pair<Point*, Point*> GeometricGraph::__get_points_on_line(Line* l) {
-    return {l->points.begin()->first, std::next(l->points.begin())->first};
-}
-
-constexpr std::pair<Point*, Point*> GeometricGraph::get_points_on_line(Line* l) {
-    return __get_points_on_line(NodeUtils::get_root(l));
-}
 
 void GeometricGraph::merge_lines(Line* dest, Line* src, Predicate* pred) {
     if (dest == src) return;
@@ -171,12 +164,6 @@ Direction* GeometricGraph::get_or_add_direction(Line* l, DDEngine &dd) {
     return __add_new_direction(root_l, dd.base_pred.get());
 }
 
-constexpr Line* GeometricGraph::__get_line_from_direction(Direction* d) {
-    return *(d->root_objs.begin());
-}
-constexpr Line* GeometricGraph::get_line_from_direction(Direction* d) {
-    return __get_line_from_direction(NodeUtils::get_root(d));
-}
 
 void GeometricGraph::set_directions_para(Direction* dest, Direction* src, Predicate* pred) {
     if (dest == src) return;
@@ -423,9 +410,6 @@ Length* GeometricGraph::get_or_add_length(Segment* s, DDEngine &dd) {
     }
     return __add_new_length(root_s, dd.base_pred.get());
 }
-Segment* GeometricGraph::get_segment_from_length(Length* l) {
-    return *(l->root_objs.begin());
-}
 
 void GeometricGraph::set_lengths_cong(Segment* s, Segment* s_other, Predicate* pred) {
     Length* l = s->get_length();
@@ -449,8 +433,6 @@ Angle* GeometricGraph::__add_new_angle(Direction* d1, Direction* d2, Predicate* 
     }
     angles[angle_id] = std::make_unique<Angle>(angle_id, d1, d2);
     Angle* a = angles[angle_id].get();
-    d1->on_angles_1.insert(a);
-    d2->on_angles_2.insert(a);
     root_angles.insert(a);
     return a;
 }
@@ -577,15 +559,6 @@ Angle* GeometricGraph::get_or_add_angle(Point* p1, Point* p2, Point* p3, DDEngin
 }
 
 
-constexpr std::pair<Line*, Line*> GeometricGraph::get_lines_from_angle(Angle* a) {
-    return {get_line_from_direction(a->direction1), get_line_from_direction(a->direction2)};
-}
-constexpr std::pair<std::pair<Point*, Point*>, std::pair<Point*, Point*>> GeometricGraph::get_points_from_angle(Angle* a) {
-    return {
-        __get_points_on_line(get_line_from_direction(a->direction1)),
-        __get_points_on_line(get_line_from_direction(a->direction2)),
-    };
-}
 
 
 void GeometricGraph::merge_angles(Angle* dest, Angle* src, Predicate* pred) {
@@ -604,22 +577,16 @@ Measure* GeometricGraph::__add_new_measure(Angle* a, Predicate* base_pred) {
     }
     measures[measure_id] = std::make_unique<Measure>(measure_id);
     Measure* m = measures[measure_id].get();
-    m->add_angle(a, base_pred);
     a->set_measure(m, base_pred);
     root_measures.insert(m);
     return m;
 }
 Measure* GeometricGraph::get_or_add_measure(Angle* a, DDEngine& dd) {
     Angle* ra = NodeUtils::get_root(a);
-    if (ra->has_measure()) {
-        return ra->get_measure();
+    if (ra->__has_measure()) {
+        return ra->__get_measure();
     }
     return __add_new_measure(ra, dd.base_pred.get());
-}
-
-
-constexpr Angle* GeometricGraph::get_angle_from_measure(Measure* m) {
-    return *(m->root_obj2s.begin());
 }
 
 
@@ -632,6 +599,140 @@ void GeometricGraph::set_measures_equal(Measure* m1, Measure* m2, Predicate* pre
 void GeometricGraph::set_measure_val(Measure* m, Frac f, Predicate* pred) {
     m->val = f;
     m->val_why = pred;
+}
+
+
+
+
+Ratio* GeometricGraph::__add_new_ratio(Length* l1, Length* l2, Predicate* base_pred) {
+    std::string ratio_id = "r_" + l1->name + "_" + l2->name;
+    if (Utils::isinmap(ratio_id, ratios)) {
+        throw GGraphInternalError("Error: Ratio with id " + ratio_id + " already exists in GeometricGraph.");
+    }
+    ratios[ratio_id] = std::make_unique<Ratio>(ratio_id, l1, l2);
+    Ratio* r = ratios[ratio_id].get();
+    root_ratios.insert(r);
+    return r;
+}
+Ratio* GeometricGraph::__add_new_ratio(Segment* s1, Segment* s2, Predicate* base_pred) {
+    if (!s1->has_length()) {
+        __add_new_length(s1, base_pred);
+    }
+    if (!s2->has_length()) {
+        __add_new_length(s2, base_pred);
+    }
+    return __add_new_ratio(s1->get_length(), s2->get_length(), base_pred);
+}
+
+
+Ratio* GeometricGraph::__try_get_ratio(Length* l1, Length* l2) {
+    auto gen = l1->on_ratios_as_length1();
+    Ratio* ratio = nullptr;
+    while (gen) {
+        Ratio* ratio0 = gen();
+        if (NodeUtils::same_as(ratio0->length2, l2)) {
+            ratio = ratio0;
+            break;
+        }
+    }
+    return ratio;
+}
+Ratio* GeometricGraph::__try_get_ratio(Segment* s1, Segment* s2) {
+    if (!s1->has_length() || !s2->has_length()) {
+        return nullptr;
+    }
+    return __try_get_ratio(s1->get_length(), s2->get_length());
+}
+Ratio* GeometricGraph::__try_get_ratio(Point* p1, Point* p2, Point* p3, Point* p4) {
+    Segment* s1 = __try_get_segment(p1, p2);
+    Segment* s2 = __try_get_segment(p3, p4);
+    if (s1 && s2) {
+        return __try_get_ratio(s1, s2);;
+    }
+    return nullptr;
+}
+
+Ratio* GeometricGraph::try_get_ratio(Length* l1, Length* l2) {
+    return __try_get_ratio(NodeUtils::get_root(l1), NodeUtils::get_root(l2));
+}
+Ratio* GeometricGraph::try_get_ratio(Segment* s1, Segment* s2) {
+    return __try_get_ratio(NodeUtils::get_root(s1), NodeUtils::get_root(s2));
+}
+Ratio* GeometricGraph::try_get_ratio(Point* p1, Point* p2, Point* p3, Point* p4) {
+    Segment* s1 = try_get_segment(p1, p2);
+    Segment* s2 = try_get_segment(p3, p4);
+    if (s1 && s2) {
+        return __try_get_ratio(s1, s2);;
+    }
+    return nullptr;
+}
+
+Ratio* GeometricGraph::get_or_add_ratio(Length* l1, Length* l2, DDEngine& dd) {
+    Length* rl1 = NodeUtils::get_root(l1);
+    Length* rl2 = NodeUtils::get_root(l2);
+    Ratio* r = __try_get_ratio(rl1, rl2);
+    if (!r) {
+        r = __add_new_ratio(rl1, rl2, dd.base_pred.get());
+    }
+    return r;
+}
+Ratio* GeometricGraph::get_or_add_ratio(Segment* s1, Segment* s2, DDEngine& dd) {
+    Segment* rs1 = NodeUtils::get_root(s1);
+    Segment* rs2 = NodeUtils::get_root(s2);
+    Ratio* r = __try_get_ratio(rs1, rs2);
+    if (!r) {
+        r = __add_new_ratio(rs1, rs2, dd.base_pred.get());
+    }
+    return r;
+}
+Ratio* GeometricGraph::get_or_add_ratio(Point* p1, Point* p2, Point* p3, Point* p4, DDEngine& dd) {
+    Segment* s1 = get_or_add_segment(p1, p2, dd);
+    Segment* s2 = get_or_add_segment(p3, p4, dd);
+    Ratio* r = __try_get_ratio(s1, s2);
+    if (!r) {
+        r = __add_new_ratio(s1, s2, dd.base_pred.get());
+    }
+    return r;
+}
+
+void GeometricGraph::merge_ratios(Ratio* dest, Ratio* src, Predicate* pred) {
+    if (dest == src) return;
+    root_ratios.erase(NodeUtils::get_root(src));
+    dest->merge(src, pred);
+}
+
+
+
+
+Fraction* GeometricGraph::__add_new_fraction(Ratio* r, Predicate* base_pred) {
+    std::string fraction_id = "f_" + r->name;
+    if (Utils::isinmap(fraction_id, fractions)) {
+        throw GGraphInternalError("Error: Fraction with id " + fraction_id + " already exists in GeometricGraph.");
+    }
+    fractions[fraction_id] = std::make_unique<Fraction>(fraction_id);
+    Fraction* f = fractions[fraction_id].get();
+    r->set_fraction(f, base_pred);
+    root_fractions.insert(f);
+    return f;
+}
+
+Fraction* GeometricGraph::get_or_add_fraction(Ratio* r, DDEngine& dd) {
+    Ratio* rr = NodeUtils::get_root(r);
+    if (rr->__has_fraction()) {
+        return rr->__get_fraction();
+    }
+    return __add_new_fraction(rr, dd.base_pred.get());
+}
+
+void GeometricGraph::set_fractions_equal(Fraction* f1, Fraction* f2, Predicate* pred) {
+    if (f1 == f2) return;
+    root_fractions.erase(NodeUtils::get_root(f2));
+    f1->merge(f2, pred);
+}
+
+void GeometricGraph::set_fraction_val(Fraction* f, Frac val, Predicate* pred) {
+    f->val = val;
+    f->val_why = pred;
 }
 
 
@@ -723,17 +824,36 @@ bool GeometricGraph::check_eqangle(Line* l1a, Line* l1b, Line* l2a, Line* l2b) {
 bool GeometricGraph::check_eqangle(Angle* a1, Angle* a2) { return Angle::is_equal(a1, a2); }
 
 
+bool GeometricGraph::check_eqratio(Point* p1, Point* p2, Point* p3, Point* p4,
+                                      Point* p5, Point* p6, Point* p7, Point* p8) {
+    Ratio* r1 = try_get_ratio(p1, p2, p3, p4);
+    Ratio* r2 = try_get_ratio(p5, p6, p7, p8);
+    if (r1 == nullptr || r2 == nullptr) { return false; }
+    return Ratio::is_equal(r1, r2);
+}
+bool GeometricGraph::check_eqratio(Length* l1a, Length* l1b, Length* l2a, Length* l2b) {
+    Ratio* r1 = try_get_ratio(l1a, l1b);
+    Ratio* r2 = try_get_ratio(l2a, l2b);
+    if (r1 == nullptr || r2 == nullptr) { return false; }
+    return Ratio::is_equal(r1, r2);
+}
+bool GeometricGraph::check_eqratio(Ratio* r1, Ratio* r2) { return Ratio::is_equal(r1, r2); }
+
+
 bool GeometricGraph::check_circle(Point* c, Point* p1, Point* p2, Point* p3) {
     Circle* circ = try_get_circle(p1, p2, p3);
     return check_circle(c, circ);
 }
-
 bool GeometricGraph::check_circle(Point* c, Circle* circ) {
     return NodeUtils::same_as(c, circ->__get_center());
 }
 
 
 bool GeometricGraph::check_constangle(Angle* a, Frac f) { return Angle::is_equal(a, f); }
+
+
+bool GeometricGraph::check_constratio(Ratio* r, Frac f) { return Ratio::is_equal(r, f); }
+
 
 bool GeometricGraph::check_postcondition(PredicateTemplate* pred) {
     
@@ -875,12 +995,10 @@ bool GeometricGraph::make_para(Predicate* pred, DDEngine &dd, AREngine &ar) {
     Point* p3 = static_cast<Point*>(pred->args[2]);
     Point* p4 = static_cast<Point*>(pred->args[3]);
 
-    auto [rp1, rp2, rp3, rp4] = NodeUtils::get_roots<Point, 4>({p1, p2, p3, p4});
+    if (check_para(p1, p2, p3, p4)) return false;
 
-    if (check_para(rp1, rp2, rp3, rp4)) return false;
-
-    Line* p1p2 = get_or_add_line(rp1, rp2, dd);
-    Line* p3p4 = get_or_add_line(rp3, rp4, dd);
+    Line* p1p2 = get_or_add_line(p1, p2, dd);
+    Line* p3p4 = get_or_add_line(p3, p4, dd);
 
     Direction* d12 = get_or_add_direction(p1p2, dd);
     if (p3p4->has_direction()) {
@@ -900,10 +1018,8 @@ bool GeometricGraph::make_ar_para(Predicate* pred) {
 
     if (check_para(d1, d2)) return false;
 
-    auto [rd1, rd2] = NodeUtils::get_roots<Direction, 2>({d1, d2});
-
-    Line* l1 = get_line_from_direction(rd1);
-    Line* l2 = get_line_from_direction(rd2);
+    Line* l1 = get_line_from_direction(d1);
+    Line* l2 = get_line_from_direction(d2);
 
     auto [p1, p2] = get_points_on_line(l1);
     auto [p3, p4] = get_points_on_line(l2);
@@ -912,7 +1028,7 @@ bool GeometricGraph::make_ar_para(Predicate* pred) {
     pred->args.emplace_back(p3);
     pred->args.emplace_back(p4);
 
-    set_directions_para(rd1, rd2, pred);
+    set_directions_para(d1, d2, pred);
     return true;
 }
 
@@ -922,12 +1038,10 @@ bool GeometricGraph::make_perp(Predicate* pred, DDEngine &dd, AREngine &ar) {
     Point* p3 = static_cast<Point*>(pred->args[2]);
     Point* p4 = static_cast<Point*>(pred->args[3]);
 
-    auto [rp1, rp2, rp3, rp4] = NodeUtils::get_roots<Point, 4>({p1, p2, p3, p4});
+    if (check_perp(p1, p2, p3, p4)) return false;
 
-    if (check_perp(rp1, rp2, rp3, rp4)) return false;
-
-    Line* p1p2 = get_or_add_line(rp1, rp2, dd);
-    Line* p3p4 = get_or_add_line(rp3, rp4, dd);
+    Line* p1p2 = get_or_add_line(p1, p2, dd);
+    Line* p3p4 = get_or_add_line(p3, p4, dd);
 
     Direction* d12 = get_or_add_direction(p1p2, dd);
     Direction* d34 = get_or_add_direction(p3p4, dd);
@@ -945,10 +1059,8 @@ bool GeometricGraph::make_ar_perp(Predicate* pred) {
 
     if (check_perp(d1, d2)) return false;
 
-    auto [rd1, rd2] = NodeUtils::get_roots<Direction, 2>({d1, d2});
-
-    Line* l1 = get_line_from_direction(rd1);
-    Line* l2 = get_line_from_direction(rd2);
+    Line* l1 = get_line_from_direction(d1);
+    Line* l2 = get_line_from_direction(d2);
 
     auto [p1, p2] = get_points_on_line(l1);
     auto [p3, p4] = get_points_on_line(l2);
@@ -957,7 +1069,7 @@ bool GeometricGraph::make_ar_perp(Predicate* pred) {
     pred->args.emplace_back(p3);
     pred->args.emplace_back(p4);
 
-    set_directions_perp(rd1, rd2, pred);
+    set_directions_perp(d1, d2, pred);
     return true;
 }
 
@@ -1107,6 +1219,110 @@ bool GeometricGraph::make_ar_eqangle(Predicate* pred, DDEngine& dd) {
     return true;
 }
 
+bool GeometricGraph::make_eqratio(Predicate* pred, DDEngine &dd, AREngine &ar) {
+    Point* p1 = static_cast<Point*>(pred->args[0]);
+    Point* p2 = static_cast<Point*>(pred->args[1]);
+    Point* p3 = static_cast<Point*>(pred->args[2]);
+    Point* p4 = static_cast<Point*>(pred->args[3]);
+    Point* p5 = static_cast<Point*>(pred->args[4]);
+    Point* p6 = static_cast<Point*>(pred->args[5]);
+    Point* p7 = static_cast<Point*>(pred->args[6]);
+    Point* p8 = static_cast<Point*>(pred->args[7]);
+
+    Ratio* r1 = get_or_add_ratio(p1, p2, p3, p4, dd);
+    Ratio* r2 = get_or_add_ratio(p5, p6, p7, p8, dd);
+
+    if (check_eqratio(r1, r2)) return false;
+
+    if (r1->has_fraction()) {
+        if (r2->has_fraction()) {
+            Fraction* f1 = r1->get_fraction();
+            Fraction* f2 = r2->get_fraction();
+            set_fractions_equal(f1, f2, pred);
+        } else {
+            Fraction* f1 = r1->get_fraction();
+            r2->set_fraction(f1, pred);
+        }
+    } else if (r2->has_fraction()) {
+        Fraction* f2 = r2->get_fraction();
+        r1->set_fraction(f2, pred);
+    } else {
+        Fraction* f = __add_new_fraction(r1, pred);
+        r2->set_fraction(f, pred);
+    }
+
+    Length* l1 = r1->length1;
+    Length* l2 = r1->length2;
+    Length* l3 = r2->length1;
+    Length* l4 = r2->length2;
+    ar.add_eqratio(l1, l2, l3, l4, pred);
+
+    return true;
+}
+
+bool GeometricGraph::make_ar_eqratio(Predicate* pred, DDEngine &dd) {
+    Length* l1 = static_cast<Length*>(pred->args[0]);
+    Length* l2 = static_cast<Length*>(pred->args[1]);
+    Length* l3 = static_cast<Length*>(pred->args[2]);
+    Length* l4 = static_cast<Length*>(pred->args[3]);
+
+    Ratio* r1 = get_or_add_ratio(l1, l2, dd);
+    Ratio* r2 = get_or_add_ratio(l3, l4, dd);
+
+    if (check_eqratio(r1, r2)) return false;
+
+    Fraction* f1 = r1->get_fraction();
+    Fraction* f2 = r2->get_fraction();
+
+    Segment* s1 = get_segment_from_length(l1);
+    Segment* s2 = get_segment_from_length(l2);
+    Segment* s3 = get_segment_from_length(l3);
+    Segment* s4 = get_segment_from_length(l4);
+
+    auto [p1, p2] = s1->endpoints;
+    auto [p3, p4] = s2->endpoints;
+    auto [p5, p6] = s3->endpoints;
+    auto [p7, p8] = s4->endpoints;
+
+    pred->args[0] = p1;
+    pred->args[1] = p2;
+    pred->args[2] = p3;
+    pred->args[3] = p4;
+    pred->args.emplace_back(p5);
+    pred->args.emplace_back(p6);
+    pred->args.emplace_back(p7);
+    pred->args.emplace_back(p8);
+
+    set_fractions_equal(f1, f2, pred);
+    return true;
+}
+
+bool GeometricGraph::make_midp(Predicate* pred, DDEngine &dd, AREngine &ar) {
+    Point* m = static_cast<Point*>(pred->args[0]);
+    Point* p1 = static_cast<Point*>(pred->args[1]);
+    Point* p2 = static_cast<Point*>(pred->args[2]);
+
+    if (check_midp(m, p1, p2)) return false;
+
+    // Make them collinear first, if necessary
+    if (!check_coll(m, p1, p2)) {
+        make_coll(pred, dd);
+    }
+
+    Segment* s1 = get_or_add_segment(p1, m, dd);
+    Segment* s2 = get_or_add_segment(m, p2, dd);
+    Length* l1 = get_or_add_length(s1, dd);
+    Length* l2 = get_or_add_length(s2, dd);
+    set_lengths_cong(l1, l2, pred);
+
+    if (point_nums[s1->endpoints[0]] > point_nums[s2->endpoints[0]]) {
+        std::swap(s1, s2);
+    }
+    ar.add_midp(s1, s2, pred);
+
+    return true;
+}
+
 bool GeometricGraph::make_circle(Predicate* pred, DDEngine &dd) {
     Point* c = static_cast<Point*>(pred->args[0]);
     Point* p1 = static_cast<Point*>(pred->args[1]);
@@ -1120,7 +1336,7 @@ bool GeometricGraph::make_circle(Predicate* pred, DDEngine &dd) {
     return true;
 }
 
-bool GeometricGraph::make_const_angle(Predicate* pred, DDEngine &dd, AREngine &ar) {
+bool GeometricGraph::make_constangle(Predicate* pred, DDEngine &dd, AREngine &ar) {
     Frac f = pred->frac_arg;
     Point* p1 = static_cast<Point*>(pred->args[0]);
     Point* p2 = static_cast<Point*>(pred->args[1]);
@@ -1134,7 +1350,7 @@ bool GeometricGraph::make_const_angle(Predicate* pred, DDEngine &dd, AREngine &a
 
     Direction* d1 = a->direction1;
     Direction* d2 = a->direction2;
-    ar.add_const_angle(d1, d2, f.to_double(), pred);
+    ar.add_constangle(d1, d2, f.to_double(), pred);
     return true;
 }
 
@@ -1175,7 +1391,34 @@ bool GeometricGraph::make_constratio(Predicate* pred, DDEngine &dd, AREngine &ar
     Length* l2 = get_or_add_length(s2, dd);
 
     Ratio* r = get_or_add_ratio(l1, l2, dd);
-    // TBA
+    Fraction* fr = get_or_add_fraction(r, dd);
+
+    set_fraction_val(fr, f, pred);
+
+    ar.add_constratio(l1, l2, f.to_double(), pred);
+    return true;
+}
+
+bool GeometricGraph::make_ar_constratio(Predicate* pred, DDEngine &dd) {
+    Length* l1 = static_cast<Length*>(pred->args[0]);
+    Length* l2 = static_cast<Length*>(pred->args[1]);
+    Frac f = pred->frac_arg;
+
+    Segment* s1 = get_segment_from_length(l1);
+    Segment* s2 = get_segment_from_length(l2);
+
+    auto [p1, p2] = s1->endpoints;
+    auto [p3, p4] = s2->endpoints;
+
+    pred->args[0] = p1;
+    pred->args[1] = p2;
+    pred->args.emplace_back(p3);
+    pred->args.emplace_back(p4);
+
+    Ratio* r = get_or_add_ratio(l1, l2, dd);
+    Fraction* fr = get_or_add_fraction(r, dd);
+
+    set_fraction_val(fr, f, pred);
     return true;
 }
 

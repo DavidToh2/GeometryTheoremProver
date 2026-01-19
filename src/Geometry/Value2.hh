@@ -22,8 +22,8 @@ class Value2 : public Node {
 public:
     std::map<T*, Predicate*> obj2s;
     std::set<T*> root_obj2s;
-    Frac val;
-    Predicate* val_why;
+    Frac val = -1;
+    Predicate* val_why = nullptr;
 
     Value2(std::string name) : Node(name) {}
 };
@@ -37,7 +37,8 @@ public:
     Measure(std::string name) : Value2(name) {}
 
     /* Associate the angle `a` with the root measure of `this`, by adding the former to the `obj2s` 
-    and `root_obj2s` of the latter. 
+    and `root_obj2s` of the latter, as well as updating the `measure` and `measure_why` of the former.
+    This is done by calling `Angle::set_measure()`. 
     Note: If `a` is already present in `obj2s`, then overwriting by `pred` occurs. */
     void add_angle(Angle* a, Predicate* pred);
 
@@ -51,5 +52,20 @@ public:
 };
 
 class Fraction : public Value2<Ratio> {
+public:
+    Fraction(std::string name) : Value2(name) {}
 
+    /* Associate the ratio `r` with the root fraction of `this`, by adding the former to the `obj2s` 
+    and `root_obj2s` of the latter, as well as updating the `fraction` and `fraction_why` of the former.
+    This is done by calling `Ratio::set_fraction()`.
+    Note: If `r` is already present in `obj2s`, then overwriting by `pred` occurs. */
+    void add_ratio(Ratio* r, Predicate* pred);
+
+    /* Returns all pairs of equal ratios associated with this fraction. */
+    Generator<std::pair<Ratio*, Ratio*>> all_eq_pairs();
+    /* Returns all ordered pairs of equal ratios associated with this fraction. */
+    Generator<std::pair<Ratio*, Ratio*>> all_eq_pairs_ordered();
+
+    /* Merges the root node of `other` into the root node of `this`. */
+    void merge(Fraction* other, Predicate* pred);
 };

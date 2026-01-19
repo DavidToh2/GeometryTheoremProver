@@ -113,9 +113,13 @@ public:
 
     /* Gets any two points on a line.
     Note: The given line should be a root line, so `points` is populated. */
-    constexpr std::pair<Point*, Point*> __get_points_on_line(Line* l);
+    constexpr std::pair<Point*, Point*> __get_points_on_line(Line* l) {
+        return {l->points.begin()->first, std::next(l->points.begin())->first};
+    }
     /* Gets any two points on root_line. */
-    constexpr std::pair<Point*, Point*> get_points_on_line(Line* l);
+    constexpr std::pair<Point*, Point*> get_points_on_line(Line* l)  {
+        return __get_points_on_line(NodeUtils::get_root(l));
+    }
 
     /* Merges `src` line into `dest` line. 
     When the lines are merged, `dest` receives the roots of all `points` from `src` using `merge_maps_with_roots()`. */
@@ -132,9 +136,13 @@ public:
     Direction* get_or_add_direction(Line* l, DDEngine &dd);
 
     /* Gets any root_line in a given root direction d. */
-    constexpr Line* __get_line_from_direction(Direction* d);
+    constexpr Line* __get_line_from_direction(Direction* d) {
+        return *(d->root_objs.begin());
+    }
     /* Gets any root_line in a given direction. */
-    constexpr Line* get_line_from_direction(Direction* d);
+    constexpr Line* get_line_from_direction(Direction* d) {
+        return __get_line_from_direction(NodeUtils::get_root(d));
+    }
 
     /* Sets `dest` and `src` to be parallel by merging `root_src` into `root_dest`, as well as `root_src->perp` 
     into `root_dest->perp` (if both exist - see `Direction::merge()` for more info). */
@@ -144,7 +152,7 @@ public:
     void set_directions_perp(Direction* d1, Direction* d2, Predicate* pred);
 
 
-    /* Adds the circumcircle of the triangle formed by the points `p1`, `p2`, p3`. 
+    /* Adds the circumcircle of the triangle formed by the points `p1`, `p2`, `p3`. 
     Note: `p1`, `p2`, `p3` should be root points. */
     Circle* __add_new_circle(Point* p1, Point* p2, Point* p3, Predicate* base_pred);
     /* Adds the circle with center `c` passing through `p1`. 
@@ -221,7 +229,9 @@ public:
     /* Gets the length of the root of segment `s`, creating a new length if it does not yet exist. */
     Length* get_or_add_length(Segment* s, DDEngine &dd);
     /* Given a length `l`, gets any root segment with this length. */
-    Segment* get_segment_from_length(Length* l);
+    constexpr Segment* get_segment_from_length(Length* l) {
+        return *(l->root_objs.begin());
+    }
 
     /* Merges the lengths of the root of segment `s_other` into the root of segment `s`. 
     Warning: Assumes that both `s` and `s_other` already have lengths set. */
@@ -299,28 +309,22 @@ public:
     The angle is created if it does not yet exist. */
     Angle* get_or_add_angle(Point* p1, Point* p2, Point* p3, DDEngine& dd);
 
-
-    Ratio* __add_new_ratio(Length* l1, Length* l2, Predicate* base_pred);
-    Ratio* __add_new_ratio(Segment* s1, Segment* s2, Predicate* base_pred);
-
-    Ratio* __try_get_ratio(Length* l1, Length* l2);
-    Ratio* __try_get_ratio(Segment* s1, Segment* s2);
-
-    Ratio* try_get_ratio(Length* l1, Length* l2);
-    Ratio* try_get_ratio(Segment* s1, Segment* s2);
-
-    Ratio* get_or_add_ratio(Length* l1, Length* l2, DDEngine& dd);
-    Ratio* get_or_add_ratio(Segment* s1, Segment* s2, DDEngine& dd);
-
-    
-
     /* Gets a pair of root lines making up an angle. */
-    constexpr std::pair<Line*, Line*> get_lines_from_angle(Angle* a);
+    constexpr std::pair<Line*, Line*> get_lines_from_angle(Angle* a) {
+        return {get_line_from_direction(a->direction1), get_line_from_direction(a->direction2)};
+    }
     /* Gets a quadruple of root points a, b, c, d making up an angle. */
-    constexpr std::pair<std::pair<Point*, Point*>, std::pair<Point*, Point*>> get_points_from_angle(Angle* a);
+    constexpr std::pair<std::pair<Point*, Point*>, std::pair<Point*, Point*>> get_points_from_angle(Angle* a) {
+        return {
+            __get_points_on_line(get_line_from_direction(a->direction1)),
+            __get_points_on_line(get_line_from_direction(a->direction2)),
+        };
+    }
 
-    /* Merges the root of `src` angle into the root of `dest` angle. */
+    /* Merges the root of `src` angle into the root of `dest` angle.
+    Note: This function is not used. */
     void merge_angles(Angle* dest, Angle* src, Predicate* pred);
+
 
     /* Add a new measure to the angle `a`.
     Note: Assumes that `a` is a root node. 
@@ -332,14 +336,65 @@ public:
     Measure* get_or_add_measure(Angle* a, DDEngine& dd);
 
     /* Gets a root angle equal to this measure. */
-    constexpr Angle* get_angle_from_measure(Measure* m);
+    constexpr Angle* get_angle_from_measure(Measure* m) { 
+        return *(m->root_obj2s.begin()); 
+    }
 
     /* Sets measures `dest` and `src` equal by merging the root of `src` into the root of `dest`. */
     void set_measures_equal(Measure* dest, Measure* src, Predicate* pred);
 
-    /* Sets measure `m` to be equal to the constant `f`.
-    Here, `f` should be given in degrees. */
-    void set_measure_val(Measure* m, Frac f, Predicate* pred);
+    /* Sets measure `m` to be equal to the constant `val`.
+    Here, `val` should be given in degrees. */
+    void set_measure_val(Measure* m, Frac val, Predicate* pred);
+
+
+    /* Adds the ratio with first length l1 and second length l2.
+    Note: Assumes that l1 and l2 are root lengths. */
+    Ratio* __add_new_ratio(Length* l1, Length* l2, Predicate* base_pred);
+    Ratio* __add_new_ratio(Segment* s1, Segment* s2, Predicate* base_pred);
+
+    Ratio* __try_get_ratio(Length* l1, Length* l2);
+    Ratio* __try_get_ratio(Segment* s1, Segment* s2);
+    Ratio * __try_get_ratio(Point* p1, Point* p2, Point* p3, Point* p4);
+
+    Ratio* try_get_ratio(Length* l1, Length* l2);
+    Ratio* try_get_ratio(Segment* s1, Segment* s2);
+    Ratio* try_get_ratio(Point* p1, Point* p2, Point* p3, Point* p4);
+
+    Ratio* get_or_add_ratio(Length* l1, Length* l2, DDEngine& dd);
+    Ratio* get_or_add_ratio(Segment* s1, Segment* s2, DDEngine& dd);
+    Ratio* get_or_add_ratio(Point* p1, Point* p2, Point* p3, Point* p4, DDEngine& dd);
+
+    constexpr std::pair<Segment*, Segment*> get_segments_from_ratio(Ratio* r) {
+        return { get_segment_from_length(r->length1), get_segment_from_length(r->length2) };
+    }
+    constexpr std::pair<std::pair<Point*, Point*>, std::pair<Point*, Point*>> get_points_from_ratio(Ratio* r) {
+        auto segs = get_segments_from_ratio(r);
+        return {
+            { segs.first->endpoints[0], segs.first->endpoints[1] },
+            { segs.second->endpoints[0], segs.second->endpoints[1] }
+        };
+    }
+
+    /* Merges the root of `src` ratio into the root of `dest` ratio.
+    Note: This function is not used. */
+    void merge_ratios(Ratio* dest, Ratio* src, Predicate* pred);
+
+
+    Fraction* __add_new_fraction(Ratio* r, Predicate* base_pred);
+    Fraction* get_or_add_fraction(Ratio* r, DDEngine& dd);
+
+    constexpr Ratio* get_ratio_from_fraction(Fraction* f) {
+        return *(f->root_obj2s.begin());
+    }
+
+    void set_fractions_equal(Fraction* dest, Fraction* src, Predicate* pred);
+
+    void set_fraction_val(Fraction* f, Frac val, Predicate* pred);
+
+
+
+
 
 
     /* Check collinearity. This is done by checking if the root lines `p1p2` and `p1p3` are identical. */
@@ -370,34 +425,59 @@ public:
     bool check_eqangle(Line* l1, Line* l2, Line* l3, Line* l4);
     bool check_eqangle(Angle* a1, Angle* a2);
 
+    bool check_eqratio(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Point* p7, Point* p8);
+    bool check_eqratio(Length* l1, Length* l2, Length* l3, Length* l4);
+    bool check_eqratio(Ratio* r1, Ratio* r2);
+
+    bool check_midp(Point* m, Point* p1, Point* p2);
+
     bool check_circle(Point* c, Point* p1, Point* p2, Point* p3);
     bool check_circle(Point* c, Circle* circ);
 
     bool check_constangle(Angle* a, Frac f);
 
+    bool check_constratio(Ratio* r, Frac f);
+
     bool check_postcondition(PredicateTemplate* pred);
 
 
 
+
+
     bool make_coll(Predicate* pred, DDEngine &dd);
+
     bool make_cyclic(Predicate* pred, DDEngine &dd);
+
     bool make_para(Predicate* pred, DDEngine &dd, AREngine &ar);
     bool make_ar_para(Predicate* pred);
+
     bool make_perp(Predicate* pred, DDEngine &dd, AREngine &ar);
     bool make_ar_perp(Predicate* pred);
+
     bool make_cong(Predicate* pred, DDEngine &dd, AREngine &ar);
     bool make_ar_cong(Predicate* pred, DDEngine& dd);
+
     bool make_eqangle(Predicate* pred, DDEngine &dd, AREngine &ar);
     bool make_ar_eqangle(Predicate* pred, DDEngine& dd);
+
     bool make_eqratio(Predicate* pred, DDEngine &dd, AREngine &ar);
-    bool make_ar_eqratio(Predicate* pred);
+    bool make_ar_eqratio(Predicate* pred, DDEngine& dd);
+
+    // TODO:
     bool make_contri(Predicate* pred, DDEngine &dd);
     bool make_simtri(Predicate* pred, DDEngine &dd);
+
+    bool make_midp(Predicate* pred, DDEngine &dd, AREngine &ar);
+
     bool make_circle(Predicate* pred, DDEngine &dd);
-    bool make_const_angle(Predicate* pred, DDEngine &dd, AREngine &ar);
+
+    bool make_constangle(Predicate* pred, DDEngine &dd, AREngine &ar);
     bool make_ar_constangle(Predicate* pred, DDEngine& dd);
+
     bool make_constratio(Predicate* pred, DDEngine &dd, AREngine &ar);
-    bool make_ar_constratio(Predicate* pred);
+    bool make_ar_constratio(Predicate* pred, DDEngine& dd);
+
+
 
 
 

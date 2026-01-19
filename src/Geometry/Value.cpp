@@ -164,6 +164,21 @@ void Length::add_segment(Segment* s, Predicate* pred) {
     }
 }
 
+Generator<Ratio*> Length::on_ratios_as_length1() {
+    Length* root_this = NodeUtils::get_root(this);
+    for (Ratio* r : root_this->on_ratio_1) {
+        co_yield r;
+    }
+    co_return;
+}
+Generator<Ratio*> Length::on_ratios_as_length2() {
+    Length* root_this = NodeUtils::get_root(this);
+    for (Ratio* r : root_this->on_ratio_2) {
+        co_yield r;
+    }
+    co_return;
+}
+
 void Length::merge(Length* other, Predicate* pred) {
     Length* root_this = NodeUtils::get_root(this);
     Length* root_other = NodeUtils::get_root(other);
@@ -180,4 +195,13 @@ void Length::merge(Length* other, Predicate* pred) {
     // std::set::merge has move semantics
     root_this->root_objs.merge(root_other->root_objs);
     root_other->root_objs.clear();
+
+    for (Ratio* r : root_other->on_ratio_1) {
+        r->length1 = root_this;
+    }
+    for (Ratio* r : root_other->on_ratio_2) {
+        r->length2 = root_this;
+    }
+    root_this->on_ratio_1.merge(root_other->on_ratio_1);
+    root_this->on_ratio_2.merge(root_other->on_ratio_2);
 }

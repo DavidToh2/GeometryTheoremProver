@@ -98,12 +98,19 @@ public:
 
 class Length : public Value<Segment> {
 public:
+    std::set<Ratio*> on_ratio_1;
+    std::set<Ratio*> on_ratio_2;
     Length(std::string name) : Value(name) {}
 
     /* Associate the segment `s` with the root length of `this`, by adding the former to the `objs` 
     and `root_objs` of the latter. 
     Note: If `s` is already present in `objs`, then nothing happens. */
     void add_segment(Segment* s, Predicate* pred);
+
+    /* Returns all root ratios for which the root of this length is a `length1` */
+    Generator<Ratio*> on_ratios_as_length1();
+    /* Returns all root ratios for which the root of this length is a `length2` */
+    Generator<Ratio*> on_ratios_as_length2();
 
     /* Merges the root nodes of `this` and `other`. */
     void merge(Length* other, Predicate* pred);

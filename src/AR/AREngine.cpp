@@ -35,7 +35,7 @@ std::vector<Length*> AREngine::__get_lengths(const std::vector<Expr::Var>& vars)
 
 
 
-void AREngine::add_const_angle(
+void AREngine::add_constangle(
     Direction* d1, Direction* d2, float f, Predicate* pred
 ) {
     Frac ang = Frac(f / 180);
