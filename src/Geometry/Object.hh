@@ -11,9 +11,11 @@ class PredVec;
 class Point;
 class Line;
 class Circle;
+class Segment;
 class Triangle;
 
 class Direction;
+class Length;
 class Shape;
 
 class Angle;
@@ -74,8 +76,10 @@ class Point : public Node {
 public:
     std::map<Line*, std::map<Point*, Predicate*>> on_line;
     std::map<Circle*, std::map<Point*, Predicate*>> on_circle;
+    std::map<Segment*, std::map<Point*, Predicate*>> endpoint_of_segment;
     std::set<Line*> on_root_line;
     std::set<Circle*> on_root_circle;
+    std::set<Segment*> endpoint_of_root_segment;
 
     Point(std::string name) : Node(name) {}
 
@@ -92,13 +96,21 @@ public:
     - Inserts `this` into `c->points` along with `pred`.
     Note: Assumes that `this` is a root node.
     Note: This function is idempotent. */
-
     void set_this_on(Circle* c, Predicate* pred);
+    /* Sets `this` point as an endpoint of segment `s`. This is called by the Segment constructor,
+    and so should NOT be invoked when creating segments. What this does:
+    - Inserts `s` into `this->endpoint_of_segment` along with `pred`;
+    - Inserts `root_s` into `this->endpoint_of_root_segment`;
+    Note: Assumes that `this` is a root node.
+    Note: This function is idempotent. */
+    void set_this_endpoint_of(Segment* s, Predicate* pred);
+
     /* Checks if `this` point lies on the root of node `l`. This is done by checking against the 
     set `on_root_line` of `this`.
     Note: Assumes that `this` is a root node. */
     bool is_this_on(Line* l);
     bool is_this_on(Circle* c);
+    bool is_this_endpoint_of(Segment* s);
 
     /* Set `root_this` to be on the line `l`. What this does:
     - Inserts `l` into `root_this->on_line` along with `pred`;
@@ -149,6 +161,8 @@ public:
 
 /* Line class.
 
+The Line constructor should only ever be called with root points.
+
 The `points` map is used for checking whether a point lies on the line. `points` always stores root nodes; 
 however, we only update `points` as long as the line node is a root node. 
 
@@ -170,24 +184,27 @@ public:
     Line(std::string name, Point* p1, Point* p2, Predicate* base_pred) : Object(name) {
         points[p1] = base_pred;
         points[p2] = base_pred;
+        p1->set_this_on(this, base_pred);
+        p2->set_this_on(this, base_pred);
     }
 
     /* Add the root node of `d` as the direction of the root node of `this`. 
     This updates the `objs` and `root_objs` of `root_d`, as well as the `direction` and `direction_why` of `root_this`.
-    Note: If the root node of `this` already has another direction, overwriting occurs. Code using this function should
-    manually check if `this` already has a direction.
-    Note: If the root node of `this` already has root direction `root_d`, nothing occurs. */
-    void set_direction(Direction* d, Predicate* base_pred);
+    Warning: If the root node of `this` already has another direction, the directions are merged.
+    Warning: Code using this function should manually check if `this` already has a direction. */
+    void set_direction(Direction* d, Predicate* pred);
     /* Checks if `this` has a direction.
-    Note: assumes that `this` is a root node */
+    Note: assumes that `this` is a root node. */
     bool __has_direction();
-    /* Checks if the root node of `this` has a direction */
+    /* Checks if the root node of `this` has a direction. */
     bool has_direction();
     /* Gets the direction node of this line.
-    Note: This function also lazily updates `direction` to the root `Direction` node. */
+    Note: This function also lazily updates `direction` to the root `Direction` node.
+    Warning: Throws if `this` does not have a direction. */
     Direction* __get_direction();
     /* Gets the root direction node of this line.
-    Note: This function also lazily updates `direction` to the root `Direction` node. */
+    Note: This function also lazily updates `direction` to the root `Direction` node.
+    Warning: Throws if `this` does not have a direction. */
     Direction* get_direction();
 
     Predicate* why_direction();
@@ -218,6 +235,8 @@ public:
 
 /* Circle class.
 
+The Circle constructor should only ever be called with root points.
+
 The `points` map is used for checking whether a point lies on the circle. `points` always stores root nodes; 
 however, we only update `points` as long as the circle node is a root node. 
 
@@ -236,10 +255,14 @@ public:
         points[p1] = base_pred;
         points[p2] = base_pred;
         points[p3] = base_pred;
+        p1->set_this_on(this, base_pred);
+        p2->set_this_on(this, base_pred);
+        p3->set_this_on(this, base_pred);
     }
     Circle(std::string name, Point* c, Predicate* base_pred) : Object(name), center(c), center_why(base_pred) {}
     Circle(std::string name, Point* c, Point* p1, Predicate* base_pred) : Object(name), center(c), center_why(base_pred) {
         points[p1] = base_pred;
+        p1->set_this_on(this, base_pred);
     }
 
     /* Sets the center of `this` circle to the root of `p`. 
@@ -260,8 +283,9 @@ public:
     As a result, the generator is more of a design choice than an actual performance improvement. */
     static Generator<Circle*> all_circles_through(Point* p1, Point* p2);
 
-    /* Merge two circle nodes. We merge them at their root nodes. The `points` of `get_root(other)` are copied 
-    into that of `get_root(this)`. The center of `root_other` is merged into that of `root_this`.
+    /* Merge two circle nodes which have been shown to be identical. We merge them at their root nodes. The 
+    `points` of `get_root(other)` are copied into that of `get_root(this)`. The center of `root_other` is merged 
+    into that of `root_this`.
     Note: The copying behaviour does not copy over points that are already in `get_root(this)`. The effect is
     necessary because two circles being merged will necessarily have two duplicate points. 
     Note: This function has no effect if `this` and `other` already have the same root.*/
@@ -270,12 +294,70 @@ public:
 
 
 
-// TBA
+/* Segment class.
+
+The Segment constructor should only ever be called with root points.
+
+The `points` map stores all points on the segment. (I'm not sure what this will be useful for.)
+
+The `endpoints` stored by the root segments will always be root nodes. These are kept up-to-date by the
+`Point::merge()` function, which calls `Segment::check_segments_with_endpoint()` to merge the affected segments.
+Note that segments are always created with their endpoints obeying the ordering of the CartesianPoint comparator - 
+in other words, in GeometricGraph, we will always have `point_nums[p1] < point_nums[p2]` for a segment `p1p2`.
+
+The `on_line` pointer stores the line that this segment lies on. This need not necessarily be a root node. Always
+use `get_line()` which lazily updates it to the root node. 
+
+Every segment always stores a `length (Value)`. This need not necessarily be a root node. Always use 
+`get_length()`, which also lazily updates it to the root value. */
 class Segment : public Object {
 public:
-    std::tuple<Point*, Point*> endpoints;
+    std::array<Point*, 2> endpoints;
+    Length* length = nullptr;
+    Predicate* length_why = nullptr;
+    Line* on_line = nullptr;
 
     Segment(std::string name) : Object(name) {}
+    Segment(std::string name, Point* p1, Point* p2, Line* l, Predicate* base_pred) : Object(name), endpoints({p1, p2}), on_line(l) {
+        points[p1] = base_pred;
+        points[p2] = base_pred;
+        p1->set_this_endpoint_of(this, base_pred);
+        p2->set_this_endpoint_of(this, base_pred);
+    }
+
+    /* Sets the length of the root node of `this` segment to the root of `l`.
+    Warning: If the root node of `this` already has another length, the new length is merged into the old.
+    Warning: Code using this function should manually check if `this` already has a length.  */
+    void set_length(Length* l, Predicate* pred);
+    /* Checks if `this` has a length.
+    Note: assumes that `this` is a root node. */
+    bool __has_length();
+    /* Checks if the root node of `this` has a length. */
+    bool has_length();
+    /* Gets the root node representing the length of this segment.
+    Note: `this->length` is lazily updated to the root node by this function. */
+    Length* __get_length();
+    /* Gets the root node representing the length of the root of `this` segment. */
+    Length* get_length();
+
+    /* Gets the root node representing the line that this segment lies on.
+    Note: `this->on_line` is lazily updated to the root node by this function. */
+    Line* __get_line();
+    /* Gets the root node representing the line that the root of `this` segment lies on. */
+    Line* get_line();
+
+    constexpr Point* other_endpoint(Point* p) { return (endpoints[0] == p) ? endpoints[1] : endpoints[0]; } 
+
+    /* Merge two segment nodes which have been shown to be identical. This only occurs when their endpoints
+    have been shown to be identical. Only called by `check_segments_with_endpoint()`. */
+    void merge(Segment* other, Predicate* pred);
+
+    /* Called by `p.merge(other_p)`. 
+    This function checks the second endpoints of those segments starting with `p`, as well as the endpoints of 
+    those segments starting with `other_p`, and performs merges of segment pairs whose second endpoints coincide.
+    In case a segment has one endpoint `p` and another `other_p`, an error is thrown. 
+    Note: Assumes that `p` and `other_p` are root points. */
+    static void check_segments_with_endpoint(Point* p, Point* other_p, Predicate* pred);
 };
 
 

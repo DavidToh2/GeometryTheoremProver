@@ -1,4 +1,4 @@
-problem p1 {
+# problem p1 {
     a b = segment a b;
     c = on_line_bisect c : a b;
     d = on_line_bisect d : a b
@@ -18,16 +18,16 @@ problem p3 {
     e = on_line e : a c;
     f = on_line f : a b, on_circum f : b c e;
     d = intersection_ll d : b e c f
-    ? eqangle d b b a a c c d
+    ? cong d b d c
 }
 
-problem p4 {
+# problem p4 {
     a b d = triangle a b d;
     c = r_triangle_p c : d a, r_triangle_p c : b a
     ? perp b c c d
 }
 
-problem p5 {
+# problem p5 {
     a b = segment a b;
     c = equi_triangle_p c : a b;
     d = equi_triangle_p d : a c;
@@ -35,7 +35,7 @@ problem p5 {
     ? coll b a e
 }
 
-problem p6 {
+# problem p6 {
     a b c = triangle a b c;
     d = on_circum d : a b c;
     e = on_line e : a c;
@@ -43,14 +43,14 @@ problem p6 {
     ? eqangle b a a f e d d c
 }
 
-problem p7 {
+# problem p7 {
     a b c = triangle a b c;
     i = incenter i : a b c;
     j = on_line j : b i, on_circum j : a i c
     ? perp i c c j
 }
 
-problem p8 {
+# problem p8 {
     a b c = triangle a b c;
     d = on_line d : a c;
     e = on_line e : a b;

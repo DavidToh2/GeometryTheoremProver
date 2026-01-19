@@ -8,12 +8,14 @@
 void Angle::set_measure(Measure* m, Predicate* base_pred) {
     Angle* root_this = NodeUtils::get_root(this);
     Measure* root_m = NodeUtils::get_root(m);
-    if (root_this->__has_measure() && root_this->__get_measure() == root_m) return;
-    
-    root_this->measure = root_m;
-    root_this->measure_why = base_pred;
-    root_m->obj2s[this] = base_pred;
-    root_m->root_obj2s.insert(root_this);
+    if (root_this->__has_measure()) {
+        root_this->measure->merge(root_m, base_pred);
+    } else {
+        root_this->measure = root_m;
+        root_this->measure_why = base_pred;
+        root_m->obj2s[this] = base_pred;
+        root_m->root_obj2s.insert(root_this);
+    }
 }
 Measure* Angle::__get_measure() {
     Measure* m = NodeUtils::get_root(measure);
@@ -79,4 +81,17 @@ void Angle::merge(Angle* other, Predicate* pred) {
         throw GGraphInternalError("Error: Cannot merge angles " + root_this->name + " and " + root_other->name + " with different directions.");
     }
     root_this->__merge(root_other, pred);
+}
+
+
+
+void Ratio::set_fraction(Fraction* f, Predicate* base_pred) {
+    Ratio* root_this = NodeUtils::get_root(this);
+    Fraction* root_f = NodeUtils::get_root(f);
+    if (root_this->__has_fraction() && root_this->__get_fraction() == root_f) return;
+    
+    root_this->fraction = root_f;
+    root_this->fraction_why = base_pred;
+    root_f->obj2s[this] = base_pred;
+    root_f->root_obj2s.insert(root_this);
 }

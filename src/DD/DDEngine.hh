@@ -58,6 +58,7 @@ public:
     Generator<bool> match_cyclic(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> match_para(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> match_perp(PredicateTemplate* pred_template, GeometricGraph &ggraph);
+    Generator<bool> match_cong(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> __match_eqangle(PredicateTemplate* pred_template, GeometricGraph &ggraph, int i, std::array<Direction*, 4> &ls);
     Generator<bool> match_eqangle(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> match_circle(PredicateTemplate* pred_template, GeometricGraph &ggraph);
@@ -72,7 +73,9 @@ public:
         {pred_t::CYCLIC, &DDEngine::match_cyclic},
         {pred_t::PARA, &DDEngine::match_para},
         {pred_t::PERP, &DDEngine::match_perp},
+        {pred_t::CONG, &DDEngine::match_cong},
         {pred_t::EQANGLE, &DDEngine::match_eqangle},
+        // {pred_t::EQRATIO, &DDEngine::match_eqratio},
         {pred_t::CIRCLE, &DDEngine::match_circle},
         {pred_t::DIFF, &DDEngine::match_diff},
         {pred_t::NCOLL, &DDEngine::match_ncoll},

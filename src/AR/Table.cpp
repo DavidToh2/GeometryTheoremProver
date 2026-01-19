@@ -25,7 +25,7 @@ void Expr::fix(Expr& expr) {
 }
 void Expr::strip(Expr& expr) {
     for (auto it = expr.cbegin(); it != expr.cend(); ) {
-        if (NumUtils::is_close(it->second, 0.0)) {
+        if (NumUtils::is_close_2(it->second, 0.0)) {
             it = expr.erase(it);
         } else {
             ++it;
@@ -380,6 +380,7 @@ std::vector<Predicate*> Table::why(const Expr::Expr& expr) {
     for (const auto& [var, coeff] : target) {
         b_vec[var_to_idx.at(var)] = coeff;
     }
+    LinProg lp_solver;
     lp_solver.populate(A, b_vec, c);
 
     // Solve the linear program min c^T * x subject to A * x = b, x >= 0

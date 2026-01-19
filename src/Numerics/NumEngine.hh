@@ -40,10 +40,10 @@ public:
     Numeric* insert_numeric(std::unique_ptr<Numeric>&& num);
 
     constexpr CartesianPoint get_cartesian(Point* p) {
-        return point_to_cartesian.at(p)[0];
+        return point_to_cartesian.at(p).back();
     }
     constexpr CartesianPoint get_arg_cartesian(Numeric* num, int i) {
-        return point_to_cartesian.at(num->args[i])[0];
+        return point_to_cartesian.at(num->args[i]).back();
     }
 
     Generator<CartesianPoint> compute_free(Numeric* num);
@@ -206,6 +206,8 @@ public:
     then have multiple coordinates in its `point_to_cartesian` entry.
     Returns `true` if all points are successfully resolved without discrepancy. */
     bool final_resolve();
+
+    bool check_against_existing_point_numerics(CartesianPoint &c);
 
     void reset_computation();
     void reset_problem();

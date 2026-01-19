@@ -23,7 +23,7 @@ typedef struct Frac {
 	const bool operator==(const Frac &other);
 	const bool operator!=(const Frac &other);
 	bool operator==(Frac &&other);
-	const bool operator<(const Frac &other) const;
+	// const bool operator<(const Frac &other) const;
 	auto operator<=>(const Frac &other) const;
 
 	double to_double() const;

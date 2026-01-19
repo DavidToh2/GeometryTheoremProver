@@ -14,7 +14,7 @@
 #include "Common/Constants.hh"
 #include "Geometry/GeometricGraph.hh"
 
-#define DEBUG_DDENGINE 0
+#define DEBUG_DDENGINE 1
 
 #if DEBUG_DDENGINE
     #define LOG(x) do {std::cout << x << std::endl;} while(0)
@@ -66,11 +66,11 @@ Predicate* DDEngine::insert_predicate(std::unique_ptr<Predicate> &&predicate) {
     Predicate* p = predicate.get();
     std::string hash = p->hash;
     if (has_predicate_by_hash(hash)) {
-        LOG("Predicate " << hash << " already exists!");
+        LOG("@@@@@@ THIS SHOULD NOT BE CALLED: Predicate " << hash << " already exists!");
         predicate.reset();
         return predicates.at(hash).get();
     }
-    LOG("Inserting new predicate " << hash);
+    LOG("Inserting predicate " << hash);
     predicates.insert({hash, std::move(predicate)});
     recent_predicates.emplace_back(p);
     return p;
@@ -1108,7 +1108,7 @@ void DDEngine::search(GeometricGraph &ggraph) {
                 matches += 1;
             }
         }
-        // std::cout << "Matches for theorem " << theorem->to_string_with_placeholders() << ": " << matches << std::endl;
+        LOG("Matches for theorem " << theorem->to_string_with_placeholders() << ": " << matches);
         theorem->__clear_args();
     }
 

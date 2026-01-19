@@ -64,7 +64,7 @@ public:
 
     /* Associate the line `l` with the root direction of `this`, by adding the former to the `objs` 
     and `root_objs` of the latter. 
-    Note: If `l` is already present in `objs`, then overwriting by `pred` occurs. */
+    Note: If `l` is already present in `objs`, then nothing happens. */
     void add_line(Line* l, Predicate* pred);
 
     /* Returns all pairs of parallel lines associated with this direction. */
@@ -99,6 +99,14 @@ public:
 class Length : public Value<Segment> {
 public:
     Length(std::string name) : Value(name) {}
+
+    /* Associate the segment `s` with the root length of `this`, by adding the former to the `objs` 
+    and `root_objs` of the latter. 
+    Note: If `s` is already present in `objs`, then nothing happens. */
+    void add_segment(Segment* s, Predicate* pred);
+
+    /* Merges the root nodes of `this` and `other`. */
+    void merge(Length* other, Predicate* pred);
 };
 
 

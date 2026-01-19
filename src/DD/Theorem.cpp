@@ -3,6 +3,14 @@
 #include <Common/StrUtils.hh>
 #include <Geometry/GeometricGraph.hh>
 
+#define DEBUG_THEOREM 1
+
+#if DEBUG_THEOREM
+    #define LOG(x) do {std::cout << x << std::endl;} while(0)
+#else 
+    #define LOG(x)
+#endif
+
 Theorem::Theorem(const std::string &s) {
 
     std::map<std::string, Arg*> argmap;
@@ -23,7 +31,7 @@ Theorem::Theorem(const std::string &s) {
 };
 
 std::unique_ptr<Predicate> Theorem::instantiate_postcondition() {
-    // std::cout << "Instantiating: " << to_string() << std::endl;
+    LOG("Instantiating: " << to_string());
     std::unique_ptr<Predicate> pred = postcondition.get()->instantiate();
     return pred;
 }

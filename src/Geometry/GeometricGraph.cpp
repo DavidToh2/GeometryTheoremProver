@@ -28,68 +28,12 @@
 void GeometricGraph::initialise_point_numerics(NumEngine &nm) {
     // Fill in the points
     for (Point* p : nm.order_of_resolution) {
-        if (point_nums.contains(p)) continue;
-        vector<CartesianPoint> vc = nm.point_to_cartesian[p];
-        switch(vc.size()) {
-            case 0: {
-                throw GGraphInternalError("Error: No resolved numeric for point " + p->to_string());
-                break;
-            }
-            case 1: {
-                if (check_against_existing_point_numerics(vc[0])) {
-                    throw GGraphInternalError("GeometricGraph::initialise_point_numerics(): No viable candidate numeric for point " + p->to_string());
-                }
-                point_nums[p] = vc[0];
-                break;
-            }
-            default: {
-                // Extract a list of numerically distinct candidate points.
-                // A valid candidate cannot coincide with any previously resolved points.
-                std::vector<std::pair<CartesianPoint, int>> candidates;
-                for (auto& c : vc) {
-                    bool found = false;
-                    for (auto& [avg, i] : candidates) {
-                        if (CartesianPoint::is_close(c, avg)) {
-                            avg = (avg * i + c) / (i + 1);
-                            i += 1;
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        if (check_against_existing_point_numerics(c)) {
-                            found = true;
-                            continue;
-                        }
-                    }
-                    if (!found) { candidates.emplace_back(c, 1); }
-                }
-                if (candidates.empty()) {
-                    throw GGraphInternalError("GeometricGraph::initialise_point_numerics(): No viable candidate numeric for point " + p->to_string());
-                }
-                int max = 0;
-                for (auto it = candidates.begin(); it != candidates.end(); ) {
-                    if (it->second > max) {
-                        max = it->second;
-                        ++it;
-                    } else {
-                        it = candidates.erase(it);
-                    }
-                }
-                point_nums[p] = candidates.rbegin()->first;
-                break;
-            }
-        }
+        point_nums[p] = nm.get_cartesian(p);
     }
 }
-bool GeometricGraph::check_against_existing_point_numerics(CartesianPoint &c) {
-    for (auto& [p, c_existing] : point_nums) {
-        if (CartesianPoint::is_close(c, c_existing)) {
-            return true;
-        }
-    }
-    return false;
-}
+
+
+
 CartesianLine GeometricGraph::compute_line_from_points(Point* p1, Point* p2) {
     return CartesianLine(point_nums.at(p1), point_nums.at(p2));
 }
@@ -152,8 +96,6 @@ Line* GeometricGraph::__add_new_line(Point* p1, Point* p2, Predicate* base_pred)
     }
     lines[line_id] = std::make_unique<Line>(line_id, p1, p2, base_pred);
     Line* l = lines[line_id].get();
-    p1->set_this_on(l, base_pred);
-    p2->set_this_on(l, base_pred);
     root_lines.insert(l);
 
     line_nums[l] = compute_line_from_points(p1, p2);
@@ -285,9 +227,6 @@ Circle* GeometricGraph::__add_new_circle(Point* p1, Point* p2, Point* p3, Predic
     }
     circles[circle_id] = std::make_unique<Circle>(circle_id, p1, p2, p3, base_pred);
     Circle* circ = circles[circle_id].get();
-    p1->set_this_on(circ, base_pred);
-    p2->set_this_on(circ, base_pred);
-    p3->set_this_on(circ, base_pred);
     root_circles.insert(circ);
 
     circle_nums[circ] = compute_circle_from_points(p1, p2, p3);
@@ -301,7 +240,6 @@ Circle* GeometricGraph::__add_new_circle(Point* c, Point* p1, Predicate* base_pr
     }
     circles[circle_id] = std::make_unique<Circle>(circle_id, c, p1, base_pred);
     Circle* circ = circles[circle_id].get();
-    p1->set_this_on(circ, base_pred);
     root_circles.insert(circ);
 
     circle_nums[circ] = compute_circle_from_points(c, p1);
@@ -415,6 +353,89 @@ void GeometricGraph::merge_circles(Circle* dest, Circle* src, Predicate* pred) {
     if (dest == src) return;
     root_circles.erase(NodeUtils::get_root(src));
     dest->merge(src, pred);
+}
+
+
+
+
+
+Segment* GeometricGraph::__add_new_segment(Point* p1, Point* p2, Line* l, Predicate* base_pred) {
+    if (p1 == p2) {
+        throw GGraphInternalError("Error: Cannot create segment with identical endpoints: " + p1->name);
+    }
+    if (point_nums[p1] > point_nums[p2]) {
+        std::swap(p1, p2);
+    }
+    std::string segment_id = "s_" + p1->name + "_" + p2->name;
+    if (Utils::isinmap(segment_id, segments)) {
+        throw GGraphInternalError("Error: Segment with id " + segment_id + " already exists in GeometricGraph.");
+    }
+    segments[segment_id] = std::make_unique<Segment>(segment_id, p1, p2, l, base_pred);
+    Segment* s = segments[segment_id].get();
+    root_segments.insert(s);
+    return s;
+}
+Segment* GeometricGraph::__try_get_segment(Point* p1, Point* p2) {
+    for (Segment* s : p1->endpoint_of_root_segment) {
+        if (s->other_endpoint(p1) == p2) {
+            return s;
+        }
+    }
+    return nullptr;
+}
+Segment* GeometricGraph::get_or_add_segment(Point* p1, Point* p2, DDEngine &dd) {
+    Point* rp1 = NodeUtils::get_root(p1);
+    Point* rp2 = NodeUtils::get_root(p2);
+    Segment* s = __try_get_segment(rp1, rp2);
+    if (!s) {
+        Line* l = get_or_add_line(rp1, rp2, dd);
+        s = __add_new_segment(rp1, rp2, l, dd.base_pred.get());
+    }
+    return s;
+}
+Segment* GeometricGraph::try_get_segment(Point* p1, Point* p2) {
+    return __try_get_segment(NodeUtils::get_root(p1), NodeUtils::get_root(p2));
+}
+void GeometricGraph::merge_segments(Segment* dest, Segment* src, Predicate* pred) {
+    if (dest == src) return;
+    root_segments.erase(NodeUtils::get_root(src));
+    dest->merge(src, pred);
+}
+
+
+
+Length* GeometricGraph::__add_new_length(Segment* s, Predicate* base_pred) {
+    std::string length_id = "l_" + s->name;
+    if (Utils::isinmap(length_id, lengths)) {
+        throw GGraphInternalError("Error: Length with id " + length_id + " already exists in GeometricGraph.");
+    }
+    lengths[length_id] = std::make_unique<Length>(length_id);
+    Length* l = lengths[length_id].get();
+    l->add_segment(s, base_pred);
+    s->set_length(l, base_pred);
+    root_lengths.insert(l);
+    return l;
+}
+Length* GeometricGraph::get_or_add_length(Segment* s, DDEngine &dd) {
+    Segment* root_s = NodeUtils::get_root(s);
+    if (root_s->has_length()) {
+        return root_s->get_length();
+    }
+    return __add_new_length(root_s, dd.base_pred.get());
+}
+Segment* GeometricGraph::get_segment_from_length(Length* l) {
+    return *(l->root_objs.begin());
+}
+
+void GeometricGraph::set_lengths_cong(Segment* s, Segment* s_other, Predicate* pred) {
+    Length* l = s->get_length();
+    Length* l_other = s_other->get_length();
+    set_lengths_cong(l, l_other, pred);
+}
+void GeometricGraph::set_lengths_cong(Length* l, Length* l_other, Predicate* pred) {
+    if (l == l_other) return;
+    root_lengths.erase(NodeUtils::get_root(l_other));
+    l->merge(l_other, pred);
 }
 
 
@@ -663,6 +684,20 @@ bool GeometricGraph::check_perp(Point* p1, Point* p2, Line* l1) {
 bool GeometricGraph::check_perp(Line* l1, Line* l2) { return Line::is_perp(l1, l2); }
 
 bool GeometricGraph::check_perp(Direction* d1, Direction* d2) { return Direction::is_perp(d1, d2); }
+
+bool GeometricGraph::check_cong(Point* p1, Point* p2, Point* p3, Point* p4) {
+    Segment* s1 = try_get_segment(p1, p2);
+    Segment* s2 = try_get_segment(p3, p4);
+    if (s1 == nullptr || s2 == nullptr) { return false; }
+    return check_cong(s1, s2);
+}
+
+bool GeometricGraph::check_cong(Segment* s1, Segment* s2) {
+    if (!s1->has_length() || !s2->has_length()) { return false; }
+    return check_cong(s1->get_length(), s2->get_length());
+}
+
+bool GeometricGraph::check_cong(Length* l1, Length* l2) { return NodeUtils::same_as(l1, l2); }
 
 
 bool GeometricGraph::check_eqangle(Point* p1, Point* p2, Point* p3, Point* p4,
@@ -926,6 +961,66 @@ bool GeometricGraph::make_ar_perp(Predicate* pred) {
     return true;
 }
 
+bool GeometricGraph::make_cong(Predicate* pred, DDEngine &dd, AREngine &ar) {
+    Point* p1 = static_cast<Point*>(pred->args[0]);
+    Point* p2 = static_cast<Point*>(pred->args[1]);
+    Point* p3 = static_cast<Point*>(pred->args[2]);
+    Point* p4 = static_cast<Point*>(pred->args[3]);
+
+    Segment* s1 = get_or_add_segment(p1, p2, dd);
+    Segment* s2 = get_or_add_segment(p3, p4, dd);
+
+    if (check_cong(s1, s2)) return false;
+
+    Length* l1 = get_or_add_length(s1, dd);
+    Length* l2 = get_or_add_length(s2, dd);
+    set_lengths_cong(l1, l2, pred);
+
+    // Invariant: point_nums[p1] < point_nums[p2] and point_nums[p3] < point_nums[p4]
+    // by definition of how GeometricGraph::__add_new_segment works.
+    ar.add_cong(s1, s2, pred);
+    return true;
+}
+
+bool GeometricGraph::make_ar_cong(Predicate* pred, DDEngine &dd) {
+    switch(pred->args.size()) {
+        case 2: {
+            Length* l1 = static_cast<Length*>(pred->args[0]);
+            Length* l2 = static_cast<Length*>(pred->args[1]);
+
+            Segment* s1 = get_segment_from_length(l1);
+            Segment* s2 = get_segment_from_length(l2);
+
+            auto [p1, p2] = s1->endpoints;
+            auto [p3, p4] = s2->endpoints;
+
+            pred->args[0] = p1;
+            pred->args[1] = p2;
+            pred->args.emplace_back(p3);
+            pred->args.emplace_back(p4);
+
+            set_lengths_cong(l1, l2, pred);
+            return true;
+        } break;
+
+        default: {
+            Point* p1 = static_cast<Point*>(pred->args[0]);
+            Point* p2 = static_cast<Point*>(pred->args[1]);
+            Point* p3 = static_cast<Point*>(pred->args[2]);
+            Point* p4 = static_cast<Point*>(pred->args[3]);
+
+            Segment* s1 = get_or_add_segment(p1, p2, dd);
+            Segment* s2 = get_or_add_segment(p3, p4, dd);
+
+            Length* l1 = get_or_add_length(s1, dd);
+            Length* l2 = get_or_add_length(s2, dd);
+
+            set_lengths_cong(l1, l2, pred);
+            return true;
+        } break;
+    }
+}
+
 bool GeometricGraph::make_eqangle(Predicate* pred, DDEngine &dd, AREngine &ar) {
     Point* p1 = static_cast<Point*>(pred->args[0]);
     Point* p2 = static_cast<Point*>(pred->args[1]);
@@ -958,6 +1053,7 @@ bool GeometricGraph::make_eqangle(Predicate* pred, DDEngine &dd, AREngine &ar) {
         a2->set_measure(m, pred);
     }
     
+    // Use numerics to determine if pi-offsets are needed
     Direction* d1 = a1->direction1;
     Direction* d2 = a1->direction2;
     Direction* d3 = a2->direction1;
@@ -1024,7 +1120,7 @@ bool GeometricGraph::make_circle(Predicate* pred, DDEngine &dd) {
     return true;
 }
 
-bool GeometricGraph::make_constangle(Predicate* pred, DDEngine &dd, AREngine &ar) {
+bool GeometricGraph::make_const_angle(Predicate* pred, DDEngine &dd, AREngine &ar) {
     Frac f = pred->frac_arg;
     Point* p1 = static_cast<Point*>(pred->args[0]);
     Point* p2 = static_cast<Point*>(pred->args[1]);
@@ -1035,6 +1131,10 @@ bool GeometricGraph::make_constangle(Predicate* pred, DDEngine &dd, AREngine &ar
     Measure* m = get_or_add_measure(a, dd);
     
     set_measure_val(m, f, pred);
+
+    Direction* d1 = a->direction1;
+    Direction* d2 = a->direction2;
+    ar.add_const_angle(d1, d2, f.to_double(), pred);
     return true;
 }
 
@@ -1060,6 +1160,25 @@ bool GeometricGraph::make_ar_constangle(Predicate* pred, DDEngine& dd) {
     set_measure_val(m, f, pred);
     return true;
 }
+
+bool GeometricGraph::make_constratio(Predicate* pred, DDEngine &dd, AREngine &ar) {
+    Frac f = pred->frac_arg;
+    Point* p1 = static_cast<Point*>(pred->args[0]);
+    Point* p2 = static_cast<Point*>(pred->args[1]);
+    Point* p3 = static_cast<Point*>(pred->args[2]);
+    Point* p4 = static_cast<Point*>(pred->args[3]);
+
+    Segment* s1 = get_or_add_segment(p1, p2, dd);
+    Segment* s2 = get_or_add_segment(p3, p4, dd);
+
+    Length* l1 = get_or_add_length(s1, dd);
+    Length* l2 = get_or_add_length(s2, dd);
+
+    Ratio* r = get_or_add_ratio(l1, l2, dd);
+    // TBA
+    return true;
+}
+
 
 
 

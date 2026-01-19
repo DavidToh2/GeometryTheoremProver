@@ -45,9 +45,9 @@ Direction* Direction::get_perp() {
 }
 
 void Direction::add_line(Line* l, Predicate* pred) {
-    Direction* root_this = NodeUtils::get_root(this);
-    Line* root_l = NodeUtils::get_root(l);
-    root_l->set_direction(root_this, pred);
+    if (!l->has_direction()) {
+        l->set_direction(this, pred);
+    }
 }
 
 Generator<std::pair<Line*, Line*>> Direction::all_para_pairs() {
@@ -152,4 +152,32 @@ bool Direction::is_perp(Direction* d1, Direction* d2) {
         return false;
     }
     return (d1->get_perp() == NodeUtils::get_root(d2));
+}
+
+
+
+
+
+void Length::add_segment(Segment* s, Predicate* pred) {
+    if (!s->__has_length()) {
+        s->set_length(this, pred);
+    }
+}
+
+void Length::merge(Length* other, Predicate* pred) {
+    Length* root_this = NodeUtils::get_root(this);
+    Length* root_other = NodeUtils::get_root(other);
+    if (root_this == root_other) {
+        return;
+    }
+    root_other->root = root_this;
+    root_other->parent = root_this;
+    root_other->parent_why = pred;
+
+    for (const auto& [obj, p] : root_other->objs) {
+        root_this->objs[obj] = root_other->objs[obj];
+    }
+    // std::set::merge has move semantics
+    root_this->root_objs.merge(root_other->root_objs);
+    root_other->root_objs.clear();
 }

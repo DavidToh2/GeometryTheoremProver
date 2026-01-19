@@ -32,7 +32,9 @@ public:
 
     /* Comparison operator for CartesianPoints. Compares x-coordinates followed by y-coordinates.
     Useful for signed lengths for the AREngine. */
-    auto operator<=>(const CartesianPoint &other) const;
+    auto operator<=>(const CartesianPoint &other) const {
+        return (x <=> other.x != 0) ? (x <=> other.x) : (y <=> other.y);
+    }
 
     bool is_same(const CartesianPoint& other) const;
     static bool is_same(const CartesianPoint& p1, const CartesianPoint& p2);
@@ -89,7 +91,9 @@ public:
     /* Compares the gradients of the two lines. Useful for signed angles for the AREngine. (Note:
     This functionality is not used as Cartesian::angle_of() is less prone to numerical instability
     and serves the same purpose.) */
-    auto operator<=>(const CartesianLine &other) const;
+    auto operator<=>(const CartesianLine &other) const {
+        return (b * other.a <=> other.b * a);
+    }
 
     constexpr std::string to_string() const {
         return std::to_string(a) + "x + " + std::to_string(b) + "y + " + std::to_string(c) + " = 0";

@@ -53,9 +53,9 @@ bool Frac::operator==(Frac &&other) {
 const bool Frac::operator!=(const Frac &other) {
     return (this->num != other.num) || (this->den != other.den);
 }
-const bool Frac::operator<(const Frac &other) const {
-    return (this->num * other.den) < (other.num * this->den);
-}
+// const bool Frac::operator<(const Frac &other) const {
+//     return (this->num * other.den) < (other.num * this->den);
+// }
 auto Frac::operator<=>(const Frac &other) const {
     return (this->num * other.den) <=> (other.num * this->den);
 }
@@ -65,6 +65,7 @@ double Frac::to_double() const {
 }
 std::pair<Frac, double> Frac::from_double(double d) {
     Frac f = Frac(d);
+    bool b = f < f;
     return {f, f.to_double()};
 }
 

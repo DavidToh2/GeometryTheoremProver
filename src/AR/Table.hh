@@ -54,7 +54,14 @@ namespace Expr {
 
 /* Table class.
 
-`Var` stands for variable representing either `Direction` or `Length`.
+`Var` stands for variable. Our table is structured around manipulating equations
+where every `Value` object is represented by two `Var`s. For example,
+- an angle table would store every `Angle` as two `Direction` `Var`s,
+- a ratio table would store every `Ratio` as two `Length` `Var`s,
+- and a displacement table would store every directed segment as two `Displacement`
+`Var`s.
+This representation allows for the "creation" of new `Value`s with new combinations
+of their representative `Var`s.
 
 ## Attributes
 
@@ -95,7 +102,7 @@ satisfying `v1 - v2 = (u0*c0 + ... + un*cn)`. (In other words, every `Expr` is m
 a corresponding `EqualGroup`). 
 For `N = 2`, every `EqualGroup` contains pairs of `Var` s whose ratios are the same. Note
 that this doesn't really make sense outside of the case where the `Var` s are segment
-lengths, so this is only used by `RatioTable` to store length ratios.
+lengths, so this is only used by `ratio_table` to store length ratios.
 For `N = 3`, every `EqualGroup` contains `(v1, v2)` satisfying `v1 - v2 = const * f`.
 With `N = 4`, we store the general case.
 
@@ -109,8 +116,8 @@ for each variable, and is used to check if expressions being added are already k
 the `Table`.
 
 Invariant: Every expression in `M_var_to_expr` should only contain free variables. As a
-result, no variable ordering is necessary here - any variable is either free or not free,
-and that is sufficient.
+result, no variable ordering is necessary here - any variable is either free or not free, and 
+that is sufficient.
 
 ## Adding expressions
 
@@ -153,7 +160,6 @@ public:
     std::map<Expr::Var, int> var_to_idx;
     std::vector<double> c;
     std::vector<Predicate*> deps;
-    LinProg lp_solver;
 
     std::map<Expr::Var, Expr::Expr> M_var_to_expr;
     std::set<EqualGroup> equal_groups;
@@ -216,19 +222,21 @@ public:
     bool add_eq(const Expr::Expr& expr, Predicate* pred);
 
     /* Adds an expression of the form `var1*m - var2*n = 0` to the `Table`.
-    Used by `RatioTable` to `add_const_ratio`. */
+    Use this function to record variables which are equivalent, passing `m=n=1`.
+    Used by `angle_table` to `add_para`.
+    Used by `ratio_table` to `add_cong`.
+    Used by `distance_table` to `update_point/line_merger`s. */
     bool add_eq_2(const Expr::Var& var1, const Expr::Var& var2, float m, float n, Predicate* pred);
 
     /* Adds an expression of the form `var1 - var2 = f` to the `Table`. 
-    Used by `RatioTable` to `add_eq` (with `f = 0`).
-    Used by `AngleTable` to `add_const_angle` and `add_para` (the former includes the
-    special case `add_perp` with `f = 0.5`, and the latter takes `f = 0`). */
+    Used by `angle_table` to `add_const_angle` and `add_perp`.
+    Used by `ratio_table` to `add_const_ratio` (passing in `std::log(m/n)`). */
     bool add_eq_3(const Expr::Var& var1, const Expr::Var& var2, float f, Predicate* pred);
 
     /* Adds an expression of the form `var1 - var2 - var3 + var4 = 0` to the `Table`.
-    Used by `RatioTable` to `add_eqratio`.
-    Used by `AngleTable` to `add_eqangle`.
-    Used by `DistanceTable` to `add_cong`. */
+    Used by `angle_table` to `add_eqangle`.
+    Used by `ratio_table` to `add_eqratio`.
+    Used by `distance_table` to `add_cong`. */
     bool add_eq_4(const Expr::Var& var1, const Expr::Var& var2, const Expr::Var& var3, const Expr::Var& var4, Predicate* pred, Expr::Expr offset = {});
 
 
@@ -327,25 +335,26 @@ public:
     to be the same, i.e. satisfying `v1 - v2 = 0`.
     Note: Because of the way `is_eq_2_seen()` works, each unordered pair is only yielded once.
 
-    Used by `AngleTable` to `get_all_paras`.
-    Used by `RatioTable` to `get_all_congs`. */
+    Used by `angle_table` to `get_all_paras`.
+    Used by `ratio_table` to `get_all_congs`. */
     Generator<std::tuple<Expr::Var, Expr::Var, std::vector<Predicate*>>> get_all_eq_2s_and_why();
 
     /* Returns all unordered pairs of distinct variables `(v1, v2)` and float `f` which have
     been deduced to satisfy `v1 - v2 = f`.
     Note: Because of the way `is_eq_3_seen()` works, each unordered pair is only yielded once.
 
-    Used by `AngleTable` to `get_all_const_angles`.
-    Used by `RatioTable` to `get_all_const_ratios`. */
+    Used by `angle_table` to `get_all_const_angles`. (This includes `perp`s.)
+    Used by `ratio_table` to `get_all_const_ratios`. */
     Generator<std::tuple<Expr::Var, Expr::Var, Frac, std::vector<Predicate*>>> get_all_eq_3s_and_why();
 
     /* Returns all unordered 4-tuples of distinct variables `((v1, v2), (v3, v4))` which have
     been deduced to satisfy `v1 - v2 = v3 - v4`.
     Note: Because of the way `is_eq_4_seen()` works, each unordered 4-tuple is only yielded 
-    once.
+    once. 
 
-    Used by `AngleTable` to `get_all_eqangles`.
-    Used by `RatioTable` to `get_all_eqratios`. */
+    Used by `angle_table` to `get_all_eqangles`.
+    Used by `ratio_table` to `get_all_eqratios`.
+    Used by `displacement_table` to `get_all_congs`. */
     Generator<std::tuple<Expr::Var, Expr::Var, Expr::Var, Expr::Var, std::vector<Predicate*>>> get_all_eq_4s_and_why();
 
 

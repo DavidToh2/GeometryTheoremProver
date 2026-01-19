@@ -2,6 +2,7 @@
 #include <map>
 #include <vector>
 
+#include "Common/Exceptions.hh"
 #include "Node.hh"
 #include "Value.hh"
 #include "Object.hh"
@@ -69,10 +70,10 @@ void Point::set_this_on(Line* l, Predicate* pred) {
     Line* rl = NodeUtils::get_root(l);
     if (on_root_line.contains(rl)) return;
 
-    if (!Utils::isinmap(l, on_line)) {
+    if (!on_line.contains(l)) {
         on_line[l] = std::map<Point*, Predicate*>();
     }
-    if (!Utils::isinmap(this, on_line[l])) {
+    if (!on_line[l].contains(this)) {
         on_line[l][this] = pred;
     }
     on_root_line.insert(rl);
@@ -82,14 +83,26 @@ void Point::set_this_on(Circle* c, Predicate* pred) {
     Circle* rc = NodeUtils::get_root(c);
     if (on_root_circle.contains(rc)) return;
 
-    if (!Utils::isinmap(c, on_circle)) {
+    if (!on_circle.contains(c)) {
         on_circle[c] = std::map<Point*, Predicate*>();
     }
-    if (!Utils::isinmap(this, on_circle[c])) {
+    if (!on_circle[c].contains(this)) {
         on_circle[c][this] = pred;
     }
     on_root_circle.insert(rc);
     rc->points[this] = pred;
+}
+void Point::set_this_endpoint_of(Segment* s, Predicate* pred) {
+    Segment* rs = NodeUtils::get_root(s);
+    if (endpoint_of_root_segment.contains(rs)) return;
+
+    if (!endpoint_of_segment.contains(s)) {
+        endpoint_of_segment[s] = std::map<Point*, Predicate*>();
+    }
+    if (!endpoint_of_segment[s].contains(this)) {
+        endpoint_of_segment[s][this] = pred;
+    }
+    endpoint_of_root_segment.insert(rs);
 }
 
 bool Point::is_this_on(Line* l) {
@@ -121,8 +134,8 @@ Predicate* Point::__why_on(Line* l) {
     Line* rl = NodeUtils::get_root(l);
     Point* rp = NodeUtils::get_root(this);
     if (rp->on_root_line.contains(rl)) {
-        if (Utils::isinmap(l, rp->on_line)) {
-            if (Utils::isinmap(this, rp->on_line[l])) {
+        if (rp->on_line.contains(l)) {
+            if (rp->on_line[l].contains(this)) {
                 return rp->on_line[l][this];
             }
         }
@@ -162,34 +175,39 @@ void Point::merge(Point* other, Predicate* pred) {
     root_other->parent_why = pred;
     root_other->root = root_this;
 
-    for (const auto& l : root_other->on_root_line) {
+    for (Line* l : root_other->on_root_line) {
         Utils::replace_key_in_map(l->points, root_other, root_this);
     }
-    for (const auto& c : root_other->on_root_circle) {
+    for (Circle* c : root_other->on_root_circle) {
         Utils::replace_key_in_map(c->points, root_other, root_this);
     }
 
     Point::merge_dmaps(root_this->on_line, root_other->on_line);
     Point::merge_dmaps(root_this->on_circle, root_other->on_circle);
+    Point::merge_dmaps(root_this->endpoint_of_segment, root_other->endpoint_of_segment);
 
     // std::set::merge has move semantics
     root_this->on_root_line.merge(root_other->on_root_line);
     root_this->on_root_circle.merge(root_other->on_root_circle);
+
+    Segment::check_segments_with_endpoint(root_this, root_other, pred);
 }
 
 
 
 
 
-void Line::set_direction(Direction* d, Predicate* base_pred) {
+void Line::set_direction(Direction* d, Predicate* pred) {
     Line* root_this = NodeUtils::get_root(this);
     Direction* root_d = NodeUtils::get_root(d);
-    if (root_this->__has_direction() && root_this->__get_direction() == root_d) return;
-
-    root_this->direction = root_d;
-    root_this->direction_why = base_pred;
-    root_d->objs[this] = base_pred;
-    root_d->root_objs.insert(root_this);
+    if (root_this->__has_direction()) {
+        root_this->direction->merge(root_d, pred);
+    } else {
+        root_this->direction = root_d;
+        root_this->direction_why = pred;
+        root_d->objs[this] = pred;
+        root_d->root_objs.insert(root_this);
+    }
 }
 bool Line::__has_direction() {
     return (direction != nullptr);
@@ -224,7 +242,7 @@ void Line::merge(Line* other, Predicate* pred) {
     root_other->root = root_this;
 
     for (const auto& [pt, _] : root_other->points) {
-        if (!Utils::isinmap(pt, root_this->points)) {
+        if (!root_this->points.contains(pt)) {
             pt->on_root_line.erase(root_other);
             pt->set_this_on(root_this, pred);
         }
@@ -310,7 +328,7 @@ void Circle::merge(Circle* other, Predicate* pred) {
     root_other->root = root_this;
 
     for (const auto& [pt, _] : root_other->points) {
-        if (!Utils::isinmap(pt, root_this->points)) {
+        if (!root_this->points.contains(pt)) {
             pt->on_root_circle.erase(root_other);
             pt->set_this_on(root_this, pred);
         }
@@ -321,5 +339,83 @@ void Circle::merge(Circle* other, Predicate* pred) {
     if (c_other) {
         if (c_this) c_this->merge(c_other, pred);
         else root_this->__set_center(c_this, pred);
+    }
+}
+
+
+
+
+void Segment::set_length(Length* l, Predicate* pred) {
+    Segment* root_this = NodeUtils::get_root(this);
+    Length* root_l = NodeUtils::get_root(l);
+    if (root_this->__has_length()) {
+        root_this->length->merge(root_l, pred);
+    } else {
+        root_this->length = root_l;
+        root_this->length_why = pred;
+        root_l->objs[this] = pred;
+        root_l->root_objs.insert(root_this);
+    }
+}
+bool Segment::__has_length() {
+    return (length != nullptr);
+}
+bool Segment::has_length() {
+    return NodeUtils::get_root(this)->__has_length();
+}
+Length* Segment::__get_length() {
+    Length* l = NodeUtils::get_root(length);
+    if (l != length) length = l;
+    return l;
+}
+Length* Segment::get_length() {
+    return NodeUtils::get_root(this)->__get_length();
+}
+
+Line* Segment::__get_line() {
+    Line* l = NodeUtils::get_root(on_line);
+    if (l != on_line) on_line = l;
+    return l;
+}
+Line* Segment::get_line() {
+    return NodeUtils::get_root(this->__get_line());
+}
+
+void Segment::merge(Segment* other, Predicate* pred) {
+    Segment* root_this = NodeUtils::get_root(this);
+    Segment* root_other = NodeUtils::get_root(other);
+    if (root_this == root_other) {
+        return;
+    }
+    root_other->parent = root_this;
+    root_other->parent_why = pred;
+    root_other->root = root_this;
+
+    root_this->points.merge(root_other->points);
+
+    root_this->length->merge(root_other->length, pred);
+}
+void Segment::check_segments_with_endpoint(Point *p, Point *other_p, Predicate *pred) {
+    std::map<Point*, Segment*> stp1;
+    for (Segment* s : p->endpoint_of_root_segment) {
+        Point* p1 = s->other_endpoint(p);
+        if (p1 == other_p) {
+            throw GGraphInternalError("Segment::check_segments_with_endpoint(): The segment " 
+                    + s->name + " has the two endpoints " + p->name + " and " + other_p->name + ", which are being merged.");
+        }
+        stp1[p1] = s;
+    }
+    for (Segment* s : other_p->endpoint_of_root_segment) {
+        Point* p2 = s->other_endpoint(other_p);
+        if (p2 == p) {
+            throw GGraphInternalError("Segment::check_segments_with_endpoint(): The segment " 
+                    + s->name + " has the two endpoints " + p->name + " and " + other_p->name + ", which are being merged.");
+        }
+        if (stp1.contains(p2)) {
+            Segment* s1 = stp1[p2];
+            s->merge(s1, pred);
+            p->endpoint_of_root_segment.erase(s1);
+            p2->endpoint_of_root_segment.erase(s1);
+        }
     }
 }

@@ -7,7 +7,7 @@
 #include "Numerics/Cartesian.hh"
 #include "Numerics/Numerics.hh"
 
-#define DEBUG_NUMENGINE 1
+#define DEBUG_NUMENGINE 0
 
 #if DEBUG_NUMENGINE
     #define LOG(x) do {std::cout << x << std::endl;} while(0)
@@ -547,7 +547,7 @@ bool NumEngine::compute_one(Numeric* num) {
             point_to_cartesian_objs[num->outs[i++]].emplace_back(gen());
         }
     } else {
-        throw NumericsInternalError("NumEngine::compute_one(): No compute function for numeric " + Utils::to_num_str(name));
+        throw NumericsInternalError("NumEngine::compute_one(): No compute function for numeric " + num->to_string());
     }
     return true;
 }
@@ -563,12 +563,12 @@ void NumEngine::compute() {
             it++;
         } else {
             if (!computing) {
-                throw NumericsInternalError("NumEngine::compute(): Could not compute numeric " + Utils::to_num_str(num->name) + " due to unresolved dependencies.");
+                throw NumericsInternalError("NumEngine::compute(): Could not compute numeric " + num->to_string() + " due to unresolved dependencies.");
                 return;
             }
             computing = false;
             if (!resolve()) {
-                LOG("NumEngine::compute(): Resolution for numeric " << Utils::to_num_str(num->name) << " has discrepancies.");
+                LOG("NumEngine::compute(): Resolution for numeric " << num->to_string() << " has discrepancies.");
             }
         }
     }
@@ -588,7 +588,7 @@ void NumEngine::update_resolved_radius(CartesianPoint cp) {
 
 bool NumEngine::resolve_one(Point* p) {
 
-    switch(point_to_cartesian_objs[p].size()) {
+    switch(point_to_cartesian_objs.at(p).size()) {
         case 0:
         case 1: {
             // do nothing
@@ -640,13 +640,48 @@ bool NumEngine::resolve_one(Point* p) {
             LOG("Resolved point " << p->to_string() << " to Cartesian " << point_to_cartesian[p][0].to_string());
             return true;
         default:
-            LOG("Resolved point " << p->to_string() << " to Cartesian " << point_to_cartesian[p][0].to_string() << " with discrepancies");
-            std::string other_candidates = "";
-            for (size_t i = 1; i < point_to_cartesian[p].size(); i++) {
-                other_candidates += point_to_cartesian[p][i].to_string() + " ";
+            std::vector<std::pair<CartesianPoint, int>> candidates;
+            for (auto it = point_to_cartesian[p].begin(); it != point_to_cartesian[p].end(); ) {
+                CartesianPoint cp = *it;
+                bool found = false;
+                for (auto& [avg, i] : candidates) {
+                    if (CartesianPoint::is_close(cp, avg)) {
+                        avg = (avg * i + cp) / (i + 1);
+                        i += 1;
+                        found = true;
+                        break;
+                    }
+                }
+                // We DO want to allow points with identical Numerics. It is up to us to ensure that construction rules
+                // correctly specify distinct points where needed.
+                // if (!found) {
+                //     if (check_against_existing_point_numerics(cp)) {
+                //         found = true;
+                //     }
+                // }
+                if (!found) { candidates.emplace_back(cp, 1); }
+                it = point_to_cartesian[p].erase(it);
             }
-            LOG("Other candidates were: " << other_candidates);
-            return false;
+            if (candidates.empty()) {
+                throw GGraphInternalError("NumEngine::resolve_one(): No viable candidate numeric for point " + p->to_string());
+            }
+            int max = 0, num_candidates = candidates.size();
+            std::string all_candidates = "";
+            for (auto it = candidates.begin(); it != candidates.end(); ) {
+                all_candidates += it->first.to_string() + " ";
+                point_to_cartesian[p].emplace_back(it->first);
+                if (it->second > max) {
+                    max = it->second;
+                    ++it;
+                } else {
+                    it = candidates.erase(it);
+                }
+            }
+            point_to_cartesian[p].emplace_back(candidates.rbegin()->first);
+            update_resolved_radius(point_to_cartesian[p].back());
+            LOG("Resolved point " << p->to_string() << " to Cartesian " << point_to_cartesian[p].back().to_string() 
+                    << " among candidates: " << all_candidates);
+            return (num_candidates == 1);
     }
 }
 bool NumEngine::resolve() {
@@ -679,14 +714,25 @@ bool NumEngine::final_resolve() {
     }
     return res;
 }
+bool NumEngine::check_against_existing_point_numerics(CartesianPoint &c) {
+    for (auto &[p, status] : point_status) {
+        if (status >= ComputationStatus::RESOLVED) {
+            if (CartesianPoint::is_close(c, get_cartesian(p))) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 
 
 
 void NumEngine::reset_computation() {
-    for (auto & [p, _] : point_status) {
+    for (auto & [p, status] : point_status) {
         point_to_cartesian[p].clear();
         point_to_cartesian_objs[p].clear();
-        point_status[p] = ComputationStatus::UNCOMPUTED;
+        status = ComputationStatus::UNCOMPUTED;
     }
 
     num_resolved = 0;

@@ -74,7 +74,6 @@ public:
     /* Populate newly resolved CartesianPoints from the NumEngine into our numeric
     maps */
     void initialise_point_numerics(NumEngine &nm);
-    bool check_against_existing_point_numerics(CartesianPoint &c);
     
     CartesianLine compute_line_from_points(Point* p1, Point* p2);
     CartesianRay compute_ray_from_points(Point* start, Point* head);
@@ -126,7 +125,7 @@ public:
     /* Add a new direction to the line `l`.
     Note: Assumes that `l` is a root node. 
     Note: Assumes that `l` does not already have a direction set. (If it does, then the old direction is
-    overwritten: see `Line::set_direction()` for details.)*/
+    merged into the new one: see `Line::set_direction()` for details.)*/
     Direction* __add_new_direction(Line* l, Predicate* base_pred);
     /* Gets the root direction of the root node of line `l`, or creates a new direction for the root of `l` if none
     yet exists. */
@@ -192,6 +191,43 @@ public:
 
     /* Merges the root of `src` circle into the root of `dest` circle. */
     void merge_circles(Circle* dest, Circle* src, Predicate* pred);
+
+    
+    /* Adds the segment `p1p2`. Supply the line `l` that this segment lies on.
+    Note: `p1` and `p2` should be root nodes.
+    Note: Segments are always added so that their endpoints are ordered based on the ordering of
+    the CartesianPoint comparator. */
+    Segment* __add_new_segment(Point* p1, Point* p2, Line* l, Predicate* base_pred);
+    /* Gets the segment `p1p2`.
+    Returns `nullptr` if no such segment exists.
+    Note: `p1` and `p2` should be root nodes, as an exact endpoint match is sought. */
+    Segment* __try_get_segment(Point* p1, Point* p2);
+    /* Gets the segment `rp1rp2`, creating a new segment if it does not yet exist.
+    Note: Segments are always added so that their endpoints are ordered based on the ordering of
+    the CartesianPoint comparator. */
+    Segment* get_or_add_segment(Point* p1, Point* p2, DDEngine &dd);
+    /* Gets the segment `rp1rp2`, returning `nullptr` if no such segment exists. */
+    Segment* try_get_segment(Point* p1, Point* p2);
+
+    /* Merges the root of `src` segment into the root of `dest` segment. */
+    void merge_segments(Segment* dest, Segment* src, Predicate* pred);
+
+
+    /* Adds a new length to the segment `s`. 
+    Note: Assumes that `s` is a root segment. 
+    Note: `s` should not yet have a length set. If it does, the old length is merged into the new
+    one. See `Segment::set_length()` for details. */
+    Length* __add_new_length(Segment* s, Predicate* base_pred);
+    /* Gets the length of the root of segment `s`, creating a new length if it does not yet exist. */
+    Length* get_or_add_length(Segment* s, DDEngine &dd);
+    /* Given a length `l`, gets any root segment with this length. */
+    Segment* get_segment_from_length(Length* l);
+
+    /* Merges the lengths of the root of segment `s_other` into the root of segment `s`. 
+    Warning: Assumes that both `s` and `s_other` already have lengths set. */
+    void set_lengths_cong(Segment* s, Segment* s_other, Predicate* pred);
+    /* Merges the root of `l_other` length into the root of `l` length. */
+    void set_lengths_cong(Length* l, Length* l_other, Predicate* pred);
 
 
     /* Adds the angle with first direction `d1` and second direction `d2`.
@@ -263,6 +299,21 @@ public:
     The angle is created if it does not yet exist. */
     Angle* get_or_add_angle(Point* p1, Point* p2, Point* p3, DDEngine& dd);
 
+
+    Ratio* __add_new_ratio(Length* l1, Length* l2, Predicate* base_pred);
+    Ratio* __add_new_ratio(Segment* s1, Segment* s2, Predicate* base_pred);
+
+    Ratio* __try_get_ratio(Length* l1, Length* l2);
+    Ratio* __try_get_ratio(Segment* s1, Segment* s2);
+
+    Ratio* try_get_ratio(Length* l1, Length* l2);
+    Ratio* try_get_ratio(Segment* s1, Segment* s2);
+
+    Ratio* get_or_add_ratio(Length* l1, Length* l2, DDEngine& dd);
+    Ratio* get_or_add_ratio(Segment* s1, Segment* s2, DDEngine& dd);
+
+    
+
     /* Gets a pair of root lines making up an angle. */
     constexpr std::pair<Line*, Line*> get_lines_from_angle(Angle* a);
     /* Gets a quadruple of root points a, b, c, d making up an angle. */
@@ -310,6 +361,10 @@ public:
     bool check_perp(Line* l1, Line* l2);
     bool check_perp(Direction* d1, Direction* d2);
 
+    bool check_cong(Point* p1, Point* p2, Point* p3, Point* p4);
+    bool check_cong(Segment* s1, Segment* s2);
+    bool check_cong(Length* l1, Length* l2);
+
     bool check_eqangle(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Point* p7, Point* p8);
     bool check_eqangle(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6);
     bool check_eqangle(Line* l1, Line* l2, Line* l3, Line* l4);
@@ -331,7 +386,7 @@ public:
     bool make_perp(Predicate* pred, DDEngine &dd, AREngine &ar);
     bool make_ar_perp(Predicate* pred);
     bool make_cong(Predicate* pred, DDEngine &dd, AREngine &ar);
-    bool make_ar_cong(Predicate* pred);
+    bool make_ar_cong(Predicate* pred, DDEngine& dd);
     bool make_eqangle(Predicate* pred, DDEngine &dd, AREngine &ar);
     bool make_ar_eqangle(Predicate* pred, DDEngine& dd);
     bool make_eqratio(Predicate* pred, DDEngine &dd, AREngine &ar);
@@ -339,7 +394,7 @@ public:
     bool make_contri(Predicate* pred, DDEngine &dd);
     bool make_simtri(Predicate* pred, DDEngine &dd);
     bool make_circle(Predicate* pred, DDEngine &dd);
-    bool make_constangle(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool make_const_angle(Predicate* pred, DDEngine &dd, AREngine &ar);
     bool make_ar_constangle(Predicate* pred, DDEngine& dd);
     bool make_constratio(Predicate* pred, DDEngine &dd, AREngine &ar);
     bool make_ar_constratio(Predicate* pred);

@@ -9,7 +9,7 @@
 #include "Geometry/GeometricGraph.hh"
 #include "Common/NumUtils.hh"
 
-#define DEBUG_ARENGINE 0
+#define DEBUG_ARENGINE 1
 
 #if DEBUG_ARENGINE
     #define LOG(x) do {std::cout << x << std::endl;} while(0)
@@ -31,6 +31,9 @@ std::vector<Length*> AREngine::__get_lengths(const std::vector<Expr::Var>& vars)
     }
     return result;
 }
+
+
+
 
 void AREngine::add_const_angle(
     Direction* d1, Direction* d2, float f, Predicate* pred
@@ -54,7 +57,7 @@ void AREngine::add_para(
 ) {
     Expr::Var var1 = __get_var(d1);
     Expr::Var var2 = __get_var(d2);
-    angle_table.add_eq_3(var1, var2, 0, pred);
+    angle_table.add_eq_2(var1, var2, 1, 1, pred);
 }
 void AREngine::add_perp(
     Direction* d1, Direction* d2, Predicate* pred
@@ -64,12 +67,23 @@ void AREngine::add_perp(
     angle_table.add_eq_3(var1, var2, 0.5, pred);
 }
 
-void AREngine::add_const_ratio(
+
+
+
+
+void AREngine::add_constratio(
+    Length* l1, Length* l2, float f, Predicate* pred
+) {
+    Expr::Var var1 = __get_var(l1);
+    Expr::Var var2 = __get_var(l2);
+    ratio_table.add_eq_3(var1, var2, std::log(f), pred);
+}
+void AREngine::add_constratio(
     Length* l1, Length* l2, float m, float n, Predicate* pred
 ) {
     Expr::Var var1 = __get_var(l1);
     Expr::Var var2 = __get_var(l2);
-    ratio_table.add_eq_2(var1, var2, m, n, pred);
+    ratio_table.add_eq_3(var1, var2, std::log(m/n), pred);
 }
 void AREngine::add_eqratio(
     Length* l1, Length* l2, Length* l3, Length* l4, Predicate* pred
@@ -80,17 +94,53 @@ void AREngine::add_eqratio(
     Expr::Var var4 = __get_var(l4);
     ratio_table.add_eq_4(var1, var2, var3, var4, pred);
 }
+
+
+
+void AREngine::update_point_merger(Point* dest, Point* src, Predicate* pred) {
+    for (auto& [var, disp] : var_to_displacement) {
+        if (disp.p == src) {
+            disp.p = dest;
+        }
+        Expr::Var new_var = __get_var(disp);
+        displacement_table.add_eq_2(var, new_var, 1, 1, pred);
+    }
+}
+void AREngine::update_line_merger(Line* dest, Line* src, Predicate* pred) {
+    for (auto& [var, disp] : var_to_displacement) {
+        if (disp.l == src) {
+            disp.l = dest;
+        }
+        Expr::Var new_var = __get_var(disp);
+        displacement_table.add_eq_2(var, new_var, 1, 1, pred);
+    }
+}
 void AREngine::add_cong(
-    Length* l1, Length* l2, Predicate* pred
+    Segment* s1, Segment* s2, Predicate* pred
 ) {
+    Length* l1 = s1->get_length();
+    Length* l2 = s2->get_length();
     Expr::Var var1 = __get_var(l1);
     Expr::Var var2 = __get_var(l2);
     ratio_table.add_eq_2(var1, var2, 1, 1, pred);
+
+    auto [p1, p2] = s1->endpoints;
+    auto [p3, p4] = s2->endpoints;
+    Expr::Var disp_var1 = __get_var(Displacement{s1->get_line(), p1});
+    Expr::Var disp_var2 = __get_var(Displacement{s1->get_line(), p2});
+    Expr::Var disp_var3 = __get_var(Displacement{s2->get_line(), p3});
+    Expr::Var disp_var4 = __get_var(Displacement{s2->get_line(), p4});
+    displacement_table.add_eq_4(disp_var1, disp_var2, disp_var3, disp_var4, pred);
 }
 
 
+
+
+
+
+
 Generator<std::tuple<Direction*, Direction*, double, std::vector<Predicate*>>> 
-AREngine::get_all_const_angles_and_why() {
+AREngine::get_all_constangles_and_why() {
     auto gen = angle_table.get_all_eq_3s_and_why();
     while (gen) {
         auto [var1, var2, f, _why] = gen();
@@ -125,8 +175,10 @@ AREngine::get_all_paras_and_why() {
     co_return;
 }
 
+
+
 Generator<std::tuple<Length*, Length*, double, std::vector<Predicate*>>> 
-AREngine::get_all_const_ratios_and_why() {
+AREngine::get_all_constratios_and_why() {
     auto gen = ratio_table.get_all_eq_3s_and_why();
     while (gen) {
         auto [var1, var2, f, _why] = gen();
@@ -149,25 +201,48 @@ AREngine::get_all_eqratios_and_why() {
     }
     co_return;
 }
+
+
+
 Generator<std::tuple<Length*, Length*, std::vector<Predicate*>>> 
-AREngine::get_all_congs_and_why() {
-    auto gen = ratio_table.get_all_eq_2s_and_why();
-    while (gen) {
-        auto [var1, var2, _why] = gen();
+AREngine::get_all_congs_and_why_1() {
+    auto gen1 = ratio_table.get_all_eq_2s_and_why();
+    while (gen1) {
+        auto [var1, var2, _why] = gen1();
         Length* l1 = __get_length(var1);
         Length* l2 = __get_length(var2);
         co_yield {l1, l2, _why};
     }
     co_return;
 }
+Generator<std::tuple<Point*, Point*, Point*, Point*, std::vector<Predicate*>>> 
+AREngine::get_all_congs_and_why_2() {
+    auto gen2 = displacement_table.get_all_eq_4s_and_why();
+    while (gen2) {
+        auto [var1, var2, var3, var4, _why] = gen2();
+        Displacement disp1 = __get_displacement(var1);
+        Displacement disp2 = __get_displacement(var2);
+        Displacement disp3 = __get_displacement(var3);
+        Displacement disp4 = __get_displacement(var4);
+        if (NodeUtils::same_as(disp1.l, disp2.l) && NodeUtils::same_as(disp3.l, disp4.l)) {
+            co_yield {disp1.p, disp2.p, disp3.p, disp4.p, _why};
+        } 
+        if (NodeUtils::same_as(disp1.l, disp3.l) && NodeUtils::same_as(disp2.l, disp4.l)) {
+            co_yield {disp1.p, disp3.p, disp2.p, disp4.p, _why};
+        }
+    }
+}
+
+
 
 void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
 
     angle_table.generate_all_eqs();
 
+    LOG("Angle table:");
     LOG(angle_table.__print_A() << std::endl << angle_table.__print_M());
 
-    auto gen_const_angle = get_all_const_angles_and_why();
+    auto gen_const_angle = get_all_constangles_and_why();
     while (gen_const_angle) {
         auto [d1, d2, f, why] = gen_const_angle();
         if (NumUtils::is_close(f, 90)) {
@@ -199,9 +274,57 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
             std::make_unique<Predicate>(
                 pred_t::PARA, std::vector<Node*>{d1, d2}, std::move(why))
         );
-    }   
+    }
 
-    // ratio_table.get_all_eqs();
+
+
+    ratio_table.generate_all_eqs();
+
+    LOG("Ratio table:");
+    LOG(ratio_table.__print_A() << std::endl << ratio_table.__print_M());
+
+    auto gen_cong_1 = get_all_congs_and_why_1();
+    while (gen_cong_1) {
+        auto [l1, l2, why] = gen_cong_1();
+        dd.insert_predicate(
+            std::make_unique<Predicate>(
+                pred_t::CONG, std::vector<Node*>{l1, l2}, std::move(why))
+        );
+    }
+
+    auto gen_const_ratio = get_all_constratios_and_why();
+    while (gen_const_ratio) {
+        auto [l1, l2, f, why] = gen_const_ratio();
+        dd.insert_predicate(
+            std::make_unique<Predicate>(
+                pred_t::CONSTRATIO, std::vector<Node*>{l1, l2}, f, std::move(why))
+        );
+    }
+
+    auto gen_eqratio = get_all_eqratios_and_why();
+    while (gen_eqratio) {
+        auto [l1, l2, l3, l4, why] = gen_eqratio();
+        dd.insert_predicate(
+            std::make_unique<Predicate>(
+                pred_t::EQRATIO, std::vector<Node*>{l1, l2, l3, l4}, std::move(why))
+        );
+    }
+
+
+
+    displacement_table.generate_all_eqs();
+
+    LOG("Displacement table:");
+    LOG(displacement_table.__print_A() << std::endl << displacement_table.__print_M());
+
+    auto gen_cong_2 = get_all_congs_and_why_2();
+    while (gen_cong_2) {
+        auto [p1, p2, p3, p4, why] = gen_cong_2();
+        dd.insert_predicate(
+            std::make_unique<Predicate>(
+                pred_t::CONG, std::vector<Node*>{p1, p2, p3, p4}, std::move(why))
+        );
+    }
 }
 
 void AREngine::reset_problem() {
