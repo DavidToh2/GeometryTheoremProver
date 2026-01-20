@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <optional>
 
 #include "Node.hh"
 #include "Common/Generator.hh"
@@ -63,23 +64,50 @@ public:
 
 /* Point class.
 
-`on_circle` and `on_line` need not store root circles and line nodes. As a result, multiple `Object` keys may 
-exist in these maps with the same root.
-They are only read for traceback purposes, and are only written to when Point nodes are merged (using the
-`Point::merge_dmaps` function).
+## Maps to individual nodes for traceback
 
-`on_root_circle` and `on_root_line` store the root circles and lines that this point lies on. They are written 
-to when other `Object` nodes are merged.
-Only root point nodes populate their `on_` maps and `on_root_` sets. All other points have empty `on_` maps and 
-`on_root_` sets.
+The `on_` and `_of_` maps store the objects that this point lies on, at the point at which it was placed onto
+them, as well as its own identity at the point at which it happened. This is an immutable record that is not
+changed regardless of future merges. This helps keep track of the exact relationships between nodes for later
+traceback. 
+
+When this point is later merged, the reasons for the merges are appended to the `why` s stored in these maps.
+For example, if point `p1` is placed onto line `l` because of reason `pred1`, then `p1` is merged into `p2` 
+with reason `pred2`, the record `p2->on_line[l][p1] = { pred1, pred2 }`.
+
+When an object (say a line `l1`) is merged into another (say `l2`) with reason `pred`:
+- every point `p` containing `l1` in `on_root_line` will replace it with `l2`; 
+- for each such `p`, its `p->on_line[l1]` may contain multiple entries `{ p1 : preds1, ... }`;
+- add `l2` to `on_line` so that `p->on_line[l2][pk] = { pred + preds1 }`.
+
+This allows for a traceback procedure as such: if point `p` was initially placed on line `l`, then after a
+series of merges the roots of `p` and `l` are `rp` and `rl`, then
+```
+    rp->on_line[rl][p] = (reasons for all the mergers) + p->on_line[l][p]
+```
+
+## Maps to root nodes for lookup
+
+Only root nodes shall populate the `on_` maps: this is guaranteed by `merge_dmaps()` which is invoked by
+`Point::merge()`.
+
+The `on_root_` and `_of_root_` sets store the root objects that this point lies on.
+
+Only root nodes shall populate the `on_root_` sets: this is guaranteed by `set::merge()` which is invoked by
+`Point::merge()` (and leaves behind remnants in the child nodes).
+
+After a merge, it is possible that some other `Object` s will now coincide and have to be merged. This logic
+is handlded by `GeometricGraph::merge_points()`.
 */
 class Point : public Node {
 public:
-    std::map<Line*, std::map<Point*, Predicate*>> on_line;
-    std::map<Circle*, std::map<Point*, Predicate*>> on_circle;
-    std::map<Segment*, std::map<Point*, Predicate*>> endpoint_of_segment;
+    std::map<Line*, std::map<Point*, PredVec>> on_line;
+    std::map<Circle*, std::map<Point*, PredVec>> on_circle;
+    std::map<Circle*, std::map<Point*, PredVec>> center_of_circle;
+    std::map<Segment*, std::map<Point*, PredVec>> endpoint_of_segment;
     std::set<Line*> on_root_line;
     std::set<Circle*> on_root_circle;
+    std::set<Circle*> center_of_root_circle;
     std::set<Segment*> endpoint_of_root_segment;
 
     Point(std::string name) : Node(name) {}
@@ -98,6 +126,13 @@ public:
     Note: Assumes that `this` is a root node.
     Note: This function is idempotent. */
     void set_this_on(Circle* c, Predicate* pred);
+    /* Sets `this` point to be the center of circle `c`. What this does:
+    - Inserts `c` into `this->center_of_circle` along with `pred`;
+    - Inserts `root_c` into `this->center_of_root_circle`;
+    - Inserts `this` into `c->center` along with `pred`.
+    Note: Assumes that `this` is a root node.
+    Note: This function is idempotent. */
+    void set_this_center_of(Circle* c, Predicate* pred);
     /* Sets `this` point as an endpoint of segment `s`. This is called by the Segment constructor,
     and so should NOT be invoked when creating segments. What this does:
     - Inserts `s` into `this->endpoint_of_segment` along with `pred`;
@@ -125,14 +160,19 @@ public:
     bool is_on(Circle* c);
 
     /* Gets the predicate `on_line[l][this]` as stored in `root_this`. */
-    Predicate* __why_on(Line* l);
-    Predicate* why_on(Line* l);
-    Predicate* why_on(Circle* c);
+    PredVec __why_on(Line* l);
+    PredVec why_on(Line* l);
+    PredVec why_on(Circle* c);
 
-    /* Returns the root line nodes that this point is on */
+    /* Returns the root line nodes that the root of this point is on */
     Generator<Line*> on_lines();
-    /* Returns the root circle nodes that this point is on*/
+    /* Returns the root circle nodes that the root of this point is on*/
     Generator<Circle*> on_circles();
+    /* Returns the root circle nodes for which the root of this point is the center */
+    Generator<Circle*> center_of_circles();
+    /* Returns the root segment nodes that the root of this point is an endpoint of */
+    Generator<Segment*> endpoint_of_segments();
+    Generator<std::pair<Segment*, Segment*>> endpoint_of_segment_pairs();
 
     /* Merge two point nodes. We merge them at their root nodes; it is pointless to merge anywhere else. 
     The `on_circle` and `on_line` of `get_root(other)` are moved into that of `get_root(this)`.
@@ -143,15 +183,19 @@ public:
     /* Merge two `on_` records in some `Point` object. This empties the second record. */
     template <std::derived_from<Object> Key>
     static void merge_dmaps(
-        std::map<Key*, std::map<Point*, Predicate*>> &dest, 
-        std::map<Key*, std::map<Point*, Predicate*>> &src
+        std::map<Key*, std::map<Point*, PredVec>> &dest, 
+        std::map<Key*, std::map<Point*, PredVec>> &src, 
+        Predicate* pred
     ) {
         for (const auto& [obj, _] : src) {
             if (!Utils::isinmap(obj, dest)) {
-                dest[obj] = std::map<Point*, Predicate*>();
+                dest[obj] = std::map<Point*, PredVec>();
             }
             // Note: dest[obj] and src[obj] should not have any overlapping keys, since the only possible
             // keys are the children of dest and src respectively
+            for (const auto& [p, pv] : src[obj]) {
+                pv += pred;
+            }
             dest[obj].merge(src[obj]);
             src.erase(obj);
         }
@@ -260,7 +304,9 @@ public:
         p2->set_this_on(this, base_pred);
         p3->set_this_on(this, base_pred);
     }
-    Circle(std::string name, Point* c, Predicate* base_pred) : Object(name), center(c), center_why(base_pred) {}
+    Circle(std::string name, Point* c, Predicate* base_pred) : Object(name), center(c), center_why(base_pred) {
+
+    }
     Circle(std::string name, Point* c, Point* p1, Predicate* base_pred) : Object(name), center(c), center_why(base_pred) {
         points[p1] = base_pred;
         p1->set_this_on(this, base_pred);
@@ -272,9 +318,15 @@ public:
     /* Sets the center of the root node of `this` circle to the root of `p`.
     Note: If a center already exists, then it is merged into the root of `p`. */
     void set_center(Point* p, Predicate* pred);
-    /* Gets the root node representing the center of `this` circle. */
+    /* Checks if `this` circle has a center. */
+    bool __has_center();
+    /* Checks if the root of `this` circle has a center. */
+    bool has_center();
+    /* Gets the root node representing the center of `this` circle.
+    Warning: throws if `this` circle does not have a center. */
     Point* __get_center();
-    /* Gets the root node representing the center of the root of `this` circle. */
+    /* Gets the root node representing the center of the root of `this` circle.
+    Warning: throws if the root of `this` circle does not have a center. */
     Point* get_center();
 
     Predicate* why_center();
@@ -346,8 +398,24 @@ public:
     Line* __get_line();
     /* Gets the root node representing the line that the root of `this` segment lies on. */
     Line* get_line();
+    /* Checks if segments `s1` and `s2` lie on the same line. */
+    static bool on_same_line(Segment* s1, Segment* s2);
 
-    constexpr Point* other_endpoint(Point* p) { return (endpoints[0] == p) ? endpoints[1] : endpoints[0]; } 
+    /* Checks if the two endpoints of the segment are `p1, p2` or `p2, p1`.*/
+    constexpr bool has_endpoints(Point* p1, Point* p2) const {
+        return (
+            (endpoints[0] == p1 && endpoints[1] == p2) ||
+            (endpoints[0] == p2 && endpoints[1] == p1)
+        );
+    }
+    /* Returns the other endpoint of the segment given one endpoint `p`. 
+    Returns `nullptr` if `p` is not an endpoint of the segment. */
+    constexpr Point* other_endpoint(Point* p) const { 
+        return (
+            (endpoints[0] == p) ? endpoints[1] : 
+            ((endpoints[1] == p) ? endpoints[0] : nullptr)
+        ); 
+    } 
 
     Generator<Ratio*> on_ratios_as_segment1();
     Generator<Ratio*> on_ratios_as_segment2();
@@ -361,6 +429,7 @@ public:
     This function checks the second endpoints of those segments starting with `p`, as well as the endpoints of 
     those segments starting with `other_p`, and performs merges of segment pairs whose second endpoints coincide.
     In case a segment has one endpoint `p` and another `other_p`, an error is thrown. 
+    This function also replaces endpoint occurences of `other_p` with `p`.
     Note: Assumes that `p` and `other_p` are root points. */
     static void check_segments_with_endpoint(Point* p, Point* other_p, Predicate* pred);
 };

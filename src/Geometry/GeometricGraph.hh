@@ -63,6 +63,11 @@ public:
     ptrset<Measure> root_measures;
     ptrset<Fraction> root_fractions;
 
+    // Valuations of Value2 nodes
+
+    std::map<Frac, Measure*> root_measure_vals;
+    std::map<Frac, Fraction*> root_fraction_vals;
+
     // Numerics
 
     std::map<Point*, CartesianPoint> point_nums;
@@ -92,7 +97,17 @@ public:
     reason for the merge `pred` appended to their `why` s.
     Postcondition: After the merge, all lines and circles formerly storing `get_root(src)` in their `points` maps
     will now store `get_root(dest)` instead. This is to ensure that the `points` maps only ever contains root
-    points. */
+    points. 
+    
+    ## Merging objects because of a point merge
+
+    When two points are merged, it is possible that some objects now coincide that did not before:
+    - `Line`: Check if there are two lines `l1, l2` in `on_root_line` with at least one other `point` in common.
+    - `Circle`: Check if there are either:
+        two circles `c1, c2` in `on_root_circle` with at least two other `point`s in common;
+        or two circles `c1, c2` which now share a `point` in common, as well as their center point.
+    - `Segment`: Check if there are two segments `s1, s2` in `endpoint_of_root_segment` which now share both
+    endpoints.*/
     void merge_points(Point* dest, Point* src, Predicate* pred);
 
 
@@ -196,8 +211,13 @@ public:
     /* Gets the center of a given circle `c`, creating a new point as this center if it does not yet
     exist. */
     Point* get_or_add_circle_center(Circle* c, DDEngine& dd);
-
-    /* Merges the root of `src` circle into the root of `dest` circle. */
+    
+    /* Sets the root of `cp` as the center of the root of circle `c`.
+    Note: If the center already exists, then it is merged into `root_cp`. See `Circle::set_center()` 
+    for more information. */
+    void set_circle_center(Point* cp, Circle* c, Predicate* pred);
+    /* Merges the root of `src` circle into the root of `dest` circle.
+    This also merges the circle centers. See `Circle::merge()` for more information. */
     void merge_circles(Circle* dest, Circle* src, Predicate* pred);
 
     
@@ -344,7 +364,9 @@ public:
     void set_measures_equal(Measure* dest, Measure* src, Predicate* pred);
 
     /* Sets measure `m` to be equal to the constant `val`.
-    Here, `val` should be given in degrees. */
+    Here, `val` should be given in degrees.
+    Note: If `m` already has a value, the function throws.
+    Note: `m` will be merged into `root_measure_vals[val]`. */
     void set_measure_val(Measure* m, Frac val, Predicate* pred);
 
 
@@ -401,6 +423,8 @@ public:
     bool check_coll(Point* p1, Point* p2, Point* p3);
     /* Check if the root node of p1 lies on the root node of l. See `Line::contains()` for more info. */
     bool check_coll(Point* p1, Line* l);
+    /* Check if two segments lie on the same line. See `Segment::on_same_line()` for more info. */
+    bool check_coll(Segment* s1, Segment* s2);
 
     bool check_cyclic(Point* p1, Point* p2, Point* p3, Point* p4);
 
@@ -472,6 +496,7 @@ public:
     bool make_circle(Predicate* pred, DDEngine &dd);
 
     bool make_constangle(Predicate* pred, DDEngine &dd, AREngine &ar);
+    /* Note: constangle predicates made by the AREngine have angle between 0 and 180. */
     bool make_ar_constangle(Predicate* pred, DDEngine& dd);
 
     bool make_constratio(Predicate* pred, DDEngine &dd, AREngine &ar);

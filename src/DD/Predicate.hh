@@ -39,9 +39,9 @@ public:
 	- Unsuccessful set, returns 0, if the argument was already set to a different `Node*` 
 	- Successful set, returns 1: if the argument was previously empty
 	- Unchanged set, returns 2: if the argument was already set to the same `Node*`*/
-	char set_arg(int i, Node* node) noexcept;
-	char set_arg(int i, Frac f) noexcept;
-	char set_arg(int i, char c) noexcept;
+	char set_arg(int i, Node* node);
+	char set_arg(int i, Frac f);
+	char set_arg(int i, char c);
 	bool arg_empty(int i) const noexcept;
 	void clear_arg(int i) noexcept;
 
@@ -76,6 +76,8 @@ public:
 	void operator+=(const PredVec& other);
 
 	explicit operator std::vector<Predicate*>() const { return preds; }
+
+	std::string to_string() const;
 };
 
 class Predicate {

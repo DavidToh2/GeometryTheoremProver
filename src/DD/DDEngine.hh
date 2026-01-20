@@ -63,7 +63,12 @@ public:
     Generator<bool> match_eqangle(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> __match_eqratio(PredicateTemplate* pred_template, GeometricGraph &ggraph, int i, std::array<Length*, 4> &ls);
     Generator<bool> match_eqratio(PredicateTemplate* pred_template, GeometricGraph &ggraph);
+    Generator<bool> match_midp(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> match_circle(PredicateTemplate* pred_template, GeometricGraph &ggraph);
+    // Unimplemented
+    Generator<bool> match_constangle(PredicateTemplate* pred_template, GeometricGraph &ggraph);
+    // Unimplemented
+    Generator<bool> match_constratio(PredicateTemplate* pred_template, GeometricGraph &ggraph);
 
     Generator<bool> match_diff(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> match_ncoll(PredicateTemplate* pred_template, GeometricGraph &ggraph);
@@ -77,7 +82,8 @@ public:
         {pred_t::PERP, &DDEngine::match_perp},
         {pred_t::CONG, &DDEngine::match_cong},
         {pred_t::EQANGLE, &DDEngine::match_eqangle},
-        // {pred_t::EQRATIO, &DDEngine::match_eqratio},
+        {pred_t::EQRATIO, &DDEngine::match_eqratio},
+        {pred_t::MIDP, &DDEngine::match_midp},
         {pred_t::CIRCLE, &DDEngine::match_circle},
         {pred_t::DIFF, &DDEngine::match_diff},
         {pred_t::NCOLL, &DDEngine::match_ncoll},

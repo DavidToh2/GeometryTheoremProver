@@ -164,6 +164,15 @@ void Length::add_segment(Segment* s, Predicate* pred) {
     }
 }
 
+Generator<std::pair<Segment*, Segment*>> Length::all_cong_pairs() {
+    Length* root_this = NodeUtils::get_root(this);
+    return NodeUtils::all_pairs<Segment>(root_this->root_objs);
+}
+Generator<std::pair<Segment*, Segment*>> Length::all_cong_pairs_ordered() {
+    Length* root_this = NodeUtils::get_root(this);
+    return NodeUtils::all_pairs_ordered<Segment>(root_this->root_objs);
+}
+
 Generator<Ratio*> Length::on_ratios_as_length1() {
     Length* root_this = NodeUtils::get_root(this);
     for (Ratio* r : root_this->on_ratio_1) {

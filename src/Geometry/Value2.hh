@@ -16,7 +16,12 @@ be present in `obj2s` with the same root.
 
 `root_obj2s` stores the root objects corresponding to the objects in `obj2s`.
 
-Only root Value nodes populate their `root_obj2s` sets. */ 
+Only root Value nodes populate their `root_obj2s` sets.
+
+Every Value2 node contains a `Frac val` populating its actual value.. Root nodes are the most up-to-date 
+regarding storage of vals - hence, a child node may be associated with a root node with a val, but the
+child node may not itself have a val. Node merging does NOT reconcile vals: this should be done manually
+by invoking functions. */ 
 template <std::derived_from<Object2> T>
 class Value2 : public Node {
 public:
@@ -26,12 +31,18 @@ public:
     Predicate* val_why = nullptr;
 
     Value2(std::string name) : Node(name) {}
+
+    constexpr bool has_val() { return (val > -0.9); }
+    constexpr void remove_val() { val = -1; val_why = nullptr; }
 };
 
 
 /* Measure class.
 
-A Measure describes how large an `Angle` is. */
+A Measure describes how large an `Angle` is.
+
+The actual value (as calculated by the AREngine) of the measure may be stored in the `val` attribute, as an
+angle between 0 and 180. */
 class Measure : public Value2<Angle> {
 public:
     Measure(std::string name) : Value2(name) {}
@@ -47,7 +58,8 @@ public:
     /* Returns all ordered pairs of equal angles associated with this measure. */
     Generator<std::pair<Angle*, Angle*>> all_eq_pairs_ordered();
 
-    /* Merges the root node of `other` into the root node of `this`. */
+    /* Merges the root node of `other` into the root node of `this`.
+    Warning: The `val`s of the two measures are not reconciled. */
     void merge(Measure* other, Predicate* pred);
 };
 

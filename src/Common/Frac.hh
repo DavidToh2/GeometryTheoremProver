@@ -24,7 +24,9 @@ typedef struct Frac {
 	const bool operator!=(const Frac &other);
 	bool operator==(Frac &&other);
 	// const bool operator<(const Frac &other) const;
-	auto operator<=>(const Frac &other) const;
+	auto operator<=>(const Frac &other) const {
+		return (this->num * other.den) <=> (other.num * this->den);
+	}
 
 	double to_double() const;
 	static std::pair<Frac, double> from_double(double d);

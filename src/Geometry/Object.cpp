@@ -71,10 +71,10 @@ void Point::set_this_on(Line* l, Predicate* pred) {
     if (on_root_line.contains(rl)) return;
 
     if (!on_line.contains(l)) {
-        on_line[l] = std::map<Point*, Predicate*>();
+        on_line[l] = std::map<Point*, PredVec>();
     }
     if (!on_line[l].contains(this)) {
-        on_line[l][this] = pred;
+        on_line[l][this] += pred;
     }
     on_root_line.insert(rl);
     rl->points[this] = pred;
@@ -84,23 +84,37 @@ void Point::set_this_on(Circle* c, Predicate* pred) {
     if (on_root_circle.contains(rc)) return;
 
     if (!on_circle.contains(c)) {
-        on_circle[c] = std::map<Point*, Predicate*>();
+        on_circle[c] = std::map<Point*, PredVec>();
     }
     if (!on_circle[c].contains(this)) {
-        on_circle[c][this] = pred;
+        on_circle[c][this] += pred;
     }
     on_root_circle.insert(rc);
     rc->points[this] = pred;
+}
+void Point::set_this_center_of(Circle* c, Predicate* pred) {
+    Circle* rc = NodeUtils::get_root(c);
+    if (center_of_root_circle.contains(rc)) return;
+
+    if (!center_of_circle.contains(c)) {
+        center_of_circle[c] = std::map<Point*, PredVec>();
+    }
+    if (!center_of_circle[c].contains(this)) {
+        center_of_circle[c][this] += pred;
+    }
+    center_of_root_circle.insert(rc);
+    rc->center = this;
+    rc->center_why = pred;
 }
 void Point::set_this_endpoint_of(Segment* s, Predicate* pred) {
     Segment* rs = NodeUtils::get_root(s);
     if (endpoint_of_root_segment.contains(rs)) return;
 
     if (!endpoint_of_segment.contains(s)) {
-        endpoint_of_segment[s] = std::map<Point*, Predicate*>();
+        endpoint_of_segment[s] = std::map<Point*, PredVec>();
     }
     if (!endpoint_of_segment[s].contains(this)) {
-        endpoint_of_segment[s][this] = pred;
+        endpoint_of_segment[s][this] += pred;
     }
     endpoint_of_root_segment.insert(rs);
 }
@@ -130,7 +144,7 @@ bool Point::is_on(Circle* c) {
     return rp->is_this_on(c);
 }
 
-Predicate* Point::__why_on(Line* l) {
+PredVec Point::__why_on(Line* l) {
     Line* rl = NodeUtils::get_root(l);
     Point* rp = NodeUtils::get_root(this);
     if (rp->on_root_line.contains(rl)) {
@@ -140,9 +154,11 @@ Predicate* Point::__why_on(Line* l) {
             }
         }
     }
-    return nullptr;
+    // TODO: Fix this. We should store the PredVecs somewhere else and use pointers to
+    // refer to them
+    return {};
 }
-Predicate* Point::why_on(Line* l) {
+PredVec Point::why_on(Line* l) {
     Line* rl = NodeUtils::get_root(l);
     Point* rp = NodeUtils::get_root(this);
     return NodeUtils::get_root(this)->__why_on(l);
@@ -164,6 +180,26 @@ Generator<Circle*> Point::on_circles() {
     co_return;
 }
 
+Generator<Circle*> Point::center_of_circles() {
+    Point* rp = NodeUtils::get_root(this);
+    for (Circle* c : rp->center_of_root_circle) {
+        co_yield c;
+    }
+    co_return;
+}
+
+Generator<Segment*> Point::endpoint_of_segments() {
+    Point* rp = NodeUtils::get_root(this);
+    for (Segment* s : rp->endpoint_of_root_segment) {
+        co_yield s;
+    }
+    co_return;
+}
+
+Generator<std::pair<Segment*, Segment*>> Point::endpoint_of_segment_pairs() {
+    return NodeUtils::all_pairs(NodeUtils::get_root(this)->endpoint_of_root_segment);
+}
+
 void Point::merge(Point* other, Predicate* pred) {
 
     Point* root_this = NodeUtils::get_root(this);
@@ -182,15 +218,16 @@ void Point::merge(Point* other, Predicate* pred) {
         Utils::replace_key_in_map(c->points, root_other, root_this);
     }
 
-    Point::merge_dmaps(root_this->on_line, root_other->on_line);
-    Point::merge_dmaps(root_this->on_circle, root_other->on_circle);
+    Point::merge_dmaps(root_this->on_line, root_other->on_line, pred);
+    Point::merge_dmaps(root_this->on_circle, root_other->on_circle, pred);
 
     // std::set::merge has move semantics
     root_this->on_root_line.merge(root_other->on_root_line);
     root_this->on_root_circle.merge(root_other->on_root_circle);
 
+    // Merge any segments p?-root_this and p?-root_other
     Segment::check_segments_with_endpoint(root_this, root_other, pred);
-    Point::merge_dmaps(root_this->endpoint_of_segment, root_other->endpoint_of_segment);
+    Point::merge_dmaps(root_this->endpoint_of_segment, root_other->endpoint_of_segment, pred);
 }
 
 
@@ -297,6 +334,12 @@ void Circle::__set_center(Point* p, Predicate* pred) {
 void Circle::set_center(Point* p, Predicate* pred) {
     NodeUtils::get_root(this)->__set_center(p, pred);
 }
+bool Circle::__has_center() {
+    return (center != nullptr);
+}
+bool Circle::has_center() {
+    return NodeUtils::get_root(this)->__has_center();
+}
 Point* Circle::__get_center() {
     Point* c = NodeUtils::get_root(center);
     if (c != center) center = c;
@@ -377,7 +420,11 @@ Line* Segment::__get_line() {
     return l;
 }
 Line* Segment::get_line() {
-    return NodeUtils::get_root(this->__get_line());
+    return NodeUtils::get_root(this)->__get_line();
+}
+
+bool Segment::on_same_line(Segment* s1, Segment* s2) {
+    return (NodeUtils::same_as(s1->get_line(), s2->get_line()));
 }
 
 Generator<Ratio*> Segment::on_ratios_as_segment1() {
@@ -423,7 +470,7 @@ void Segment::check_segments_with_endpoint(Point *p, Point *other_p, Predicate *
                     + s->name + " has the two endpoints " + p->name + " and " + other_p->name + ", which are being merged.");
         }
 
-        // Replace other_p with p in s.endpoints
+        // Replace other_p with p in s->endpoints
         if (s->endpoints[0] == other_p) {
             s->endpoints[0] = p;
         } else if (s->endpoints[1] == other_p) {

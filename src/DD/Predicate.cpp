@@ -36,9 +36,18 @@ PredicateTemplate::PredicateTemplate(Predicate* pred, std::vector<std::unique_pt
     }
 }
 
-char PredicateTemplate::set_arg(int i, Node* node) noexcept { return args.at(i)->set(node); }
-char PredicateTemplate::set_arg(int i, Frac f) noexcept { return args.at(i)->set(f); }
-char PredicateTemplate::set_arg(int i, char c) noexcept { return args.at(i)->set(c); }
+char PredicateTemplate::set_arg(int i, Node* node) { 
+    if (!args.at(i)->empty()) { throw DDInternalError("PredicateTemplate: Attempt to set an already set argument: " + to_string()); }
+    return args.at(i)->set(node); 
+}
+char PredicateTemplate::set_arg(int i, Frac f) { 
+    if (!args.at(i)->empty()) { throw DDInternalError("PredicateTemplate: Attempt to set an already set argument: " + to_string()); }
+    return args.at(i)->set(f); 
+}
+char PredicateTemplate::set_arg(int i, char c) { 
+    if (!args.at(i)->empty()) { throw DDInternalError("PredicateTemplate: Attempt to set an already set argument: " + to_string()); }
+    return args.at(i)->set(c); 
+}
 bool PredicateTemplate::arg_empty(int i) const noexcept { return args.at(i)->empty(); }
 void PredicateTemplate::clear_arg(int i) noexcept { args.at(i)->clear(); }
 
@@ -209,6 +218,10 @@ Predicate::Predicate(PredicateTemplate &pt) {
 
 std::string Predicate::to_string() const { return hash; }
 
+
+
+
+
 void PredVec::operator+=(Predicate* pred) {
     preds.emplace_back(pred);
 }
@@ -216,6 +229,16 @@ void PredVec::operator+=(const PredVec& other) {
     preds.insert(preds.end(), other.preds.begin(), other.preds.end());
 }
 
+std::string PredVec::to_string() const {
+    if (preds.empty()) {
+        return "EMPTY";
+    }
+    std::string res = preds[0]->to_string();
+    for (auto iter = preds.begin() + 1; iter != preds.end(); ++iter) {
+        res = res + " && " + (*iter)->to_string(); 
+    }
+    return res;
+}
 
 
 

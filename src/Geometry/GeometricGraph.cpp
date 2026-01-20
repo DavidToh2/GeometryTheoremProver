@@ -261,11 +261,11 @@ Circle* GeometricGraph::__try_get_circle(Point* p1, Point* p2, Point* p3) {
     return circ;
 }
 Circle* GeometricGraph::__try_get_circle(Point* c, Point* p1) {
-    auto gen = p1->on_circles();
+    auto gen = c->center_of_circles();
     Circle* circ = nullptr;
     while (gen) {
         Circle* circ0 = gen();
-        if (NodeUtils::same_as(circ0->__get_center(), c)) {
+        if (circ0->contains(p1)) {
             circ = circ0;
             break;
         }
@@ -336,6 +336,9 @@ Point* GeometricGraph::get_or_add_circle_center(Circle* c, DDEngine& dd) {
     return p;
 }
 
+void GeometricGraph::set_circle_center(Point* cp, Circle* c, Predicate* pred) {
+    NodeUtils::get_root(c)->set_center(NodeUtils::get_root(cp), pred);
+}
 void GeometricGraph::merge_circles(Circle* dest, Circle* src, Predicate* pred) {
     if (dest == src) return;
     root_circles.erase(NodeUtils::get_root(src));
@@ -597,8 +600,20 @@ void GeometricGraph::set_measures_equal(Measure* m1, Measure* m2, Predicate* pre
 }
 
 void GeometricGraph::set_measure_val(Measure* m, Frac f, Predicate* pred) {
+    if (m->has_val()) {
+        if (m->val == f) {
+            return;
+        } else {
+            throw GGraphInternalError("GeometricGraph::set_measure_val(): Contradictory measure value assignment attempted.");
+        }
+    }
     m->val = f;
     m->val_why = pred;
+    if (root_measure_vals.contains(f)) {
+        set_measures_equal(root_measure_vals[f], m, pred);
+    } else {
+        root_measure_vals[f] = m;
+    }
 }
 
 
@@ -731,8 +746,20 @@ void GeometricGraph::set_fractions_equal(Fraction* f1, Fraction* f2, Predicate* 
 }
 
 void GeometricGraph::set_fraction_val(Fraction* f, Frac val, Predicate* pred) {
+    if (f->has_val()) {
+        if (f->val == val) {
+            return;
+        } else {
+            throw GGraphInternalError("GeometricGraph::set_fraction_val(): Contradictory fraction value assignment attempted.");
+        }
+    }
     f->val = val;
     f->val_why = pred;
+    if (root_fraction_vals.contains(val)) {
+        set_fractions_equal(root_fraction_vals[val], f, pred);
+    } else {
+        root_fraction_vals[val] = f;
+    }
 }
 
 
@@ -745,6 +772,8 @@ bool GeometricGraph::check_coll(Point* p1, Point* p2, Point* p3) {
 }
 
 bool GeometricGraph::check_coll(Point* p1, Line* l) { return l->contains(p1); }
+
+bool GeometricGraph::check_coll(Segment* s1, Segment* s2) { return Segment::on_same_line(s1, s2); }
 
 bool GeometricGraph::check_cyclic(Point* p1, Point* p2, Point* p3, Point* p4) {
     Circle* c = try_get_circle(p1, p2, p3);
@@ -840,12 +869,27 @@ bool GeometricGraph::check_eqratio(Length* l1a, Length* l1b, Length* l2a, Length
 bool GeometricGraph::check_eqratio(Ratio* r1, Ratio* r2) { return Ratio::is_equal(r1, r2); }
 
 
+bool GeometricGraph::check_midp(Point* m, Point* p1, Point* p2) {
+    Segment* s1 = try_get_segment(p1, m);
+    Segment* s2 = try_get_segment(m, p2);
+    if (s1 == nullptr || s2 == nullptr) { return false; }
+    return (!NodeUtils::same_as(s1, s2) && check_coll(s1, s2) && check_cong(s1, s2));
+}
+
+
 bool GeometricGraph::check_circle(Point* c, Point* p1, Point* p2, Point* p3) {
-    Circle* circ = try_get_circle(p1, p2, p3);
-    return check_circle(c, circ);
+    Circle* circ = try_get_circle(c, p1);
+    if (circ) return (circ->contains(p2) && circ->contains(p3));
+    circ = try_get_circle(c, p2);
+    if (circ) return (circ->contains(p1) && circ->contains(p3));
+    circ = try_get_circle(c, p3);
+    if (circ) return (circ->contains(p1) && circ->contains(p2));
+    circ = try_get_circle(p1, p2, p3);
+    if (circ) return check_circle(c, circ);
+    return false;
 }
 bool GeometricGraph::check_circle(Point* c, Circle* circ) {
-    return NodeUtils::same_as(c, circ->__get_center());
+    return (circ->has_center() && NodeUtils::same_as(c, circ->get_center()));
 }
 
 
@@ -883,6 +927,12 @@ bool GeometricGraph::check_postcondition(PredicateTemplate* pred) {
                               pred->get_arg_point(2),
                               pred->get_arg_point(3));
             break;
+        case pred_t::CONG:
+            return check_cong(pred->get_arg_point(0),
+                              pred->get_arg_point(1),
+                              pred->get_arg_point(2),
+                              pred->get_arg_point(3));
+            break;
         case pred_t::EQANGLE:
             return check_eqangle(pred->get_arg_point(0),
                                 pred->get_arg_point(1),
@@ -892,6 +942,21 @@ bool GeometricGraph::check_postcondition(PredicateTemplate* pred) {
                                 pred->get_arg_point(5),
                                 pred->get_arg_point(6),
                                 pred->get_arg_point(7));
+            break;
+        case pred_t::EQRATIO:
+            return check_eqratio(pred->get_arg_point(0),
+                                 pred->get_arg_point(1),
+                                 pred->get_arg_point(2),
+                                 pred->get_arg_point(3),
+                                 pred->get_arg_point(4),
+                                 pred->get_arg_point(5),
+                                 pred->get_arg_point(6),
+                                 pred->get_arg_point(7));
+            break;
+        case pred_t::MIDP:
+            return check_midp(pred->get_arg_point(0),
+                              pred->get_arg_point(1),
+                              pred->get_arg_point(2));
             break;
         case pred_t::CIRCLE:
             return check_circle(pred->get_arg_point(0),
@@ -1332,7 +1397,7 @@ bool GeometricGraph::make_circle(Predicate* pred, DDEngine &dd) {
     if (check_circle(c, p1, p2, p3)) return false;
 
     Circle* circ = get_or_add_circle(p1, p2, p3, dd);
-    circ->set_center(c, pred);
+    set_circle_center(c, circ, pred);
     return true;
 }
 
@@ -1603,8 +1668,14 @@ void GeometricGraph::reset_problem() {
 
     root_measures.clear();
     root_fractions.clear();
+    
+    root_measure_vals.clear();
+    root_fraction_vals.clear();
 
     point_nums.clear();
+    line_nums.clear();
+    circle_nums.clear();
+    direction_gradients.clear();
 
     adhoc = 0;
 }

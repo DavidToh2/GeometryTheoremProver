@@ -245,6 +245,8 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
     auto gen_const_angle = get_all_constangles_and_why();
     while (gen_const_angle) {
         auto [d1, d2, f, why] = gen_const_angle();
+        while (f < 0) f += 180;
+        while (f >= 180) f -= 180;
         if (NumUtils::is_close(f, 90)) {
             dd.insert_predicate(
                 std::make_unique<Predicate>(

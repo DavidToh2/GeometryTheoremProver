@@ -53,12 +53,6 @@ bool Frac::operator==(Frac &&other) {
 const bool Frac::operator!=(const Frac &other) {
     return (this->num != other.num) || (this->den != other.den);
 }
-// const bool Frac::operator<(const Frac &other) const {
-//     return (this->num * other.den) < (other.num * this->den);
-// }
-auto Frac::operator<=>(const Frac &other) const {
-    return (this->num * other.den) <=> (other.num * this->den);
-}
 
 double Frac::to_double() const {
     return static_cast<double>(this->num) / static_cast<double>(this->den);

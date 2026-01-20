@@ -107,6 +107,9 @@ public:
     Note: If `s` is already present in `objs`, then nothing happens. */
     void add_segment(Segment* s, Predicate* pred);
 
+    Generator<std::pair<Segment*, Segment*>> all_cong_pairs();
+    Generator<std::pair<Segment*, Segment*>> all_cong_pairs_ordered();
+
     /* Returns all root ratios for which the root of this length is a `length1` */
     Generator<Ratio*> on_ratios_as_length1();
     /* Returns all root ratios for which the root of this length is a `length2` */
