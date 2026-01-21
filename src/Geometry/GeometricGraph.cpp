@@ -54,12 +54,15 @@ double GeometricGraph::compute_direction_angle(Direction* d) {
 }
 
 
-void GeometricGraph::__add_new_point(const std::string point_id) {
+Point* GeometricGraph::__add_new_point(const std::string point_id, CartesianPoint&& coords) {
     if (Utils::isinmap(point_id, points)) {
         throw GGraphInternalError("Error: Point with id " + point_id + " already exists in GeometricGraph.");
     }
     points[point_id] = std::make_unique<Point>(point_id);
-    root_points.insert(points[point_id].get());
+    Point* p = points[point_id].get();
+    root_points.insert(p);
+    point_nums[p] = std::move(coords);
+    return p;
 }
 
 void GeometricGraph::__try_add_point(const std::string point_id) {
@@ -75,8 +78,35 @@ Point* GeometricGraph::get_or_add_point(const std::string point_id) {
 }
 
 void GeometricGraph::merge_points(Point* dest, Point* src, Predicate* pred) {
+    dest = NodeUtils::get_root(dest);
+    src = NodeUtils::get_root(src);
     if (dest == src) return;
-    root_points.erase(NodeUtils::get_root(src));
+    root_points.erase(src);
+
+    // Check for newly incident Objects
+    auto gen_to_merge_lines = Line::check_incident_lines(dest, src, pred);
+    while (gen_to_merge_lines) {
+        auto pair = gen_to_merge_lines();
+        merge_lines(pair.first, pair.second, pred);
+    }
+    auto gen_to_merge_circles_1 = Circle::check_incident_circles_by_intersections(dest, src, pred);
+    while (gen_to_merge_circles_1) {
+        auto pair = gen_to_merge_circles_1();
+        merge_circles(pair.first, pair.second, pred);
+    }
+    auto gen_to_merge_circles_2 = Circle::check_incident_circles_by_center(dest, src, pred);
+    while (gen_to_merge_circles_2) {
+        auto pair = gen_to_merge_circles_2();
+        merge_circles(pair.first, pair.second, pred);
+    }
+    auto gen_to_merge_segments = Segment::check_incident_segments(dest, src, pred);
+    while (gen_to_merge_segments) {
+        auto pair = gen_to_merge_segments();
+        merge_segments(pair.first, pair.second, pred);
+    }
+
+    // Invariant: After this stage, `src` should not belong to any object's `points` map.
+
     dest->merge(src, pred);
 }
 
@@ -130,11 +160,15 @@ Line* GeometricGraph::try_get_line(Point* p1, Point* p2) {
     return __try_get_line(NodeUtils::get_root(p1), NodeUtils::get_root(p2));
 }
 
-
 void GeometricGraph::merge_lines(Line* dest, Line* src, Predicate* pred) {
     if (dest == src) return;
     root_lines.erase(NodeUtils::get_root(src));
     dest->merge(src, pred);
+
+    std::vector<std::pair<Point*, Point*>> to_merge_points(Line::check_point_incidences_after_merge(dest, pred));
+    for (auto& pair : to_merge_points) {
+        merge_points(pair.first, pair.second, pred);
+    }
 }
 
 

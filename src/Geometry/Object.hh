@@ -193,7 +193,7 @@ public:
             }
             // Note: dest[obj] and src[obj] should not have any overlapping keys, since the only possible
             // keys are the children of dest and src respectively
-            for (const auto& [p, pv] : src[obj]) {
+            for (auto& [p, pv] : src[obj]) {
                 pv += pred;
             }
             dest[obj].merge(src[obj]);
@@ -274,6 +274,28 @@ public:
     necessary because two lines being merged will necessarily have two duplicate points. 
     Note: This function has no effect if `this` and `other` already have the same root.*/
     void merge(Line* other, Predicate* pred);
+
+    /* Identify all pairs of lines that need to be merged (into a single line) as a result of `p` and `other_p` 
+    being deduced to be the same. 
+    Also removes `other_p` from the `points` map of the second line.
+    Note: This function should be called *before* `p->merge(other_p)` occurs. */
+    static Generator<std::pair<Line*, Line*>> check_incident_lines(Point* p, Point* other_p, Predicate* pred);
+
+    /* Identify all incidences as a result of the root line `l` recently being the destination of some merge with 
+    another line `l_other`. This is necessary because there may be pairs of points, `p1` initially in `l->points` 
+    and `p2` in `l_other->points` (before the merge), which had a line `l1` in common within their `on_root_line`s; 
+    after the merge, they now have both `l` and `l1` in common.
+    Two things may happen now:
+    - Either `l` and `l1` are the same line, in which case `l->merge(l1)` should be called;
+    - or `p1` and `p2` are the same point, in which case we merge them.
+    HELP WHAT
+
+    Note: This function should be called *after* `l->merge(other_l)` occurs.
+    Note: Every "line in common" should only appear for two points.
+    Note: Each point can belong to more than one pair.
+    Note: This function cannot be a lazy function, as when the point pairs are later merged, it is possible that
+    their `on_root_line` attributes are mutated. */
+    static std::vector<std::pair<Point*, Point*>> check_point_incidences_after_merge(Line* l, Predicate* merge_pred);
 };
 
 
@@ -313,10 +335,10 @@ public:
     }
 
     /* Sets the center of `this` circle to the root of `p`. 
-    Note: If `this` circle already has a center, then it is merged into the root of `p`. */
+    Note: If `this` circle already has a center, it is overwritten. */
     void __set_center(Point* p, Predicate* pred);
     /* Sets the center of the root node of `this` circle to the root of `p`.
-    Note: If a center already exists, then it is merged into the root of `p`. */
+    Note: If a center already exists, it is overwritten. */
     void set_center(Point* p, Predicate* pred);
     /* Checks if `this` circle has a center. */
     bool __has_center();
@@ -343,6 +365,19 @@ public:
     necessary because two circles being merged will necessarily have two duplicate points. 
     Note: This function has no effect if `this` and `other` already have the same root.*/
     void merge(Circle* other, Predicate* pred);
+
+    /* Identify all pairs of circles that need to be merged (into a single circle) as a result of both `p` and 
+    `other_p` being deduced to be the same. The circles in each pair must have exactly two common intersections,
+    with one additionally containing `p` and the other containing `other_p`.
+    This will remove `other_p` from the `points` map.
+    Note: This function should be called before `p->merge(other_p)` occurs. */
+    static Generator<std::pair<Circle*, Circle*>> check_incident_circles_by_intersections(Point* p, Point* other_p, Predicate* pred);
+    /* Identify all pairs of circles that need to be merged (into a single circle) as a result of both `p` and 
+    `other_p` being deduced to be the same. The circles in each pair must have exactly one common point; furthermore,
+    one of the circles has `p` as its center, and the other has `other_p`.
+    This will replace `other_p` with `p` as center (using `Circle::set_center()`).
+    Note: This function should be called before `p->merge(other_p)` occurs. */
+    static Generator<std::pair<Circle*, Circle*>> check_incident_circles_by_center(Point* p, Point* other_p, Predicate* pred);
 };
 
 
@@ -421,17 +456,16 @@ public:
     Generator<Ratio*> on_ratios_as_segment2();
 
     /* Merge two segment nodes which have been shown to be identical. This only occurs when their endpoints
-    have been shown to be identical. Only called by `check_segments_with_endpoint()`.
+    have been shown to be identical. Only called by `Segment::check_incident_segments()`.
     Warning: Assumes that `this.endpoints == other.endpoints`. */
     void merge(Segment* other, Predicate* pred);
 
-    /* Called by `p.merge(other_p)`. 
-    This function checks the second endpoints of those segments starting with `p`, as well as the endpoints of 
-    those segments starting with `other_p`, and performs merges of segment pairs whose second endpoints coincide.
+    /* Identify segments that need to be merged as a result of the point `other_p` being merged into the 
+    point `p`. This is done by checking those segments containing `p` and `other_p` as endpoints respectively. 
     In case a segment has one endpoint `p` and another `other_p`, an error is thrown. 
-    This function also replaces endpoint occurences of `other_p` with `p`.
+    Also replaces occurences of `other_p` in `endpoints` with `p`.
     Note: Assumes that `p` and `other_p` are root points. */
-    static void check_segments_with_endpoint(Point* p, Point* other_p, Predicate* pred);
+    static Generator<std::pair<Segment*, Segment*>> check_incident_segments(Point* p, Point* other_p, Predicate* pred);
 };
 
 

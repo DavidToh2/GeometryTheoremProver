@@ -122,7 +122,6 @@ void AREngine::add_cong(
     Length* l2 = s2->get_length();
     Expr::Var var1 = __get_var(l1);
     Expr::Var var2 = __get_var(l2);
-    ratio_table.add_eq_2(var1, var2, 1, 1, pred);
 
     auto [p1, p2] = s1->endpoints;
     auto [p3, p4] = s2->endpoints;
@@ -130,9 +129,35 @@ void AREngine::add_cong(
     Expr::Var disp_var2 = __get_var(Displacement{s1->get_line(), p2});
     Expr::Var disp_var3 = __get_var(Displacement{s2->get_line(), p3});
     Expr::Var disp_var4 = __get_var(Displacement{s2->get_line(), p4});
+
+    ratio_table.add_eq_2(var1, var2, 1, 1, pred);
     displacement_table.add_eq_4(disp_var1, disp_var2, disp_var3, disp_var4, pred);
 }
+void AREngine::add_midp(
+    Segment* s1, Segment* s2, Predicate* pred
+) {
+    Length* l1 = s1->get_length();
+    Length* l2 = s2->get_length();
+    Expr::Var var1 = __get_var(l1);
+    Expr::Var var2 = __get_var(l2);
 
+    auto [p1, m] = s1->endpoints;
+    auto [m_, p2] = s2->endpoints;
+    if (m != m_) {
+        throw ARInternalError("AREngine::add_midp(): Midpoints " + m->name + ", " + m_->name + " do not coincide for both segments");
+    }
+    Line* l = s1->get_line();
+    if (l != s2->get_line()) {
+        throw ARInternalError("AREngine::add_midp(): Segments " + s1->name + ", " + s2->name + " are not on the same line");
+    }
+
+    Expr::Var disp_var1 = __get_var(Displacement{l, p1});
+    Expr::Var disp_var2 = __get_var(Displacement{l, m});
+    Expr::Var disp_var3 = __get_var(Displacement{l, p2});
+
+    ratio_table.add_eq_2(var1, var2, 1, 1, pred);
+    displacement_table.add_eq_4(disp_var1, disp_var2, disp_var2, disp_var3, pred);
+}
 
 
 

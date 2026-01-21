@@ -25,6 +25,16 @@ public:
     Node(std::string name) : name(name), root(this) {}
 
     constexpr bool is_root() { return (root == this); }
+
+    /* Merge `other` into `this` node.
+    This function maps the `parent` and `root` attributes. */
+    constexpr void merge(Node* other, Predicate* pred) {
+        if (this == other) return;
+        other->parent = this;
+        other->parent_why = pred;
+        other->root = this;
+    }
+
     constexpr std::string to_string() { return name; }
 };
 

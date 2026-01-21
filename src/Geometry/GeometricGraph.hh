@@ -88,7 +88,10 @@ public:
 
 
 
-    void __add_new_point(const std::string point_id);
+    /* Adds a new point to the GeometricGraph. 
+    This is a placeholder function and should only be used for debugging (as it populates the point's numeric
+    coordinates with a placeholder). */
+    Point* __add_new_point(const std::string point_id, CartesianPoint&& coords = {0, 0});
     void __try_add_point(const std::string point_id);
     Point* get_or_add_point(const std::string point_id);
 
@@ -107,7 +110,9 @@ public:
         two circles `c1, c2` in `on_root_circle` with at least two other `point`s in common;
         or two circles `c1, c2` which now share a `point` in common, as well as their center point.
     - `Segment`: Check if there are two segments `s1, s2` in `endpoint_of_root_segment` which now share both
-    endpoints.*/
+    endpoints.
+    
+    These are done BEFORE the `Point::merge()` function is called, so that we may still make use of `src->on_root_`.*/
     void merge_points(Point* dest, Point* src, Predicate* pred);
 
 
@@ -137,7 +142,14 @@ public:
     }
 
     /* Merges `src` line into `dest` line. 
-    When the lines are merged, `dest` receives the roots of all `points` from `src` using `merge_maps_with_roots()`. */
+    This also merges their `Direction`s.
+    
+    When two lines are merged, it is possible that some pairs of points now coincide that did not before: more
+    specifically, there may be a point `p1` in `dest->points` and `p2` in `src->points` such that `p1, p2` also
+    belong to some third line. 
+    
+    This check can be done AFTER the `Line::merge()` since it suffices to check `dest->points`. We note the 
+    invariant that we should never have three or more points in `dest->points` having a line in common. */
     void merge_lines(Line* dest, Line* src, Predicate* pred);
 
 
@@ -217,7 +229,11 @@ public:
     for more information. */
     void set_circle_center(Point* cp, Circle* c, Predicate* pred);
     /* Merges the root of `src` circle into the root of `dest` circle.
-    This also merges the circle centers. See `Circle::merge()` for more information. */
+    This also merges the circle centers. See `Circle::merge()` for more information.
+    
+    When two circles are merged, it is possible that there are now pairs of points which coincide.
+    However, we omit treating these new incidences here, as the casework is too complex to deal with.
+    TODO: Investigate whether this can be handled with help from the NumEngine. */
     void merge_circles(Circle* dest, Circle* src, Predicate* pred);
 
     
@@ -237,7 +253,8 @@ public:
     /* Gets the segment `rp1rp2`, returning `nullptr` if no such segment exists. */
     Segment* try_get_segment(Point* p1, Point* p2);
 
-    /* Merges the root of `src` segment into the root of `dest` segment. */
+    /* Merges the root of `src` segment into the root of `dest` segment.
+    This should only ever be called by `merge_points()`, after an invocation of `check_segment_incidences()`. */
     void merge_segments(Segment* dest, Segment* src, Predicate* pred);
 
 

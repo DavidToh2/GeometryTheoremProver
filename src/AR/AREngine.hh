@@ -109,7 +109,8 @@ public:
     created. */
     void add_cong(Segment* s1, Segment* s2, Predicate* pred);
     /* Sets segments `s1, s2` to be congruent. 
-    Note: The points `s1, s2` are such that `s1 = p1-m, s2 = m-p2`.*/
+    Note: The points `s1, s2` are such that `s1 = p1-m, s2 = m-p2`. In other words, `s1`
+    should appear to the left of `s2`. */
     void add_midp(Segment* s1, Segment* s2, Predicate* pred);
 
 

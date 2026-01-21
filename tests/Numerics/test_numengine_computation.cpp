@@ -1,7 +1,5 @@
 
 #include <doctest.h>
-#include <iomanip>
-#include <iostream>
 #include <memory>
 
 #include "Common/NumUtils.hh"

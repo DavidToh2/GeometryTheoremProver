@@ -1,4 +1,5 @@
 
+#include <cassert>
 #include <map>
 #include <vector>
 
@@ -204,30 +205,18 @@ void Point::merge(Point* other, Predicate* pred) {
 
     Point* root_this = NodeUtils::get_root(this);
     Point* root_other = NodeUtils::get_root(other);
-    if (root_this == root_other) {
-        return;
-    }
-    root_other->parent = root_this;
-    root_other->parent_why = pred;
-    root_other->root = root_this;
-
-    for (Line* l : root_other->on_root_line) {
-        Utils::replace_key_in_map(l->points, root_other, root_this);
-    }
-    for (Circle* c : root_other->on_root_circle) {
-        Utils::replace_key_in_map(c->points, root_other, root_this);
-    }
+    root_this->Node::merge(root_other, pred);
 
     Point::merge_dmaps(root_this->on_line, root_other->on_line, pred);
     Point::merge_dmaps(root_this->on_circle, root_other->on_circle, pred);
+    Point::merge_dmaps(root_this->center_of_circle, root_other->center_of_circle, pred);
+    Point::merge_dmaps(root_this->endpoint_of_segment, root_other->endpoint_of_segment, pred);
 
     // std::set::merge has move semantics
     root_this->on_root_line.merge(root_other->on_root_line);
     root_this->on_root_circle.merge(root_other->on_root_circle);
-
-    // Merge any segments p?-root_this and p?-root_other
-    Segment::check_segments_with_endpoint(root_this, root_other, pred);
-    Point::merge_dmaps(root_this->endpoint_of_segment, root_other->endpoint_of_segment, pred);
+    root_this->center_of_root_circle.merge(root_other->center_of_root_circle);
+    root_this->endpoint_of_root_segment.merge(root_other->endpoint_of_root_segment);
 }
 
 
@@ -295,13 +284,15 @@ Generator<Angle*> Line::on_angles_as_line2() {
 void Line::merge(Line* other, Predicate* pred) {
     Line* root_this = NodeUtils::get_root(this);
     Line* root_other = NodeUtils::get_root(other);
-    if (root_this == root_other) {
-        return;
-    }
-    root_other->parent = root_this;
-    root_other->parent_why = pred;
-    root_other->root = root_this;
+    root_this->Node::merge(root_other, pred);
 
+    /* For every point pt in root_other->points, set pt on root_this.
+    
+    Comment: We have to be careful of a special case here, where l->merge(l_other) is being called
+    as a result of a point incidence check, where l->contains(p), l_other->contains(p_other), and p_other
+    is being merged into p. In this scenario, the incidence check has already happened, so p_other is
+    no longer in l_other->points. Nonetheless, it is safe for us not to set p_other on root_this, since
+    p_other is about to no longer be a root point, so we can safely disregard it. */
     for (const auto& [pt, _] : root_other->points) {
         if (!root_this->points.contains(pt)) {
             pt->on_root_line.erase(root_other);
@@ -319,17 +310,53 @@ void Line::merge(Line* other, Predicate* pred) {
     }
 }
 
+Generator<std::pair<Line*, Line*>> Line::check_incident_lines(Point *p, Point *other_p, Predicate *pred) {
+    std::map<Point*, Line*> ltp;
+    for (Line* l1 : p->on_root_line) {
+        for (auto& [p1, _] : l1->points) {
+            if (p1 != p) {
+                assert(!ltp.contains(p1));
+                ltp[p1] = l1;
+            }
+        }
+    }
+    for (Line* l2 : other_p->on_root_line) {
+        Utils::replace_key_in_map(l2->points, other_p, p);
+        for (auto& [p2, _] : l2->points) {
+            if (ltp.contains(p2)) {
+                co_yield {ltp[p2], l2};
+            }
+        }
+    }
+    co_return;
+}
+
+std::vector<std::pair<Point*, Point*>> Line::check_point_incidences_after_merge(Line* l, Predicate* merge_pred) {
+    std::map<Line*, Point*> ltp;
+    std::vector<std::pair<Point*, Point*>> res;
+    for (auto& [p1, _] : l->points) {
+        for (Line* l_other : p1->on_root_line) {
+            if (l_other != l) {
+                if (ltp.contains(l_other)) {
+                    // Found a pair to merge
+                    res.emplace_back(ltp[l_other], p1);
+                } else {
+                    ltp[l_other] = p1;
+                }
+            }
+        }
+    }
+    return res;
+}
+
+
 
 
 
 void Circle::__set_center(Point* p, Predicate* pred) {
     p = NodeUtils::get_root(p);
-    if (center) {
-        p->merge(center, pred);
-        center = p;    // maybe should use PredVec instead?
-    } else {
-        center = p;
-    }
+    center = p;
+    center_why = pred;
 }
 void Circle::set_center(Point* p, Predicate* pred) {
     NodeUtils::get_root(this)->__set_center(p, pred);
@@ -384,6 +411,46 @@ void Circle::merge(Circle* other, Predicate* pred) {
     }
 }
 
+Generator<std::pair<Circle*, Circle*>> Circle::check_incident_circles_by_intersections(Point *p, Point *other_p, Predicate *pred) {
+    std::map<std::pair<Point*, Point*>, Circle*> p2tc;
+    for (Circle* c1 : p->on_root_circle) {
+        auto gen_point_pairs_on_c1 = c1->all_point_pairs_ordered();
+        while (gen_point_pairs_on_c1) {
+            auto pair1 = gen_point_pairs_on_c1();
+            assert(!p2tc.contains(pair1));
+            if (pair1.first == p || pair1.second == p) continue;
+            p2tc[pair1] = c1;
+        }
+    }
+    for (Circle* c2 : other_p->on_root_circle) {
+        Utils::replace_key_in_map(c2->points, other_p, p);
+        auto gen_point_pairs_on_c2 = c2->all_point_pairs();
+        while (gen_point_pairs_on_c2) {
+            auto pair2 = gen_point_pairs_on_c2();
+            if (p2tc.contains(pair2)) {
+                co_yield {p2tc[pair2], c2};
+            }
+        }
+    }
+    co_return;
+}
+Generator<std::pair<Circle*, Circle*>> Circle::check_incident_circles_by_center(Point *p, Point *other_p, Predicate *pred) {
+    std::map<Point*, Circle*> ptc;
+    for (Circle* c1 : p->center_of_root_circle) {
+        for (auto [p1, _] : c1->points) {
+            assert(!ptc.contains(p1));
+            ptc[p1] = c1;
+        }
+    }
+    for (Circle* c2 : other_p->center_of_root_circle) {
+        c2->set_center(p, c2->center_why);
+        for (auto [p2, _] : c2->points) {
+            if (ptc.contains(p2)) {
+                co_yield {ptc[p2], c2};
+            }
+        }
+    }
+}
 
 
 
@@ -452,40 +519,35 @@ void Segment::merge(Segment* other, Predicate* pred) {
 
     root_this->length->merge(root_other->length, pred);
 }
-void Segment::check_segments_with_endpoint(Point *p, Point *other_p, Predicate *pred) {
-    std::map<Point*, Segment*> stp1;
+Generator<std::pair<Segment*, Segment*>> Segment::check_incident_segments(Point *p, Point *other_p, Predicate *pred) {
+    std::map<Point*, Segment*> pts;
     for (Segment* s : p->endpoint_of_root_segment) {
         Point* p1 = s->other_endpoint(p);
         if (p1 == other_p) {
             throw GGraphInternalError("Segment::check_segments_with_endpoint(): The segment " 
                     + s->name + " has the two endpoints " + p->name + " and " + other_p->name + ", which are being merged.");
         }
-        stp1[p1] = s;
+        pts[p1] = s;
     }
     for (auto it = other_p->endpoint_of_root_segment.begin(); it != other_p->endpoint_of_root_segment.end();) {
-        Segment* s = *it;
-        Point* p2 = s->other_endpoint(other_p);
+        Segment* s1 = *it;
+        // Replace other_p with p in s1->endpoints
+        if (s1->endpoints[0] == other_p) {
+            s1->endpoints[0] = p;
+        } else if (s1->endpoints[1] == other_p) {
+            s1->endpoints[1] = p;
+        }
+
+        Point* p2 = s1->other_endpoint(other_p);
         if (p2 == p) {
             throw GGraphInternalError("Segment::check_segments_with_endpoint(): The segment " 
-                    + s->name + " has the two endpoints " + p->name + " and " + other_p->name + ", which are being merged.");
+                    + s1->name + " has the two endpoints " + p->name + " and " + other_p->name + ", which are being merged.");
         }
-
-        // Replace other_p with p in s->endpoints
-        if (s->endpoints[0] == other_p) {
-            s->endpoints[0] = p;
-        } else if (s->endpoints[1] == other_p) {
-            s->endpoints[1] = p;
+        // Check if both the segments s = p-p2 and s1 = other_p-p2 exist
+        if (pts.contains(p2)) {
+            
+            co_yield {pts[p2], s1};
         }
-
-        // If the segments s1 = p-p2 and s = other_p-p2 exist, merge s1 into s
-        if (stp1.contains(p2)) {
-            Segment* s1 = stp1[p2];
-            s->merge(s1, pred);
-            p->endpoint_of_root_segment.erase(s1);
-            p2->endpoint_of_root_segment.erase(s1);
-        }
-        
-        p->endpoint_of_root_segment.insert(s);
-        it = other_p->endpoint_of_root_segment.erase(it);
     }
+    co_return;
 }
