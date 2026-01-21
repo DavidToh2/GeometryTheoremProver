@@ -127,5 +127,67 @@ TEST_SUITE("CartesianPoint") {
         CHECK(p5a == p3 + Cartesian::perp_vec_n(p3, p1));
         CHECK(p5a == p4 + Cartesian::perp_vec_p(p4, p1));
     }
+
+    TEST_CASE("angle_of") {
+        CartesianPoint o(0, 0);
+        CartesianPoint p1(1, 0);
+        CartesianPoint p2(0, 1);
+        CartesianPoint p3(-1, 0);
+        CartesianPoint p4(0, -1);
+        CartesianPoint p5(-3, -4);
+
+        CHECK(NumUtils::is_close(Cartesian::angle_of(o, p1), M_PI_2));
+        CHECK(NumUtils::is_close(Cartesian::angle_of(o, p2), M_PI));
+        CHECK(NumUtils::is_close(Cartesian::angle_of(o, p3), -M_PI_2));
+        CHECK(NumUtils::is_close(Cartesian::angle_of(o, p4), 0.0));
+        CHECK(NumUtils::is_close(Cartesian::angle_of(o, p5), 0.9272952180016 - M_PI_2));
+    }
+
+    TEST_CASE("Random Affine") {
+        CartesianPoint a(0, 0);
+        CartesianPoint b(1, 0);
+        CartesianPoint c(0, 2);
+        CartesianPoint d(1.7129879846292, 1.1258923749802);
+        double ab = Cartesian::distance(a, b);
+        double bc = Cartesian::distance(b, c);
+        double cd = Cartesian::distance(c, d);
+        double ad = Cartesian::distance(a, d);
+        double ac = Cartesian::distance(a, c);
+        double bd = Cartesian::distance(b, d);
+        std::array<double, 6> dist = {ab, bc, cd, ad, ac, bd};
+        double ang_abc = Cartesian::angle_between(a, b, c);
+        double ang_bcd = Cartesian::angle_between(b, c, d);
+        double ang_cda = Cartesian::angle_between(c, d, a);
+        double ang_dab = Cartesian::angle_between(d, a, b);
+        std::array<double, 4> angles = {ang_abc, ang_bcd, ang_cda, ang_dab};
+
+        Cartesian::random_affine(a, b, c, d);
+        double ab2 = Cartesian::distance(a, b);
+        double bc2 = Cartesian::distance(b, c);
+        double cd2 = Cartesian::distance(c, d);
+        double ad2 = Cartesian::distance(a, d);
+        double ac2 = Cartesian::distance(a, c);
+        double bd2 = Cartesian::distance(b, d);
+        std::array<double, 6> dist2 = {ab2, bc2, cd2, ad2, ac2, bd2};
+        double ang_abc2 = Cartesian::angle_between(a, b, c);
+        double ang_bcd2 = Cartesian::angle_between(b, c, d);
+        double ang_cda2 = Cartesian::angle_between(c, d, a);
+        double ang_dab2 = Cartesian::angle_between(d, a, b);
+        std::array<double, 4> angles2 = {ang_abc2, ang_bcd2, ang_cda2, ang_dab2};
+        
+        bool all_pass_1 = true;
+        double r = ab / ab2;
+        CHECK(!NumUtils::is_close(r, 1));
+        for (int i=1; i<6; i++) {
+            all_pass_1 = all_pass_1 && NumUtils::is_close(dist[i] / dist2[i], r);
+        }
+        CHECK(all_pass_1);
+
+        bool all_pass_2 = true;
+        for (int i=0; i<4; i++) {
+            all_pass_2 = all_pass_2 && NumUtils::is_close(angles[i], angles2[i]);
+        }
+        CHECK(all_pass_2);
+    }
 }
 

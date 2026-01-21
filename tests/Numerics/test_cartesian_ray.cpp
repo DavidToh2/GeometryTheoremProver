@@ -37,6 +37,18 @@ TEST_SUITE("CartesianRay") {
         CHECK_FALSE(Cartesian::intersect(r4, l1));
     }
 
+    TEST_CASE("get_random_point") {
+        CartesianPoint start(1.0, 1.0);
+        CartesianPoint head(4.0, 4.0);
+        CartesianRay r(start, head);
+
+        for (int i = 0; i < 10; ++i) {
+            CartesianPoint p = Cartesian::get_random_point_on_ray(r, {0,0}, 10.0);
+            CHECK(r.contains(p));
+            CHECK((p.x > 1 && p.y > 1));
+        }
+    }
+
     TEST_CASE("angle_of, angle_between") {
 
         SUBCASE("Basic rays") {

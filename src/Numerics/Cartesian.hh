@@ -160,9 +160,10 @@ namespace Cartesian {
     Note: Because this function has to be dynamic polymorphic, so we can't use concepts here. */
     Generator<CartesianPoint> intersect(CartesianObject obj1, CartesianObject obj2);
 
-    CartesianPoint get_random_point_on_line(CartesianLine &line, CartesianPoint &near, double max_dist);
+    CartesianPoint get_random_point_on_line(CartesianLine &line, CartesianPoint near = {0, 0}, double max_dist = 10.0);
     CartesianPoint get_random_point_on_circle(CartesianCircle &circle);
-    CartesianPoint get_random_point(CartesianObject &obj, CartesianPoint near, double max_dist);
+    CartesianPoint get_random_point_on_ray(CartesianRay &ray, CartesianPoint near = {0, 0}, double max_dist = 10.0);
+    CartesianPoint get_random_point(CartesianObject &obj, CartesianPoint near = {0,0}, double max_dist = 10.0);
 
     /* Applies a random affine transform on a set of points. */
     template <typename... T>
@@ -180,7 +181,7 @@ namespace Cartesian {
     Returns a value in the range [0, pi] using std::atan2. */
     double angle_of(const CartesianLine& l1);
     /* Computes the anticlockwise angle of rotation from the vertically downward y-axis to
-    the ray. 
+    the ray. Note: this is 90 degrees more than the polar angle.
     Returns a value in the range [-pi, pi]. */
     double angle_of(const CartesianRay& r);
     /* Computes the angle between two lines: more precisely, the anticlockwise angle of

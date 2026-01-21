@@ -202,8 +202,8 @@ on_angle_eq2 x : a b c
 - x = angle_eq2 a b c
 
 on_angle_eq3 x : a b d e f
-- ncoll d e f, diff a b, diff d e, diff e f
-- eqangle x a x b d e d f
+- ncoll d e f, diff a b, diff d e, diff d f
+- eqangle x a x b d e e f
 - x = angle_eq3 a b d e f
 
 on_angle_mirror x : a b c

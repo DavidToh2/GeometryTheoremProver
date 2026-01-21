@@ -190,13 +190,13 @@ Generator<CartesianPoint> NumEngine::compute_trapezoid(Numeric* num) {
     co_return;
 }
 Generator<CartesianPoint> NumEngine::compute_eq_trapezoid(Numeric* num) {
-    double base1 = NumUtils::urand(0.5, 1.5);
-    double base2 = NumUtils::urand(0.5, base1);
+    double base1 = NumUtils::urand(0.25, 0.75);
+    double base2 = NumUtils::urand(0.25, 0.75);
     double height = NumUtils::urand(0.5, 1.5);
-    CartesianPoint a(0, 0);
+    CartesianPoint a(-base1, 0);
     CartesianPoint b(base1, 0);
-    CartesianPoint c((base1 + base2) / 2, height);
-    CartesianPoint d((base1 - base2) / 2, height);
+    CartesianPoint c(-base2, height);
+    CartesianPoint d(base2, height);
     Cartesian::random_affine(a, b, c, d);
     co_yield a;
     co_yield b;
@@ -220,7 +220,7 @@ Generator<CartesianRay> NumEngine::compute_line_at_angle(Numeric* num) {
     CartesianPoint e = get_arg_cartesian(num, 4);
     double angle = Cartesian::angle_between(c, d, e);
     double base_angle = Cartesian::angle_of(a, b);
-    double new_angle = base_angle + angle;
+    double new_angle = base_angle - angle - M_PI_2; // subtract M_PI_2 to convert to polar angles
     CartesianPoint dir(std::cos(new_angle), std::sin(new_angle));
     // TODO: This should be a CartesianRay
     co_yield CartesianRay(a, a + dir);
@@ -312,18 +312,47 @@ Generator<CartesianPoint> NumEngine::compute_angle_eq2(Numeric* num) {
     CartesianPoint a = get_arg_cartesian(num, 0);
     CartesianPoint b = get_arg_cartesian(num, 1);
     CartesianPoint c = get_arg_cartesian(num, 2);
-    double k = NumUtils::urand(0, 1);
-    if (k < 0.5) {
-        // map k=[0, 0.5] to k=[0.1, 0.9]
-        k = 0.1 + k * 1.6;
+    double ks = NumUtils::urand(0, 1);
+    double kl = ks;
+
+    double d_ab = Cartesian::distance2(a, b);
+    double d_bc = Cartesian::distance2(b, c);
+    bool ab_geq_bc = (d_ab > d_bc);
+    /* Our objective is to generate points D, E on lines AB, BC respectively, then intersect
+    AE, CD to produce X.
+    Either D is on *segment* AB and E is on *segment* BC simultaneously (k<0.5), or D and E are
+    simultaneously on their respective rays (k>0.5). */
+    if (ks < 0.5) {
+        // map ks=[0, 0.5] to ks=[0.1, 0.9]
+        // ks applies to the shorter segment of AB, BC
+        ks = 0.1 + ks * 1.6;
+        if (ab_geq_bc) {
+            kl = (d_bc / d_ab) * ks;
+        } else {
+            kl = (d_ab / d_bc) * ks;
+        }
     } else {
-        // map k=[0.5, 1] to k=[1.1, 2.9]
-        k = 1.1 + (k - 0.5) * 3.6;
+        // map kl=[0.5, 1] to kl=[1.1, 2.9]
+        // kl applies to the longer segment of AB, BC
+        kl = 1.1 + (kl - 0.5) * 3.6;
+        if (ab_geq_bc) {
+            ks = (d_ab / d_bc) * kl;
+        } else {
+            ks = (d_bc / d_ab) * kl;
+        }
     }
-    double k1 = k * Cartesian::distance(b, c) / Cartesian::distance(b, a);
-    CartesianPoint e = b + k * (c - b);
-    CartesianPoint f = b + k1 * (a - b);
-    auto x = Cartesian::intersect(CartesianLine(a, e), CartesianLine(b, f));
+    
+    CartesianPoint d;
+    CartesianPoint e;
+    if (ab_geq_bc) {
+        d = b + (a-b) * kl;
+        e = b + (c-b) * ks;
+    } else {
+        d = b + (a-b) * ks;
+        e = b + (c-b) * kl;
+    }
+
+    auto x = Cartesian::intersect(CartesianLine(a, e), CartesianLine(c, d));
     if (x) co_yield x.value();
     co_return;
 }
@@ -333,12 +362,31 @@ Generator<CartesianCircle> NumEngine::compute_angle_eq3(Numeric* num) {
     CartesianPoint d = get_arg_cartesian(num, 2);
     CartesianPoint e = get_arg_cartesian(num, 3);
     CartesianPoint f = get_arg_cartesian(num, 4);
-    double angle = Cartesian::angle_between(e, d, f);
+    double angle = Cartesian::angle_between(d, e, f);
+
+    /* If the directed angle <(DE, EF) is anticlockwise, then <(AX, XB) should be as well
+    In other words, if D, E, F are in clockwise order, then A, X, B should also be in clockwise order
+    The position of the circle center C is thus determined by the following:
+    - If <(DE, EF) is anticlockwise and acute: A, B, C should be in anticlockwise order
+    - If <(DE, EF) is anticlockwise and obtuse: A, B, C should be in clockwise order
+    - If <(DE, EF) is clockwise and acute: A, B, C should be in clockwise order
+    - If <(DE, EF) is clockwise and obtuse: A, B, C should be in anticlockwise order 
+    (Ngl I think I just duplicated the functionality of std::tan2. But oh wells that's low priority too)*/
+
+    // indicator for position of C: 1 means anticlockwise, -1 means clockwise
+    double sgn = angle > 0 ? 
+        (angle < M_PI_2 ? 1.0 : -1.0) :
+        (angle > -M_PI_2 ? -1.0 : 1.0);
+
+    // Normalise the angle for trigonometric calculations
+    angle = std::abs(angle);
+    if (angle > M_PI_2) angle = M_PI - angle;
+
     double D = Cartesian::distance(a, b);
     double r = D / std::sin(angle) / 2;
     double h = D * std::tan(M_PI_2 - angle) / 2;
     // The circle c has to be located so that the points a, b, c are oriented in anticlockwise order
-    CartesianPoint c = Cartesian::midpoint(a, b) + h * Cartesian::perp_vec_p(a, b);
+    CartesianPoint c = Cartesian::midpoint(a, b) + h * sgn * Cartesian::perp_vec_p(a, b) / D;
     co_yield CartesianCircle(c, r);
     co_return;
 }
@@ -350,12 +398,12 @@ Generator<CartesianRay> NumEngine::compute_angle_mirror(Numeric* num) {
     co_yield CartesianRay(b, Cartesian::reflect(a, CartesianLine(b, c)));
     co_return;
 }
-Generator<CartesianLine> NumEngine::compute_angle_bisect(Numeric* num) {
+Generator<CartesianRay> NumEngine::compute_angle_bisect(Numeric* num) {
     CartesianPoint a = get_arg_cartesian(num, 0);
     CartesianPoint b = get_arg_cartesian(num, 1);
     CartesianPoint c = get_arg_cartesian(num, 2);
     CartesianPoint a0 = b + (a - b) * Cartesian::distance(b, c) / Cartesian::distance(b, a);
-    co_yield CartesianLine(b, Cartesian::midpoint(a0, c));
+    co_yield CartesianRay(b, Cartesian::midpoint(a0, c));
     co_return;
 }
 Generator<CartesianLine> NumEngine::compute_angle_exbisect(Numeric* num) {
@@ -366,13 +414,14 @@ Generator<CartesianLine> NumEngine::compute_angle_exbisect(Numeric* num) {
     co_yield Cartesian::para_line(b, CartesianLine(a0, c));
     co_return;
 }
-Generator<CartesianLine> NumEngine::compute_angle_trisect(Numeric* num) {
+Generator<CartesianRay> NumEngine::compute_angle_trisect(Numeric* num) {
     CartesianPoint a = get_arg_cartesian(num, 0);
     CartesianPoint b = get_arg_cartesian(num, 1);
     CartesianPoint c = get_arg_cartesian(num, 2);
     double angle1 = Cartesian::angle_of(b, a);
     double angle2 = Cartesian::angle_of(b, c);
 
+    /* Do some swapping nonsense so that angle2 - angle1 in [0, pi] */
     bool swap = false;
     if (angle1 > angle2) {
         std::swap(angle1, angle2);
@@ -386,15 +435,15 @@ Generator<CartesianLine> NumEngine::compute_angle_trisect(Numeric* num) {
 
     double angle_x = angle1 + (angle2 - angle1) / 3;
     double angle_y = angle1 + 2 * (angle2 - angle1) / 3;
-    CartesianPoint x = b + Cartesian::from_polar(1, angle_x);
-    CartesianPoint y = b + Cartesian::from_polar(1, angle_y);
+    CartesianPoint x = b + Cartesian::from_polar(1, angle_x - M_PI_2);
+    CartesianPoint y = b + Cartesian::from_polar(1, angle_y - M_PI_2);
 
     if (swap) {
-        co_yield CartesianLine(b, y);
-        co_yield CartesianLine(b, x);
+        co_yield CartesianRay(b, y);
+        co_yield CartesianRay(b, x);
     } else {
-        co_yield CartesianLine(b, x);
-        co_yield CartesianLine(b, y);
+        co_yield CartesianRay(b, x);
+        co_yield CartesianRay(b, y);
     }
     co_return;
 }
@@ -405,11 +454,14 @@ Generator<CartesianPoint> NumEngine::compute_tangents(Numeric* num) {
     CartesianPoint o = get_arg_cartesian(num, 1);
     CartesianPoint b = get_arg_cartesian(num, 2);
     double r = Cartesian::distance(o, b);
-    double angle = std::acos(r / Cartesian::distance(a, o)); // return value in [0, pi/2]
+    double _rat = r / Cartesian::distance(a, o);
+    if (std::abs(_rat) > 1.0 - TOL) co_return;
+    double angle = std::acos(_rat); // return value in [0, pi/2]
+    
     double base_angle = Cartesian::angle_of(o, a);
     double angle1 = base_angle + angle, angle2 = base_angle - angle;
-    co_yield o + Cartesian::from_polar(r, angle1);
-    co_yield o + Cartesian::from_polar(r, angle2);
+    co_yield o + Cartesian::from_polar(r, angle1 - M_PI_2);
+    co_yield o + Cartesian::from_polar(r, angle2 - M_PI_2);
     co_return;
 }
 Generator<CartesianPoint> NumEngine::compute_common_tangent(Numeric* num) {
@@ -443,12 +495,14 @@ Generator<CartesianPoint> NumEngine::compute_common_tangent(Numeric* num) {
 
     // Point q is the external homothetic center of the two circles
     CartesianPoint q = o + (i - o) * r1 / (r1 - r2);
-    double angle = std::acos(r1 / Cartesian::distance(o, q)); // return value in [0, pi/2]
-    double base_angle = Cartesian::angle_of(q, o);
-    double angle1 = base_angle + angle;
+    double _rat = r1 / Cartesian::distance(o, q);
+    if (std::abs(_rat) > 1.0 - TOL) co_return;
+    double angle = std::acos(_rat); // return value in [0, pi/2]
+    double base_angle = Cartesian::angle_of(o, q);
+    double angle1 = base_angle + angle - M_PI_2;
     if (swap) {
-        co_yield o + Cartesian::from_polar(r1, angle1);
         co_yield i + Cartesian::from_polar(r2, angle1);
+        co_yield o + Cartesian::from_polar(r1, angle1);
     } else {
         co_yield o + Cartesian::from_polar(r1, angle1);
         co_yield i + Cartesian::from_polar(r2, angle1);
@@ -489,14 +543,16 @@ Generator<CartesianPoint> NumEngine::compute_common_tangent2(Numeric* num) {
 
     // Point q is the external homothetic center of the two circles
     CartesianPoint q = o + (i - o) * r1 / (r1 - r2);
-    double angle = std::acos(r1 / Cartesian::distance(o, q)); // return value in [0, pi/2]
-    double base_angle = Cartesian::angle_of(q, o);
-    double angle1 = base_angle + angle, angle2 = base_angle - angle;
+    double _rat = r1 / Cartesian::distance(o, q);
+    if (std::abs(_rat) > 1.0 - TOL) co_return;
+    double angle = std::acos(_rat); // return value in [0, pi/2]
+    double base_angle = Cartesian::angle_of(o, q);
+    double angle1 = base_angle + angle - M_PI_2, angle2 = base_angle - angle - M_PI_2;
     if (swap) {
-        co_yield o + Cartesian::from_polar(r1, angle2);
-        co_yield i + Cartesian::from_polar(r2, angle2);
-        co_yield o + Cartesian::from_polar(r1, angle1);
         co_yield i + Cartesian::from_polar(r2, angle1);
+        co_yield o + Cartesian::from_polar(r1, angle1);
+        co_yield i + Cartesian::from_polar(r2, angle2);
+        co_yield o + Cartesian::from_polar(r1, angle2);
     } else {
         co_yield o + Cartesian::from_polar(r1, angle1);
         co_yield i + Cartesian::from_polar(r2, angle1);

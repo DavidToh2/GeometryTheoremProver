@@ -97,6 +97,25 @@ std::string NumericTemplate::to_hash_with_args() const {
 
 
 
+Numeric::Numeric(const std::string s, std::map<std::string, std::unique_ptr<Point>> &global_point_map) {
+    hash = s;
+    auto [s0, s1]= StrUtils::split_first(s, "=");
+    StrUtils::trim(s0);
+    StrUtils::trim(s1);
+    std::vector<std::string> v0 = StrUtils::split(s0, " ");
+    std::vector<std::string> v1 = StrUtils::split(s1, " ");
+    if (!Utils::isin(v1[0], Constants::NUMERIC_NAMES)) {
+        throw InvalidTextualInputError("NumericTemplate: Invalid numeric name: " + v1[0]);
+    }
+    name = Utils::to_num_t(v1[0]);
+
+    for (auto iter = v1.begin() + 1; iter != v1.end(); iter++) {
+        this->args.emplace_back(global_point_map[*iter].get());
+    }
+    for (auto iter = v0.begin(); iter != v0.end(); iter++) {
+        this->outs.emplace_back(global_point_map[*iter].get());
+    }
+}
 Numeric::Numeric(const NumericTemplate &nt) {
     hash = nt.to_hash_with_args();
     name = nt.name;

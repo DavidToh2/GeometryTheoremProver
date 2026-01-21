@@ -60,6 +60,17 @@ public:
     std::vector<Point*> args;
     std::vector<Point*> outs;
 
+    Numeric(const std::string s, std::map<std::string, std::unique_ptr<Point>> &global_point_map);
+    Numeric(const num_t name, std::vector<Point*> &&args, std::vector<Point*> &&outs) : name(name), args(std::move(args)), outs(std::move(outs)) {
+        hash = "";
+        for (auto out : outs) {
+            hash = hash + out->name + " ";
+        }
+        hash = hash + "= " + Utils::to_num_str(name);
+        for (auto arg : args) {
+            hash = hash + " " + arg->name;
+        }
+    }
     Numeric(const NumericTemplate &nt);
 
     bool is_base_numeric();

@@ -271,7 +271,7 @@ Generator<CartesianPoint> intersect(CartesianObject obj1, CartesianObject obj2) 
 
 
 
-CartesianPoint get_random_point_on_line(CartesianLine &line, CartesianPoint &near, double max_dist) {
+CartesianPoint get_random_point_on_line(CartesianLine &line, CartesianPoint near, double max_dist) {
     auto [p1, p2] = intersect(line, CartesianCircle(near, max_dist));
     if (p1 && p2) {
         double r = NumUtils::urand(0.1, 0.9);
@@ -286,8 +286,8 @@ CartesianPoint get_random_point_on_circle(CartesianCircle &circle) {
         circle.c.y + circle.r * std::sin(theta)
     );
 }
-CartesianPoint get_random_point_on_ray(CartesianRay &ray, CartesianPoint &near, double max_dist) {
-    auto [p1, p2] = intersect(static_cast<const CartesianLine&>(ray), CartesianCircle(near, max_dist));
+CartesianPoint get_random_point_on_ray(CartesianRay &ray, CartesianPoint near, double max_dist) {
+    auto [p1, p2] = intersect(ray, CartesianCircle(near, max_dist));
     if (p1) {
         if (p2) {
             double r = NumUtils::urand(0.1, 0.9);
@@ -297,7 +297,6 @@ CartesianPoint get_random_point_on_ray(CartesianRay &ray, CartesianPoint &near, 
         return ray.start * (1-r) + p1.value() * r;
     }
     throw NumericsInternalError("Unable to satisfy max_dist requirement getting random point on ray.");
-
 }
 CartesianPoint get_random_point(CartesianObject &obj, CartesianPoint near, double max_dist) {
     return std::visit( overloaded {

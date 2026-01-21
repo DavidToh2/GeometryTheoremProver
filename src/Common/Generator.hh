@@ -9,13 +9,18 @@ Usage: Functions may be declared as `Generator<T>`. They should use the keywords
 of type `T` (these are known as an intermediate suspend point), and `co_return` to end the generator, optionally
 yielding a final value (this is known as the final suspend point.) 
 
-The following design patterns help use the generator effectively:
+## Usage
 
-- `while (gen)` or `for (int i=0; gen; i++)` to loop while there are more values to generate; `gen()` to fetch 
-the next value inside the loop. This takes advantage of the Generator's conversion operator to `bool`.
+- The "ready state" `ready_` indicates whether there is a value ready to be fetched.
 
-- `gen.next()` to generate the next value without fetching the previous value. This is useful when only specific 
-values are needed. The values can still be fetched with `gen()` as and when required.
+- If `ready_`, then `gen()` fetches the current value without advancing the generator, and sets `ready_ -> false`.
+
+- Regardless of the value of `ready_`, `gen.next()` advances the generator to the next value, and sets `ready_ -> true`.
+This can be used when only specific values are needed. Returns `false` if the generator is done.
+
+- If `!ready_`, then the conversion operator to bool advances the generator to the next value, and sets `ready_ -> true`.
+This can be used with design patterns like `while (gen)` or `for (int i=0; gen; i++)` to loop while there are more values 
+to generate. Returns `false` if the generator is done.
 
 WARNING: All generators should be implemented with the awareness that the value to be `co_yield`-ed will be `std::move()`d
 in order to do so. If accessing member variables of other objects by reference, ensure that these variables are copied
@@ -89,9 +94,10 @@ struct Generator {
 
 private:
     bool ready_ = false;
-    /* Runs one more step of the coroutine to generate the next return value 
+    /* If the generator is in a "ready state", runs one more step of the coroutine to 
+    generate the next return value 
     
-    `ready_` indicates whether there is a value ready to be fetched. */
+    The "ready state" `ready_` indicates whether there is a value ready to be fetched. */
     void next_() {
         if (!ready_) {
             coro.resume();
