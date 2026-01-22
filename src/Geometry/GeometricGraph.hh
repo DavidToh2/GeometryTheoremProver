@@ -142,14 +142,7 @@ public:
     }
 
     /* Merges `src` line into `dest` line. 
-    This also merges their `Direction`s.
-    
-    When two lines are merged, it is possible that some pairs of points now coincide that did not before: more
-    specifically, there may be a point `p1` in `dest->points` and `p2` in `src->points` such that `p1, p2` also
-    belong to some third line. 
-    
-    This check can be done AFTER the `Line::merge()` since it suffices to check `dest->points`. We note the 
-    invariant that we should never have three or more points in `dest->points` having a line in common. */
+    This also merges their `Direction`s. */
     void merge_lines(Line* dest, Line* src, Predicate* pred);
 
 
@@ -229,11 +222,7 @@ public:
     for more information. */
     void set_circle_center(Point* cp, Circle* c, Predicate* pred);
     /* Merges the root of `src` circle into the root of `dest` circle.
-    This also merges the circle centers. See `Circle::merge()` for more information.
-    
-    When two circles are merged, it is possible that there are now pairs of points which coincide.
-    However, we omit treating these new incidences here, as the casework is too complex to deal with.
-    TODO: Investigate whether this can be handled with help from the NumEngine. */
+    This also merges the circle centers. See `Circle::merge()` for more information.*/
     void merge_circles(Circle* dest, Circle* src, Predicate* pred);
 
     

@@ -2,7 +2,7 @@
 A B C D E F : perp A B C D, perp C D E F, ncoll A B E => para A B E F
 
 #para_same_line
-A B C : para A B A C => coll A B C
+A B C : para A B A C, diff B C => coll A B C
 
 #perp_perp_eqangle
 A B C D E F G H : perp A B C D, perp E F G H, npara A B E F, npara A B G H => eqangle A B E F C D G H

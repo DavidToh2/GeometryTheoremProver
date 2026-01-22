@@ -164,11 +164,6 @@ void GeometricGraph::merge_lines(Line* dest, Line* src, Predicate* pred) {
     if (dest == src) return;
     root_lines.erase(NodeUtils::get_root(src));
     dest->merge(src, pred);
-
-    std::vector<std::pair<Point*, Point*>> to_merge_points(Line::check_point_incidences_after_merge(dest, pred));
-    for (auto& pair : to_merge_points) {
-        merge_points(pair.first, pair.second, pred);
-    }
 }
 
 
