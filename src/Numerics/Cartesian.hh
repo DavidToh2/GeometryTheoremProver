@@ -215,4 +215,5 @@ namespace Cartesian {
     CartesianPoint foot(const CartesianPoint &p, const CartesianLine &l);
     CartesianPoint reflect(const CartesianPoint &p, const CartesianLine &l);
     
+
 };

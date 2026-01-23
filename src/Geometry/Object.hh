@@ -133,8 +133,7 @@ public:
     Note: Assumes that `this` is a root node.
     Note: This function is idempotent. */
     void set_this_center_of(Circle* c, Predicate* pred);
-    /* Sets `this` point as an endpoint of segment `s`. This is called by the Segment constructor,
-    and so should NOT be invoked when creating segments. What this does:
+    /* Sets `this` point as an endpoint of segment `s`. What this does:
     - Inserts `s` into `this->endpoint_of_segment` along with `pred`;
     - Inserts `root_s` into `this->endpoint_of_root_segment`;
     Note: Assumes that `this` is a root node.
@@ -230,8 +229,6 @@ public:
     Line(std::string name, Point* p1, Point* p2, Predicate* base_pred) : Object(name) {
         points[p1] = base_pred;
         points[p2] = base_pred;
-        p1->set_this_on(this, base_pred);
-        p2->set_this_on(this, base_pred);
     }
 
     /* Add the root node of `d` as the direction of the root node of `this`. 
@@ -271,10 +268,12 @@ public:
 
     /* Merge two line nodes. We merge them at their root nodes. The `points` of `get_root(other)` are copied 
     into that of `get_root(this)`. 
+    Note: The directions of `root_other` and `root_this` are returned if they both exist. This is so they may 
+    then be merged by `GeometricGraph::set_directions_para()`.
     Note: The copying behaviour does not copy over points that are already in `get_root(this)`. The effect is
     necessary because two lines being merged will necessarily have two duplicate points. 
     Note: This function has no effect if `this` and `other` already have the same root.*/
-    void merge(Line* other, Predicate* pred);
+    std::optional<std::pair<Direction*, Direction*>> merge(Line* other, Predicate* pred);
 
     /* Identify all pairs of lines `(l1, l2)` that need to be merged (into a single line) as a result of `p` 
     and `other_p` being deduced to be the same. 
@@ -296,7 +295,9 @@ Circles can continue holding `points` even when they are themselves no longer ro
 will no longer serve any purpose). 
 
 The circle `center` is self-explanatory, and need not necessarily be a root node. Always use `get_center()` to
-obtain the `center` (which also lazily updates it to root). */
+obtain the `center` (which also lazily updates it to root). The most up-to-date `center` is always stored in
+the root circle; however, get_center() can theoretically be called on any circle and will return the correct root
+center. */
 class Circle : public Object {
 public:
     Point* center = nullptr;
@@ -307,16 +308,12 @@ public:
         points[p1] = base_pred;
         points[p2] = base_pred;
         points[p3] = base_pred;
-        p1->set_this_on(this, base_pred);
-        p2->set_this_on(this, base_pred);
-        p3->set_this_on(this, base_pred);
     }
     Circle(std::string name, Point* c, Predicate* base_pred) : Object(name), center(c), center_why(base_pred) {
 
     }
     Circle(std::string name, Point* c, Point* p1, Predicate* base_pred) : Object(name), center(c), center_why(base_pred) {
         points[p1] = base_pred;
-        p1->set_this_on(this, base_pred);
     }
 
     /* Sets the center of `this` circle to the root of `p`. 
@@ -344,16 +341,18 @@ public:
     static Generator<Circle*> all_circles_through(Point* p1, Point* p2);
 
     /* Merge two circle nodes which have been shown to be identical. We merge them at their root nodes. The 
-    `points` of `get_root(other)` are copied into that of `get_root(this)`. The center of `root_other` is merged 
-    into that of `root_this`.
+    `points` of `get_root(other)` are copied into that of `get_root(this)`. 
+    Note: The centers of `root_other` and `root_this` are returned if they both exist. This is so they may then
+    be used by `GeometricGraph::merge_points()`.
     Note: The copying behaviour does not copy over points that are already in `get_root(this)`. The effect is
     necessary because two circles being merged will necessarily have two duplicate points. 
     Note: This function has no effect if `this` and `other` already have the same root.*/
-    void merge(Circle* other, Predicate* pred);
+    std::optional<std::pair<Point*, Point*>> merge(Circle* other, Predicate* pred);
 
     /* Identify all pairs of circles `(c1, c2)` that need to be merged (into a single circle) as a result of both 
-    `p` and `other_p` being deduced to be the same. The circles in each pair must have exactly two common intersections
-    with one additionally containing `p` and the other containing `other_p`.
+    `p` and `other_p` being deduced to be the same. The circles in each pair either have exactly two common 
+    intersections, with one additionally containing `p` and the other containing `other_p`; or they have a common
+    center, with one having `p` as a point and the other having `other_p` as a point.
     Also replaces `other_p` with `p` in `c2->points`, and removes `c2` from `other_p->on_root_circle`.
     Note: This function should be called before `p->merge(other_p)` occurs. */
     static Generator<std::pair<Circle*, Circle*>> check_incident_circles_by_intersections(Point* p, Point* other_p, Predicate* pred);
@@ -394,8 +393,6 @@ public:
     Segment(std::string name, Point* p1, Point* p2, Line* l, Predicate* base_pred) : Object(name), endpoints({p1, p2}), on_line(l) {
         points[p1] = base_pred;
         points[p2] = base_pred;
-        p1->set_this_endpoint_of(this, base_pred);
-        p2->set_this_endpoint_of(this, base_pred);
     }
 
     /* Sets the length of the root node of `this` segment to the root of `l`.
@@ -442,8 +439,10 @@ public:
 
     /* Merge two segment nodes which have been shown to be identical. This only occurs when their endpoints
     have been shown to be identical. Only called by `Segment::check_incident_segments()`.
+    Note: The lengths of `root_other` and `root_this` are returned if they both exist. This is so they may then
+    be merged by `GeometricGraph::set_lengths_equal()`.
     Warning: Assumes that `this.endpoints == other.endpoints`. */
-    void merge(Segment* other, Predicate* pred);
+    std::optional<std::pair<Length*, Length*>> merge(Segment* other, Predicate* pred);
 
     /* Identify segments `(s1, s2)` that need to be merged as a result of the point `other_p` being merged 
     into the point `p`. This is done by checking those segments containing `p` and `other_p` as endpoints 

@@ -75,11 +75,13 @@ public:
     Note: `this` and `other` should be root nodes.
     WARNING: This assumes that the `direction1` and `direction2` of `this` and `other` are already equal. The
     function has undefined behaviour if they are not. */
-    void __merge(Angle* other, Predicate* pred);
+    std::optional<std::pair<Measure*, Measure*>> __merge(Angle* other, Predicate* pred);
     /* Merges the root node of `other` into the root node of `this`.
-    This should only be done after the `direction1` and `direction2` of both angles have been merged.
-    Note: Throws if `direction1` and `direction2` are not equal. */
-    void merge(Angle* other, Predicate* pred);
+    Note: The measures of `this` and `other` are returned if they both exist. This is so they may then be merged
+    by `GeometricGraph::set_measures_equal()`.
+    Note: Throws if `direction1` and `direction2` are not equal. (This is ordinarily taken care of by
+    `Direction::check_incident_angles()`.) */
+    std::optional<std::pair<Measure*, Measure*>> merge(Angle* other, Predicate* pred);
 };
 
 class Ratio : public Object2 {
@@ -125,9 +127,10 @@ public:
     Note: `this` and `other` should be root nodes.
     WARNING: This assumes that the `length1` and `length2` of `this` and `other` are already equal. The function 
     has undefined behaviour if they are not. */
-    void __merge(Ratio* other, Predicate* pred);
+    std::optional<std::pair<Fraction*, Fraction*>> __merge(Ratio* other, Predicate* pred);
     /* Merges the root node of `other` into the root node of `this`.
-    This should only be done after the `length1` and `length2` of both ratios have been merged.
+    Note: The Fractions of `this` and `other` are returned if they both exist. This is so they may then be merged
+    by `GeometricGraph::set_fractions_equal()`.
     Note: Throws if `length1` and `length2` are not equal. */
-    void merge(Ratio* other, Predicate* pred);
+    std::optional<std::pair<Fraction*, Fraction*>> merge(Ratio* other, Predicate* pred);
 };

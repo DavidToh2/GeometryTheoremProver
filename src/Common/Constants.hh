@@ -41,6 +41,9 @@ const std::string NUMERIC_NAMES[] = {
     "last"
 };
 
+const std::string ONE = "1";
+const std::string PI = "pi";
+
 } // namespace Constants
 
 enum class pred_t {

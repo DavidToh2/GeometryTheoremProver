@@ -83,11 +83,15 @@ public:
     Generator<Angle*> on_angles_as_direction2();
 
     /* Merge the root nodes of `this` and `other`. 
-    Note: Also merges their `perp` s, if and only if both `perp` s have already been set. */
-    void merge(Direction* other, Predicate* pred);
-    /* Merges `this->perp` and `other->perp`.
-    Note: Assumes that `this` and `other` are root nodes. */
-    void __merge_perps(Direction* other, Predicate* pred);
+    Also correctly sets their `perp`s, unless both `perp`s are already present, in which case they
+    are returned (for further merging by GeometricGraph). */
+    std::optional<std::pair<Direction*, Direction*>> merge(Direction* other, Predicate* pred);
+    std::optional<std::pair<Direction*, Direction*>> __check_perps_for_merge(Direction* other, Predicate* pred);
+
+    /* Identify pairs of angles `(a1, a2)` that need to be merged as a result of the directions `d` and 
+    `other_d` being deduced as parallel. 
+    Also removes `a2` from `other_d->on_angles_1` and `other_d->on_angles_2`. */
+    static Generator<std::pair<Angle*, Angle*>> check_incident_angles(Direction* d, Direction* other_d, Predicate* pred);
 
     static bool is_para(Direction* d1, Direction* d2);
     static bool is_perp(Direction* d1, Direction* d2);
@@ -117,6 +121,11 @@ public:
 
     /* Merges the root nodes of `this` and `other`. */
     void merge(Length* other, Predicate* pred);
+
+    /* Identify pairs of ratios `(r1, r2)` that need to be merged as a result of the lengths `l` and `other_l`
+    being deduced as equal.
+    Also removes `r2` from `other_l->on_ratio_1` and `other_l->on_ratio_2`. */
+    static Generator<std::pair<Ratio*, Ratio*>> check_incident_ratios(Length* l, Length* other_l, Predicate* pred);
 };
 
 

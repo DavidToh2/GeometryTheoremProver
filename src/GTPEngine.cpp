@@ -109,7 +109,7 @@ void GTPEngine::solve(
 
     auto end_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
-    std::cout << "Total time: " << duration << " us" << std::endl;
+    std::cout << "Total time: " << duration << " us" << std::endl << std::endl;
     return;
 }
 

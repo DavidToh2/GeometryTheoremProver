@@ -37,15 +37,12 @@ PredicateTemplate::PredicateTemplate(Predicate* pred, std::vector<std::unique_pt
 }
 
 char PredicateTemplate::set_arg(int i, Node* node) { 
-    if (!args.at(i)->empty()) { throw DDInternalError("PredicateTemplate: Attempt to set an already set argument: " + to_string()); }
     return args.at(i)->set(node); 
 }
 char PredicateTemplate::set_arg(int i, Frac f) { 
-    if (!args.at(i)->empty()) { throw DDInternalError("PredicateTemplate: Attempt to set an already set argument: " + to_string()); }
     return args.at(i)->set(f); 
 }
 char PredicateTemplate::set_arg(int i, char c) { 
-    if (!args.at(i)->empty()) { throw DDInternalError("PredicateTemplate: Attempt to set an already set argument: " + to_string()); }
     return args.at(i)->set(c); 
 }
 bool PredicateTemplate::arg_empty(int i) const noexcept { return args.at(i)->empty(); }

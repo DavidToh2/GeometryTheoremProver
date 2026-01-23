@@ -78,6 +78,7 @@ public:
     /* Returns all ordered pairs of equal ratios associated with this fraction. */
     Generator<std::pair<Ratio*, Ratio*>> all_eq_pairs_ordered();
 
-    /* Merges the root node of `other` into the root node of `this`. */
+    /* Merges the root node of `other` into the root node of `this`.
+    Warning: The `val`s of the two fractions are not reconciled. */
     void merge(Fraction* other, Predicate* pred);
 };

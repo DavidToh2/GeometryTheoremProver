@@ -3,9 +3,9 @@
 #include "Matrix.hh"
 #include "Common/NumUtils.hh"
 
-#define DEBUG_TABLE 0
+#define DEBUG_ARTABLE 0
 
-#if DEBUG_TABLE
+#if DEBUG_ARTABLE
     #define LOG(x) do {std::cout << x << std::endl;} while(0)
 #else 
     #define LOG(x)
@@ -16,10 +16,6 @@ double Expr::fix_v(const double d) {
 }
 void Expr::fix(Expr& expr) {
     for (auto& [var, coeff] : expr) {
-        // HOTFIX: remove integer parts from pi
-        if (var == "pi") {
-            coeff = coeff - floorf(coeff);
-        }
         coeff = fix_v(coeff);
     }
 }
@@ -32,16 +28,14 @@ void Expr::strip(Expr& expr) {
         }
     }
 }
+void Expr::mod_pi(Expr& expr, const Var pi) {
+    if (expr.contains(pi)) {
+        while (expr[pi] > 1) expr[pi] -= 1;
+        while (expr[pi] < 0) expr[pi] += 1;
+    }
+}
 bool Expr::all_zeroes(const Expr& expr) {
-
     for (const auto& [var, coeff] : expr) {
-        // HOTFIX: allow pi to be non-zero integer multiples
-        if (var == "pi") {
-            if (!NumUtils::is_close(coeff, roundf(coeff))) {
-                return false;
-            }
-            continue;
-        }
         if (!NumUtils::is_close(coeff, 0.0)) {
             return false;
         }
@@ -205,8 +199,6 @@ bool Table::add_expr(const Expr::Expr& expr) {
     std::vector<std::pair<Expr::Var, double>> new_vars;
     Expr::Expr result;
 
-    LOG("Adding the expression " << Expr::to_string(expr));
-
     for (const auto& [var, d] : expr) {
         if (M_var_to_expr.contains(var)) {
             Expr::__add(result, Expr::mult(M_var_to_expr[var], d));
@@ -264,6 +256,8 @@ void Table::replace(const Expr::Var& var, const Expr::Expr& sub_expr) {
     // Invariant: This function is only ever invoked with var being a free variable.
     for (auto& [_, expr] : M_var_to_expr) {
         Expr::__replace(expr, var, sub_expr);
+        Expr::strip(expr);
+        Expr::fix(expr);
     }
     return;
 
@@ -339,6 +333,7 @@ bool Table::is_eq_4_seen(const Expr::Var var1, const Expr::Var var2, const Expr:
 
 
 bool Table::add_eq(const Expr::Expr& expr, Predicate* pred) {
+    LOG("Adding the expression " << Expr::to_string(expr));
     return (
         add_expr(expr) 
         && register_expr(expr, pred)
@@ -360,7 +355,7 @@ bool Table::add_eq_4(const Expr::Var& var1, const Expr::Var& var2, const Expr::V
     std::vector<std::pair<Expr::VarPair, Expr::VarPair>> links;
     return (
         (record_eq_4_as_seen(var1, var2, var3, var4) || record_eq_4_as_seen(var1, var3, var2, var4))
-        && add_eq(Expr::add({{var1, 1}, {var2, -1},{var3, -1}, {var4, 1}}, offset), pred)
+        && add_eq(Expr::add_fold(Expr::Expr{{var1, 1}, {var2, -1}}, Expr::Expr{{var3, -1}, {var4, 1}}, offset), pred)
         // && Table::update_equal_groups(equal_groups, {{var1, var2}, {var3, var4}}, links)
         // && Table::update_equal_groups(equal_groups, {{var2, var1}, {var4, var3}}, links)
     );
@@ -421,6 +416,11 @@ void Table::generate_all_eqs() {
         auto [var1, var2] = all_varpairs_gen();
         Expr::Expr e1 = M_var_to_expr[var1], e2 = M_var_to_expr[var2];
         Expr::Expr e12 = Expr::minus(e1, e2);
+
+        // For the angle table specifically, since we take modulo pi, we can
+        // remove all integer multiples of pi from e12
+        Expr::mod_pi(e12);
+
         Expr::strip(e12);
         Expr::fix(e12);
         Expr::ExprHash eh = Expr::hash(e12);    // eh == e12
@@ -445,7 +445,6 @@ Generator<std::tuple<Expr::Var, Expr::Var, std::vector<Predicate*>>> Table::get_
             Expr::Expr em = Expr::minus(M_var_to_expr[v1], M_var_to_expr[v2]);   // should be the same as eh
             Expr::strip(em);
             Expr::fix(em);
-            assert(Expr::hash(em) == eh);        // only true with a Expr::strip() surrounding it
 
             std::vector<Predicate*> _why = why(em); 
             co_yield {v1, v2, _why};
@@ -463,7 +462,6 @@ Generator<std::tuple<Expr::Var, Expr::Var, Frac, std::vector<Predicate*>>> Table
             Expr::Expr em = Expr::minus(M_var_to_expr[v1], M_var_to_expr[v2]);   // should be the same as eh
             Expr::strip(em);
             Expr::fix(em);
-            assert(Expr::hash(em) == eh);        // only true with a Expr::strip() surrounding it
 
             std::vector<Predicate*> _why = why(em);
             co_yield {v1, v2, f, _why};
@@ -473,7 +471,8 @@ Generator<std::tuple<Expr::Var, Expr::Var, Frac, std::vector<Predicate*>>> Table
 }
 Generator<std::tuple<Expr::Var, Expr::Var, Expr::Var, Expr::Var, std::vector<Predicate*>>> Table::get_all_eq_4s_and_why() {
     std::vector<std::pair<Expr::VarPair, Expr::VarPair>> links;
-    for (const auto& [eh, varpairs] : eq_4s) {
+    for (auto it = eq_4s.begin(); it != eq_4s.end(); ++it) {
+        EqualGroup varpairs = it->second;
         Table::update_equal_groups<Expr::VarPair>(equal_groups, varpairs, links);
     }
     for (const auto& [vp1, vp2] : links) {
@@ -490,7 +489,6 @@ Generator<std::tuple<Expr::Var, Expr::Var, Expr::Var, Expr::Var, std::vector<Pre
         Expr::Expr em = Expr::minus(e12, e34);  // should be zero
         Expr::strip(em);
         Expr::fix(em);
-        assert(Expr::all_zeroes(em));        // only true with a Expr::strip() surrounding it
 
         Expr::Expr e{{v1, 1}, {v2, -1}, {v3, -1}, {v4, 1}};
         Expr::__minus(e, em);

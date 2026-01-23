@@ -597,6 +597,11 @@ bool NumEngine::compute_one(Numeric* num) {
         while (gen) {
             point_to_cartesian_objs[num->outs[i++]].emplace_back(gen());
         }
+    } else if (compute_function_map_ray.contains(name)) {
+        auto gen = (this->*compute_function_map_ray[name])(num);
+        while (gen) {
+            point_to_cartesian_objs[num->outs[i++]].emplace_back(gen());
+        }
     } else if (compute_function_map_circle.contains(name)) {
         auto gen = (this->*compute_function_map_circle[name])(num);
         while (gen) {

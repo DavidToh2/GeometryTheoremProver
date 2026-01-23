@@ -116,10 +116,8 @@ void AREngine::update_line_merger(Line* dest, Line* src, Predicate* pred) {
     }
 }
 void AREngine::add_cong(
-    Segment* s1, Segment* s2, Predicate* pred
+    Segment* s1, Segment* s2, Length* l1, Length* l2, Predicate* pred
 ) {
-    Length* l1 = s1->get_length();
-    Length* l2 = s2->get_length();
     Expr::Var var1 = __get_var(l1);
     Expr::Var var2 = __get_var(l2);
 
@@ -134,10 +132,8 @@ void AREngine::add_cong(
     displacement_table.add_eq_4(disp_var1, disp_var2, disp_var3, disp_var4, pred);
 }
 void AREngine::add_midp(
-    Segment* s1, Segment* s2, Predicate* pred
+    Segment* s1, Segment* s2, Length* l1, Length* l2, Predicate* pred
 ) {
-    Length* l1 = s1->get_length();
-    Length* l2 = s2->get_length();
     Expr::Var var1 = __get_var(l1);
     Expr::Var var2 = __get_var(l2);
 
@@ -185,6 +181,7 @@ AREngine::get_all_eqangles_and_why() {
         Direction* d3 = __get_direction(var3);
         Direction* d4 = __get_direction(var4);
         co_yield {d1, d2, d3, d4, _why};
+        co_yield {d2, d1, d4, d3, _why};
     }
     co_return;
 }
@@ -223,6 +220,7 @@ AREngine::get_all_eqratios_and_why() {
         Length* l3 = __get_length(var3);
         Length* l4 = __get_length(var4);
         co_yield {l1, l2, l3, l4, _why};
+        co_yield {l2, l1, l4, l3, _why};
     }
     co_return;
 }
@@ -357,6 +355,9 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
 void AREngine::reset_problem() {
     angle_table.reset();
     ratio_table.reset();
+    displacement_table.reset();
+
     var_to_direction.clear();
     var_to_length.clear();
+    var_to_displacement.clear();
 }

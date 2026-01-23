@@ -1,4 +1,4 @@
-# problem p1 {
+problem p1 {
     a b = segment a b;
     c = on_line_bisect c : a b;
     d = on_line_bisect d : a b
@@ -21,13 +21,14 @@ problem p3 {
     ? cong d b d c
 }
 
-# problem p4 {
-    a b d = triangle a b d;
-    c = r_triangle_p c : d a, r_triangle_p c : b a
-    ? perp b c c d
+problem p4 {
+    a b = segment a b;
+    c = r_triangle_p c : b a;
+    d = r_triangle_p d : c b
+    ? perp d a a b
 }
 
-# problem p5 {
+problem p5 {
     a b = segment a b;
     c = equi_triangle_p c : a b;
     d = equi_triangle_p d : a c;
@@ -35,7 +36,7 @@ problem p3 {
     ? coll b a e
 }
 
-# problem p6 {
+problem p6 {
     a b c = triangle a b c;
     d = on_circum d : a b c;
     e = on_line e : a c;
@@ -43,18 +44,37 @@ problem p3 {
     ? eqangle b a a f e d d c
 }
 
-# problem p7 {
+problem p7 {
     a b c = triangle a b c;
     i = incenter i : a b c;
     j = on_line j : b i, on_circum j : a i c
     ? perp i c c j
 }
 
-# problem p8 {
+problem p8 {
     a b c = triangle a b c;
     d = on_line d : a c;
     e = on_line e : a b;
     f = intersection_ll f : b c d e;
     g = on_circum g : a d e, on_circum g : a b c
     ? cyclic b e g f
+}
+
+problem p9 {
+    a b c = equi_triangle a b c;
+    d = mirror d : a b;
+    e f = trisegment e f : a b;
+    g = mirror g : f b;
+    h i = trisegment h i : b c;
+    j = mirror j : i b
+    ? eqangle g c c j g d d j
+}
+
+problem p10 {
+    a b c = triangle a b c;
+    d e = on_angle_trisect d e : b a c, on_line d : b c;
+    f = on_circum f : a b d, on_line f : a e;
+    g = on_line_at_angle g : d c b a d, on_line g : a e;
+    h = reflect h : b a e
+    ? eqangle f d d g h a a d
 }

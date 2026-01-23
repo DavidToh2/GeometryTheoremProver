@@ -6,6 +6,7 @@
 
 #include "AR/LinProg.hh"
 #include "Common/Frac.hh"
+#include "Common/Constants.hh"
 #include "Matrix.hh"
 #include "DD/Predicate.hh"
 
@@ -18,13 +19,13 @@ namespace Expr {
     double fix_v(const double d);
     void fix(Expr& expr);
     void strip(Expr& expr);
+    void mod_pi(Expr& expr, const Var pi = Constants::PI);
     bool all_zeroes(const Expr& expr);
     void __add(Expr& expr1, const Expr& expr2);
     Expr add(const Expr& expr1, const Expr& expr2);
-    // Unused
     template <typename... T>
     requires (std::same_as<T, Expr> && ...)
-    Expr add_fold(T&... exprs) {
+    Expr add_fold(T... exprs) {
         Expr result = {};
         ( __add(result, exprs), ... );
         return result;
@@ -171,7 +172,7 @@ public:
     std::map<Expr::ExprHash, EqualGroup> eq_3s;
     std::map<Expr::ExprHash, EqualGroup> eq_4s;
 
-    Table(Expr::Var one_var = "1") : num_vars(0), num_eqs(0), one(one_var), A(0, 0, 4) {
+    Table(Expr::Var one_var = Constants::ONE) : num_vars(0), num_eqs(0), one(one_var), A(0, 0, 4) {
         add_free(one);
     }
 
@@ -258,6 +259,8 @@ public:
     static bool
     update_equal_groups(std::set<std::set<T>>& groups, const std::set<T>& new_group, std::vector<std::pair<T, T>>& links) {
 
+        if (new_group.size() <= 1) return false;
+        
         std::vector<bool> merged(groups.size(), false);
         std::set<T> merged_set;
         bool _old_set = false;

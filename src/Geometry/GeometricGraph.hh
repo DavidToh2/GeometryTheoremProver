@@ -75,16 +75,29 @@ public:
     std::map<Circle*, CartesianCircle> circle_nums;
     std::map<Direction*, double> direction_gradients;
 
+    std::vector<std::set<Point*>> num_eq_point_sets;
+    std::map<Point*, int> point_to_num_eq_set;
 
-    /* Populate newly resolved CartesianPoints from the NumEngine into our numeric
-    maps */
+
+    /* Populate newly resolved CartesianPoints from the NumEngine into our numeric maps */
     void initialise_point_numerics(NumEngine &nm);
+    /* Manually set a point's numeric coordinates.
+    This is a placeholder function and should only be used for debugging.*/
+    void __set_point_numeric(Point* p, CartesianPoint cp);
+    /* Find another point, if it exists, whose Cartesian numeric is equal to that of `new_p`.
+    If such a point exists, places them in the same set in `num_eq_point_sets`.
+    Note: Assumes that `point_nums[new_p]` has already been populated. */
+    void __identify_num_eq_points(Point* new_p);
     
     CartesianLine compute_line_from_points(Point* p1, Point* p2);
     CartesianRay compute_ray_from_points(Point* start, Point* head);
     CartesianCircle compute_circle_from_points(Point* c, Point* p1);
     CartesianCircle compute_circle_from_points(Point* p1, Point* p2, Point* p3);
     double compute_direction_angle(Direction* d);
+    double compute_direction_angle(Line* l);
+
+    
+
 
 
 
@@ -347,8 +360,7 @@ public:
         };
     }
 
-    /* Merges the root of `src` angle into the root of `dest` angle.
-    Note: This function is not used. */
+    /* Merges the root of `src` angle into the root of `dest` angle. */
     void merge_angles(Angle* dest, Angle* src, Predicate* pred);
 
 
@@ -404,8 +416,7 @@ public:
         };
     }
 
-    /* Merges the root of `src` ratio into the root of `dest` ratio.
-    Note: This function is not used. */
+    /* Merges the root of `src` ratio into the root of `dest` ratio. */
     void merge_ratios(Ratio* dest, Ratio* src, Predicate* pred);
 
 
@@ -468,7 +479,23 @@ public:
 
     bool check_constratio(Ratio* r, Frac f);
 
-    bool check_postcondition(PredicateTemplate* pred);
+    template<typename... T>
+    requires (std::same_as<T, Point> && ...)
+    bool check_diff(T*... pts) {
+        std::set<int> s;
+        return ((point_to_num_eq_set.contains(pts) ? s.insert(point_to_num_eq_set[pts]) : true) && ...);
+    }
+    bool check_diff(std::set<Point*> &pts);
+
+    template<typename... T>
+    requires (std::same_as<T, Point> && ...)
+    bool check_ncoll(T*... pts) {
+        std::set<Point*> p{pts...};
+        check_ncoll(p);
+    }
+    bool check_ncoll(std::set<Point*> &pts);
+
+    bool check(PredicateTemplate* pred);
 
 
 

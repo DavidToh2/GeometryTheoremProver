@@ -14,7 +14,7 @@
 #include "Common/Constants.hh"
 #include "Geometry/GeometricGraph.hh"
 
-#define DEBUG_DDENGINE 1
+#define DEBUG_DDENGINE 0
 
 #if DEBUG_DDENGINE
     #define LOG(x) do {std::cout << x << std::endl;} while(0)
@@ -66,11 +66,9 @@ Predicate* DDEngine::insert_predicate(std::unique_ptr<Predicate> &&predicate) {
     Predicate* p = predicate.get();
     std::string hash = p->hash;
     if (has_predicate_by_hash(hash)) {
-        LOG("@@@@@@ THIS SHOULD NOT BE CALLED: Predicate " << hash << " already exists!");
         predicate.reset();
         return predicates.at(hash).get();
     }
-    LOG("Inserting predicate " << hash);
     predicates.insert({hash, std::move(predicate)});
     recent_predicates.emplace_back(p);
     return p;
@@ -375,11 +373,13 @@ Generator<bool> DDEngine::match_para(PredicateTemplate* pred_template, Geometric
                                 auto gen_point_pairs2 = l2->all_point_pairs_ordered();
                                 while (gen_point_pairs2) {
                                     auto [pt3, pt4] = gen_point_pairs2();
-                                    pred_template->set_arg(2, pt3);
-                                    pred_template->set_arg(3, pt4);
-                                    co_yield true;
-                                    pred_template->clear_arg(3);
-                                    pred_template->clear_arg(2);
+                                    char c2 = pred_template->set_arg(2, pt3);
+                                    if (c2 != Arg::UNSUCCESSFUL_SET) {
+                                        char c3 = pred_template->set_arg(3, pt4);
+                                        if (c3 != Arg::UNSUCCESSFUL_SET) co_yield true;
+                                        if (c3 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(3);
+                                    }
+                                    if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(2);
                                 }
 
                                 pred_template->clear_arg(0);
@@ -407,9 +407,9 @@ Generator<bool> DDEngine::match_para(PredicateTemplate* pred_template, Geometric
                                 while (gen_point_2) {
                                     auto pt3 = gen_point_2();
                                     if (pt3 != p3) {
-                                        pred_template->set_arg(unsets[2], pt3);
-                                        co_yield true;
-                                        pred_template->clear_arg(unsets[2]);
+                                        char c2 = pred_template->set_arg(unsets[2], pt3);
+                                        if (c2 != Arg::UNSUCCESSFUL_SET) co_yield true;
+                                        if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(unsets[2]);
                                     }
                                 }
 
@@ -460,11 +460,13 @@ Generator<bool> DDEngine::match_para(PredicateTemplate* pred_template, Geometric
                                 auto gen_point_pairs2 = l2->all_point_pairs_ordered();
                                 while (gen_point_pairs2) {
                                     auto [pt3, pt4] = gen_point_pairs2();
-                                    pred_template->set_arg(2, pt3);
-                                    pred_template->set_arg(3, pt4);
-                                    co_yield true;
-                                    pred_template->clear_arg(3);
-                                    pred_template->clear_arg(2);
+                                    char c2 = pred_template->set_arg(2, pt3);
+                                    if (c2 != Arg::UNSUCCESSFUL_SET) {
+                                        char c3 = pred_template->set_arg(3, pt4);
+                                        if (c3 != Arg::UNSUCCESSFUL_SET) co_yield true;
+                                        if (c3 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(3);
+                                    }
+                                    if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(2);
                                 }
                             }
                         } break;
@@ -478,9 +480,9 @@ Generator<bool> DDEngine::match_para(PredicateTemplate* pred_template, Geometric
                                     while (gen_point_2) {
                                         auto pt3 = gen_point_2();
                                         if (pt3 != p3) {
-                                            pred_template->set_arg(unsets[2], pt3);
-                                            co_yield true;
-                                            pred_template->clear_arg(unsets[2]);
+                                            char c2 = pred_template->set_arg(unsets[2], pt3);
+                                            if (c2 != Arg::UNSUCCESSFUL_SET) co_yield true;
+                                            if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(unsets[2]);
                                         }
                                     }
                                 }
@@ -615,11 +617,13 @@ Generator<bool> DDEngine::match_perp(PredicateTemplate* pred_template, Geometric
                                 auto gen_point_pairs2 = l2->all_point_pairs_ordered();
                                 while (gen_point_pairs2) {
                                     auto [pt3, pt4] = gen_point_pairs2();
-                                    pred_template->set_arg(2, pt3);
-                                    pred_template->set_arg(3, pt4);
-                                    co_yield true;
-                                    pred_template->clear_arg(3);
-                                    pred_template->clear_arg(2);
+                                    char c2 = pred_template->set_arg(2, pt3);
+                                    if (c2 != Arg::UNSUCCESSFUL_SET) {
+                                        char c3 = pred_template->set_arg(3, pt4);
+                                        if (c3 != Arg::UNSUCCESSFUL_SET) co_yield true;
+                                        if (c3 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(3);
+                                    }
+                                    if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(2);
                                 }
                                 pred_template->clear_arg(0);
                                 pred_template->clear_arg(1);
@@ -646,9 +650,9 @@ Generator<bool> DDEngine::match_perp(PredicateTemplate* pred_template, Geometric
                                 while (gen_point_2) {
                                     auto pt3 = gen_point_2();
                                     if (pt3 != p3) {
-                                        pred_template->set_arg(unsets[2], pt3);
-                                        co_yield true;
-                                        pred_template->clear_arg(unsets[2]);
+                                        char c2 = pred_template->set_arg(unsets[2], pt3);
+                                        if (c2 != Arg::UNSUCCESSFUL_SET) co_yield true;
+                                        if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(unsets[2]);
                                     }
                                 }
                                 pred_template->clear_arg(0);
@@ -698,11 +702,13 @@ Generator<bool> DDEngine::match_perp(PredicateTemplate* pred_template, Geometric
                                 auto gen_point_pairs2 = l2->all_point_pairs();
                                 while (gen_point_pairs2) {
                                     auto [pt3, pt4] = gen_point_pairs2();
-                                    pred_template->set_arg(2, pt3);
-                                    pred_template->set_arg(3, pt4);
-                                    co_yield true;
-                                    pred_template->clear_arg(3);
-                                    pred_template->clear_arg(2);
+                                    char c2 = pred_template->set_arg(2, pt3);
+                                    if (c2 != Arg::UNSUCCESSFUL_SET) {
+                                        char c3 = pred_template->set_arg(3, pt4);
+                                        if (c3 != Arg::UNSUCCESSFUL_SET) co_yield true;
+                                        if (c3 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(3);
+                                    }
+                                    if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(2);
                                 }
                             }
                         } break;
@@ -716,9 +722,9 @@ Generator<bool> DDEngine::match_perp(PredicateTemplate* pred_template, Geometric
                                     while (gen_point_2) {
                                         auto pt3 = gen_point_2();
                                         if (pt3 != p3) {
-                                            pred_template->set_arg(unsets[2], pt3);
-                                            co_yield true;
-                                            pred_template->clear_arg(unsets[2]);
+                                            char c2 = pred_template->set_arg(unsets[2], pt3);
+                                            if (c2 != Arg::UNSUCCESSFUL_SET) co_yield true;
+                                            if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(unsets[2]);
                                         }
                                     }
                                 }
@@ -852,13 +858,17 @@ Generator<bool> DDEngine::match_cong(PredicateTemplate* pred_template, Geometric
                                 for (auto [pt3, pt4] : s2p) {
                                     pred_template->set_arg(0, pt1);
                                     pred_template->set_arg(1, pt2);
-                                    pred_template->set_arg(2, pt3);
-                                    pred_template->set_arg(3, pt4);
-                                    co_yield true;
+                                    
+                                    char c2 = pred_template->set_arg(2, pt3);
+                                    if (c2 != Arg::UNSUCCESSFUL_SET) {
+                                        char c3 = pred_template->set_arg(3, pt4);
+                                        if (c3 != Arg::UNSUCCESSFUL_SET) co_yield true;
+                                        if (c3 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(3);
+                                    }
+                                    if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(2);
+
                                     pred_template->clear_arg(0);
                                     pred_template->clear_arg(1);
-                                    pred_template->clear_arg(2);
-                                    pred_template->clear_arg(3);
                                 }
                             }
                             
@@ -870,6 +880,7 @@ Generator<bool> DDEngine::match_cong(PredicateTemplate* pred_template, Geometric
                     auto gen_s2 = p3->endpoint_of_segments();
                     while (gen_s2) {
                         Segment* s2 = gen_s2();
+                        if (!s2->has_length()) continue;
                         Point* pt4 = s2->other_endpoint(p3);
                         Length* l = s2->get_length();
                         for (Segment* s1 : l->root_objs) {
@@ -879,18 +890,20 @@ Generator<bool> DDEngine::match_cong(PredicateTemplate* pred_template, Geometric
                             for (auto [pt1, pt2] : s1p) {
                                 pred_template->set_arg(0, pt1);
                                 pred_template->set_arg(1, pt2);
-                                pred_template->set_arg(unsets[2], pt4);
-                                co_yield true;
+
+                                char c2 = pred_template->set_arg(unsets[2], pt4);
+                                if (c2 != Arg::UNSUCCESSFUL_SET) co_yield true;
+                                if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(unsets[2]);
+
                                 pred_template->clear_arg(0);
                                 pred_template->clear_arg(1);
-                                pred_template->clear_arg(unsets[2]);
                             }
                         }
                     }
                 } break;
                 case 0b11: {
                     Segment* s2 = ggraph.try_get_segment(p3, p4);
-                    if (s2) {
+                    if (s2 && s2->has_length()) {
                         Length* l = s2->get_length();
                         for (Segment* s1 : l->root_objs) {
                             if (s1 == s2) continue;
@@ -913,6 +926,7 @@ Generator<bool> DDEngine::match_cong(PredicateTemplate* pred_template, Geometric
             auto gen_s1 = p1->endpoint_of_segments();
             while (gen_s1) {
                 Segment* s1 = gen_s1();
+                if (!s1->has_length()) continue;
                 Point* pt2 = s1->other_endpoint(p1);
                 pred_template->set_arg(unsets[0], pt2);
                 Length* l = s1->get_length();
@@ -923,11 +937,13 @@ Generator<bool> DDEngine::match_cong(PredicateTemplate* pred_template, Geometric
                             auto [p3, p4] = s2->endpoints;
                             std::array<std::array<Point*, 2>, 2> s2p{{{p3, p4}, {p4, p3}}};
                             for (auto [pt3, pt4] : s2p) {
-                                pred_template->set_arg(2, pt3);
-                                pred_template->set_arg(3, pt4);
-                                co_yield true;
-                                pred_template->clear_arg(2);
-                                pred_template->clear_arg(3);
+                                char c2 = pred_template->set_arg(2, pt3);
+                                if (c2 != Arg::UNSUCCESSFUL_SET) {
+                                    char c3 = pred_template->set_arg(3, pt4);
+                                    if (c3 != Arg::UNSUCCESSFUL_SET) co_yield true;
+                                    if (c3 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(3);
+                                }
+                                if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(2);
                             }
                         }
                     } break;
@@ -936,9 +952,9 @@ Generator<bool> DDEngine::match_cong(PredicateTemplate* pred_template, Geometric
                         for (Segment* s2 : l->root_objs) {
                             if (s2 == s1) continue;
                             if (Point* pt4 = s2->other_endpoint(p3)) {
-                                pred_template->set_arg(unsets[2], pt4);
-                                co_yield true;
-                                pred_template->clear_arg(unsets[2]);
+                                char c2 = pred_template->set_arg(unsets[2], pt4);
+                                if (c2 != Arg::UNSUCCESSFUL_SET) co_yield true;
+                                if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(unsets[2]);
                             }
                         }
                     } break;
@@ -956,8 +972,9 @@ Generator<bool> DDEngine::match_cong(PredicateTemplate* pred_template, Geometric
         } break;
         case 0b11: {
             Segment* s1 = ggraph.try_get_segment(p1, p2);
-            Length* l = s1->get_length();
             if (s1) {
+                if (!s1->has_length()) co_return;
+                Length* l = s1->get_length();
                 switch(k2) {
                     case 0b00: {
                         for (Segment* s2 : l->root_objs) {
@@ -1081,7 +1098,8 @@ Generator<bool> DDEngine::__match_eqangle(PredicateTemplate* pred_template, Geom
                             co_yield true;
                         }
                     }
-                    
+                    pred_template->clear_arg(i*2);
+                    pred_template->clear_arg(i*2 + 1);
                 }
             }
             co_return;
@@ -1607,12 +1625,10 @@ Generator<bool> DDEngine::match_diff(PredicateTemplate* pred_template, Geometric
     std::set<Point*> pts;
     for (Arg* arg : pred_template->args) {
         Point* p = arg->get_point();
-        if (pts.contains(p)) {
-            co_return;
-        }
+        if (pts.contains(p)) co_return;
         pts.insert(p);
     }
-    co_yield true;
+    co_yield ggraph.check_diff(pts);
     co_return;
 }
 
@@ -1627,8 +1643,10 @@ Generator<bool> DDEngine::match_ncoll(PredicateTemplate* pred_template, Geometri
         if (i < 2) {
             auto [_, res] = pts.insert(p);
             if (res) i += 1;
+            else co_return;
             continue;
         }
+        if (pts.contains(p)) co_return;
         for (auto it = pts.begin(); it != pts.end(); ++it) {
             for (auto it2 = std::next(it); it2 != pts.end(); ++it2) {
                 Point* p1 = *it, *p2 = *it2;
@@ -1641,7 +1659,7 @@ Generator<bool> DDEngine::match_ncoll(PredicateTemplate* pred_template, Geometri
         }
         pts.insert(p);
     }
-    co_yield true;
+    co_yield ggraph.check_ncoll(pts);
     co_return;
 }
 
@@ -1666,7 +1684,7 @@ Generator<bool> DDEngine::match_npara(PredicateTemplate* pred_template, Geometri
 Generator<bool> DDEngine::match(Theorem* theorem, int i, int n, GeometricGraph &ggraph) {
     if (i == n) {
         // Skip over matches where the postcondition is already known
-        if (!ggraph.check_postcondition(theorem->postcondition.get())) {
+        if (!ggraph.check(theorem->postcondition.get())) {
             insert_predicate(theorem->instantiate_postcondition());
             co_yield true;
         }
@@ -1683,7 +1701,7 @@ Generator<bool> DDEngine::match(Theorem* theorem, int i, int n, GeometricGraph &
     while (pred_matcher) {
         if (pred_matcher()) {
             // Skip over matches where the postcondition is already known
-            if (ggraph.check_postcondition(theorem->postcondition.get())) continue;
+            if (ggraph.check(theorem->postcondition.get())) continue;
 
             Generator<bool> rec = match(theorem, i + 1, n, ggraph);
             while (rec) {
@@ -1729,14 +1747,7 @@ bool DDEngine::check_postcondition_exact(PredicateTemplate* postcondition) {
 
 bool DDEngine::check_conclusion(GeometricGraph &ggraph) {
     PredicateTemplate* conc = conclusion.get();
-    // Just reuse the match functions lol
-    Generator<bool> conc_matcher = (this->*match_function_map[conc->name])(conc, ggraph);
-    while (conc_matcher) {
-        if (conc_matcher()) {
-            return true;
-        }
-    }
-    return false;
+    return ggraph.check(conc);
 }
 
 

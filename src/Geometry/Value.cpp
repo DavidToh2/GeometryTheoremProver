@@ -102,11 +102,11 @@ Generator<Angle*> Direction::on_angles_as_direction2() {
     co_return;
 }
 
-void Direction::merge(Direction* other, Predicate* pred) {
+std::optional<std::pair<Direction*, Direction*>> Direction::merge(Direction* other, Predicate* pred) {
     Direction* root_this = NodeUtils::get_root(this);
     Direction* root_other = NodeUtils::get_root(other);
     if (root_this == root_other) {
-        return;
+        return std::nullopt;
     }
     root_other->root = root_this;
     root_other->parent = root_this;
@@ -119,22 +119,18 @@ void Direction::merge(Direction* other, Predicate* pred) {
     root_this->root_objs.merge(root_other->root_objs);
     root_other->root_objs.clear();
 
-    for (Angle* a : root_other->on_angles_1) {
-        a->direction1 = root_this;
-    }
-    for (Angle* a : root_other->on_angles_2) {
-        a->direction2 = root_this;
-    }
     root_this->on_angles_1.merge(root_other->on_angles_1);
     root_this->on_angles_2.merge(root_other->on_angles_2);
 
-    root_this->__merge_perps(root_other, pred);
+    return root_this->__check_perps_for_merge(root_other, pred);
 }
 
-void Direction::__merge_perps(Direction* other, Predicate* pred) {
+std::optional<std::pair<Direction*, Direction*>> Direction::__check_perps_for_merge(Direction* other, Predicate* pred) {
     if (other->__has_perp()) {
         if (__has_perp()) {
-            perp->merge(other->perp, pred);
+            if (!NodeUtils::same_as(__get_perp(), other->__get_perp())) {
+                return {{perp, other->perp}};
+            }
         } else {
             __set_perp(other->__get_perp(), pred);
             perp_why = other->perp_why;
@@ -142,6 +138,53 @@ void Direction::__merge_perps(Direction* other, Predicate* pred) {
     }
     // No need to populate root_other->perp, as the most up-to-date records of `perp` are always stored by
     // the root node
+    return std::nullopt;
+}
+
+Generator<std::pair<Angle*, Angle*>> Direction::check_incident_angles(Direction* d, Direction* other_d, Predicate* pred) {
+    std::map<Direction*, Angle*> dir1_to_angle;
+    std::map<Direction*, Angle*> dir2_to_angle;
+    for (Angle* a : d->on_angles_1) {
+        Direction* d2 = a->direction2;
+        if (d != d2) {
+            dir2_to_angle[d2] = a;
+        }
+    }
+    for (auto it = other_d->on_angles_1.begin(); it != other_d->on_angles_1.end(); ) {
+        Angle* a = *it;
+        bool merge_happened = false;
+        a->direction1 = d;
+
+        Direction* d2 = a->direction2;
+        if (other_d != d2 && dir2_to_angle.contains(d2)) {
+            Angle* a1 = dir2_to_angle[d2];
+            if (!merge_happened) it = other_d->on_angles_1.erase(it);
+            merge_happened = true;
+            co_yield {a1, a};
+        }
+        if (!merge_happened) ++it;
+    }
+    for (Angle* a : d->on_angles_2) {
+        Direction* d1 = a->direction1;
+        if (d != d1) {
+            dir1_to_angle[d1] = a;
+        }
+    }
+    for (auto it = other_d->on_angles_2.begin(); it != other_d->on_angles_2.end(); ) {
+        Angle* a = *it;
+        bool merge_happened = false;
+        a->direction2 = d;
+
+        Direction* d1 = a->direction1;
+        if (other_d != d1 && dir1_to_angle.contains(d1)) {
+            Angle* a1 = dir1_to_angle[d1];
+            if (!merge_happened) it = other_d->on_angles_2.erase(it);
+            merge_happened = true;
+            co_yield {a1, a};
+        } 
+        if (!merge_happened) ++it;
+    }
+    co_return;
 }
 
 bool Direction::is_para(Direction *d1, Direction *d2) {
@@ -205,12 +248,52 @@ void Length::merge(Length* other, Predicate* pred) {
     root_this->root_objs.merge(root_other->root_objs);
     root_other->root_objs.clear();
 
-    for (Ratio* r : root_other->on_ratio_1) {
-        r->length1 = root_this;
-    }
-    for (Ratio* r : root_other->on_ratio_2) {
-        r->length2 = root_this;
-    }
     root_this->on_ratio_1.merge(root_other->on_ratio_1);
     root_this->on_ratio_2.merge(root_other->on_ratio_2);
+}
+
+Generator<std::pair<Ratio*, Ratio*>> Length::check_incident_ratios(Length* l, Length* other_l, Predicate* pred) {
+    std::map<Length*, Ratio*> len1_to_ratio;
+    std::map<Length*, Ratio*> len2_to_ratio;
+    for (Ratio* r : l->on_ratio_1) {
+        Length* l2 = r->length2;
+        if (l != l2) {
+            len2_to_ratio[l2] = r;
+        }
+    }
+    for (auto it = other_l->on_ratio_1.begin(); it != other_l->on_ratio_1.end(); ) {
+        Ratio* r = *it;
+        bool merge_happened = false;
+        r->length1 = l;
+
+        Length* l2 = r->length2;
+        if (other_l != l2 && len2_to_ratio.contains(l2)) {
+            Ratio* r1 = len2_to_ratio[l2];
+            if (!merge_happened) it = other_l->on_ratio_1.erase(it);
+            merge_happened = true;
+            co_yield {r1, r};
+        }
+        if (!merge_happened) ++it;
+    }
+    for (Ratio* r : l->on_ratio_2) {
+        Length* l1 = r->length1;
+        if (l != l1) {
+            len1_to_ratio[l1] = r;
+        }
+    }
+    for (auto it = other_l->on_ratio_2.begin(); it != other_l->on_ratio_2.end(); ) {
+        Ratio* r = *it;
+        bool merge_happened = false;
+        r->length2 = l;
+
+        Length* l1 = r->length1;
+        if (other_l != l1 && len1_to_ratio.contains(l1)) {
+            Ratio* r1 = len1_to_ratio[l1];
+            if (!merge_happened) it = other_l->on_ratio_2.erase(it);
+            merge_happened = true;
+            co_yield {r1, r};
+        } 
+        if (!merge_happened) ++it;
+    }
+    co_return;
 }

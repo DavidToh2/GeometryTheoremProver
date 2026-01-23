@@ -1,3 +1,13 @@
+# A note on degenerate objects
+
+A fundamental flaw of our geometric graph system is that it is unable to initialise numerically degenerate objects. This is due to the way our NumEngine is implemented, which throws errors on detection of numerically degenerate objects (such as the circumcircle of three collinear lines). 
+
+When our GeometricGraph creates new objects,
+- the object is first created with `std::make_unique<>()`, which invokes its constructor and populates the object's own `points` attribute;
+- the object's numerics are then generated with `compute_object_from_points()`, which also performs an implicit numeric check;
+- if the numeric check succeeds, then the GeometricGraph's `root_objects` field, as well as the points' `on_object` and `on_root_object` field, are populated by `Point::set_this_on()`;
+- if the numeric check fails, then a `NumericsInternalError` is thrown before the aforementioned fields are populated, so that the state of the valid objects in the program are not polluted by this invalid object.
+
 # A note on node incidence detection
 
 Our approach to theorem proving is "conservative": any result that has not been shown to be true, cannot be taken to be true. It is perfectly valid under this approach to conclude that some lines, circles, or segments are incident as a result of establishing that their constituent points are incident. However, the reverse direction does not hold.
@@ -42,6 +52,10 @@ the `match_para()` function already ensures that `A != B` and `A != C`. Hence, i
 With this enforcement, we are able to hardcode the `make_coll()` function in `GeometricGraph` to employ Scenario 1, where $l_1, l_2, l_3$ are merged together. There is a design choice here: because the aforementioned assumption on `coll` is a feature of the `coll` predicate, not a ground truth of the `Line` class, so our implementation of Scenario 1 is done in the `GeometricGraph` rather than as a member function of `Line`.
 
 As an example of the converse, consider a situation where $l_1$ also contained some $D$, and $l_2$ some $E$, and it has been shown that $D$ and $E$ are incident. The lines $l_1$ and $l_2$ may thus be merged, but not as a result of any collinear deduction. In this situation, Scenario 2 could still be possible.
+
+## Hypothetical scenario
+
+Consider the following situation: we have three root lines with names $BH$, $CI$ (containing $B$), and $HI$. The predicate `coll H B C` is called, and $BH$ is merged into $CI$. What happens to $HI$?
 
 ## AlphaGeo's approach
 

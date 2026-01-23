@@ -31,6 +31,28 @@ void GeometricGraph::initialise_point_numerics(NumEngine &nm) {
         point_nums[p] = nm.get_cartesian(p);
     }
 }
+void GeometricGraph::__set_point_numeric(Point* p, CartesianPoint cp) {
+    point_nums[p] = cp;
+}
+void GeometricGraph::__identify_num_eq_points(Point* new_p) {
+    CartesianPoint cp = point_nums.at(new_p);
+    for (const auto& [other_p, other_cp] : point_nums) {
+        if (other_p == new_p) continue;
+        if (cp == other_cp) {
+            int set_num;
+            if (point_to_num_eq_set.contains(other_p)) {
+                set_num = point_to_num_eq_set.at(other_p);
+            } else {
+                set_num = num_eq_point_sets.size();
+                num_eq_point_sets.emplace_back(std::set<Point*>{other_p});
+                point_to_num_eq_set.insert({other_p, set_num});
+            }
+            num_eq_point_sets[set_num].insert(new_p);
+            point_to_num_eq_set.insert({new_p, set_num});
+            return;
+        }
+    }
+}
 
 
 
@@ -52,6 +74,13 @@ double GeometricGraph::compute_direction_angle(Direction* d) {
     }
     return 0.0;
 }
+double GeometricGraph::compute_direction_angle(Line* l) {
+    return Cartesian::angle_of(line_nums.at(l));
+}
+
+
+
+
 
 
 Point* GeometricGraph::__add_new_point(const std::string point_id, CartesianPoint&& coords) {
@@ -61,12 +90,13 @@ Point* GeometricGraph::__add_new_point(const std::string point_id, CartesianPoin
     points[point_id] = std::make_unique<Point>(point_id);
     Point* p = points[point_id].get();
     root_points.insert(p);
+
     point_nums[p] = std::move(coords);
     return p;
 }
 
 void GeometricGraph::__try_add_point(const std::string point_id) {
-    if (!Utils::isinmap(point_id, points)) {
+    if (!points.contains(point_id)) {
         points[point_id] = std::make_unique<Point>(point_id);
         root_points.insert(points[point_id].get());
     }
@@ -126,9 +156,11 @@ Line* GeometricGraph::__add_new_line(Point* p1, Point* p2, Predicate* base_pred)
     }
     lines[line_id] = std::make_unique<Line>(line_id, p1, p2, base_pred);
     Line* l = lines[line_id].get();
-    root_lines.insert(l);
+    line_nums[l] = compute_line_from_points(p1, p2); // throws NumericsInternalError if line is degenerate
 
-    line_nums[l] = compute_line_from_points(p1, p2);
+    root_lines.insert(l);
+    p1->set_this_on(l, base_pred);
+    p2->set_this_on(l, base_pred);
 
     return l;
 }
@@ -163,7 +195,10 @@ Line* GeometricGraph::try_get_line(Point* p1, Point* p2) {
 void GeometricGraph::merge_lines(Line* dest, Line* src, Predicate* pred) {
     if (dest == src) return;
     root_lines.erase(NodeUtils::get_root(src));
-    dest->merge(src, pred);
+    auto dirs = dest->merge(src, pred);
+    if (dirs) {
+        set_directions_para(dirs->first, dirs->second, pred);
+    }
 }
 
 
@@ -176,11 +211,11 @@ Direction* GeometricGraph::__add_new_direction(Line* l, Predicate* base_pred) {
     }
     directions[dir_id] = std::make_unique<Direction>(dir_id);
     Direction* dir = directions[dir_id].get();
+    direction_gradients[dir] = compute_direction_angle(l);
+
     dir->add_line(l, base_pred);
     l->set_direction(dir, base_pred);
     root_directions.insert(dir);
-
-    direction_gradients[dir] = compute_direction_angle(dir);
 
     return dir;
 }
@@ -200,7 +235,18 @@ void GeometricGraph::set_directions_para(Direction* dest, Direction* src, Predic
     if (src->has_perp()) {
         root_directions.erase(NodeUtils::get_root(src->perp));
     }
-    dest->merge(src, pred);
+
+    // Check for incident angles as a result of the direction merge
+    auto gen_to_merge_angles = Direction::check_incident_angles(dest, src, pred);
+    while (gen_to_merge_angles) {
+        auto pair = gen_to_merge_angles();
+        merge_angles(pair.first, pair.second, pred);
+    }
+    
+    auto perps = dest->merge(src, pred);
+    if (perps) {
+        set_directions_para(perps->first, perps->second, pred);
+    }
 }
 
 void GeometricGraph::set_directions_perp(Direction* d1, Direction* d2, Predicate* pred) {
@@ -243,9 +289,12 @@ Circle* GeometricGraph::__add_new_circle(Point* p1, Point* p2, Point* p3, Predic
     }
     circles[circle_id] = std::make_unique<Circle>(circle_id, p1, p2, p3, base_pred);
     Circle* circ = circles[circle_id].get();
-    root_circles.insert(circ);
+    circle_nums[circ] = compute_circle_from_points(p1, p2, p3); // throws NumericsInternalError if points are collinear or coincide
 
-    circle_nums[circ] = compute_circle_from_points(p1, p2, p3);
+    root_circles.insert(circ);
+    p1->set_this_on(circ, base_pred);
+    p2->set_this_on(circ, base_pred);
+    p3->set_this_on(circ, base_pred);
 
     return circ;
 }
@@ -256,9 +305,11 @@ Circle* GeometricGraph::__add_new_circle(Point* c, Point* p1, Predicate* base_pr
     }
     circles[circle_id] = std::make_unique<Circle>(circle_id, c, p1, base_pred);
     Circle* circ = circles[circle_id].get();
-    root_circles.insert(circ);
+    circle_nums[circ] = compute_circle_from_points(c, p1); // throws NumericsInternalError if c, p1 coincide
 
-    circle_nums[circ] = compute_circle_from_points(c, p1);
+    root_circles.insert(circ);
+    p1->set_this_on(circ, base_pred);
+    c->set_this_center_of(circ, base_pred);
 
     return circ;
 }
@@ -371,7 +422,10 @@ void GeometricGraph::set_circle_center(Point* cp, Circle* c, Predicate* pred) {
 void GeometricGraph::merge_circles(Circle* dest, Circle* src, Predicate* pred) {
     if (dest == src) return;
     root_circles.erase(NodeUtils::get_root(src));
-    dest->merge(src, pred);
+    auto p2 = dest->merge(src, pred);
+    if (p2) {
+        merge_points(p2->first, p2->second, pred);
+    }
 }
 
 
@@ -391,7 +445,11 @@ Segment* GeometricGraph::__add_new_segment(Point* p1, Point* p2, Line* l, Predic
     }
     segments[segment_id] = std::make_unique<Segment>(segment_id, p1, p2, l, base_pred);
     Segment* s = segments[segment_id].get();
+
     root_segments.insert(s);
+    p1->set_this_endpoint_of(s, base_pred);
+    p2->set_this_endpoint_of(s, base_pred);
+
     return s;
 }
 Segment* GeometricGraph::__try_get_segment(Point* p1, Point* p2) {
@@ -418,7 +476,10 @@ Segment* GeometricGraph::try_get_segment(Point* p1, Point* p2) {
 void GeometricGraph::merge_segments(Segment* dest, Segment* src, Predicate* pred) {
     if (dest == src) return;
     root_segments.erase(NodeUtils::get_root(src));
-    dest->merge(src, pred);
+    auto l2 = dest->merge(src, pred);
+    if (l2) {
+        set_lengths_cong(l2->first, l2->second, pred);
+    }
 }
 
 
@@ -451,6 +512,13 @@ void GeometricGraph::set_lengths_cong(Segment* s, Segment* s_other, Predicate* p
 void GeometricGraph::set_lengths_cong(Length* l, Length* l_other, Predicate* pred) {
     if (l == l_other) return;
     root_lengths.erase(NodeUtils::get_root(l_other));
+
+    auto gen_to_merge_ratios = Length::check_incident_ratios(l, l_other, pred);
+    while (gen_to_merge_ratios) {
+        auto pair = gen_to_merge_ratios();
+        merge_ratios(pair.first, pair.second, pred);
+    }
+
     l->merge(l_other, pred);
 }
 
@@ -591,12 +659,14 @@ Angle* GeometricGraph::get_or_add_angle(Point* p1, Point* p2, Point* p3, DDEngin
 }
 
 
-
-
 void GeometricGraph::merge_angles(Angle* dest, Angle* src, Predicate* pred) {
     if (dest == src) return;
     root_angles.erase(NodeUtils::get_root(src));
-    dest->merge(src, pred);
+
+    auto ms = dest->merge(src, pred);
+    if (ms) {
+        set_measures_equal(ms->first, ms->second, pred);
+    }
 }
 
 
@@ -742,7 +812,11 @@ Ratio* GeometricGraph::get_or_add_ratio(Point* p1, Point* p2, Point* p3, Point* 
 void GeometricGraph::merge_ratios(Ratio* dest, Ratio* src, Predicate* pred) {
     if (dest == src) return;
     root_ratios.erase(NodeUtils::get_root(src));
-    dest->merge(src, pred);
+
+    auto fracs = dest->merge(src, pred);
+    if (fracs) {
+        set_fractions_equal(fracs->first, fracs->second, pred);
+    }
 }
 
 
@@ -928,7 +1002,31 @@ bool GeometricGraph::check_constangle(Angle* a, Frac f) { return Angle::is_equal
 bool GeometricGraph::check_constratio(Ratio* r, Frac f) { return Ratio::is_equal(r, f); }
 
 
-bool GeometricGraph::check_postcondition(PredicateTemplate* pred) {
+bool GeometricGraph::check_diff(std::set<Point*> &pts) {
+    std::set<int> s;
+    for (Point* p : pts) {
+        if (point_to_num_eq_set.contains(p) && !s.insert(point_to_num_eq_set[p]).second) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool GeometricGraph::check_ncoll(std::set<Point*> &pts) {
+    std::set<double> angles;
+    for (auto it1 = pts.begin(); it1 != pts.end(); ++it1) {
+        for (auto it2 = std::next(it1); it2 != pts.end(); ++it2) {
+            if (!angles.insert(Cartesian::angle_of(CartesianLine(point_nums[*it1], point_nums[*it2]))).second) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+
+bool GeometricGraph::check(PredicateTemplate* pred) {
     
     if (!pred->args_filled()) return false;
 
@@ -1184,7 +1282,7 @@ bool GeometricGraph::make_cong(Predicate* pred, DDEngine &dd, AREngine &ar) {
 
     // Invariant: point_nums[p1] < point_nums[p2] and point_nums[p3] < point_nums[p4]
     // by definition of how GeometricGraph::__add_new_segment works.
-    ar.add_cong(s1, s2, pred);
+    ar.add_cong(s1, s2, l1, l2, pred);
     return true;
 }
 
@@ -1193,6 +1291,8 @@ bool GeometricGraph::make_ar_cong(Predicate* pred, DDEngine &dd) {
         case 2: {
             Length* l1 = static_cast<Length*>(pred->args[0]);
             Length* l2 = static_cast<Length*>(pred->args[1]);
+
+            if (check_cong(l1, l2)) return false;
 
             Segment* s1 = get_segment_from_length(l1);
             Segment* s2 = get_segment_from_length(l2);
@@ -1220,6 +1320,8 @@ bool GeometricGraph::make_ar_cong(Predicate* pred, DDEngine &dd) {
 
             Length* l1 = get_or_add_length(s1, dd);
             Length* l2 = get_or_add_length(s2, dd);
+
+            if (check_cong(l1, l2)) return false;
 
             set_lengths_cong(l1, l2, pred);
             return true;
@@ -1259,7 +1361,6 @@ bool GeometricGraph::make_eqangle(Predicate* pred, DDEngine &dd, AREngine &ar) {
         a2->set_measure(m, pred);
     }
     
-    // Use numerics to determine if pi-offsets are needed
     Direction* d1 = a1->direction1;
     Direction* d2 = a1->direction2;
     Direction* d3 = a2->direction1;
@@ -1287,9 +1388,6 @@ bool GeometricGraph::make_ar_eqangle(Predicate* pred, DDEngine& dd) {
 
     if (check_eqangle(a1, a2)) return false;
 
-    Measure* m1 = get_or_add_measure(a1, dd);
-    Measure* m2 = get_or_add_measure(a2, dd);
-
     Line* l1 = get_line_from_direction(d1);
     Line* l2 = get_line_from_direction(d2);
     Line* l3 = get_line_from_direction(d3);
@@ -1309,7 +1407,22 @@ bool GeometricGraph::make_ar_eqangle(Predicate* pred, DDEngine& dd) {
     pred->args.emplace_back(p7);
     pred->args.emplace_back(p8);
 
-    set_measures_equal(m1, m2, pred);
+    if (a1->has_measure()) {
+        if (a2->has_measure()) {
+            Measure* m1 = a1->get_measure();
+            Measure* m2 = a2->get_measure();
+            set_measures_equal(m1, m2, pred);
+        } else {
+            Measure* m1 = a1->get_measure();
+            a2->set_measure(m1, pred);
+        }
+    } else if (a2->has_measure()) {
+        Measure* m2 = a2->get_measure();
+        a1->set_measure(m2, pred);
+    } else {
+        Measure* m = __add_new_measure(a1, pred);
+        a2->set_measure(m, pred);
+    }
     return true;
 }
 
@@ -1365,9 +1478,6 @@ bool GeometricGraph::make_ar_eqratio(Predicate* pred, DDEngine &dd) {
 
     if (check_eqratio(r1, r2)) return false;
 
-    Fraction* f1 = r1->get_fraction();
-    Fraction* f2 = r2->get_fraction();
-
     Segment* s1 = get_segment_from_length(l1);
     Segment* s2 = get_segment_from_length(l2);
     Segment* s3 = get_segment_from_length(l3);
@@ -1387,7 +1497,22 @@ bool GeometricGraph::make_ar_eqratio(Predicate* pred, DDEngine &dd) {
     pred->args.emplace_back(p7);
     pred->args.emplace_back(p8);
 
-    set_fractions_equal(f1, f2, pred);
+    if (r1->has_fraction()) {
+        if (r2->has_fraction()) {
+            Fraction* f1 = r1->get_fraction();
+            Fraction* f2 = r2->get_fraction();
+            set_fractions_equal(f1, f2, pred);
+        } else {
+            Fraction* f1 = r1->get_fraction();
+            r2->set_fraction(f1, pred);
+        }
+    } else if (r2->has_fraction()) {
+        Fraction* f2 = r2->get_fraction();
+        r1->set_fraction(f2, pred);
+    } else {
+        Fraction* f = __add_new_fraction(r1, pred);
+        r2->set_fraction(f, pred);
+    }
     return true;
 }
 
@@ -1407,12 +1532,17 @@ bool GeometricGraph::make_midp(Predicate* pred, DDEngine &dd, AREngine &ar) {
     Segment* s2 = get_or_add_segment(m, p2, dd);
     Length* l1 = get_or_add_length(s1, dd);
     Length* l2 = get_or_add_length(s2, dd);
+
+    if (l1 == l2) return false;
+
     set_lengths_cong(l1, l2, pred);
 
     if (point_nums[s1->endpoints[0]] > point_nums[s2->endpoints[0]]) {
         std::swap(s1, s2);
+        std::swap(l1, l2);
     }
-    ar.add_midp(s1, s2, pred);
+    
+    ar.add_midp(s1, s2, l1, l2, pred);
 
     return true;
 }
@@ -1526,33 +1656,50 @@ int GeometricGraph::synthesise_preds(DDEngine &dd, AREngine &ar) {
     auto recent_preds_gen = dd.get_recent_predicates();
 
     while (recent_preds_gen) {
+        bool res = false;
         Predicate* pred = recent_preds_gen();
-        num += 1;
 
         switch(pred->name) {
             case pred_t::COLL:
-                make_coll(pred, dd);
+                res = make_coll(pred, dd);
                 break;
             case pred_t::CYCLIC:
-                make_cyclic(pred, dd);
+                res = make_cyclic(pred, dd);
                 break;
             case pred_t::PARA:
-                make_para(pred, dd, ar);
+                res = make_para(pred, dd, ar);
                 break;
             case pred_t::PERP:
-                make_perp(pred, dd, ar);
+                res = make_perp(pred, dd, ar);
+                break;
+            case pred_t::CONG:
+                res = make_cong(pred, dd, ar);
                 break;
             case pred_t::EQANGLE:
-                make_eqangle(pred, dd, ar);
+                res = make_eqangle(pred, dd, ar);
+                break;
+            case pred_t::EQRATIO:
+                res = make_eqratio(pred, dd, ar);
+                break;
+            case pred_t::MIDP:
+                res = make_midp(pred, dd, ar);
                 break;
             case pred_t::CIRCLE:
-                make_circle(pred, dd);
+                res = make_circle(pred, dd);
+                break;
+            case pred_t::CONSTANGLE:
+                res = make_constangle(pred, dd, ar);
+                break;
+            case pred_t::CONSTRATIO:
+                res = make_constratio(pred, dd, ar);
                 break;
             default:
-                num -= 1;
                 break;
         }
-        
+        if (res) {
+            num += 1;
+            LOG("Synthesised predicate: " << pred->to_string());
+        }
     }
     return num;
 }
@@ -1561,21 +1708,38 @@ int GeometricGraph::synthesise_ar_preds(DDEngine &dd) {
     int num = 0;
     auto recent_preds_gen = dd.get_recent_predicates();
     while (recent_preds_gen) {
+        bool res = false;
         Predicate* pred = recent_preds_gen();
-        num += 1;
+
         switch(pred->name) {
             case pred_t::PARA:
-                make_ar_para(pred);
+                res = make_ar_para(pred);
                 break;
             case pred_t::PERP:
-                make_ar_perp(pred);
+                res = make_ar_perp(pred);
+                break;
+            case pred_t::CONG:
+                res = make_ar_cong(pred, dd);
                 break;
             case pred_t::EQANGLE:
-                make_ar_eqangle(pred, dd);
+                res = make_ar_eqangle(pred, dd);
+                break;
+            case pred_t::EQRATIO:
+                res = make_ar_eqratio(pred, dd);
+                break;
+            case pred_t::CONSTANGLE:
+                res = make_ar_constangle(pred, dd);
+                break;
+            case pred_t::CONSTRATIO:
+                res = make_ar_constratio(pred, dd);
                 break;
             default:
-                num -= 1;
                 break;
+        }
+
+        if (res) {
+            num += 1;
+            LOG("Synthesised AR predicate: " << pred->to_string());
         }
     }
     return num;
@@ -1705,6 +1869,9 @@ void GeometricGraph::reset_problem() {
     line_nums.clear();
     circle_nums.clear();
     direction_gradients.clear();
+
+    num_eq_point_sets.clear();
+    point_to_num_eq_set.clear();
 
     adhoc = 0;
 }

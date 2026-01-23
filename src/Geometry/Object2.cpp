@@ -31,6 +31,9 @@ bool Angle::has_measure() { return NodeUtils::get_root(this)->__has_measure(); }
 bool Angle::is_equal(Angle *a1, Angle *a2) {
     Angle* ra1 = NodeUtils::get_root(a1);
     Angle* ra2 = NodeUtils::get_root(a2);
+    if (ra1 == ra2) {
+        return true;
+    }
     if (!ra1->has_measure() || !ra2->has_measure()) {
         return false;
     }
@@ -40,8 +43,8 @@ bool Angle::is_equal(Angle *a1, Angle *a2) {
 }
 bool Angle::is_equal(Angle* a, Frac f) {
     Angle* ra = NodeUtils::get_root(a);
-    if (!a->has_measure()) return false;
-    return (a->measure->val == f);
+    if (!ra->has_measure()) return false;
+    return (ra->__get_measure()->val == f);
 }
 
 Generator<std::pair<Line*, Line*>> Angle::all_line_pairs() {
@@ -54,9 +57,9 @@ Generator<std::pair<Line*, Line*>> Angle::all_line_pairs() {
     co_return;
 }
 
-void Angle::__merge(Angle* other, Predicate* pred) {
+std::optional<std::pair<Measure*, Measure*>> Angle::__merge(Angle* other, Predicate* pred) {
     if (this == other) {
-        return;
+        return std::nullopt;
     }
     other->parent = this;
     other->parent_why = pred;
@@ -66,21 +69,22 @@ void Angle::__merge(Angle* other, Predicate* pred) {
     direction2->on_angles_2.erase(other);
 
     if (other->__has_measure()) {
-        other->measure->root_obj2s.erase(other);
+        other->__get_measure()->root_obj2s.erase(other);
         if (__has_measure()) {
-            measure->merge(other->measure, pred);
+            return {{__get_measure(), other->measure}};
         } else {
             set_measure(other->measure, pred);
         }
     }
+    return std::nullopt;
 }
-void Angle::merge(Angle* other, Predicate* pred) {
+std::optional<std::pair<Measure*, Measure*>> Angle::merge(Angle* other, Predicate* pred) {
     Angle* root_this = NodeUtils::get_root(this);
     Angle* root_other = NodeUtils::get_root(other);
     if (root_this->direction1 != root_other->direction1 || root_this->direction2 != root_other->direction2) {
         throw GGraphInternalError("Error: Cannot merge angles " + root_this->name + " and " + root_other->name + " with different directions.");
     }
-    root_this->__merge(root_other, pred);
+    return root_this->__merge(root_other, pred);
 }
 
 
@@ -113,6 +117,9 @@ Fraction* Ratio::get_fraction() {
 bool Ratio::is_equal(Ratio* r1, Ratio* r2) {
     Ratio* rr1 = NodeUtils::get_root(r1);
     Ratio* rr2 = NodeUtils::get_root(r2);
+    if (rr1 == rr2) {
+        return true;
+    }
     if (!rr1->has_fraction() || !rr2->has_fraction()) {
         return false;
     }
@@ -122,8 +129,8 @@ bool Ratio::is_equal(Ratio* r1, Ratio* r2) {
 }
 bool Ratio::is_equal(Ratio* r, Frac f) {
     Ratio* rr = NodeUtils::get_root(r);
-    if (!r->has_fraction()) return false;
-    return (r->fraction->val == f);
+    if (!rr->has_fraction()) return false;
+    return (rr->__get_fraction()->val == f);
 }
 
 Generator<std::pair<Segment*, Segment*>> Ratio::all_segment_pairs() {
@@ -136,9 +143,9 @@ Generator<std::pair<Segment*, Segment*>> Ratio::all_segment_pairs() {
     co_return;
 }
 
-void Ratio::__merge(Ratio* other, Predicate* pred) {
+std::optional<std::pair<Fraction*, Fraction*>> Ratio::__merge(Ratio* other, Predicate* pred) {
     if (this == other) {
-        return;
+        return std::nullopt;
     }
     other->parent = this;
     other->parent_why = pred;
@@ -148,19 +155,20 @@ void Ratio::__merge(Ratio* other, Predicate* pred) {
     length2->on_ratio_2.erase(other);
 
     if (other->__has_fraction()) {
-        other->fraction->root_obj2s.erase(other);
+        other->__get_fraction()->root_obj2s.erase(other);
         if (__has_fraction()) {
-            fraction->merge(other->fraction, pred);
+            return {{__get_fraction(), other->fraction}};
         } else {
             set_fraction(other->fraction, pred);
         }
     }
+    return std::nullopt;
 }
-void Ratio::merge(Ratio* other, Predicate* pred) {
+std::optional<std::pair<Fraction*, Fraction*>> Ratio::merge(Ratio* other, Predicate* pred) {
     Ratio* root_this = NodeUtils::get_root(this);
     Ratio* root_other = NodeUtils::get_root(other);
     if (root_this->length1 != root_other->length1 || root_this->length2 != root_other->length2) {
         throw GGraphInternalError("Error: Cannot merge ratios " + root_this->name + " and " + root_other->name + " with different lengths.");
     }
-    root_this->__merge(root_other, pred);
+    return root_this->__merge(root_other, pred);
 }

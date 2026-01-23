@@ -6,6 +6,7 @@
 #include "Geometry/Object.hh"
 #include "Geometry/Value.hh"
 #include "Geometry/Object2.hh"
+#include "Common/Constants.hh"
 
 class DDEngine;
 
@@ -58,7 +59,7 @@ public:
     std::map<Expr::Var, Length*> var_to_length;
     std::map<Expr::Var, Displacement> var_to_displacement;
 
-    AREngine() : angle_table("pi"), ratio_table("1"), displacement_table() {};
+    AREngine() : angle_table(Constants::PI), ratio_table(Constants::ONE), displacement_table() {};
 
     inline constexpr Expr::Var __get_var(Direction* d) {
         return var_to_direction.insert({d->name, d}).first->first;
@@ -103,15 +104,12 @@ public:
 
     void update_point_merger(Point* dest, Point* src, Predicate* pred);
     void update_line_merger(Line* dest, Line* src, Predicate* pred);
-    /* Sets segments `s1, s2` to be congruent.
-    Warning: This member function does not take the Value node directly, instead taking 
-    an Object node. As such, it is imperative that the Segments already have Length nodes 
-    created. */
-    void add_cong(Segment* s1, Segment* s2, Predicate* pred);
+    /* Sets segments `s1, s2` to be congruent. */
+    void add_cong(Segment* s1, Segment* s2, Length* l1, Length* l2, Predicate* pred);
     /* Sets segments `s1, s2` to be congruent. 
     Note: The points `s1, s2` are such that `s1 = p1-m, s2 = m-p2`. In other words, `s1`
     should appear to the left of `s2`. */
-    void add_midp(Segment* s1, Segment* s2, Predicate* pred);
+    void add_midp(Segment* s1, Segment* s2, Length* l1, Length* l2, Predicate* pred);
 
 
 

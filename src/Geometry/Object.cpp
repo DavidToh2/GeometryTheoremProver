@@ -282,9 +282,12 @@ Generator<Angle*> Line::on_angles_as_line2() {
     return this->get_direction()->on_angles_as_direction2();
 }
 
-void Line::merge(Line* other, Predicate* pred) {
+std::optional<std::pair<Direction*, Direction*>> Line::merge(Line* other, Predicate* pred) {
     Line* root_this = NodeUtils::get_root(this);
     Line* root_other = NodeUtils::get_root(other);
+    if (root_this == root_other) {
+        return std::nullopt;
+    }
     root_this->Node::merge(root_other, pred);
 
     /* For every point pt in root_other->points, set pt on root_this.
@@ -308,19 +311,21 @@ void Line::merge(Line* other, Predicate* pred) {
     }
 
     if (root_other->__has_direction()) {
-        root_other->direction->root_objs.erase(root_other);
+        root_other->__get_direction()->root_objs.erase(root_other);
         if (root_this->__has_direction()) {
-            root_this->direction->merge(root_other->direction, pred);
+            return {{root_this->__get_direction(), root_other->__get_direction()}};
         } else {
             root_this->set_direction(root_other->direction, pred);
         }
     }
+    return std::nullopt;
 }
 
 Generator<std::pair<Line*, Line*>> Line::check_incident_lines(Point *p, Point *other_p, Predicate *pred) {
     std::map<Point*, Line*> ltp;
     for (auto it = p->on_root_line.begin(); it != p->on_root_line.end(); ++it) {
         Line* l1 = *it;
+        Utils::replace_key_in_map(l1->points, other_p, p);
         for (auto& [p1, _] : l1->points) {
             if (p1 != p) {
                 assert(!ltp.contains(p1));
@@ -383,11 +388,11 @@ Generator<Circle*> Circle::all_circles_through(Point* p1, Point* p2) {
     co_return;
 }
 
-void Circle::merge(Circle* other, Predicate* pred) {
+std::optional<std::pair<Point*, Point*>> Circle::merge(Circle* other, Predicate* pred) {
     Circle* root_this = NodeUtils::get_root(this);
     Circle* root_other = NodeUtils::get_root(other);
     if (root_this == root_other) {
-        return;
+        return std::nullopt;
     }
     root_other->parent = root_this;
     root_other->parent_why = pred;
@@ -400,24 +405,34 @@ void Circle::merge(Circle* other, Predicate* pred) {
         }
     }
 
-    Point* c_this = root_this->__get_center();
-    Point* c_other = root_other->__get_center();
-    if (c_other) {
-        if (c_this) c_this->merge(c_other, pred);
-        else root_this->__set_center(c_this, pred);
+    if (root_other->__has_center()) {
+        root_other->__get_center()->center_of_root_circle.erase(root_other);
+        if (root_this->__has_center()) {
+            return {{root_this->__get_center(), root_other->center}};
+        } else {
+            root_this->__set_center(root_other->center, pred);
+        }
     }
+    return std::nullopt;
 }
 
 Generator<std::pair<Circle*, Circle*>> Circle::check_incident_circles_by_intersections(Point *p, Point *other_p, Predicate *pred) {
-    std::map<std::pair<Point*, Point*>, Circle*> p2tc;
+    std::map<std::pair<Point*, Point*>, Circle*> point_pair_to_circle;
+    std::map<Point*, Circle*> center_to_circle;
     for (auto it = p->on_root_circle.begin(); it != p->on_root_circle.end(); ++it) {
         Circle* c1 = *it;
+        Utils::replace_key_in_map(c1->points, other_p, p);
         auto gen_point_pairs_on_c1 = c1->all_point_pairs_ordered();
         while (gen_point_pairs_on_c1) {
             auto pair1 = gen_point_pairs_on_c1();
-            assert(!p2tc.contains(pair1));
             if (pair1.first == p || pair1.second == p) continue;
-            p2tc[pair1] = c1;
+            assert(!point_pair_to_circle.contains(pair1));
+            point_pair_to_circle[pair1] = c1;
+        }
+        if (c1->has_center()) {
+            Point* c = c1->get_center();
+            assert(!center_to_circle.contains(c));
+            center_to_circle[c] = c1;
         }
     }
     for (auto it = other_p->on_root_circle.begin(); it != other_p->on_root_circle.end(); ) {
@@ -427,10 +442,18 @@ Generator<std::pair<Circle*, Circle*>> Circle::check_incident_circles_by_interse
         auto gen_point_pairs_on_c2 = c2->all_point_pairs();
         while (gen_point_pairs_on_c2) {
             auto pair2 = gen_point_pairs_on_c2();
-            if (p2tc.contains(pair2)) {
+            if (point_pair_to_circle.contains(pair2)) {
                 if (!merge_happened) it = other_p->on_root_circle.erase(it);
                 merge_happened = true;
-                co_yield {p2tc[pair2], c2};
+                co_yield {point_pair_to_circle[pair2], c2};
+            }
+        }
+        if (c2->has_center()) {
+            Point* c = c2->get_center();
+            if (center_to_circle.contains(c)) {
+                if (!merge_happened) it = other_p->on_root_circle.erase(it);
+                merge_happened = true;
+                co_yield {center_to_circle[c], c2};
             }
         }
         if (!merge_happened) ++it;
@@ -438,23 +461,24 @@ Generator<std::pair<Circle*, Circle*>> Circle::check_incident_circles_by_interse
     co_return;
 }
 Generator<std::pair<Circle*, Circle*>> Circle::check_incident_circles_by_center(Point *p, Point *other_p, Predicate *pred) {
-    std::map<Point*, Circle*> ptc;
+    std::map<Point*, Circle*> point_to_circle;
     for (auto it = p->center_of_root_circle.begin(); it != p->center_of_root_circle.end(); ++it) {
         Circle* c1 = *it;
         for (auto [p1, _] : c1->points) {
-            assert(!ptc.contains(p1));
-            ptc[p1] = c1;
+            assert(!point_to_circle.contains(p1));
+            point_to_circle[p1] = c1;
         }
     }
     for (auto it = other_p->center_of_root_circle.begin(); it != other_p->center_of_root_circle.end(); ) {
         Circle* c2 = *it;
         bool merge_happened = false;
         c2->set_center(p, c2->center_why);
+        
         for (auto [p2, _] : c2->points) {
-            if (ptc.contains(p2)) {
+            if (point_to_circle.contains(p2)) {
                 if (!merge_happened) it = other_p->center_of_root_circle.erase(it);
                 merge_happened = true;
-                co_yield {ptc[p2], c2};
+                co_yield {point_to_circle[p2], c2};
             }
         }
         if (!merge_happened) ++it;
@@ -511,11 +535,11 @@ Generator<Ratio*> Segment::on_ratios_as_segment2() {
 }
 
 
-void Segment::merge(Segment* other, Predicate* pred) {
+std::optional<std::pair<Length*, Length*>> Segment::merge(Segment* other, Predicate* pred) {
     Segment* root_this = NodeUtils::get_root(this);
     Segment* root_other = NodeUtils::get_root(other);
     if (root_this == root_other) {
-        return;
+        return std::nullopt;
     }
     root_other->parent = root_this;
     root_other->parent_why = pred;
@@ -526,10 +550,18 @@ void Segment::merge(Segment* other, Predicate* pred) {
 
     root_this->points.merge(root_other->points);
 
-    root_this->length->merge(root_other->length, pred);
+    if (root_other->__has_length()) {
+        root_other->__get_length()->root_objs.erase(root_other);
+        if (root_this->__has_length()) {
+            return {{root_this->__get_length(), root_other->length}};
+        } else {
+            root_this->set_length(root_other->length, pred);
+        }
+    }
+    return std::nullopt;
 }
 Generator<std::pair<Segment*, Segment*>> Segment::check_incident_segments(Point *p, Point *other_p, Predicate *pred) {
-    std::map<Point*, Segment*> pts;
+    std::map<Point*, Segment*> endpoint_to_segment;
     for (auto it = p->endpoint_of_root_segment.begin(); it != p->endpoint_of_root_segment.end(); ++it) {
         Segment* s = *it;
         Point* p1 = s->other_endpoint(p);
@@ -537,11 +569,13 @@ Generator<std::pair<Segment*, Segment*>> Segment::check_incident_segments(Point 
             throw GGraphInternalError("Segment::check_segments_with_endpoint(): The segment " 
                     + s->name + " has the two endpoints " + p->name + " and " + other_p->name + ", which are being merged.");
         }
-        pts[p1] = s;
+        endpoint_to_segment[p1] = s;
     }
     for (auto it = other_p->endpoint_of_root_segment.begin(); it != other_p->endpoint_of_root_segment.end(); ) {
         Segment* s1 = *it;
         bool merge_happened = false;
+
+        Point* p2 = s1->other_endpoint(other_p);
 
         // Replace other_p with p in s1->endpoints
         if (s1->endpoints[0] == other_p) {
@@ -550,17 +584,16 @@ Generator<std::pair<Segment*, Segment*>> Segment::check_incident_segments(Point 
             s1->endpoints[1] = p;
         }
 
-        Point* p2 = s1->other_endpoint(other_p);
         if (p2 == p) {
             throw GGraphInternalError("Segment::check_segments_with_endpoint(): The segment " 
                     + s1->name + " has the two endpoints " + p->name + " and " + other_p->name + ", which are being merged.");
         }
         // Check if both the segments s = p-p2 and s1 = other_p-p2 exist
-        if (pts.contains(p2)) {
+        if (endpoint_to_segment.contains(p2)) {
             assert(!merge_happened);
             if (!merge_happened) it = other_p->endpoint_of_root_segment.erase(it);
             merge_happened = true;
-            co_yield {pts[p2], s1};
+            co_yield {endpoint_to_segment[p2], s1};
         }
         if (!merge_happened) ++it;
     }
