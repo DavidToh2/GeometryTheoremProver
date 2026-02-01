@@ -9,7 +9,7 @@
 #include "Geometry/GeometricGraph.hh"
 #include "Common/NumUtils.hh"
 
-#define DEBUG_ARENGINE 1
+#define DEBUG_ARENGINE 0
 
 #if DEBUG_ARENGINE
     #define LOG(x) do {std::cout << x << std::endl;} while(0)
@@ -99,19 +99,25 @@ void AREngine::add_eqratio(
 
 void AREngine::update_point_merger(Point* dest, Point* src, Predicate* pred) {
     for (auto& [var, disp] : var_to_displacement) {
-        if (disp.p == src) {
-            disp.p = dest;
-        }
+        if (disp.p != src) continue;
+        disp.p = dest;
+
         Expr::Var new_var = __get_var(disp);
+        if (var == new_var) continue;
+
+        LOG("--- Point merger: Updating displacement variable " << var << " to " << new_var);
         displacement_table.add_eq_2(var, new_var, 1, 1, pred);
     }
 }
 void AREngine::update_line_merger(Line* dest, Line* src, Predicate* pred) {
     for (auto& [var, disp] : var_to_displacement) {
-        if (disp.l == src) {
-            disp.l = dest;
-        }
+        if (disp.l != src) continue;
+        disp.l = dest;
+
         Expr::Var new_var = __get_var(disp);
+        if (var == new_var) continue;
+
+        LOG("--- Line merger: Updating displacement variable " << var << " to " << new_var);
         displacement_table.add_eq_2(var, new_var, 1, 1, pred);
     }
 }
@@ -247,10 +253,14 @@ AREngine::get_all_congs_and_why_2() {
         Displacement disp2 = __get_displacement(var2);
         Displacement disp3 = __get_displacement(var3);
         Displacement disp4 = __get_displacement(var4);
-        if (NodeUtils::same_as(disp1.l, disp2.l) && NodeUtils::same_as(disp3.l, disp4.l)) {
+        if (NodeUtils::same_as(disp1.l, disp2.l) && NodeUtils::same_as(disp3.l, disp4.l)
+            && !NodeUtils::same_as(disp1.p, disp2.p) && !NodeUtils::same_as(disp3.p, disp4.p)
+            && !(NodeUtils::same_as(disp1.l, disp3.l) && NodeUtils::same_as(disp2.l, disp4.l))) {
             co_yield {disp1.p, disp2.p, disp3.p, disp4.p, _why};
         } 
-        if (NodeUtils::same_as(disp1.l, disp3.l) && NodeUtils::same_as(disp2.l, disp4.l)) {
+        if (NodeUtils::same_as(disp1.l, disp3.l) && NodeUtils::same_as(disp2.l, disp4.l)
+            && !NodeUtils::same_as(disp1.p, disp3.p) && !NodeUtils::same_as(disp2.p, disp4.p)
+            && !(NodeUtils::same_as(disp1.l, disp2.l) && NodeUtils::same_as(disp3.l, disp4.l))) {
             co_yield {disp1.p, disp3.p, disp2.p, disp4.p, _why};
         }
     }
@@ -263,7 +273,7 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
     angle_table.generate_all_eqs();
 
     LOG("Angle table:");
-    LOG(angle_table.__print_A() << std::endl << angle_table.__print_M());
+    LOG(angle_table.__print_M());
 
     auto gen_const_angle = get_all_constangles_and_why();
     while (gen_const_angle) {
@@ -306,7 +316,7 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
     ratio_table.generate_all_eqs();
 
     LOG("Ratio table:");
-    LOG(ratio_table.__print_A() << std::endl << ratio_table.__print_M());
+    LOG(ratio_table.__print_M());
 
     auto gen_cong_1 = get_all_congs_and_why_1();
     while (gen_cong_1) {
@@ -340,7 +350,7 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
     displacement_table.generate_all_eqs();
 
     LOG("Displacement table:");
-    LOG(displacement_table.__print_A() << std::endl << displacement_table.__print_M());
+    LOG(displacement_table.__print_M());
 
     auto gen_cong_2 = get_all_congs_and_why_2();
     while (gen_cong_2) {

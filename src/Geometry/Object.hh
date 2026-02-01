@@ -276,10 +276,22 @@ public:
     std::optional<std::pair<Direction*, Direction*>> merge(Line* other, Predicate* pred);
 
     /* Identify all pairs of lines `(l1, l2)` that need to be merged (into a single line) as a result of `p` 
-    and `other_p` being deduced to be the same. 
+    and `other_p` being deduced to be the same. Any such pair of lines will have another point `q` lying on
+    both. The tuples `{q, {l1, l2}}` are returned to then be checked for numeric equality - only when q is
+    numerically distinct from both `p` and `other_p` do we merge the pair.
     Also replaces `other_p` with `p` in `l2->points`, and removes `l2` from `other_p->on_root_line`.
     Note: This function should be called *before* `p->merge(other_p)` occurs. */
-    static Generator<std::pair<Line*, Line*>> check_incident_lines(Point* p, Point* other_p, Predicate* pred);
+    static Generator<std::pair<Point*, std::pair<Line*, Line*>>> 
+    check_incident_lines(Point* p, Point* other_p, Predicate* pred);
+
+    /* Identify all lines `l1` which might possibly be identical to both lines `l` and `other_l`, which are
+    about to be merged. Any such line `l1` will have one point `p1` belonging to `l`, and another `p2` belonging
+    to `other_l`. The tuples `{l1, {p1, p2}}` are returned to then be checked for numeric equality by the
+    incidence detection algorithm.
+    Note: This function should be called *before* `l->merge(other_l)` occurs.
+    */
+    static Generator<std::pair<Line*, std::pair<Point*, Point*>>> 
+    check_incident_lines(Line* l, Line* other_l, Predicate* pred);
 };
 
 
@@ -355,13 +367,16 @@ public:
     center, with one having `p` as a point and the other having `other_p` as a point.
     Also replaces `other_p` with `p` in `c2->points`, and removes `c2` from `other_p->on_root_circle`.
     Note: This function should be called before `p->merge(other_p)` occurs. */
-    static Generator<std::pair<Circle*, Circle*>> check_incident_circles_by_intersections(Point* p, Point* other_p, Predicate* pred);
+    static Generator<std::pair<std::pair<Point*, Point*>, std::pair<Circle*, Circle*>>> 
+    check_incident_circles_by_intersections(Point* p, Point* other_p, Predicate* pred);
+
     /* Identify all pairs of circles `(c1, c2)` that need to be merged (into a single circle) as a result of both 
     `p` and `other_p` being deduced to be the same. The circles in each pair must have exactly one common point; 
     furthermore, one of the circles has `p` as its center, and the other has `other_p`.
     Also replaces `other_p` with `p` for `c2->center` (using `Circle::set_center()`).
     Note: This function should be called before `p->merge(other_p)` occurs. */
-    static Generator<std::pair<Circle*, Circle*>> check_incident_circles_by_center(Point* p, Point* other_p, Predicate* pred);
+    static Generator<std::pair<Point*, std::pair<Circle*, Circle*>>> 
+    check_incident_circles_by_center(Point* p, Point* other_p, Predicate* pred);
 };
 
 

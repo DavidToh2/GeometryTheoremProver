@@ -143,6 +143,10 @@ This is evidently not enough as, after merging all lines in `L1`, we now have so
 
 until we reach the reflexive-transitive closure `L2`. This suggests that any possible algorithm must be *recursive*.
 
+In general, any situation with
+
+$$ l_1 = \{A, B\}, l_2 = \{B, C\}, l_3 = \{A, C, D\}, l_4 = \{(A \text{ or } B), D, E\}, l_5 = \{(A  \text{ or } B  \text{ or } C), E, F\}, ... $$
+
 ## Proposed Detection Algorithm
 
 `def merge_lines(l1 : Line, l2 : Line)`:
@@ -150,7 +154,7 @@ until we reach the reflexive-transitive closure `L2`. This suggests that any pos
 - Initialise the set of lines to merge $L_m = \{l_1\}$, the sets of pending lines to analyse $L_1 = \{l_2\}, L_0 = \{\}$, and the list of sets of points to merge $P_m = \{\}$; 
 - While $L_1$ is nonempty:
   - For every pair of lines $(l_1, l_2) \in L_m \times L_1$:
-    - Identify all lines $l$ having disjoint sets $S_1, S_2$ of points in common with both $l_1$ and $l_2$ respectively
+    - Identify all lines $l$ having disjoint sets $S_1, S_2$ of points in common with both $l_1$ and $l_2$ respectively (in particular, due to the invariant, it suffices to identify a single point from each of $S_1$ and $S_2$ for our relaxed variant - see below)
     - (by the invariant, all points in $S_1$ must be numerically equivalent, and the same goes for all points in $S_2$)
     - if the numeric gradient of $l$ differs from that of $l_1$, then we may now deduce that $S_1$ and $S_2$ are themselves numerically equivalent to each other, and so:
       - add $S_1 \cup S_2$ to $P_m$;
@@ -159,7 +163,9 @@ until we reach the reflexive-transitive closure `L2`. This suggests that any pos
     - otherwise, we can't deduce anything about $l$, so leave it alone.
   - Once all pairs of lines have been iterated through, $L_1$ can be merged into $L_m$, then set to equal $L_0$, and $L_0$ can be emptied.
 - Arbitrarily select some $l_0 \in L_m$ as the "global root", and merge every single other line in $L_m$ into $l_0$;
-- What do we do with all the sets of points in $P_m$ we now have to merge???????? **Let's ignore these for now.** Because having to deal with them would involve rewriting the `merge_points` function as well, which currently has its own general object incidence detection logic. 
+- What do we do with all the sets of points in $P_m$ we now have to merge???????? **Let's relax the algorithm and ignore these for now.** Because having to deal with them would involve rewriting the `merge_points` function as well, which currently has its own general object incidence detection logic. 
+
+Our relaxed detection algorithm still maintains the invariant that any pair of numerically distinct points cannot simultaneously belong on two or more lines at once.
 
 ## Potential (Global) Detection Algorithm
 

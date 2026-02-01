@@ -16,7 +16,7 @@
 #include "AR/AREngine.hh"
 #include "Common/Generator.hh"
 
-#define DEBUG_GGRAPH 1
+#define DEBUG_GGRAPH 0
 
 #if DEBUG_GGRAPH
     #define LOG(x) do {std::cout << x << std::endl;} while(0)
@@ -107,27 +107,45 @@ Point* GeometricGraph::get_or_add_point(const std::string point_id) {
     return points[point_id].get();
 }
 
-void GeometricGraph::merge_points(Point* dest, Point* src, Predicate* pred) {
+void GeometricGraph::merge_points(Point* dest, Point* src, Predicate* pred, AREngine& ar) {
     dest = NodeUtils::get_root(dest);
     src = NodeUtils::get_root(src);
     if (dest == src) return;
+    if (point_nums.at(dest) != point_nums.at(src)) return;
     root_points.erase(src);
 
     // Check for newly incident Objects
     auto gen_to_merge_lines = Line::check_incident_lines(dest, src, pred);
     while (gen_to_merge_lines) {
-        auto pair = gen_to_merge_lines();
-        merge_lines(pair.first, pair.second, pred);
+        auto [point, lines] = gen_to_merge_lines();
+        auto [l1, l2] = lines;
+        if (point_nums.at(point) == point_nums.at(dest)) {
+            continue;
+        }
+        merge_lines(l1, l2, pred, ar);
     }
     auto gen_to_merge_circles_1 = Circle::check_incident_circles_by_intersections(dest, src, pred);
     while (gen_to_merge_circles_1) {
-        auto pair = gen_to_merge_circles_1();
-        merge_circles(pair.first, pair.second, pred);
+        auto [points, circles] = gen_to_merge_circles_1();
+        if (points.second == nullptr) {
+            // Merge because of common center
+        } else {
+            // Merge because of two other common points
+            Point* p1 = points.first;
+            Point* p2 = points.second;
+            if (point_nums.at(p1) == point_nums.at(dest) ||
+                point_nums.at(p2) == point_nums.at(dest) ||
+                point_nums.at(p1) == point_nums.at(p2)) {
+                continue;
+            }
+        }
+        merge_circles(circles.first, circles.second, pred, ar);
     }
     auto gen_to_merge_circles_2 = Circle::check_incident_circles_by_center(dest, src, pred);
     while (gen_to_merge_circles_2) {
-        auto pair = gen_to_merge_circles_2();
-        merge_circles(pair.first, pair.second, pred);
+        // Merge because of one other common point
+        auto [point, pair] = gen_to_merge_circles_2();
+        merge_circles(pair.first, pair.second, pred, ar);
     }
     auto gen_to_merge_segments = Segment::check_incident_segments(dest, src, pred);
     while (gen_to_merge_segments) {
@@ -138,6 +156,7 @@ void GeometricGraph::merge_points(Point* dest, Point* src, Predicate* pred) {
     // Invariant: After this stage, `src` should not belong to any object's `points` map.
 
     dest->merge(src, pred);
+    ar.update_point_merger(dest, src, pred);
 }
 
 
@@ -192,12 +211,48 @@ Line* GeometricGraph::try_get_line(Point* p1, Point* p2) {
     return __try_get_line(NodeUtils::get_root(p1), NodeUtils::get_root(p2));
 }
 
-void GeometricGraph::merge_lines(Line* dest, Line* src, Predicate* pred) {
+void GeometricGraph::merge_lines(Line* dest, Line* src, Predicate* pred, AREngine& ar) {
+    dest = NodeUtils::get_root(dest);
+    src = NodeUtils::get_root(src);
     if (dest == src) return;
-    root_lines.erase(NodeUtils::get_root(src));
-    auto dirs = dest->merge(src, pred);
-    if (dirs) {
-        set_directions_para(dirs->first, dirs->second, pred);
+
+    std::set<Line*> L{dest}, L1{src}, L2{};
+
+    // Step 1: Identify all lines which are incident
+    while (!L1.empty()) {
+        for (auto it = L.begin(); it != L.end(); ++it) {
+            for (auto it1 = L1.begin(); it1 != L1.end(); ++it1){
+                Line* l1 = *it, *l2 = *it1;
+                auto gen = Line::check_incident_lines(l1, l2, pred);
+                while (gen) {
+                    std::pair<Line*, std::pair<Point*, Point*>> res = gen();
+                    if (!L.contains(res.first) && !L1.contains(res.first)) {
+                        // Only deal with the case where the two points are numerically distinct
+                        if (point_nums.at(res.second.first) != point_nums.at(res.second.second)) {
+                            L2.insert(res.first);
+                        }
+                    }
+                }
+            }
+        }
+        // set::merge() has move semantics, so L2 is emptied
+        L.merge(L1);
+        L1.merge(L2);
+    }
+
+    // Step 2: Merge all identified lines, which now reside in L
+    for (auto it = L.begin(); it != L.end(); ++it) {
+        Line* l = NodeUtils::get_root(*it);
+        if (l == dest) continue;
+
+        root_lines.erase(NodeUtils::get_root(l));
+        auto dirs = dest->merge(l, pred);
+        ar.update_line_merger(dest, l, pred);
+
+        // Check if the lines have directions that need to be merged
+        if (dirs) {
+            set_directions_para(dirs->first, dirs->second, pred);
+        }
     }
 }
 
@@ -230,6 +285,8 @@ Direction* GeometricGraph::get_or_add_direction(Line* l, DDEngine &dd) {
 
 
 void GeometricGraph::set_directions_para(Direction* dest, Direction* src, Predicate* pred) {
+    dest = NodeUtils::get_root(dest);
+    src = NodeUtils::get_root(src);
     if (dest == src) return;
     root_directions.erase(NodeUtils::get_root(src));
     if (src->has_perp()) {
@@ -243,13 +300,19 @@ void GeometricGraph::set_directions_para(Direction* dest, Direction* src, Predic
         merge_angles(pair.first, pair.second, pred);
     }
     
+    // Check if the directions' perps also need to be merged
     auto perps = dest->merge(src, pred);
     if (perps) {
         set_directions_para(perps->first, perps->second, pred);
     }
+
+    // We do not check for incident lines as a result of the merge. This is
+    // because we already have the rule para A B A C => coll B C.
 }
 
 void GeometricGraph::set_directions_perp(Direction* d1, Direction* d2, Predicate* pred) {
+    d1 = NodeUtils::get_root(d1);
+    d2 = NodeUtils::get_root(d2);
     if (d1 == d2) {
         throw GGraphInternalError("Error: Cannot set a direction perpendicular to itself.");
     }
@@ -419,12 +482,14 @@ Point* GeometricGraph::get_or_add_circle_center(Circle* c, DDEngine& dd) {
 void GeometricGraph::set_circle_center(Point* cp, Circle* c, Predicate* pred) {
     NodeUtils::get_root(c)->set_center(NodeUtils::get_root(cp), pred);
 }
-void GeometricGraph::merge_circles(Circle* dest, Circle* src, Predicate* pred) {
+void GeometricGraph::merge_circles(Circle* dest, Circle* src, Predicate* pred, AREngine& ar) {
+    dest = NodeUtils::get_root(dest);
+    src = NodeUtils::get_root(src);
     if (dest == src) return;
     root_circles.erase(NodeUtils::get_root(src));
     auto p2 = dest->merge(src, pred);
     if (p2) {
-        merge_points(p2->first, p2->second, pred);
+        merge_points(p2->first, p2->second, pred, ar);
     }
 }
 
@@ -474,8 +539,11 @@ Segment* GeometricGraph::try_get_segment(Point* p1, Point* p2) {
     return __try_get_segment(NodeUtils::get_root(p1), NodeUtils::get_root(p2));
 }
 void GeometricGraph::merge_segments(Segment* dest, Segment* src, Predicate* pred) {
+    dest = NodeUtils::get_root(dest);
+    src = NodeUtils::get_root(src);
     if (dest == src) return;
-    root_segments.erase(NodeUtils::get_root(src));
+    root_segments.erase(src);
+
     auto l2 = dest->merge(src, pred);
     if (l2) {
         set_lengths_cong(l2->first, l2->second, pred);
@@ -510,8 +578,10 @@ void GeometricGraph::set_lengths_cong(Segment* s, Segment* s_other, Predicate* p
     set_lengths_cong(l, l_other, pred);
 }
 void GeometricGraph::set_lengths_cong(Length* l, Length* l_other, Predicate* pred) {
+    l = NodeUtils::get_root(l);
+    l_other = NodeUtils::get_root(l_other);
     if (l == l_other) return;
-    root_lengths.erase(NodeUtils::get_root(l_other));
+    root_lengths.erase(l_other);
 
     auto gen_to_merge_ratios = Length::check_incident_ratios(l, l_other, pred);
     while (gen_to_merge_ratios) {
@@ -660,8 +730,10 @@ Angle* GeometricGraph::get_or_add_angle(Point* p1, Point* p2, Point* p3, DDEngin
 
 
 void GeometricGraph::merge_angles(Angle* dest, Angle* src, Predicate* pred) {
+    dest = NodeUtils::get_root(dest);
+    src = NodeUtils::get_root(src);
     if (dest == src) return;
-    root_angles.erase(NodeUtils::get_root(src));
+    root_angles.erase(src);
 
     auto ms = dest->merge(src, pred);
     if (ms) {
@@ -693,8 +765,11 @@ Measure* GeometricGraph::get_or_add_measure(Angle* a, DDEngine& dd) {
 
 
 void GeometricGraph::set_measures_equal(Measure* m1, Measure* m2, Predicate* pred) {
+    m1 = NodeUtils::get_root(m1);
+    m2 = NodeUtils::get_root(m2);
     if (m1 == m2) return;
-    root_measures.erase(NodeUtils::get_root(m2));
+    root_measures.erase(m2);
+
     m1->merge(m2, pred);
 }
 
@@ -810,8 +885,10 @@ Ratio* GeometricGraph::get_or_add_ratio(Point* p1, Point* p2, Point* p3, Point* 
 }
 
 void GeometricGraph::merge_ratios(Ratio* dest, Ratio* src, Predicate* pred) {
+    dest = NodeUtils::get_root(dest);
+    src = NodeUtils::get_root(src);
     if (dest == src) return;
-    root_ratios.erase(NodeUtils::get_root(src));
+    root_ratios.erase(src);
 
     auto fracs = dest->merge(src, pred);
     if (fracs) {
@@ -843,8 +920,11 @@ Fraction* GeometricGraph::get_or_add_fraction(Ratio* r, DDEngine& dd) {
 }
 
 void GeometricGraph::set_fractions_equal(Fraction* f1, Fraction* f2, Predicate* pred) {
+    f1 = NodeUtils::get_root(f1);
+    f2 = NodeUtils::get_root(f2);
     if (f1 == f2) return;
-    root_fractions.erase(NodeUtils::get_root(f2));
+    root_fractions.erase(f2);
+
     f1->merge(f2, pred);
 }
 
@@ -1099,7 +1179,7 @@ bool GeometricGraph::check(PredicateTemplate* pred) {
 
 
 
-bool GeometricGraph::make_coll(Predicate* pred, DDEngine &dd) {
+bool GeometricGraph::make_coll(Predicate* pred, DDEngine &dd, AREngine &ar) {
     Point* p1 = static_cast<Point*>(pred->args[0]);
     Point* p2 = static_cast<Point*>(pred->args[1]);
     Point* p3 = static_cast<Point*>(pred->args[2]);
@@ -1128,15 +1208,15 @@ bool GeometricGraph::make_coll(Predicate* pred, DDEngine &dd) {
     tp->set_this_on(l, pred);
 
     if (p2p3) {
-        if (p3p1) merge_lines(p2p3, p3p1, pred);
-        if (p1p2) merge_lines(p2p3, p1p2, pred);
+        if (p3p1) merge_lines(p2p3, p3p1, pred, ar);
+        if (p1p2) merge_lines(p2p3, p1p2, pred, ar);
     } else if (p3p1) {
-        if (p1p2) merge_lines(p3p1, p1p2, pred);
+        if (p1p2) merge_lines(p3p1, p1p2, pred, ar);
     }
     return true;
 }
 
-bool GeometricGraph::make_cyclic(Predicate* pred, DDEngine &dd) {
+bool GeometricGraph::make_cyclic(Predicate* pred, DDEngine &dd, AREngine &ar) {
     Point* p1 = static_cast<Point*>(pred->args[0]);
     Point* p2 = static_cast<Point*>(pred->args[1]);
     Point* p3 = static_cast<Point*>(pred->args[2]);
@@ -1169,14 +1249,14 @@ bool GeometricGraph::make_cyclic(Predicate* pred, DDEngine &dd) {
     tp->set_this_on(c, pred);
 
     if (c234) {
-        if (c341) merge_circles(c234, c341, pred);
-        if (c412) merge_circles(c234, c412, pred);
-        if (c123) merge_circles(c234, c123, pred);
+        if (c341) merge_circles(c234, c341, pred, ar);
+        if (c412) merge_circles(c234, c412, pred, ar);
+        if (c123) merge_circles(c234, c123, pred, ar);
     } else if (c341) {
-        if (c412) merge_circles(c341, c412, pred);
-        if (c123) merge_circles(c341, c123, pred);
+        if (c412) merge_circles(c341, c412, pred, ar);
+        if (c123) merge_circles(c341, c123, pred, ar);
     } else if (c412) {
-        if (c123) merge_circles(c412, c123, pred);
+        if (c123) merge_circles(c412, c123, pred, ar);
     }
     return true;
 }
@@ -1525,7 +1605,7 @@ bool GeometricGraph::make_midp(Predicate* pred, DDEngine &dd, AREngine &ar) {
 
     // Make them collinear first, if necessary
     if (!check_coll(m, p1, p2)) {
-        make_coll(pred, dd);
+        make_coll(pred, dd, ar);
     }
 
     Segment* s1 = get_or_add_segment(p1, m, dd);
@@ -1661,10 +1741,10 @@ int GeometricGraph::synthesise_preds(DDEngine &dd, AREngine &ar) {
 
         switch(pred->name) {
             case pred_t::COLL:
-                res = make_coll(pred, dd);
+                res = make_coll(pred, dd, ar);
                 break;
             case pred_t::CYCLIC:
-                res = make_cyclic(pred, dd);
+                res = make_cyclic(pred, dd, ar);
                 break;
             case pred_t::PARA:
                 res = make_para(pred, dd, ar);

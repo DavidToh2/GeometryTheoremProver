@@ -126,7 +126,7 @@ public:
     endpoints.
     
     These are done BEFORE the `Point::merge()` function is called, so that we may still make use of `src->on_root_`.*/
-    void merge_points(Point* dest, Point* src, Predicate* pred);
+    void merge_points(Point* dest, Point* src, Predicate* pred, AREngine& ar);
 
 
     /* Adds a line connecting the (existing) points `p1` and `p2`.
@@ -155,8 +155,9 @@ public:
     }
 
     /* Merges `src` line into `dest` line. 
+    This employs the detection algorithm described in the project notes.
     This also merges their `Direction`s. */
-    void merge_lines(Line* dest, Line* src, Predicate* pred);
+    void merge_lines(Line* dest, Line* src, Predicate* pred, AREngine& ar);
 
 
     /* Add a new direction to the line `l`.
@@ -236,7 +237,7 @@ public:
     void set_circle_center(Point* cp, Circle* c, Predicate* pred);
     /* Merges the root of `src` circle into the root of `dest` circle.
     This also merges the circle centers. See `Circle::merge()` for more information.*/
-    void merge_circles(Circle* dest, Circle* src, Predicate* pred);
+    void merge_circles(Circle* dest, Circle* src, Predicate* pred, AREngine &ar);
 
     
     /* Adds the segment `p1p2`. Supply the line `l` that this segment lies on.
@@ -501,9 +502,9 @@ public:
 
 
 
-    bool make_coll(Predicate* pred, DDEngine &dd);
+    bool make_coll(Predicate* pred, DDEngine &dd, AREngine &ar);
 
-    bool make_cyclic(Predicate* pred, DDEngine &dd);
+    bool make_cyclic(Predicate* pred, DDEngine &dd, AREngine &ar);
 
     bool make_para(Predicate* pred, DDEngine &dd, AREngine &ar);
     bool make_ar_para(Predicate* pred);

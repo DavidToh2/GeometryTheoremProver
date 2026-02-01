@@ -3,7 +3,7 @@
 #include <Common/StrUtils.hh>
 #include <Geometry/GeometricGraph.hh>
 
-#define DEBUG_THEOREM 1
+#define DEBUG_THEOREM 0
 
 #if DEBUG_THEOREM
     #define LOG(x) do {std::cout << x << std::endl;} while(0)

@@ -7,8 +7,11 @@ A B C : para A B A C, diff B C => coll A B C
 #perp_perp_eqangle
 A B C D E F G H : perp A B C D, perp E F G H, npara A B E F, npara A B G H => eqangle A B E F C D G H
 
-#eqangle_perp_perp
-A B C D E F G H : eqangle A B C D E F G H, perp A B E F => perp C D G H
+#perp_eqangle_perp
+A B C D E F G H : perp A B E F, eqangle A B C D E F G H => perp C D G H
+
+#perp_perp_cyclic
+A B C D : perp A B B C, perp A D D C, diff B D => cyclic A B C D
 
 #alt_angles_para
 A B C D P Q : eqangle A B P Q C D P Q, ncoll A B C D => para A B C D

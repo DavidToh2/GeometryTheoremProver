@@ -321,15 +321,30 @@ std::optional<std::pair<Direction*, Direction*>> Line::merge(Line* other, Predic
     return std::nullopt;
 }
 
-Generator<std::pair<Line*, Line*>> Line::check_incident_lines(Point *p, Point *other_p, Predicate *pred) {
-    std::map<Point*, Line*> ltp;
+Generator<std::pair<Point*, std::pair<Line*, Line*>>> 
+Line::check_incident_lines(Point *p, Point *other_p, Predicate *pred) {
+
+    /* Note: By the object incidence invariant, it is entirely possible for two distinct lines to simultaneously
+    contain two or more point objects which are numerically equivalent. What this means for the point_to_line
+    map is that:
+    - it is entirely possible for any line l to contain both [p, other_p] simultaneously. We want to disregard
+    these lines entirely, as the merger of p and other_p does not provide any information in this case. We thus
+    only examine points q != {p, other_p}.
+    - in the first part, it is entirely possible that some point q that is numerically equivalent to p ends
+    up lying on more than one line of p->on_root_line, so q may theoretically appear multiple times in the
+    point_to_line map. However, because q is numerically equivalent to p, we can disregard it, so our approach
+    of storing the most recent line for q in point_to_line is safe.
+    - we may also find that some line l in both p->on_root_line and other_p->on_root_line contain the same pair
+    of points [q1, q2] (which are numerically equivalent), so both point_to_line[q1] and point_to_line[q2] = l.
+    However, because GeometricGraph::merge_lines() is idempotent, so returning {l, l2} twice is no biggie. */
+
+    std::map<Point*, Line*> point_to_line;
     for (auto it = p->on_root_line.begin(); it != p->on_root_line.end(); ++it) {
         Line* l1 = *it;
         Utils::replace_key_in_map(l1->points, other_p, p);
         for (auto& [p1, _] : l1->points) {
             if (p1 != p) {
-                assert(!ltp.contains(p1));
-                ltp[p1] = l1;
+                point_to_line[p1] = l1;
             }
         }
     }
@@ -337,16 +352,45 @@ Generator<std::pair<Line*, Line*>> Line::check_incident_lines(Point *p, Point *o
         Line* l2 = *it;
         bool merge_happened = false;
         Utils::replace_key_in_map(l2->points, other_p, p);
-        for (auto& [p2, _] : l2->points) {
-            if (ltp.contains(p2)) {
-                assert(!merge_happened);
+        for (auto& [p1, _] : l2->points) {
+            if (point_to_line.contains(p1)) {
                 // See the comment in Line::merge() for an explanation of why this line is necessary
                 if (!merge_happened) it = other_p->on_root_line.erase(it);
                 merge_happened = true;
-                co_yield {ltp[p2], l2};
+                co_yield {p1, {point_to_line[p1], l2}};
             }
         }
         if (!merge_happened) ++it;
+    }
+    co_return;
+}
+
+Generator<std::pair<Line*, std::pair<Point*, Point*>>> 
+Line::check_incident_lines(Line* l, Line* other_l, Predicate* pred) {
+
+    std::map<Line*, Point*> line_to_point;
+    for (auto it = l->points.begin(); it != l->points.end(); ++it) {
+        Point* p1 = it->first;
+        for (auto it1 = p1->on_root_line.begin(); it1 != p1->on_root_line.end(); ++it1) {
+            Line* l1 = *it1;
+            if (l1 != l && l1 != other_l) {
+                line_to_point[l1] = p1;  
+            }
+        }
+    }
+    for (auto it = other_l->points.begin(); it != other_l->points.end(); ++it) {
+        Point* p2 = it->first;
+        for (auto it2 = p2->on_root_line.begin(); it2 != p2->on_root_line.end(); ++it2) {
+            Line* l2 = *it2;
+            if (l2 != l && l2 != other_l) {
+                if (line_to_point.contains(l2)) {
+                    Point* p1 = line_to_point[l2];
+                    if (p1 != p2) {
+                        co_yield {l2, {p1, p2}};
+                    }
+                }
+            }
+        }
     }
     co_return;
 }
@@ -416,7 +460,9 @@ std::optional<std::pair<Point*, Point*>> Circle::merge(Circle* other, Predicate*
     return std::nullopt;
 }
 
-Generator<std::pair<Circle*, Circle*>> Circle::check_incident_circles_by_intersections(Point *p, Point *other_p, Predicate *pred) {
+Generator<std::pair<std::pair<Point*, Point*>, std::pair<Circle*, Circle*>>> 
+Circle::check_incident_circles_by_intersections(Point *p, Point *other_p, Predicate *pred) {
+
     std::map<std::pair<Point*, Point*>, Circle*> point_pair_to_circle;
     std::map<Point*, Circle*> center_to_circle;
     for (auto it = p->on_root_circle.begin(); it != p->on_root_circle.end(); ++it) {
@@ -426,12 +472,10 @@ Generator<std::pair<Circle*, Circle*>> Circle::check_incident_circles_by_interse
         while (gen_point_pairs_on_c1) {
             auto pair1 = gen_point_pairs_on_c1();
             if (pair1.first == p || pair1.second == p) continue;
-            assert(!point_pair_to_circle.contains(pair1));
             point_pair_to_circle[pair1] = c1;
         }
         if (c1->has_center()) {
             Point* c = c1->get_center();
-            assert(!center_to_circle.contains(c));
             center_to_circle[c] = c1;
         }
     }
@@ -445,7 +489,7 @@ Generator<std::pair<Circle*, Circle*>> Circle::check_incident_circles_by_interse
             if (point_pair_to_circle.contains(pair2)) {
                 if (!merge_happened) it = other_p->on_root_circle.erase(it);
                 merge_happened = true;
-                co_yield {point_pair_to_circle[pair2], c2};
+                co_yield {pair2, {point_pair_to_circle[pair2], c2}};
             }
         }
         if (c2->has_center()) {
@@ -453,14 +497,16 @@ Generator<std::pair<Circle*, Circle*>> Circle::check_incident_circles_by_interse
             if (center_to_circle.contains(c)) {
                 if (!merge_happened) it = other_p->on_root_circle.erase(it);
                 merge_happened = true;
-                co_yield {center_to_circle[c], c2};
+                co_yield {{c, nullptr},{center_to_circle[c], c2}};
             }
         }
         if (!merge_happened) ++it;
     }
     co_return;
 }
-Generator<std::pair<Circle*, Circle*>> Circle::check_incident_circles_by_center(Point *p, Point *other_p, Predicate *pred) {
+Generator<std::pair<Point*, std::pair<Circle*, Circle*>>> 
+Circle::check_incident_circles_by_center(Point *p, Point *other_p, Predicate *pred) {
+
     std::map<Point*, Circle*> point_to_circle;
     for (auto it = p->center_of_root_circle.begin(); it != p->center_of_root_circle.end(); ++it) {
         Circle* c1 = *it;
@@ -474,11 +520,11 @@ Generator<std::pair<Circle*, Circle*>> Circle::check_incident_circles_by_center(
         bool merge_happened = false;
         c2->set_center(p, c2->center_why);
         
-        for (auto [p2, _] : c2->points) {
-            if (point_to_circle.contains(p2)) {
+        for (auto [p1, _] : c2->points) {
+            if (point_to_circle.contains(p1)) {
                 if (!merge_happened) it = other_p->center_of_root_circle.erase(it);
                 merge_happened = true;
-                co_yield {point_to_circle[p2], c2};
+                co_yield {p, {point_to_circle[p1], c2}};
             }
         }
         if (!merge_happened) ++it;

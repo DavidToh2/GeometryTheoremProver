@@ -213,7 +213,7 @@ bool Table::add_expr(const Expr::Expr& expr) {
 
     if (new_vars.size() == 0) {
         if (Expr::all_zeroes(result)) {
-            LOG("(-1) Expression already known!");
+            LOG("Expression already known!");
             return false; // Expression already known
         }
         auto [subject, expr_subj] = Expr::get_subject(result, one);
@@ -222,14 +222,14 @@ bool Table::add_expr(const Expr::Expr& expr) {
         // as it is substituted by expr_subj and replaced in all other expressions.
         replace(subject, expr_subj);
 
-        LOG("(0) Replaced occurrences of " << Expr::to_string(subject) << " with " << Expr::to_string(expr_subj));
+        LOG("Replaced occurrences of " << Expr::to_string(subject) << " with " << Expr::to_string(expr_subj));
 
     } else if (new_vars.size() == 1) {
         auto [var, d] = new_vars[0];
         M_var_to_expr[var] = Expr::div(result, -d);
         // Invariant maintained: M_var_to_expr[var] only contains free variables
         
-        LOG("(1) Added the expression " << Expr::to_string(var) << " = " << Expr::to_string(M_var_to_expr[var]));
+        LOG("Added the expression " << Expr::to_string(var) << " = " << Expr::to_string(M_var_to_expr[var]));
 
     } else {
         Expr::Var dependent_var = "";
@@ -246,7 +246,7 @@ bool Table::add_expr(const Expr::Expr& expr) {
         M_var_to_expr[dependent_var] = Expr::div(result, -dependent_d);
         // Invariant maintained: M_var_to_expr[var] only contains free variables
 
-        LOG("(2) Added the expression " << Expr::to_string(dependent_var) << " = " << Expr::to_string(M_var_to_expr[dependent_var]));
+        LOG("Added the expression " << Expr::to_string(dependent_var) << " = " << Expr::to_string(M_var_to_expr[dependent_var]));
     }
 
     return true;
@@ -333,7 +333,7 @@ bool Table::is_eq_4_seen(const Expr::Var var1, const Expr::Var var2, const Expr:
 
 
 bool Table::add_eq(const Expr::Expr& expr, Predicate* pred) {
-    LOG("Adding the expression " << Expr::to_string(expr));
+    LOG("AR: Adding the expression " << Expr::to_string(expr));
     return (
         add_expr(expr) 
         && register_expr(expr, pred)

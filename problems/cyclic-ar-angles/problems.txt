@@ -62,11 +62,12 @@ problem p8 {
 
 problem p9 {
     a b c = equi_triangle a b c;
-    d = mirror d : a b;
+    d = mirror d : b a;
     e f = trisegment e f : a b;
     g = mirror g : f b;
     h i = trisegment h i : b c;
-    j = mirror j : i b
+    j = mirror j : i b;
+    k = midpoint k : b j
     ? eqangle g c c j g d d j
 }
 
