@@ -1,10 +1,8 @@
 
 #include "Theorem.hh"
-#include <Common/StrUtils.hh>
-#include <Geometry/GeometricGraph.hh>
+#include "Common/StrUtils.hh"
 
-#define DEBUG_THEOREM 0
-
+#include "Common/Debug.hh"
 #if DEBUG_THEOREM
     #define LOG(x) do {std::cout << x << std::endl;} while(0)
 #else 
@@ -30,10 +28,17 @@ Theorem::Theorem(const std::string &s) {
     name = preconditions.name + "_" + Utils::to_pred_str(postcondition.get()->name);
 };
 
+Generator<std::unique_ptr<Predicate>> Theorem::instantiate_preconditions() {
+    auto preconditions_ = preconditions.instantiate();
+    while (preconditions_) {
+        co_yield std::move(preconditions_());
+    }
+}
+
 std::unique_ptr<Predicate> Theorem::instantiate_postcondition() {
     LOG("Instantiating: " << to_string());
-    std::unique_ptr<Predicate> pred = postcondition.get()->instantiate();
-    return pred;
+    std::unique_ptr<Predicate> pred_ = postcondition.get()->instantiate();
+    return pred_;
 }
 
 void Theorem::__set_placeholder_args() {

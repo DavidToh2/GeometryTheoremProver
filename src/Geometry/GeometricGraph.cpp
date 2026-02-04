@@ -16,8 +16,7 @@
 #include "AR/AREngine.hh"
 #include "Common/Generator.hh"
 
-#define DEBUG_GGRAPH 0
-
+#include "Common/Debug.hh"
 #if DEBUG_GGRAPH
     #define LOG(x) do {std::cout << x << std::endl;} while(0)
 #else 
@@ -28,7 +27,9 @@
 void GeometricGraph::initialise_point_numerics(NumEngine &nm) {
     // Fill in the points
     for (Point* p : nm.order_of_resolution) {
-        point_nums[p] = nm.get_cartesian(p);
+        __set_point_numeric(p, nm.get_cartesian(p));
+        __identify_num_eq_points(p);
+        LOG(p->name << " : " << point_nums.at(p).to_string());
     }
 }
 void GeometricGraph::__set_point_numeric(Point* p, CartesianPoint cp) {
@@ -220,6 +221,15 @@ void GeometricGraph::merge_lines(Line* dest, Line* src, Predicate* pred, AREngin
 
     // Step 1: Identify all lines which are incident
     while (!L1.empty()) {
+        std::string elements_of_L = "";
+        for (Line* l : L) {
+            elements_of_L += l->name + " ";
+        }
+        std::string elements_of_L1 = "";
+        for (Line* l : L1) {
+            elements_of_L1 += l->name + " ";
+        }
+        std::string elements_of_L2 = "";
         for (auto it = L.begin(); it != L.end(); ++it) {
             for (auto it1 = L1.begin(); it1 != L1.end(); ++it1){
                 Line* l1 = *it, *l2 = *it1;
@@ -230,11 +240,13 @@ void GeometricGraph::merge_lines(Line* dest, Line* src, Predicate* pred, AREngin
                         // Only deal with the case where the two points are numerically distinct
                         if (point_nums.at(res.second.first) != point_nums.at(res.second.second)) {
                             L2.insert(res.first);
+                            elements_of_L2 += res.first->name + " (" + (res.second.first->name) + " " + (res.second.second->name) + "), ";
                         }
                     }
                 }
             }
         }
+        LOG("Merging lines: L={" << elements_of_L << "}, L1={" << elements_of_L1 << "}, L2={" << elements_of_L2 << "}");
         // set::merge() has move semantics, so L2 is emptied
         L.merge(L1);
         L1.merge(L2);
@@ -1094,11 +1106,16 @@ bool GeometricGraph::check_diff(std::set<Point*> &pts) {
 
 
 bool GeometricGraph::check_ncoll(std::set<Point*> &pts) {
-    std::set<double> angles;
     for (auto it1 = pts.begin(); it1 != pts.end(); ++it1) {
         for (auto it2 = std::next(it1); it2 != pts.end(); ++it2) {
-            if (!angles.insert(Cartesian::angle_of(CartesianLine(point_nums[*it1], point_nums[*it2]))).second) {
-                return false;
+            for (auto it3 = std::next(it2); it3 != pts.end(); ++it3) {
+                if (Cartesian::is_coll(
+                    point_nums[*it1],
+                    point_nums[*it2],
+                    point_nums[*it3]
+                )) {
+                    return false;
+                }
             }
         }
     }
@@ -1319,6 +1336,10 @@ bool GeometricGraph::make_perp(Predicate* pred, DDEngine &dd, AREngine &ar) {
     Direction* d34 = get_or_add_direction(p3p4, dd);
     set_directions_perp(d12, d34, pred);
 
+    if (direction_gradients[d12] < direction_gradients[d34]) {
+        std::swap(d12, d34);
+    }
+
     ar.add_perp(d12, d34, pred);
 
     return true;
@@ -1446,6 +1467,7 @@ bool GeometricGraph::make_eqangle(Predicate* pred, DDEngine &dd, AREngine &ar) {
     Direction* d3 = a2->direction1;
     Direction* d4 = a2->direction2;
     int pi_offset = 0;
+
     if (direction_gradients[d1] < direction_gradients[d2]) {
         pi_offset += 1;
     }

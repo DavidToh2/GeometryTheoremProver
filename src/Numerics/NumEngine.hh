@@ -59,6 +59,8 @@ public:
 
     /* Generate a random convex quadrilateral. */
     Generator<CartesianPoint> compute_quadrilateral(Numeric* num);
+    /* Generate a random cyclic quadrilateral with points in this order. */
+    Generator<CartesianPoint> compute_cyclic_quad(Numeric* num);
     Generator<CartesianPoint> compute_rectangle(Numeric* num);
     Generator<CartesianPoint> compute_square(Numeric* num);
     /* Given two points A, B: generate two points X, Y such that ABXY is a square 
@@ -141,6 +143,7 @@ public:
         {num_t::R_TRIANGLE_N, &NumEngine::compute_r_triangle_n},
         {num_t::EQUI_TRIANGLE_P, &NumEngine::compute_equi_triangle_p},
         {num_t::QUADRILATERAL, &NumEngine::compute_quadrilateral},
+        {num_t::CYCLIC_QUAD, &NumEngine::compute_cyclic_quad},
         {num_t::RECTANGLE, &NumEngine::compute_rectangle},
         {num_t::SQUARE, &NumEngine::compute_square},
         {num_t::SQUARE_OFF_P, &NumEngine::compute_square_off_p},
@@ -213,6 +216,8 @@ public:
     Returns `true` if all points are successfully resolved without discrepancy. */
     bool final_resolve();
 
+    /* Checks if there is any point who has been resolved, and whose coordinate is
+    equal to `c`. Returns `true` if such a point exists. */
     bool check_against_existing_point_numerics(CartesianPoint &c);
 
     void reset_computation();

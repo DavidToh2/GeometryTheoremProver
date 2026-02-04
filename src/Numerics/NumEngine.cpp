@@ -1,5 +1,6 @@
 
 #include <cassert>
+#include <cmath>
 #include <iostream>
 
 #include "NumEngine.hh"
@@ -7,8 +8,7 @@
 #include "Numerics/Cartesian.hh"
 #include "Numerics/Numerics.hh"
 
-#define DEBUG_NUMENGINE 0
-
+#include "Common/Debug.hh"
 #if DEBUG_NUMENGINE
     #define LOG(x) do {std::cout << x << std::endl;} while(0)
 #else 
@@ -130,6 +130,21 @@ Generator<CartesianPoint> NumEngine::compute_quadrilateral(Numeric* num) {
     }
     CartesianPoint c = b + c0 * hc;
     CartesianPoint d = a + d0 * hd;
+    Cartesian::random_affine(a, b, c, d);
+    co_yield a;
+    co_yield b;
+    co_yield c;
+    co_yield d;
+    co_return;
+}
+Generator<CartesianPoint> NumEngine::compute_cyclic_quad(Numeric* num) {
+    double angle_c = NumUtils::urand(3 * M_PI / 10, M_PI);
+    double angle_b = NumUtils::urand(M_PI / 10, angle_c - M_PI / 10);
+    double angle_d = NumUtils::urand(M_PI / 10, 19 * M_PI / 10 - angle_c);
+    CartesianPoint a = Cartesian::from_polar(1, 0);
+    CartesianPoint b = Cartesian::from_polar(1, angle_b);
+    CartesianPoint c = Cartesian::from_polar(1, angle_c);
+    CartesianPoint d = Cartesian::from_polar(1, -angle_d);
     Cartesian::random_affine(a, b, c, d);
     co_yield a;
     co_yield b;
@@ -701,11 +716,17 @@ bool NumEngine::resolve_one(Point* p) {
             LOG("Resolved point " << p->to_string() << " to Cartesian " << point_to_cartesian[p][0].to_string());
             return true;
         default:
-            std::vector<std::pair<CartesianPoint, int>> candidates;
+
+            /* Aggregate the list of candidates in `point_to_cartesian[p]`, counting each candidate's no. of occurences
+            Here, `new_candidates` stores candidate coordinates which have yet to appear, while `existing_candidates`
+            stores candidate coordinates which have already appeared. */
+            std::vector<std::pair<CartesianPoint, int>> new_candidates;
+            std::vector<std::pair<CartesianPoint, int>> existing_candidates;
+
             for (auto it = point_to_cartesian[p].begin(); it != point_to_cartesian[p].end(); ) {
                 CartesianPoint cp = *it;
                 bool found = false;
-                for (auto& [avg, i] : candidates) {
+                for (auto& [avg, i] : existing_candidates) {
                     if (CartesianPoint::is_close(cp, avg)) {
                         avg = (avg * i + cp) / (i + 1);
                         i += 1;
@@ -713,35 +734,65 @@ bool NumEngine::resolve_one(Point* p) {
                         break;
                     }
                 }
-                // We DO want to allow points with identical Numerics. It is up to us to ensure that construction rules
-                // correctly specify distinct points where needed.
-                // if (!found) {
-                //     if (check_against_existing_point_numerics(cp)) {
-                //         found = true;
-                //     }
-                // }
-                if (!found) { candidates.emplace_back(cp, 1); }
+                for (auto& [avg, i] : new_candidates) {
+                    if (CartesianPoint::is_close(cp, avg)) {
+                        avg = (avg * i + cp) / (i + 1);
+                        i += 1;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    if (check_against_existing_point_numerics(cp)) {
+                        existing_candidates.emplace_back(cp, 1); 
+                    } else {
+                        new_candidates.emplace_back(cp, 1);
+                    }
+                }
                 it = point_to_cartesian[p].erase(it);
             }
-            if (candidates.empty()) {
+
+            if (existing_candidates.empty() && new_candidates.empty()) {
                 throw GGraphInternalError("NumEngine::resolve_one(): No viable candidate numeric for point " + p->to_string());
             }
-            int max = 0, num_candidates = candidates.size();
+
+            int max = 0, num_candidates = new_candidates.size();
             std::string all_candidates = "";
-            for (auto it = candidates.begin(); it != candidates.end(); ) {
-                all_candidates += it->first.to_string() + " ";
-                point_to_cartesian[p].emplace_back(it->first);
-                if (it->second > max) {
-                    max = it->second;
-                    ++it;
-                } else {
-                    it = candidates.erase(it);
+
+            if (new_candidates.empty()) {
+                /* Among the existing candidates, extract the one with the highest no. of appearances */
+                num_candidates = existing_candidates.size();
+                for (auto it = existing_candidates.begin(); it != existing_candidates.end(); ) {
+                    all_candidates += it->first.to_string() + " ";
+                    point_to_cartesian[p].emplace_back(it->first);
+                    if (it->second > max) {
+                        max = it->second;
+                        ++it;
+                    } else {
+                        it = existing_candidates.erase(it);
+                    }
                 }
+                point_to_cartesian[p].emplace_back(existing_candidates.rbegin()->first);
+            } else {
+                /* Among the new candidates, extract the one with the highest no. of appearances */
+                for (auto it = new_candidates.begin(); it != new_candidates.end(); ) {
+                    all_candidates += it->first.to_string() + " ";
+                    point_to_cartesian[p].emplace_back(it->first);
+                    if (it->second > max) {
+                        max = it->second;
+                        ++it;
+                    } else {
+                        it = new_candidates.erase(it);
+                    }
+                }
+                point_to_cartesian[p].emplace_back(new_candidates.rbegin()->first);
             }
-            point_to_cartesian[p].emplace_back(candidates.rbegin()->first);
+            
             update_resolved_radius(point_to_cartesian[p].back());
             LOG("Resolved point " << p->to_string() << " to Cartesian " << point_to_cartesian[p].back().to_string() 
                     << " among candidates: " << all_candidates);
+
+            /* Return the discrepancy status: true if resolved without discrepancy, false if with discrepancy */
             return (num_candidates == 1);
     }
 }

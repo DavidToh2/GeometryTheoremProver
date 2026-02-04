@@ -180,7 +180,7 @@ void Construction::construct_no_checks(
             dd.base_pred.get()
         );
         while (pred_gen) {
-            dd.insert_predicate(std::move(pred_gen()));
+            dd.insert_new_predicate(std::move(pred_gen()));
         }
         auto num_gen = c_template->__instantiate_numerics();
         while (num_gen) {

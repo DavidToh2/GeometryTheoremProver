@@ -67,13 +67,25 @@ int main(int argc, char** argv) {
     if (problem_name.empty()) {
         // Iterate through every single problem in the input file
         std::vector<std::string> problem_names = gtp.inputParser.extract_all_problem_names_from_file(input_filepath);
+        int total_problems = 0, solved_problems = 0;
+        std::set<std::string> unsolved_problems;
+
         for (std::string problem_name : problem_names) {
             gtp.load_problem(
                 input_filepath,
                 problem_name
             );
 
-            gtp.solve(10);
+            if (problem_name == "p9") {
+                int debug = 1;
+            }
+
+            total_problems += 1;
+            if (gtp.solve(10)) {
+                solved_problems += 1;
+            } else {
+                unsolved_problems.insert(problem_name);
+            }
 
             gtp.output(
                 output_filepath
@@ -81,6 +93,16 @@ int main(int argc, char** argv) {
 
             gtp.clear_problem();
         }
+
+        std::cout << "Solved " << solved_problems << " out of " << total_problems << " problems." << std::endl;
+        if (solved_problems < total_problems) {
+            std::cout << "Unsolved problems: ";
+            for (std::string unsolved_problem : unsolved_problems) {
+                std::cout << unsolved_problem << " ";
+            }
+            std::cout << std::endl;
+        }
+
     } else {
         // Solve the specified problem
         gtp.load_problem(

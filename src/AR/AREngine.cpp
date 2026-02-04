@@ -9,8 +9,7 @@
 #include "Geometry/GeometricGraph.hh"
 #include "Common/NumUtils.hh"
 
-#define DEBUG_ARENGINE 0
-
+#include "Common/Debug.hh"
 #if DEBUG_ARENGINE
     #define LOG(x) do {std::cout << x << std::endl;} while(0)
 #else 
@@ -281,12 +280,17 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
         while (f < 0) f += 180;
         while (f >= 180) f -= 180;
         if (NumUtils::is_close(f, 90)) {
-            dd.insert_predicate(
+            dd.insert_new_predicate(
                 std::make_unique<Predicate>(
                     pred_t::PERP, std::vector<Node*>{d1, d2}, std::move(why))
             );
+        } else if (NumUtils::is_close(f, 0) || NumUtils::is_close(f, 180)) {
+            dd.insert_new_predicate(
+                std::make_unique<Predicate>(
+                    pred_t::PARA, std::vector<Node*>{d1, d2}, std::move(why))
+            );
         } else {
-            dd.insert_predicate(
+            dd.insert_new_predicate(
                 std::make_unique<Predicate>(
                     pred_t::CONSTANGLE, std::vector<Node*>{d1, d2}, f, std::move(why))
             );
@@ -296,7 +300,7 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
     auto gen_eqangle = get_all_eqangles_and_why();
     while (gen_eqangle) {
         auto [d1, d2, d3, d4, why] = gen_eqangle();
-        dd.insert_predicate(
+        dd.insert_new_predicate(
             std::make_unique<Predicate>(
                 pred_t::EQANGLE, std::vector<Node*>{d1, d2, d3, d4}, std::move(why))
         );
@@ -305,7 +309,7 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
     auto gen_para = get_all_paras_and_why();
     while (gen_para) {
         auto [d1, d2, why] = gen_para();
-        dd.insert_predicate(
+        dd.insert_new_predicate(
             std::make_unique<Predicate>(
                 pred_t::PARA, std::vector<Node*>{d1, d2}, std::move(why))
         );
@@ -321,7 +325,7 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
     auto gen_cong_1 = get_all_congs_and_why_1();
     while (gen_cong_1) {
         auto [l1, l2, why] = gen_cong_1();
-        dd.insert_predicate(
+        dd.insert_new_predicate(
             std::make_unique<Predicate>(
                 pred_t::CONG, std::vector<Node*>{l1, l2}, std::move(why))
         );
@@ -330,7 +334,7 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
     auto gen_const_ratio = get_all_constratios_and_why();
     while (gen_const_ratio) {
         auto [l1, l2, f, why] = gen_const_ratio();
-        dd.insert_predicate(
+        dd.insert_new_predicate(
             std::make_unique<Predicate>(
                 pred_t::CONSTRATIO, std::vector<Node*>{l1, l2}, f, std::move(why))
         );
@@ -339,7 +343,7 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
     auto gen_eqratio = get_all_eqratios_and_why();
     while (gen_eqratio) {
         auto [l1, l2, l3, l4, why] = gen_eqratio();
-        dd.insert_predicate(
+        dd.insert_new_predicate(
             std::make_unique<Predicate>(
                 pred_t::EQRATIO, std::vector<Node*>{l1, l2, l3, l4}, std::move(why))
         );
@@ -355,7 +359,7 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
     auto gen_cong_2 = get_all_congs_and_why_2();
     while (gen_cong_2) {
         auto [p1, p2, p3, p4, why] = gen_cong_2();
-        dd.insert_predicate(
+        dd.insert_new_predicate(
             std::make_unique<Predicate>(
                 pred_t::CONG, std::vector<Node*>{p1, p2, p3, p4}, std::move(why))
         );

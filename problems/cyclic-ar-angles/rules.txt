@@ -22,9 +22,6 @@ A B P Q : cyclic A B P Q => eqangle P A P B Q A Q B
 #eqangle_cyclic
 A B P Q : eqangle P A P B Q A Q B, diff A B P Q => cyclic A B P Q
 
-#eqangle_eqangle_eqangle
-#a b c d e f m n p q r u : eqangle a b c d m n p q, eqangle c d e f p q r u => eqangle a b e f m n r u
-
 #midpoint_theorem
 A B C E F : midp E A B, midp F A C, diff B C => para E F B C
 

@@ -30,7 +30,7 @@ public:
         std::string problem_name
     );
 
-    void solve(
+    bool solve(
         int max_steps
     );
 

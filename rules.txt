@@ -1,5 +1,8 @@
-#perp_perp_para
+#perp_perp_para (not necessary, AR engine can do this)
 A B C D E F : perp A B C D, perp C D E F, ncoll A B E => para A B E F
+
+#para_same_line
+A B C : para A B A C => coll A B C
 
 #cong_radius_cyclic
 A B C D O : cong O A O B, cong O B O C, cong O C O D => cyclic A B C D
@@ -13,8 +16,8 @@ A B P Q : cyclic A B P Q => eqangle P A P B Q A Q B
 #eqangles_cyclic
 A B P Q : eqangle P A P B Q A Q B, ncoll P Q A B => cyclic A B P Q
 
-#cyclic_eqangles_eqarclengths
-A B C P Q R : cyclic A B C P Q R, eqangle C A C B R P R Q => cong A B P Q
+#cyclic_eqangles_eqarclengths (technically not necessary - also hard to encode)
+#A B C P Q R : cyclic A B C P Q R, eqangle C A C B R P R Q => cong A B P Q
 
 #midpoint_theorem
 A B C E F : midp E A B, midp F A C => para E F B C
@@ -22,11 +25,8 @@ A B C E F : midp E A B, midp F A C => para E F B C
 #homothetic_triangles
 #A B C D O : para A B C D, coll O A C, coll O B D => eqratio3 A B C D O O
 
-#perp_perp_eqangles
+#perp_perp_eqangles (not necessary, AR engine can do this)
 A B C D E F G H : perp A B C D, perp E F G H, npara A B E F => eqangle A B E F C D G H
-
-#eqangle_eqangle_eqangles (this is necessary to add in the angle object <(ab, ef) and <(mn, ru) into ggraph)
-a b c d e f m n p q r u : eqangle a b c d m n p q, eqangle c d e f p q r u => eqangle a b e f m n r u
 
 #commutative_eqratios
 a b c d e f m n p q r u : eqratio a b c d m n p q, eqratio c d e f p q r u => eqratio a b e f m n r u
@@ -43,43 +43,83 @@ A B O : cong O A O B, ncoll O A B => eqangle O A A B A B O B
 #isosceles_eqangle_cong
 A B O : eqangle A O A B B A B O, ncoll O A B => cong O A O B
 
-A B C O X : circle O A B C, perp O A A X => eqangle A X A B C A C B
-A B C O X : circle O A B C, eqangle A X A B C A C B => perp O A A X
-A B C M O : circle O A B C, midp M B C => eqangle A B A C O B O M
-A B C M O : circle O A B C, coll M B C, eqangle A B A C O B O M => midp M B C
-A B C M : perp A B B C, midp M A C => cong A M B M
-A B C O : circle O A B C, coll O A C => perp A B B C
-A B C D : cyclic A B C D, para A B C D => eqangle A D C D C D C B
-
 #isosceles_perpbisect_eqangle
 A B M O : midp M A B, perp O M A B => cong O A O B
 
 #kite_diagonals_perpbisect
 A B P Q : cong A P B P, cong A Q B Q => perp A B P Q
-A B P Q : cong A P B P, cong A Q B Q, cyclic A B P Q => perp P A A Q
-A B C D M : midp M A B, midp M C D => para A C B D
-A B C D M : midp M A B, para A C B D, para A D B C => midp M C D
-A B C D O : eqratio O A A C O B B D, coll O A C, coll O B D, ncoll A B C, sameside A O C B O D => para A B C D
 
+#alternate_segment_theorem
+A B C O X : circle O A B C, perp O A A X => eqangle A X A B C A C B
 
-A B C : para A B A C => coll A B C
+#alternate_segment_theorem_2
+A B C O X : circle O A B C, eqangle A X A B C A C B => perp O A A X
 
+#circumcenter_angle
+A B C M O : circle O A B C, midp M B C => eqangle A B A C O B O M
 
+#circumcenter_angle_2
+A B C M O : circle O A B C, coll M B C, eqangle A B A C O B O M => midp M B C
 
-A B C D M N : midp M A B, midp N C D => eqratio M A A B N C C D
+#r_triangle_Thales
+A B C M : perp A B B C, midp M A C => cong A M B M
+
+#r_triangle_diameter
+A B C O : circle O A B C, coll O A C => perp A B B C
+
+#cyclic_para_trapezoid
+A B C D : cyclic A B C D, para A B C D => eqangle A D C D C D C B
+
+#cyclic_congs_kite (technically not necessary? by SSS + angle chasing)
+#A B P Q : cong A P B P, cong A Q B Q, cyclic A B P Q => perp P A A Q
+
+#midp_midp_parallelogram (necessary as midp, cong and eqratio have separate matching rules)
+#A B C D M : midp M A B, midp M C D => para A C B D
+
+#midp_parallelogram_midp (necessary as midp, cong and eqratio have separate matching rules)
+#A B C D M : midp M A B, para A C B D, para A D B C => midp M C D
+
+#ratio_theorem (technically not necessary by SAS simtri?)
+#A B C D O : eqratio O A A C O B B D, coll O A C, coll O B D, ncoll A B C, sameside A O C B O D => para A B C D
+
+#midpoint_to_ratio2s (not necessary)
+#A B C D M N : midp M A B, midp N C D => eqratio M A A B N C C D
 
 #eqangle_perp_perp (this is derivable by the AR engine)
-A B C D P Q U V : eqangle A B P Q C D U V, perp P Q U V => perp A B C D
+#A B C D P Q U V : eqangle A B P Q C D U V, perp P Q U V => perp A B C D
 
-A B C D P Q U V : eqratio A B P Q C D U V, cong P Q U V => cong A B C D
+#eqratio_cong_cong (this is derivable by the AR engine)
+#A B C D P Q U V : eqratio A B P Q C D U V, cong P Q U V => cong A B C D
+
+# SSS (contri)
 A B C P Q R : cong A B P Q, cong B C Q R, cong C A R P, ncoll A B C => contri A B C P Q R
+
+# SAS (contri)
 A B C P Q R : cong A B P Q, cong B C Q R, eqangle B A B C Q P Q R, ncoll A B C => contri A B C P Q R
-#A B C P Q R : eqangle B A B C Q R Q P, eqangle C A C B R Q R P, ncoll A B C => simtri A B C P Q R
+
+# AAA (simtri)
+A B C P Q R : eqangle B A B C Q R Q P, eqangle C A C B R Q R P, ncoll A B C => simtri A B C P Q R
+
+# AAA, oppositely oriented version (simtri)
 A B C P Q R : eqangle B A B C Q P Q R, eqangle C A C B R P R Q, ncoll A B C => simtri A B C P Q R
-A B C P Q R : eqangle B A B C Q P Q R, eqangle C A C B R P R Q, ncoll A B C, cong A B P Q => contri A B C P Q R
-A B C P Q R : eqangle B A B C Q R Q P, eqangle C A C B R Q R P, ncoll A B C, cong A B P Q => contri A B C P Q R
+
+# ASA (contri)
+A B C P Q R : cong A B P Q, eqangle B A B C Q P Q R, eqangle C A C B R P R Q, ncoll A B C => contri A B C P Q R
+
+# ASA, oppositely oriented version (contri)
+A B C P Q R : cong A B P Q, eqangle B A B C Q R Q P, eqangle C A C B R Q R P, ncoll A B C => contri A B C P Q R
+
+# SSS (simtri)
 A B C P Q R : eqratio B A B C Q P Q R, eqratio C A C B R P R Q, ncoll A B C => simtri A B C P Q R
+
+# SSS, oppositely oriented version (simtri)
 A B C P Q R : eqratio B A B C Q P Q R, eqangle B A B C Q P Q R, ncoll A B C => simtri A B C P Q R
-A B C P Q R : eqratio B A B C Q P Q R, eqratio C A C B R P R Q, ncoll A B C, cong A B P Q => contri A B C P Q R
+
+# SSS with ratios (contri) (technically not necessary)
+A B C P Q R : cong A B P Q, eqratio B A B C Q P Q R, eqratio C A C B R P R Q, ncoll A B C => contri A B C P Q R
+
+#generalised_ratio_theorem
 a b c d m n : para a b c d, coll m a d, coll n b c, eqratio m a m d n b n c, sameside m a d n b c => para m n a b
+
+#generalised_ratio_theorem_2
 a b c d m n : para a b c d, coll m a d, coll n b c, para m n a b, ncoll a b c => eqratio m a m d n b n c

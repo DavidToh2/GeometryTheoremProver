@@ -63,6 +63,11 @@ quadrilateral a b c d :
 -
 - a b c d = quadrilateral
 
+cyclic_quad a b c d : 
+-
+- cyclic a b c d
+- a b c d = cyclic_quad
+
 rectangle a b c d : 
 - diff a b
 - perp a b b c, para a b c d, para a d b c, perp a b a d, cong a b c d, cong a d b c, cong a c b d
@@ -179,10 +184,10 @@ reflect x : a b c
 - cong b a b x, cong c a c x, perp b c a x
 - x = reflect a b c
 
-intersection_cc x : o w a
-- ncoll o w a
-- cong o a o x, cong w a w x
-- x = circle o o a, circle w w a
+intersection_cc x : a p q r s
+- ncoll a p q, ncoll a r s
+- cyclic a x p q, cyclic a x r s
+- x = circum a p q, circum a r s
 
 intersection_lc x : a o b
 - diff a b, diff o b, nperp b o b a

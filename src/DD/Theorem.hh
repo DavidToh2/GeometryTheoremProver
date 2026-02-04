@@ -20,6 +20,7 @@ public:
 
     Theorem(const std::string &s);
 
+    Generator<std::unique_ptr<Predicate>> instantiate_preconditions();
     std::unique_ptr<Predicate> instantiate_postcondition();
 
     void __set_placeholder_args();

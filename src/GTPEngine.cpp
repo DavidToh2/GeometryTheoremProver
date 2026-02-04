@@ -65,11 +65,12 @@ void GTPEngine::load_problem(
     nm.compute();
 }
 
-void GTPEngine::solve(
+bool GTPEngine::solve(
     int max_steps
 ) {
     std::cout << "Solving problem " << problem_name << std::endl;
     auto start_time = std::chrono::high_resolution_clock::now();
+    bool solved = false;
 
     // Add numeric values from the NumEngine
     ggraph.initialise_point_numerics(nm);
@@ -98,6 +99,7 @@ void GTPEngine::solve(
         /* Check if the conclusion was reached. */
         if (dd.check_conclusion(ggraph)) {
             std::cout << "SOLVED!! Conclusion reached at iteration " << step << "!" << std::endl;
+            solved = true;
             break;
         }
 
@@ -110,7 +112,7 @@ void GTPEngine::solve(
     auto end_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
     std::cout << "Total time: " << duration << " us" << std::endl << std::endl;
-    return;
+    return solved;
 }
 
 void GTPEngine::output(std::string output_filepath) {

@@ -14,8 +14,7 @@
 #include "Common/Constants.hh"
 #include "Geometry/GeometricGraph.hh"
 
-#define DEBUG_DDENGINE 0
-
+#include "Common/Debug.hh"
 #if DEBUG_DDENGINE
     #define LOG(x) do {std::cout << x << std::endl;} while(0)
 #else 
@@ -40,7 +39,13 @@ void DDEngine::add_theorem_template_from_text(const std::string s) {
 
     std::unique_ptr<Theorem> _thr = std::make_unique<Theorem>(s);
     std::string name = _thr.get()->name;
-    theorems.insert({name, std::move(_thr)});
+    std::string cache_name = name;
+    int i = 0;
+    while (theorems.contains(cache_name)) {
+        i++;
+        cache_name = name + "_" + std::to_string(i);
+    }
+    theorems.insert({cache_name, std::move(_thr)});
 }
 
 void DDEngine::add_construction_template_from_texts(const std::tuple<std::string, std::string, std::string, std::string> v) { 
@@ -61,8 +66,18 @@ void DDEngine::set_conclusion(std::unique_ptr<Predicate> predicate) {
 
 
 
-
 Predicate* DDEngine::insert_predicate(std::unique_ptr<Predicate> &&predicate) {
+    Predicate* p = predicate.get();
+    std::string hash = p->hash;
+    if (has_predicate_by_hash(hash)) {
+        predicate.reset();
+        return predicates.at(hash).get();
+    }
+    predicates.insert({hash, std::move(predicate)});
+    return p;
+}
+
+Predicate* DDEngine::insert_new_predicate(std::unique_ptr<Predicate> &&predicate) {
     Predicate* p = predicate.get();
     std::string hash = p->hash;
     if (has_predicate_by_hash(hash)) {
@@ -512,7 +527,7 @@ Generator<bool> DDEngine::match_para(PredicateTemplate* pred_template, Geometric
                         Direction* d1 = l1->direction;
                         for (Line* l2 : d1->root_objs) {
                             if (l2 == l1) continue;
-                            auto gen_point_pairs2 = l2->all_point_pairs();
+                            auto gen_point_pairs2 = l2->all_point_pairs_ordered();
                             while (gen_point_pairs2) {
                                 auto [pt1, pt2] = gen_point_pairs2();
                                 pred_template->set_arg(2, pt1);
@@ -668,7 +683,7 @@ Generator<bool> DDEngine::match_perp(PredicateTemplate* pred_template, Geometric
                         Direction* d2 = l2->direction;
                         for (Line* l1 : d2->root_objs) {
                             if (l1 == l2) continue;
-                            auto gen_point_pairs1 = l1->all_point_pairs();
+                            auto gen_point_pairs1 = l1->all_point_pairs_ordered();
                             while (gen_point_pairs1) {
                                 auto [pt1, pt2] = gen_point_pairs1();
                                 pred_template->set_arg(0, pt1);
@@ -688,7 +703,8 @@ Generator<bool> DDEngine::match_perp(PredicateTemplate* pred_template, Geometric
             auto gen_l1 = p1->on_lines();
             while (gen_l1) {
                 l1 = gen_l1();
-                Direction* d1 = l1->direction;
+                if (!l1->has_direction()) continue;
+                Direction* d1 = l1->get_direction();
                 auto gen_point_1 = l1->all_points();
                 while (gen_point_1) {
                     auto pt1 = gen_point_1();
@@ -699,7 +715,7 @@ Generator<bool> DDEngine::match_perp(PredicateTemplate* pred_template, Geometric
                         case 0b00: {
                             for (Line* l2 : d1->root_objs) {
                                 if (l2 == l1) continue;
-                                auto gen_point_pairs2 = l2->all_point_pairs();
+                                auto gen_point_pairs2 = l2->all_point_pairs_ordered();
                                 while (gen_point_pairs2) {
                                     auto [pt3, pt4] = gen_point_pairs2();
                                     char c2 = pred_template->set_arg(2, pt3);
@@ -750,11 +766,12 @@ Generator<bool> DDEngine::match_perp(PredicateTemplate* pred_template, Geometric
             if (l1) {
                 switch(k2) {
                     case 0b00: {
+                        if (!l1->has_direction()) break;
                         Direction* d1 = l1->get_direction();
                         if (!d1->has_perp()) break;
                         d1 = d1->get_perp();
                         for (Line* l2 : d1->root_objs) {
-                            auto gen_point_pairs2 = l2->all_point_pairs();
+                            auto gen_point_pairs2 = l2->all_point_pairs_ordered();
                             while (gen_point_pairs2) {
                                 auto [pt3, pt4] = gen_point_pairs2();
                                 pred_template->set_arg(2, pt3);
@@ -1366,7 +1383,7 @@ Generator<bool> DDEngine::match_midp(PredicateTemplate* pred_template, Geometric
     if (a) {
         switch(k) {
             case 0b00: {
-                auto gen_seg_pairs = m->endpoint_of_segment_pairs();
+                auto gen_seg_pairs = m->endpoint_of_segment_pairs_ordered();
                 while (gen_seg_pairs) {
                     auto [s1, s2] = gen_seg_pairs();
                     if (!ggraph.check_coll(s1, s2)) continue;
@@ -1407,7 +1424,7 @@ Generator<bool> DDEngine::match_midp(PredicateTemplate* pred_template, Geometric
         switch(k) {
             case 0b00: {
                 for (Length* l : ggraph.root_lengths) {
-                    auto gen_seg_pairs = l->all_cong_pairs();
+                    auto gen_seg_pairs = l->all_cong_pairs_ordered();
                     while (gen_seg_pairs) {
                         auto [s1, s2] = gen_seg_pairs();
                         if (!ggraph.check_coll(s1, s2)) continue;
@@ -1682,11 +1699,26 @@ Generator<bool> DDEngine::match_npara(PredicateTemplate* pred_template, Geometri
 }
 
 Generator<bool> DDEngine::match(Theorem* theorem, int i, int n, GeometricGraph &ggraph) {
+    
     if (i == n) {
-        // Skip over matches where the postcondition is already known
+        if (theorem->name == "midp_midp_diff_para") {
+            int j = 1;
+        }
         if (!ggraph.check(theorem->postcondition.get())) {
-            insert_predicate(theorem->instantiate_postcondition());
+
+            std::unique_ptr<Predicate> pred_ = theorem->instantiate_postcondition();
+            Predicate* pred = pred_.get();
+
+            auto whys_ = theorem->instantiate_preconditions();
+            while (whys_) {
+                Predicate* why = insert_predicate(std::move(whys_()));
+                pred->why += why;
+            }
+
+            insert_new_predicate(std::move(pred_));
+
             co_yield true;
+
         }
         co_return;
     }

@@ -1,0 +1,75 @@
+#perp_perp_para
+A B C D E F : perp A B C D, perp C D E F, ncoll A B E => para A B E F
+
+#para_same_line
+A B C : para A B A C, diff B C => coll A B C
+
+#alt_angles_para
+A B C D P Q : eqangle A B P Q C D P Q, ncoll A B C D => para A B C D
+
+#cyclic_eqangle
+A B P Q : cyclic A B P Q => eqangle P A P B Q A Q B
+
+#eqangle_cyclic
+A B P Q : eqangle P A P B Q A Q B, diff A B P Q => cyclic A B P Q
+
+#perp_perp_cyclic
+A B C D : perp A B B C, perp A D D C, diff B D => cyclic A B C D
+
+#circle_radius_cong
+A B C O : cong O A O B, cong O B O C, diff O A B C => circle O A B C
+A B C O : circle O A B C => cong O A O B
+
+#midpoint_theorem
+A B C E F : midp E A B, midp F A C, diff B C E F => para E F B C
+
+#midp_midp_parallelogram (necessary as midp, cong and eqratio have separate matching rules)
+A B C D M : midp M A B, midp M C D, diff A B C D => para A C B D
+A B C D M : midp M A B, midp M C D, diff A B C D => para A D B C
+
+#midp_parallelogram_midp (necessary as midp, cong and eqratio have separate matching rules)
+A B C D M : midp M A B, para A C B D, para A D B C, diff A B C D => midp M C D
+
+#para_para_cong
+A B C D : para A B C D, para B C D A, diff A B C D => cong A B C D
+
+#isosceles_cong_eqangle
+A B O : cong O A O B, ncoll O A B => eqangle O A A B A B O B
+A B O : eqangle A O A B B A B O, ncoll O A B => cong O A O B
+
+#isosceles_perpbisect_eqangle
+A B M O : midp M A B, perp O M A B => cong O A O B
+A B M O : cong O A O B, perp O M A B, coll M A B => midp M A B
+
+#kite_diagonals_perpbisect
+A B P Q : cong A P B P, cong A Q B Q, diff P Q => perp A B P Q
+
+#alternate_segment_theorem
+A B C O X : circle O A B C, perp O A A X => eqangle A X A B C A C B
+
+#alternate_segment_theorem_2
+A B C O X : circle O A B C, eqangle A X A B C A C B => perp O A A X
+
+#r_triangle_Thales
+A B C M : perp A B B C, midp M A C => cong A M B M
+
+#r_triangle_diameter
+A B C O : circle O A B C, coll O A C => perp A B B C
+
+#cyclic_para_trapezoid
+A B C D : cyclic A B C D, para A B C D => eqangle A D C D C D C B
+
+#ratio_theorem (converse not necessary by SAS simtri)
+A B C D O : eqratio O A A C O B B D, coll O A C, coll O B D, ncoll A B C => para A B C D
+
+#circumcenter_angle
+A B C M O : circle O A B C, midp M B C, ncoll O B C => eqangle A B A C O B O M
+
+#circumcenter_angle_2
+A B C M O : circle O A B C, coll M B C, eqangle A B A C O B O M => midp M B C
+
+#orthocenter
+A B C H : perp A B C H, perp B C A H, diff A B C H => perp C A B H
+
+#in/excenter
+A B C I : eqangle A B B I I B B C, eqangle B A A I I A A C, diff A B C I => eqangle A C C I I C C B

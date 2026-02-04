@@ -215,5 +215,8 @@ namespace Cartesian {
     CartesianPoint foot(const CartesianPoint &p, const CartesianLine &l);
     CartesianPoint reflect(const CartesianPoint &p, const CartesianLine &l);
     
-
+    constexpr bool is_coll(const CartesianPoint &p1, const CartesianPoint &p2, const CartesianPoint &p3) {
+        // Check if the area of triangle p1p2p3 is close to 0
+        return NumUtils::is_close(0.5 * std::abs(p1.x * (p2.y - p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y)), 0.0);
+    }
 };

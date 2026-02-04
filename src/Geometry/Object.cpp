@@ -198,8 +198,8 @@ Generator<Segment*> Point::endpoint_of_segments() {
     co_return;
 }
 
-Generator<std::pair<Segment*, Segment*>> Point::endpoint_of_segment_pairs() {
-    return NodeUtils::all_pairs(NodeUtils::get_root(this)->endpoint_of_root_segment);
+Generator<std::pair<Segment*, Segment*>> Point::endpoint_of_segment_pairs_ordered() {
+    return NodeUtils::all_pairs_ordered(NodeUtils::get_root(this)->endpoint_of_root_segment);
 }
 
 void Point::merge(Point* other, Predicate* pred) {
@@ -254,6 +254,7 @@ Direction* Line::get_direction() {
 bool Line::is_para(Line *l1, Line *l2) {
     l1 = NodeUtils::get_root(l1);
     l2 = NodeUtils::get_root(l2);
+    if (NodeUtils::same_as(l1, l2)) return true;
     if (!l1->has_direction() || !l2->has_direction()) {
         return false;
     }
@@ -371,6 +372,7 @@ Line::check_incident_lines(Line* l, Line* other_l, Predicate* pred) {
     std::map<Line*, Point*> line_to_point;
     for (auto it = l->points.begin(); it != l->points.end(); ++it) {
         Point* p1 = it->first;
+        if (other_l->contains(p1)) continue;
         for (auto it1 = p1->on_root_line.begin(); it1 != p1->on_root_line.end(); ++it1) {
             Line* l1 = *it1;
             if (l1 != l && l1 != other_l) {

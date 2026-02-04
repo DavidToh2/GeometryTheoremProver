@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_compile_options(-g -Wno-fortify-source)
 
 file(GLOB_RECURSE sources      src/*/*.cpp) 
-file(GLOB_RECURSE headers      src/*.h)
+file(GLOB_RECURSE headers      src/*.h) 
 file(GLOB_RECURSE sources_test tests/*/*.cpp)
 
 file(GLOB entry_main src/main.cpp) 

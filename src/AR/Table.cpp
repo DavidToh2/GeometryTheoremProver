@@ -1,10 +1,10 @@
 
 #include "Table.hh"
+#include "Common/Exceptions.hh"
 #include "Matrix.hh"
 #include "Common/NumUtils.hh"
 
-#define DEBUG_ARTABLE 0
-
+#include "Common/Debug.hh"
 #if DEBUG_ARTABLE
     #define LOG(x) do {std::cout << x << std::endl;} while(0)
 #else 
@@ -217,7 +217,10 @@ bool Table::add_expr(const Expr::Expr& expr) {
             return false; // Expression already known
         }
         auto [subject, expr_subj] = Expr::get_subject(result, one);
-        if (subject.empty()) return false;
+        if (subject.empty()) {
+            LOG("Table::add_expr(): No subject found in " << Expr::to_string(result) << "!");
+            return false;
+        }
         // By the invariant, subject must be a free variable, which is about to become non-free
         // as it is substituted by expr_subj and replaced in all other expressions.
         replace(subject, expr_subj);

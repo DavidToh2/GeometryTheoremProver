@@ -81,7 +81,8 @@ std::optional<std::pair<Measure*, Measure*>> Angle::__merge(Angle* other, Predic
 std::optional<std::pair<Measure*, Measure*>> Angle::merge(Angle* other, Predicate* pred) {
     Angle* root_this = NodeUtils::get_root(this);
     Angle* root_other = NodeUtils::get_root(other);
-    if (root_this->direction1 != root_other->direction1 || root_this->direction2 != root_other->direction2) {
+    if (!NodeUtils::same_as(root_this->direction1, root_other->direction1) || 
+        !NodeUtils::same_as(root_this->direction2, root_other->direction2)) {
         throw GGraphInternalError("Error: Cannot merge angles " + root_this->name + " and " + root_other->name + " with different directions.");
     }
     return root_this->__merge(root_other, pred);
@@ -167,7 +168,8 @@ std::optional<std::pair<Fraction*, Fraction*>> Ratio::__merge(Ratio* other, Pred
 std::optional<std::pair<Fraction*, Fraction*>> Ratio::merge(Ratio* other, Predicate* pred) {
     Ratio* root_this = NodeUtils::get_root(this);
     Ratio* root_other = NodeUtils::get_root(other);
-    if (root_this->length1 != root_other->length1 || root_this->length2 != root_other->length2) {
+    if (!NodeUtils::same_as(root_this->length1, root_other->length1) || 
+        !NodeUtils::same_as(root_this->length2, root_other->length2)) {
         throw GGraphInternalError("Error: Cannot merge ratios " + root_this->name + " and " + root_other->name + " with different lengths.");
     }
     return root_this->__merge(root_other, pred);

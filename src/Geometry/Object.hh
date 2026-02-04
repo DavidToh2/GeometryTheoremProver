@@ -171,7 +171,7 @@ public:
     Generator<Circle*> center_of_circles();
     /* Returns the root segment nodes that the root of this point is an endpoint of */
     Generator<Segment*> endpoint_of_segments();
-    Generator<std::pair<Segment*, Segment*>> endpoint_of_segment_pairs();
+    Generator<std::pair<Segment*, Segment*>> endpoint_of_segment_pairs_ordered();
 
     /* Merge two point nodes. We merge them at their root nodes; it is pointless to merge anywhere else. 
     The `on_circle` and `on_line` of `get_root(other)` are moved into that of `get_root(this)`.
