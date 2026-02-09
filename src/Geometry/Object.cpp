@@ -120,6 +120,18 @@ void Point::set_this_endpoint_of(Segment* s, Predicate* pred) {
     }
     endpoint_of_root_segment.insert(rs);
 }
+void Point::set_this_vertex_of(Triangle* t, Predicate* pred) {
+    Triangle* rt = NodeUtils::get_root(t);
+    if (vertex_of_root_triangle.contains(rt)) return;
+
+    if (!vertex_of_triangle.contains(t)) {
+        vertex_of_triangle[t] = std::map<Point*, PredVec>();
+    }
+    if (!vertex_of_triangle[t].contains(this)) {
+        vertex_of_triangle[t][this] += pred;
+    }
+    vertex_of_root_triangle.insert(rt);
+}
 
 bool Point::is_this_on(Line* l) {
     return on_root_line.contains(NodeUtils::get_root(l));
@@ -202,6 +214,14 @@ Generator<std::pair<Segment*, Segment*>> Point::endpoint_of_segment_pairs_ordere
     return NodeUtils::all_pairs_ordered(NodeUtils::get_root(this)->endpoint_of_root_segment);
 }
 
+Generator<Triangle*> Point::vertex_of_triangles() {
+    Point* rp = NodeUtils::get_root(this);
+    for (Triangle* t : rp->vertex_of_root_triangle) {
+        co_yield t;
+    }
+    co_return;
+}
+
 void Point::merge(Point* other, Predicate* pred) {
 
     Point* root_this = NodeUtils::get_root(this);
@@ -218,6 +238,9 @@ void Point::merge(Point* other, Predicate* pred) {
     root_this->on_root_circle.merge(root_other->on_root_circle);
     root_this->center_of_root_circle.merge(root_other->center_of_root_circle);
     root_this->endpoint_of_root_segment.merge(root_other->endpoint_of_root_segment);
+
+    // Segment endpoints and triangle vertices are promoted in Segment::check_incident_segments and
+    // Triangle::check_incident_triangles respectively
 }
 
 
@@ -575,6 +598,25 @@ bool Segment::on_same_line(Segment* s1, Segment* s2) {
     return (NodeUtils::same_as(s1->get_line(), s2->get_line()));
 }
 
+Point* Segment::other_endpoint(Point* p) const {
+    return (
+        (endpoints[0] == p) ? endpoints[1] : 
+        ((endpoints[1] == p) ? endpoints[0] : nullptr)
+    ); 
+}
+
+Point* Segment::other_endpoint(Point* p, Point* new_p) {
+    if (endpoints[0] == p) {
+        endpoints[0] = new_p;
+        return endpoints[1];
+    } else if (endpoints[1] == p) {
+        endpoints[1] = new_p;
+        return endpoints[0];
+    } else {
+        return nullptr;
+    }
+}
+
 Generator<Ratio*> Segment::on_ratios_as_segment1() {
     return this->get_length()->on_ratios_as_length1();
 }
@@ -623,14 +665,8 @@ Generator<std::pair<Segment*, Segment*>> Segment::check_incident_segments(Point 
         Segment* s1 = *it;
         bool merge_happened = false;
 
-        Point* p2 = s1->other_endpoint(other_p);
-
         // Replace other_p with p in s1->endpoints
-        if (s1->endpoints[0] == other_p) {
-            s1->endpoints[0] = p;
-        } else if (s1->endpoints[1] == other_p) {
-            s1->endpoints[1] = p;
-        }
+        Point* p2 = s1->other_endpoint(other_p, p);
 
         if (p2 == p) {
             throw GGraphInternalError("Segment::check_segments_with_endpoint(): The segment " 
@@ -646,4 +682,130 @@ Generator<std::pair<Segment*, Segment*>> Segment::check_incident_segments(Point 
         if (!merge_happened) ++it;
     }
     co_return;
+}
+
+
+
+
+void Triangle::set_dimension(Dimension* d, Predicate* pred) {
+    Triangle* root_this = NodeUtils::get_root(this);
+    Dimension* root_d = NodeUtils::get_root(d);
+    root_this->dimension = root_d;
+    root_this->dimension_why = pred;
+    root_d->root_triangles[root_this] = pred;
+}
+Dimension* Triangle::get_dimension() {
+    Triangle* root_this = NodeUtils::get_root(this);
+    Dimension* d = NodeUtils::get_root(root_this->dimension);
+    if (d != root_this->dimension) root_this->dimension = d;
+    return d;
+}
+bool Triangle::has_dimension() {
+    return (NodeUtils::get_root(this)->dimension != nullptr);
+}
+
+void Triangle::permute(std::array<int, 3> perm) {
+    std::array<Point*, 3> old_v = vertices;
+    for (int i = 0; i < 3; ++i) {
+        vertices[i] = old_v[perm[i]];
+    }
+}
+std::array<int, 3> Triangle::compose_perm(std::array<int, 3> perm1, std::array<int, 3> perm2) {
+    std::array<int, 3> composed_perm;
+    for (int i = 0; i < 3; ++i) {
+        composed_perm[perm1[i]] = perm2[i];
+    }
+    return composed_perm;
+}
+std::array<int, 3> Triangle::get_perm(std::array<Point*, 3> other_vertices) const {
+    std::array<int, 3> perm;
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            if (vertices[i] == other_vertices[j]) {
+                perm[j] = i;
+                break;
+            }
+        }
+    }
+    return perm;
+}
+
+std::pair<Point*, Point*> Triangle::other_vertices(Point* p) const {
+    return ( (vertices[0] == p) ?
+            std::pair<Point*, Point*>{ vertices[1], vertices[2] } :
+            (vertices[1] == p) ? 
+            std::pair<Point*, Point*>{ vertices[0], vertices[2] } :
+            (vertices[2] == p) ? 
+            std::pair<Point*, Point*>{ vertices[0], vertices[1] } :
+            std::pair<Point*, Point*>{ nullptr,  nullptr} );
+}
+std::pair<Point*, Point*> Triangle::other_vertices(Point* p, Point* new_p) {
+    if (vertices[0] == p) {
+        vertices[0] = new_p;
+        return {vertices[1], vertices[2]};
+    } else if (vertices[1] == p) {
+        vertices[1] = new_p;
+        return {vertices[0], vertices[2]};
+    } else if (vertices[2] == p) {
+        vertices[2] = new_p;
+        return {vertices[0], vertices[1]};
+    } else {
+        return {nullptr, nullptr};
+    }
+}
+
+std::optional<std::pair<Dimension*, Dimension*>> Triangle::merge(Triangle* other, Predicate* pred) {
+    Triangle* root_this = NodeUtils::get_root(this);
+    Triangle* root_other = NodeUtils::get_root(other);
+    if (root_this == root_other) {
+        return std::nullopt;
+    }
+    root_other->parent = root_this;
+    root_other->parent_why = pred;
+    root_other->root = root_this;
+
+    for (Point* v : root_other->vertices) {
+        v->vertex_of_root_triangle.erase(root_other);
+    }
+
+    return {{root_this->get_dimension(), root_other->get_dimension()}};
+}
+
+Generator<std::pair<std::pair<Triangle*, Triangle*>, std::array<int, 3>>> 
+Triangle::check_incident_triangles(Point* p, Point* other_p, Predicate* pred) {
+    std::map<std::pair<Point*, Point*>, Triangle*> vertex_pair_to_triangle;
+    for (auto it = p->vertex_of_root_triangle.begin(); it != p->vertex_of_root_triangle.end(); ++it) {
+        Triangle* t1 = *it;
+        std::pair<Point*, Point*> vp1 = t1->other_vertices(p);
+        if (vp1.first == other_p || vp1.second == other_p) {
+            throw GGraphInternalError("Triangle::check_incident_triangles(): The triangle " 
+                    + t1->name + " has the three vertices " + p->name + ", " + vp1.first->name + ", and " 
+                    + vp1.second->name + ", which are being merged.");
+        }
+        vertex_pair_to_triangle[vp1] = t1;
+    }
+    for (auto it = other_p->vertex_of_root_triangle.begin(); it != other_p->vertex_of_root_triangle.end(); ) {
+        Triangle* t2 = *it;
+        bool merge_happened = false;
+
+        // Replace other_p with p in t2->vertices
+        std::pair<Point*, Point*> vp2 = t2->other_vertices(other_p, p);
+        if (vp2.first == p || vp2.second == p) {
+            throw GGraphInternalError("Triangle::check_incident_triangles(): The triangle " 
+                    + t2->name + " has the three vertices " + other_p->name + ", " + vp2.first->name + ", and " 
+                    + vp2.second->name + ", which are being merged.");
+        }
+        std::pair<Point*, Point*> vp2a = {vp2.second, vp2.first};
+
+        // Check if t1 = p-vp2[0]-vp2[1] and t2 = other_p-vp2[0]-vp2[1] both exist
+        if (vertex_pair_to_triangle.contains(vp2) || vertex_pair_to_triangle.contains(vp2a)) {
+            assert(!merge_happened);
+            if (!merge_happened) it = other_p->vertex_of_root_triangle.erase(it);
+            merge_happened = true;
+            Triangle* t1 = vertex_pair_to_triangle[vp2];
+            std::array<int, 3> perm = t2->get_perm(t1->vertices);
+            co_yield {{t1, t2}, perm};
+        }
+        if (!merge_happened) ++it;
+    }
 }

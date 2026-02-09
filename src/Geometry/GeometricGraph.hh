@@ -37,13 +37,14 @@ public:
 
     uptrmap<Direction> directions;
     uptrmap<Length> lengths;
-    uptrmap<Shape> shapes;
 
     uptrmap<Angle> angles;
     uptrmap<Ratio> ratios;
+    uptrmap<Dimension> dimensions;
 
     uptrmap<Measure> measures;
     uptrmap<Fraction> fractions;
+    uptrmap<Shape> shapes;
 
     // Root geometric objects
 
@@ -55,13 +56,14 @@ public:
 
     ptrset<Direction> root_directions;
     ptrset<Length> root_lengths;
-    ptrset<Shape> root_shapes;
 
     ptrset<Angle> root_angles;
     ptrset<Ratio> root_ratios;
+    ptrset<Dimension> root_dimensions;
 
     ptrset<Measure> root_measures;
     ptrset<Fraction> root_fractions;
+    ptrset<Shape> root_shapes;
 
     // Valuations of Value2 nodes
 
@@ -340,11 +342,11 @@ public:
     /* Gets the root angle with `direction1 == root_l1.direction` and `direction2 == root_l2.direction`, creating
     this new angle if it does not yet exist. */
     Angle* get_or_add_angle(Line* l1, Line* l2, DDEngine& dd);
-    /* Gets the root angle with first line `p1p2` and second line `p3p4`. These lines are fetched 
+    /* Gets the root angle with first line `rp1rp2` and second line `rp3rp4`. These lines are fetched 
     by `get_or_add_line()`, so are guaranteed to be root lines.
     The angle is created if it does not yet exist. */ 
     Angle* get_or_add_angle(Point* p1, Point* p2, Point* p3, Point* p4, DDEngine& dd);
-    /* Gets the root angle with first line `p1p2` and second line `p2p3`. These lines are fetched
+    /* Gets the root angle with first line `rp1rp2` and second line `rp2rp3`. These lines are fetched
     by `get_or_add_line()`, so are guaranteed to be root lines.
     The angle is created if it does not yet exist. */
     Angle* get_or_add_angle(Point* p1, Point* p2, Point* p3, DDEngine& dd);
@@ -384,31 +386,53 @@ public:
 
     /* Sets measure `m` to be equal to the constant `val`.
     Here, `val` should be given in degrees.
-    Note: If `m` already has a value, the function throws.
+    Returns true if the set was successful, and false if `val` was already previously recorded.
+    Note: If `m` already has a value that is different from `val`, the function throws.
     Note: `m` will be merged into `root_measure_vals[val]`. */
-    void set_measure_val(Measure* m, Frac val, Predicate* pred);
+    bool set_measure_val(Measure* m, Frac val, Predicate* pred);
 
 
     /* Adds the ratio with first length l1 and second length l2.
     Note: Assumes that l1 and l2 are root lengths. */
     Ratio* __add_new_ratio(Length* l1, Length* l2, Predicate* base_pred);
+    /* Adds the ratio with first length being that of segment s1, and second length being that of
+    segment s2. The lengths are created if they do not yet exist using `__add_new_length()`. 
+    Note: Assumes that `s1` and `s2` are root lengths. */
     Ratio* __add_new_ratio(Segment* s1, Segment* s2, Predicate* base_pred);
 
+    /* Gets the root ratio with the two given lengths. Returns `nullptr` if no such ratio exists.
+    Note: Assumes that `l1, l2` are root lengths. */
     Ratio* __try_get_ratio(Length* l1, Length* l2);
+    /* Gets the root ratio with the lengths of the two given segments. Returns `nullptr` if no such
+    ratio exists, or if `s1` or `s2` have no length. */
     Ratio* __try_get_ratio(Segment* s1, Segment* s2);
+    /* Gets the root ratio with the lengths of segments `p1p2` and `p3p4`. Returns `nullptr` if either
+    of the two segments do not exist, or do not have a length. 
+    Note: Assumes that all four points are root nodes.*/
     Ratio * __try_get_ratio(Point* p1, Point* p2, Point* p3, Point* p4);
 
+    /* Gets the root ratio with the roots of the two given lengths. Returns `nullptr` if no such ratio exists. */
     Ratio* try_get_ratio(Length* l1, Length* l2);
+    /* Gets the root ratio with the lengths of the roots of the two given segments. Returns `nullptr` if no such
+    ratio exists, or if `s1` or `s2` have no length. */
     Ratio* try_get_ratio(Segment* s1, Segment* s2);
+    /* Gets the root ratio with the lengths of segments `rp1rp2` and `rp3rp4`. Returns `nullptr` if either
+    of the two segments do not exist, or do not have a length. */
     Ratio* try_get_ratio(Point* p1, Point* p2, Point* p3, Point* p4);
 
+    /* Gets the root ratio l1/l2, creating a new one if it does not yet exist. */
     Ratio* get_or_add_ratio(Length* l1, Length* l2, DDEngine& dd);
+    /* Gets the root ratio using the lengths of s1 and s2, creating a new one if it does not yet exist. */
     Ratio* get_or_add_ratio(Segment* s1, Segment* s2, DDEngine& dd);
+    /* Gets the root ratio using the lengths of segments `rp1rp2` and `rp3rp4`, creating a new one if it does 
+    not yet exist. */
     Ratio* get_or_add_ratio(Point* p1, Point* p2, Point* p3, Point* p4, DDEngine& dd);
 
+    /* Fetches an arbitrary pair of segments with the given length ratio. */
     constexpr std::pair<Segment*, Segment*> get_segments_from_ratio(Ratio* r) {
         return { get_segment_from_length(r->length1), get_segment_from_length(r->length2) };
     }
+    /* Fetches an arbitrary quadruplet of points with the given length ratio. */
     constexpr std::pair<std::pair<Point*, Point*>, std::pair<Point*, Point*>> get_points_from_ratio(Ratio* r) {
         auto segs = get_segments_from_ratio(r);
         return {
@@ -421,19 +445,64 @@ public:
     void merge_ratios(Ratio* dest, Ratio* src, Predicate* pred);
 
 
+    /* Adds a new `Fraction` to the ratio `r`.
+    Note: assumes that `r` is a root node.
+    Note: assumes that `r` does not yet have a fraction set. (If it does, then the old fraction is overwritten:
+    see `Ratio::set_fraction()` for more details.)*/
     Fraction* __add_new_fraction(Ratio* r, Predicate* base_pred);
+    /* Gets the root fraction of the root of ratio `r`, or creates a new fraction for the root of `r` if it
+    does not yet exist. */
     Fraction* get_or_add_fraction(Ratio* r, DDEngine& dd);
 
+    /* Gets a root ratio equal to this fraction. */
     constexpr Ratio* get_ratio_from_fraction(Fraction* f) {
         return *(f->root_obj2s.begin());
     }
 
+    /* Sets the root fractions `dest` and `src` to be equal. */
     void set_fractions_equal(Fraction* dest, Fraction* src, Predicate* pred);
+    /* Sets the value of the fraction `f` to `val`. 
+    Returns true if the set was successful, and false if `val` was already previously recorded.
+    Note: If `f` already has a value different from `val`, this function throws.
+    Note: `f` will be merged into `root_fraction_vals[val]`. */
+    bool set_fraction_val(Fraction* f, Frac val, Predicate* pred);
 
-    void set_fraction_val(Fraction* f, Frac val, Predicate* pred);
 
+    Triangle* __add_new_triangle(Point* p1, Point* p2, Point* p3, Predicate* base_pred);
+    Triangle* __try_get_triangle(Point* p1, Point* p2, Point* p3);
 
+    Dimension* __add_new_dimension(Triangle* s, Predicate* base_pred);
+    Dimension* get_or_add_dimension(Triangle* s, Predicate* base_pred);
 
+    Shape* __add_new_shape(Dimension* dim, Predicate* base_pred);
+    Shape* try_get_shape(Triangle* t);
+    Shape* get_or_add_shape(Dimension* dim, Predicate* base_pred);
+
+    Triangle* add_new_triangle(Point* p1, Point* p2, Point* p3, Predicate* base_pred);
+    Triangle* try_get_triangle(Point* p1, Point* p2, Point* p3);
+    Triangle* get_or_add_triangle(Point* p1, Point* p2, Point* p3, Predicate* base_pred);
+
+    /* Records the two triangles `dest` and `src` as identical. Note that this implicitly assumes that
+    their vertices are correctly permuted. */
+    void merge_triangles(Triangle* dest, Triangle* src, Predicate* pred);
+
+    /* Records the two triangles `p1p2p3, p4p5p6` as congruent. */
+    void set_triangles_congruent(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Predicate* pred);
+    /* Records the two triangles `t1, t2` as congruent. */
+    void set_triangles_congruent(Triangle* t1, Triangle* t2, std::array<int, 3> perm, Predicate* pred);
+    /* Records the two triangle dimensions `dim1` and `dim2` as congruent. 
+    The triangles in dimension `dim2`, as well as all triangles in `dim2->shape`, will be permuted according
+    to `perm`. */
+    void set_triangles_congruent(Dimension* dim1, Dimension* dim2, std::array<int, 3> perm, Predicate* pred);
+
+    /* Records the two triangles `p1p2p3, p4p5p6` as similar. */
+    void set_triangles_similar(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Predicate* pred);
+    /* Records the two triangles `t1, t2` as similar. */
+    void set_triangles_similar(Triangle* t1, Triangle* t2, std::array<int, 3> perm, Predicate* pred);
+    /* Records the two triangle shapes `shp1` and `shp2` as similar.
+    Note: This assumes that the triangle vertices in `shp2` have already been correctly permuted to align
+    to those in `shp1` - in other words, that `shp2->perm_all_triangles()` has already been called. */
+    void set_triangles_similar(Shape* shp1, Shape* shp2, Predicate* pred);
 
 
 
@@ -471,6 +540,14 @@ public:
     bool check_eqratio(Length* l1, Length* l2, Length* l3, Length* l4);
     bool check_eqratio(Ratio* r1, Ratio* r2);
 
+    bool check_contri(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6);
+    bool check_contri(Triangle* t1, Triangle* t2);
+    bool check_contri(Dimension* dim1, Dimension* dim2);
+
+    bool check_simtri(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6);
+    bool check_simtri(Triangle* t1, Triangle* t2);
+    bool check_simtri(Shape* shp1, Shape* shp2);
+
     bool check_midp(Point* m, Point* p1, Point* p2);
 
     bool check_circle(Point* c, Point* p1, Point* p2, Point* p3);
@@ -503,37 +580,64 @@ public:
 
 
     bool make_coll(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool __make_coll(Point* p1, Point* p2, Point* p3, 
+        Predicate* pred, DDEngine &dd, AREngine &ar);
 
     bool make_cyclic(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool __make_cyclic(Point* p1, Point* p2, Point* p3, Point* p4, 
+        Predicate* pred, DDEngine &dd, AREngine &ar);
 
     bool make_para(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool __make_para(Point* p1, Point* p2, Point* p3, Point* p4, 
+        Predicate* pred, DDEngine &dd, AREngine &ar);
     bool make_ar_para(Predicate* pred);
 
     bool make_perp(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool __make_perp(Point* p1, Point* p2, Point* p3, Point* p4, 
+        Predicate* pred, DDEngine &dd, AREngine &ar);
     bool make_ar_perp(Predicate* pred);
 
     bool make_cong(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool __make_cong(Point* p1, Point* p2, Point* p3, Point* p4, 
+        Predicate* pred, DDEngine &dd, AREngine &ar);
     bool make_ar_cong(Predicate* pred, DDEngine& dd);
 
     bool make_eqangle(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool __make_eqangle(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Point* p7, Point* p8,
+        Predicate* pred, DDEngine &dd, AREngine &ar);
     bool make_ar_eqangle(Predicate* pred, DDEngine& dd);
 
     bool make_eqratio(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool __make_eqratio(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Point* p7, Point* p8,
+        Predicate* pred, DDEngine &dd, AREngine &ar);
     bool make_ar_eqratio(Predicate* pred, DDEngine& dd);
 
     // TODO:
-    bool make_contri(Predicate* pred, DDEngine &dd);
-    bool make_simtri(Predicate* pred, DDEngine &dd);
+    bool make_contri(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool __make_contri(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, 
+        Predicate* pred, DDEngine &dd, AREngine &ar);
+
+    bool make_simtri(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool __make_simtri(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, 
+        Predicate* pred, DDEngine &dd, AREngine &ar);
 
     bool make_midp(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool __make_midp(Point* m, Point* p1, Point* p2, 
+        Predicate* pred, DDEngine &dd, AREngine &ar);
 
     bool make_circle(Predicate* pred, DDEngine &dd);
+    bool __make_circle(Point* c, Point* p1, Point* p2, Point* p3, 
+        Predicate* pred, DDEngine &dd);
 
     bool make_constangle(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool __make_constangle(Point* p1, Point* p2, Point* p3, Point* p4, Frac f,
+        Predicate* pred, DDEngine &dd, AREngine &ar);
     /* Note: constangle predicates made by the AREngine have angle between 0 and 180. */
     bool make_ar_constangle(Predicate* pred, DDEngine& dd);
 
     bool make_constratio(Predicate* pred, DDEngine &dd, AREngine &ar);
+    bool __make_constratio(Point* p1, Point* p2, Point* p3, Point* p4, Frac f,
+        Predicate* pred, DDEngine &dd, AREngine &ar);
     bool make_ar_constratio(Predicate* pred, DDEngine& dd);
 
 

@@ -56,7 +56,7 @@ std::string Arg::to_string() {
     /* ampersands [&] make capture-by-reference the default for our lambda. In
     other words, all variables outside the lambda can be accessed by reference. */ 
     return std::visit(overloaded {
-        [](std::monostate) -> std::string { return "EMPTY"; },
+        [](std::monostate) -> std::string { return "?"; },
         [](Node* node) -> std::string { return node->name; },
         [](Frac f) -> std::string { return f.to_string(); },
         [](char c) -> std::string { return std::string{c}; }

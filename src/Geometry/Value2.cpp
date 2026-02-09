@@ -70,3 +70,53 @@ Generator<std::pair<Ratio*, Ratio*>> Fraction::all_eq_pairs_ordered() {
     Fraction* root_this = NodeUtils::get_root(this);
     return NodeUtils::all_pairs_ordered<Ratio>(root_this->root_obj2s);
 }
+
+
+
+void Shape::add_dimension(Dimension* d, Predicate* pred) {
+    Shape* root_this = NodeUtils::get_root(this);
+    Dimension* root_d = NodeUtils::get_root(d);
+    root_d->set_shape(root_this, pred);
+}
+
+void Shape::perm_all_triangles(std::array<int, 3> perm) {
+    Shape* root_this = NodeUtils::get_root(this);
+    if (this != root_this) return;
+
+    for (Dimension* d : root_this->root_obj2s) {
+        d->perm_all_triangles(perm);
+    }
+}
+
+bool Shape::is_similar(Shape* s1, Shape* s2) {
+    return NodeUtils::same_as(s1, s2);
+}
+
+void Shape::merge(Shape* other, Predicate* pred) {
+    Shape* root_this = NodeUtils::get_root(this);
+    Shape* root_other = NodeUtils::get_root(other);
+    if (root_this == root_other) {
+        return;
+    }
+    root_other->parent = root_this;
+    root_other->parent_why = pred;
+    root_other->root = root_this;
+
+    for (auto [d, p] : root_other->obj2s) {
+        root_this->obj2s[d] = pred;
+        d->shape = root_this;
+    }
+
+    // std::set::merge has move semantics
+    root_this->root_obj2s.merge(root_other->root_obj2s);
+    root_other->root_obj2s.clear();
+}
+
+Generator<std::pair<Dimension*, Dimension*>> Shape::all_eq_pairs() {
+    Shape* root_this = NodeUtils::get_root(this);
+    return NodeUtils::all_pairs<Dimension>(root_this->root_obj2s);
+}
+Generator<std::pair<Dimension*, Dimension*>> Shape::all_eq_pairs_ordered() {
+    Shape* root_this = NodeUtils::get_root(this);
+    return NodeUtils::all_pairs_ordered<Dimension>(root_this->root_obj2s);
+}

@@ -174,3 +174,75 @@ std::optional<std::pair<Fraction*, Fraction*>> Ratio::merge(Ratio* other, Predic
     }
     return root_this->__merge(root_other, pred);
 }
+
+
+
+void Dimension::add_triangle(Triangle* t, Predicate* pred) {
+    Triangle* root_t = NodeUtils::get_root(t);
+    root_triangles[root_t] = pred;
+    root_t->dimension = NodeUtils::get_root(this);
+    root_t->dimension_why = pred;
+}
+void Dimension::perm_all_triangles(std::array<int, 3> perm) {
+    Dimension* root_d = NodeUtils::get_root(this);
+    if (this != root_d) return;
+
+    for (auto& [t, pred] : root_d->root_triangles) {
+        t->permute(perm);
+    }
+    std::array<bool, 3> old_isosceles_mask = isosceles_mask;
+    for (int i = 0; i < 3; ++i) {
+        isosceles_mask[i] = old_isosceles_mask[perm[i]];
+    }
+}
+void Dimension::set_shape(Shape* s, Predicate* pred) {
+    Dimension* root_d = NodeUtils::get_root(this);
+    Shape* root_s = NodeUtils::get_root(s);
+    root_d->shape = root_s;
+    root_d->shape_why = pred;
+    root_s->obj2s[root_d] = pred;
+    root_s->root_obj2s.insert(root_d);
+}
+bool Dimension::has_shape() {
+    return NodeUtils::get_root(this)->shape != nullptr;
+}
+bool Dimension::is_congruent(Dimension* d1, Dimension* d2) {
+    Dimension* rd1 = NodeUtils::get_root(d1);
+    Dimension* rd2 = NodeUtils::get_root(d2);
+    if (rd1 == rd2) {
+        return true;
+    }
+    if (!rd1->shape || !rd2->shape) {
+        return false;
+    }
+    return (rd1->shape == rd2->shape);
+}
+Generator<std::pair<Triangle*, Triangle*>> Dimension::all_cong_pairs() {
+    Dimension* root_d = NodeUtils::get_root(this);
+    return NodeUtils::all_pairs<Triangle>(root_d->root_triangles);
+}
+Generator<std::pair<Triangle*, Triangle*>> Dimension::all_cong_pairs_ordered() {
+    Dimension* root_d = NodeUtils::get_root(this);
+    return NodeUtils::all_pairs_ordered<Triangle>(root_d->root_triangles);
+}
+
+void Dimension::merge(Dimension* other, Predicate* pred) {
+    Dimension* root_this = NodeUtils::get_root(this);
+    Dimension* root_other = NodeUtils::get_root(other);
+    if (root_this == root_other) {
+        return;
+    }
+    root_other->parent = root_this;
+    root_other->parent_why = pred;
+    root_other->root = root_this;
+
+    if (root_other->has_shape()) {
+        root_other->shape->root_obj2s.erase(root_other);
+        if (!root_this->has_shape()) {
+            root_this->set_shape(root_other->shape, pred);
+        }
+    }
+
+    root_this->root_triangles.merge(root_other->root_triangles);
+    root_other->root_triangles.clear();
+}

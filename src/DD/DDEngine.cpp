@@ -733,7 +733,7 @@ Generator<bool> DDEngine::match_perp(PredicateTemplate* pred_template, Geometric
                             auto gen_l2 = p3->on_lines();
                             while (gen_l2) {
                                 l2 = gen_l2();
-                                if (ggraph.check_para(l1, l2) && l1 != l2) {
+                                if (ggraph.check_perp(l1, l2) && l1 != l2) {
                                     auto gen_point_2 = l2->all_points();
                                     while (gen_point_2) {
                                         auto pt3 = gen_point_2();
@@ -1701,9 +1701,6 @@ Generator<bool> DDEngine::match_npara(PredicateTemplate* pred_template, Geometri
 Generator<bool> DDEngine::match(Theorem* theorem, int i, int n, GeometricGraph &ggraph) {
     
     if (i == n) {
-        if (theorem->name == "midp_midp_diff_para") {
-            int j = 1;
-        }
         if (!ggraph.check(theorem->postcondition.get())) {
 
             std::unique_ptr<Predicate> pred_ = theorem->instantiate_postcondition();

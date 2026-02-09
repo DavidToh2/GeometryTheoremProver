@@ -13,6 +13,7 @@ class Ratio;
 class Measure;
 class Length;
 class Fraction;
+class Shape;
 
 /* Object2 class.
 
@@ -133,4 +134,52 @@ public:
     by `GeometricGraph::set_fractions_equal()`.
     Note: Throws if `length1` and `length2` are not equal. */
     std::optional<std::pair<Fraction*, Fraction*>> merge(Ratio* other, Predicate* pred);
+};
+
+
+/* Dimension class.
+
+Triangles which are congruent share the same Dimension.
+
+The Triangles in every Dimension must have vertices permuted in the same order. For instance, to
+store the fact that ABC is congruent to DEF, we should have a root_triangle whose vertex order is
+A, B, C, and another whose root_triangle is D, E, F.
+
+The `perm_all_triangles()` function helps with this by permuting the vertex order of every single
+Triangle attached to the Dimension at once.
+
+To record congruency between two Triangles `t1` and `t2`,
+- if `t2` has a Shape, fetch it and permute all the triangles in this Shape in the same order as
+that of `t1`;
+- else if `t2` only has a Dimension, fetch it and permute all the triangles in its Dimension.
+- Having done that, we may then merge their two Dimensions and Shapes (in any order we want).
+*/
+class Dimension : public Object2 {
+public:
+    std::map<Triangle*, Predicate*> root_triangles;
+    Shape* shape = nullptr;
+    Predicate* shape_why = nullptr;
+    std::array<bool, 3> isosceles_mask = {false, false, false};
+
+    Dimension(std::string name) : Object2(name) {}
+    Dimension(std::string name, Triangle* t, Predicate* base_pred) : Object2(name), shape(nullptr) {
+        root_triangles[t] = base_pred;
+    }
+
+    void add_triangle(Triangle* t, Predicate* pred);
+    void perm_all_triangles(std::array<int, 3> perm);
+
+    void set_shape(Shape* s, Predicate* pred);
+    bool has_shape();
+
+    /* Checks if the dimensions `d1` and `d2` are congruent.*/
+    static bool is_congruent(Dimension* d1, Dimension* d2);
+
+    Generator<std::pair<Triangle*, Triangle*>> all_cong_pairs();
+    Generator<std::pair<Triangle*, Triangle*>> all_cong_pairs_ordered();
+
+    /* Merges the `other` Dimension into `this` Dimension.
+    This does not do anything about the two Dimensions' triangle vertex ordering, nor their Shapes.
+    See the class documentation for a more detailed description of the congruency recording process. */
+    void merge(Dimension* other, Predicate* pred);
 };

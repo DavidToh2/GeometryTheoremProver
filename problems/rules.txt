@@ -20,6 +20,9 @@ A B C D : perp A B B C, perp A D D C, diff B D => cyclic A B C D
 A B C O : cong O A O B, cong O B O C, diff O A B C => circle O A B C
 A B C O : circle O A B C => cong O A O B
 
+#cyclic_arclength_cong
+A B C D : cyclic A B C D, eqangle A D D B C B B D => cong A B C D
+
 #midpoint_theorem
 A B C E F : midp E A B, midp F A C, diff B C E F => para E F B C
 

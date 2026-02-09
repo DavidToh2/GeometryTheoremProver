@@ -4,6 +4,7 @@
 
 #include "Geometry/GeometricGraph.hh"
 #include "Common/Exceptions.hh"
+#include "Geometry/Node.hh"
 
 TEST_SUITE("GeometricGraph: Node merging") {
     TEST_CASE("Merging Object nodes") {
@@ -117,11 +118,23 @@ TEST_SUITE("GeometricGraph: Node merging") {
             Line* l6 = ggraph.get_or_add_line(e, g, dd);
             Line* l7 = ggraph.get_or_add_line(g, h, dd);
 
-            a->set_this_on(l3, base_pred);  // a, c, d
-            b->set_this_on(l4, base_pred);  // b, d, e
-            a->set_this_on(l5, base_pred);  // a, e, f
-            c->set_this_on(l6, base_pred);  // c, e, g
-            d->set_this_on(l7, base_pred);  // d, g, h
+            ggraph.__make_coll(a, c, d, nullptr, dd, ar);   // l3 : a, c, d
+            REQUIRE((NodeUtils::get_root(l3) == l3 && l3->contains(a)));
+
+            ggraph.__make_coll(b, d, e, nullptr, dd, ar);   // l4 : b, d, e
+            REQUIRE((NodeUtils::get_root(l4) == l4 && l4->contains(b)));
+
+            ggraph.__make_coll(a, e, f, nullptr, dd, ar);   // l5 : a, e, f
+            REQUIRE((NodeUtils::get_root(l5) == l5 && l5->contains(a)));
+
+            ggraph.__make_coll(c, e, g, nullptr, dd, ar);   // l6 : c, e, g
+            REQUIRE((NodeUtils::get_root(l6) == l6 && l6->contains(c)));
+
+            ggraph.__make_coll(d, g, h, nullptr, dd, ar);   // l7 : d, g, h
+            REQUIRE((NodeUtils::get_root(l7) == l7 && l7->contains(d)));
+
+            ggraph.merge_lines(l1, l2, base_pred, ar);
+            
             /* On first round, [ab, bc] generates (acd, (a, c)) for L1
             On second round, [bc, acd] generates (bde, (b, d))
             and [ab, acd] also generates (bde, (b, d)) for L1
@@ -131,9 +144,6 @@ TEST_SUITE("GeometricGraph: Node merging") {
             On fourth round, [acd, ceg] generates (dgh, (d, g))
             and [bde, ceg] generates (dgh, (d, h)) 
             both of which fail the numeric equality test */
-
-            // Invoke coll a b c
-            ggraph.merge_lines(l1, l2, base_pred, ar);
 
             // Now, all lines should have root equal to l1, except l7
             REQUIRE((
@@ -178,12 +188,14 @@ TEST_SUITE("GeometricGraph: Node merging") {
 
             Circle* ace = ggraph.get_or_add_circle(a, c, e, dd);
             Circle* bdf = ggraph.get_or_add_circle(b, d, f, dd);
-            g->set_this_on(bdf, base_pred);
+            ggraph.__make_cyclic(b, d, f, g, nullptr, dd, ar);
+            // g->set_this_on(bdf, base_pred);
             REQUIRE(ggraph.get_or_add_circle(b, d, g, dd) == bdf);
 
             REQUIRE_THROWS_AS(ggraph.get_or_add_circle(b, c, d, dd), NumericsInternalError);
             Circle* bde = ggraph.get_or_add_circle(b, d, e, dd);
-            c->set_this_on(bde, base_pred);
+            ggraph.__make_cyclic(b, c, d, e, nullptr, dd, ar);
+            // c->set_this_on(bde, base_pred);
 
             ggraph.merge_points(a, b, base_pred, ar);
             ggraph.merge_points(c, d, base_pred, ar);
@@ -314,4 +326,115 @@ TEST_SUITE("GeometricGraph: Node merging") {
             REQUIRE((s3.size() == 2 && s3.contains(r_ab) && s3.contains(NodeUtils::get_root(r_ef))));
         }
     }
+
+    TEST_CASE("Merging Value nodes") {
+        GeometricGraph ggraph;
+        DDEngine dd;
+        AREngine ar;
+        Predicate* base_pred = dd.base_pred.get();
+
+        Point* a = ggraph.__add_new_point("a", {-1, 1});
+        Point* b = ggraph.__add_new_point("b", {0, 1});
+        Point* c = ggraph.__add_new_point("c", {-2, 0});
+        Point* d = ggraph.__add_new_point("d");
+        Point* e = ggraph.__add_new_point("e", {0, -2});
+        Point* f = ggraph.__add_new_point("f", {1, 0});
+        Point* g = ggraph.__add_new_point("g", {-1, -1});
+        Point* h = ggraph.__add_new_point("h");
+
+        SUBCASE("Angle incidence from merging directions") {
+            Line* ab = ggraph.get_or_add_line(a, b, dd);
+            Line* cf = ggraph.get_or_add_line(c, f, dd);
+            Line* df = ggraph.get_or_add_line(d, f, dd);
+
+            Line* be = ggraph.get_or_add_line(b, e, dd);
+            Line* fg = ggraph.get_or_add_line(f, g, dd);
+            Line* bd = ggraph.get_or_add_line(b, d, dd);
+            Line* de = ggraph.get_or_add_line(d, e, dd);
+
+            Line* ad = ggraph.get_or_add_line(a, d, dd);
+            Line* bf = ggraph.get_or_add_line(b, f, dd);
+            Line* dg = ggraph.get_or_add_line(d, g, dd);
+
+            Line* eh = ggraph.get_or_add_line(e, h, dd);
+            Line* fh = ggraph.get_or_add_line(f, h, dd);
+            Line* gh = ggraph.get_or_add_line(g, h, dd);
+
+            ggraph.__make_perp(a, b, f, g, nullptr, dd, ar);
+            ggraph.__make_para(b, e, f, g, nullptr, dd, ar);
+
+            Angle* abf = ggraph.get_or_add_angle(ab, bf, dd);
+            Angle* cfb = ggraph.get_or_add_angle(cf, bf, dd);
+
+            ggraph.__make_perp(c, f, b, e, nullptr, dd, ar);
+            REQUIRE(NodeUtils::same_as(cf->get_direction(), ab->get_direction()));
+            REQUIRE((NodeUtils::same_as(abf, cfb) && Angle::is_equal(abf, cfb)));
+
+            Angle* dfb = ggraph.get_or_add_angle(df, bf, dd);
+
+            ggraph.__make_coll(c, d, f, nullptr, dd, ar);
+            REQUIRE((NodeUtils::same_as(cf, df) && cf->contains(d)));
+            REQUIRE((NodeUtils::same_as(abf, dfb) && Angle::is_equal(abf, dfb)));
+
+            Line* cdf = NodeUtils::get_root(cf);
+            Angle* bad = ggraph.get_or_add_angle(ab, ad, dd);
+            Angle* fdg = ggraph.get_or_add_angle(df, dg, dd);
+            Angle* edg = ggraph.get_or_add_angle(de, dg, dd);
+            Angle* gfb = ggraph.get_or_add_angle(fg, bf, dd);
+
+            ggraph.__make_coll(a, d, g, nullptr, dd, ar);
+            ggraph.__make_para(b, f, a, g, nullptr, dd, ar);
+            ggraph.__make_coll(b, d, e, nullptr, dd, ar);
+            REQUIRE((NodeUtils::same_as(bad, fdg) && Angle::is_equal(bad, fdg)));
+            REQUIRE((NodeUtils::same_as(bad, abf) && Angle::is_equal(bad, abf)));
+            REQUIRE((NodeUtils::same_as(edg, gfb) && Angle::is_equal(edg, gfb)));
+
+            // {abf, cfb, dfb, bad, fdg}, {edg, gfb}
+            REQUIRE(ggraph.root_angles.size() == 2);
+
+            Angle* hfb = ggraph.get_or_add_angle(fh, bf, dd);
+            Angle* ehg = ggraph.get_or_add_angle(eh, gh, dd);
+
+            // ggraph.__make_coll(c, h, f, nullptr, dd, ar);
+            // ggraph.__make_coll(b, e, h, nullptr, dd, ar);
+            /* TOFIX: Calling __make_coll(c, f, h), __make_coll(b, e, h) does not help detect incidence of d, h 
+            because, by our own definition, our object incidence detection algorithm ignores the case where points 
+            are deduced to be identical. */
+            ggraph.merge_points(d, h, base_pred, ar);
+            REQUIRE((cf->contains(h) && be->contains(h)));
+            REQUIRE(NodeUtils::same_as(d, h));
+            REQUIRE((NodeUtils::same_as(d, h) && NodeUtils::same_as(de, eh)
+                && NodeUtils::same_as(df, fh)));
+            REQUIRE((NodeUtils::same_as(hfb, dfb) && Angle::is_equal(hfb, dfb)));
+            REQUIRE((NodeUtils::same_as(ehg, edg) && Angle::is_equal(ehg, edg)));
+        }
+        SUBCASE("Ratio incidence from merging lengths") {
+            ggraph.__make_cong(a, b, b, d, nullptr, dd, ar);
+            ggraph.__make_cong(d, f, f, g, nullptr, dd, ar);
+            ggraph.__make_cong(a, d, d, g, nullptr, dd, ar);
+
+            Ratio* ab_df = ggraph.get_or_add_ratio(a, b, d, f, dd);
+            Ratio* bd_fg = ggraph.get_or_add_ratio(b, d, f, g, dd);
+            Ratio* ab_ad = ggraph.get_or_add_ratio(a, b, a, d, dd);
+            Ratio* fg_gd = ggraph.get_or_add_ratio(f, g, g, d, dd);
+            Ratio* bd_bf = ggraph.get_or_add_ratio(b, d, b, f, dd);
+
+            ggraph.__make_cong(b, d, d, f, nullptr, dd, ar);
+            REQUIRE((NodeUtils::same_as(ab_df, bd_fg) && Ratio::is_equal(ab_df, bd_fg)));
+            REQUIRE((NodeUtils::same_as(ab_ad, fg_gd) && Ratio::is_equal(ab_ad, fg_gd)));
+            ggraph.__make_cong(a, d, b, f, nullptr, dd, ar);
+            REQUIRE((NodeUtils::same_as(bd_bf, ab_ad) && Ratio::is_equal(bd_bf, ab_ad)));
+
+            Ratio* cd_da = ggraph.get_or_add_ratio(c, d, d, a, dd);
+            Ratio* ed_dg = ggraph.get_or_add_ratio(e, d, d, g, dd);
+            Ratio* eh_hg = ggraph.get_or_add_ratio(e, h, h, g, dd);
+
+            ggraph.__make_cong(c, d, d, e, nullptr, dd, ar);
+            REQUIRE((NodeUtils::same_as(cd_da, ed_dg) && Ratio::is_equal(cd_da, ed_dg)));
+            ggraph.merge_points(d, h, base_pred, ar);
+            REQUIRE((NodeUtils::same_as(ed_dg, eh_hg) && Ratio::is_equal(ed_dg, eh_hg)));
+        }
+    }
+
+    // Triangle congruence and similarity tests in `test_ggraph_triangles.cpp`
 }

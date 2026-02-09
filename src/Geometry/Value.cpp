@@ -188,13 +188,13 @@ Generator<std::pair<Angle*, Angle*>> Direction::check_incident_angles(Direction*
 }
 
 bool Direction::is_para(Direction *d1, Direction *d2) {
-    return (NodeUtils::get_root(d1) == NodeUtils::get_root(d2));
+    return (NodeUtils::same_as(d1, d2));
 }
 bool Direction::is_perp(Direction* d1, Direction* d2) {
     if (!d1->has_perp()) {
         return false;
     }
-    return (d1->get_perp() == NodeUtils::get_root(d2));
+    return (NodeUtils::same_as(d1->get_perp(), d2));
 }
 
 
@@ -296,4 +296,7 @@ Generator<std::pair<Ratio*, Ratio*>> Length::check_incident_ratios(Length* l, Le
         if (!merge_happened) ++it;
     }
     co_return;
+}
+bool Length::is_cong(Length* l1, Length* l2) {
+    return (NodeUtils::same_as(l1, l2));
 }

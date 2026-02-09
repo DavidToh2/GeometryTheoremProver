@@ -118,3 +118,9 @@ AlphaGeometry skirts all the issues brought up previously by skipping the matchi
 Indeed, rule-based matching avoids all the issues brought about by arbitrary variable ordering.
 
 As an extension, we will attempt to implement this for comparison.
+
+# A note on inverse equalities
+
+Given that $\angle ABC = \angle DEF$, we would presumably record the fact $d_{AB} - d_{BC} = d_{DE} - d_{EF}$. Is it necessary to record the inverse of this fact, i.e. that $d_{BC} - d_{AB} = d_{EF} - d_{DE}$, in our GeometricGraph?
+
+The answer is no, because the inverse will be deduced by the AREngine anyway.

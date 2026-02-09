@@ -99,7 +99,12 @@ public:
 
 
 
+/* Length class.
 
+A Length indicates the length of some `Segment`.
+
+Every Length stores the set of Ratios for which it is the numerator (length1) and denominator (length2)
+respectively. These must always be root Ratios. Only root Lengths maintain these sets. */
 class Length : public Value<Segment> {
 public:
     std::set<Ratio*> on_ratio_1;
@@ -107,7 +112,7 @@ public:
     Length(std::string name) : Value(name) {}
 
     /* Associate the segment `s` with the root length of `this`, by adding the former to the `objs` 
-    and `root_objs` of the latter. 
+    and `root_objs` of the latter. Calls `s->set_length()`, which does the exact same thing.
     Note: If `s` is already present in `objs`, then nothing happens. */
     void add_segment(Segment* s, Predicate* pred);
 
@@ -126,11 +131,6 @@ public:
     being deduced as equal.
     Also removes `r2` from `other_l->on_ratio_1` and `other_l->on_ratio_2`. */
     static Generator<std::pair<Ratio*, Ratio*>> check_incident_ratios(Length* l, Length* other_l, Predicate* pred);
-};
 
-
-
-class Shape : public Value<Triangle> {
-public:
-    Shape(std::string name) : Value(name) {}
+    static bool is_cong(Length* l1, Length* l2);
 };

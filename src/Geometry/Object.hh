@@ -17,7 +17,7 @@ class Triangle;
 
 class Direction;
 class Length;
-class Shape;
+class Dimension;
 
 class Angle;
 class Ratio;
@@ -105,10 +105,12 @@ public:
     std::map<Circle*, std::map<Point*, PredVec>> on_circle;
     std::map<Circle*, std::map<Point*, PredVec>> center_of_circle;
     std::map<Segment*, std::map<Point*, PredVec>> endpoint_of_segment;
+    std::map<Triangle*, std::map<Point*, PredVec>> vertex_of_triangle;
     std::set<Line*> on_root_line;
     std::set<Circle*> on_root_circle;
     std::set<Circle*> center_of_root_circle;
     std::set<Segment*> endpoint_of_root_segment;
+    std::set<Triangle*> vertex_of_root_triangle;
 
     Point(std::string name) : Node(name) {}
 
@@ -136,9 +138,17 @@ public:
     /* Sets `this` point as an endpoint of segment `s`. What this does:
     - Inserts `s` into `this->endpoint_of_segment` along with `pred`;
     - Inserts `root_s` into `this->endpoint_of_root_segment`;
+    Note: `s->endpoints` needs to be separately filled in.
     Note: Assumes that `this` is a root node.
     Note: This function is idempotent. */
     void set_this_endpoint_of(Segment* s, Predicate* pred);
+    /* Sets `this` point as a vertex of triangle `t`. What this does:
+    - Inserts `t` into `this->vertex_of_triangle` along with `pred`;
+    - Inserts `root_t` into `this->vertex_of_root_triangle`;
+    Note: `t->vertices` needs to be separately filled in.
+    Note: Assumes that `this` is a root node.
+    Note: This function is idempotent. */
+    void set_this_vertex_of(Triangle* t, Predicate* pred);
 
     /* Checks if `this` point lies on the root of node `l`. This is done by checking against the 
     set `on_root_line` of `this`.
@@ -172,6 +182,8 @@ public:
     /* Returns the root segment nodes that the root of this point is an endpoint of */
     Generator<Segment*> endpoint_of_segments();
     Generator<std::pair<Segment*, Segment*>> endpoint_of_segment_pairs_ordered();
+    /* Returns the root triangle nodes that the root of this point is a vertex of */
+    Generator<Triangle*> vertex_of_triangles();
 
     /* Merge two point nodes. We merge them at their root nodes; it is pointless to merge anywhere else. 
     The `on_circle` and `on_line` of `get_root(other)` are moved into that of `get_root(this)`.
@@ -388,7 +400,8 @@ The Segment constructor should only ever be called with root points.
 The `points` map stores all points on the segment. (I'm not sure what this will be useful for.)
 
 The `endpoints` stored by the root segments will always be root nodes. These are kept up-to-date by the
-`Point::merge()` function, which calls `Segment::check_segments_with_endpoint()` to merge the affected segments.
+`GeometricGraph::merge_points()` function, which calls `Segment::check_incident_segments()` to identify segments
+to merge.
 Note that segments are always created with their endpoints obeying the ordering of the CartesianPoint comparator - 
 in other words, in GeometricGraph, we will always have `point_nums[p1] < point_nums[p2]` for a segment `p1p2`.
 
@@ -442,20 +455,19 @@ public:
     }
     /* Returns the other endpoint of the segment given one endpoint `p`. 
     Returns `nullptr` if `p` is not an endpoint of the segment. */
-    constexpr Point* other_endpoint(Point* p) const { 
-        return (
-            (endpoints[0] == p) ? endpoints[1] : 
-            ((endpoints[1] == p) ? endpoints[0] : nullptr)
-        ); 
-    } 
+    Point* other_endpoint(Point* p) const;
+    /* Returns the other endpoint of the segment given one endpoint `p`, replacing `p` with `new_p`.
+    Returns `nullptr` if `p` is not an endpoint of the segment. */
+    Point* other_endpoint(Point* p, Point* new_p);
 
     Generator<Ratio*> on_ratios_as_segment1();
     Generator<Ratio*> on_ratios_as_segment2();
 
-    /* Merge two segment nodes which have been shown to be identical. This only occurs when their endpoints
-    have been shown to be identical. Only called by `Segment::check_incident_segments()`.
-    Note: The lengths of `root_other` and `root_this` are returned if they both exist. This is so they may then
-    be merged by `GeometricGraph::set_lengths_equal()`.
+    /* Merge two segment nodes which have been shown to be identical. Only called on segment pairs returned 
+    by `Segment::check_incident_segments()`, whose endpoints have already been set to be identical. 
+    The segment `other` will never be referred to ever again after this merge.
+    Note: The lengths of `root_other` and `root_this` are returned if they both exist. This is so they may 
+    then be merged by `GeometricGraph::set_lengths_equal()`.
     Warning: Assumes that `this.endpoints == other.endpoints`. */
     std::optional<std::pair<Length*, Length*>> merge(Segment* other, Predicate* pred);
 
@@ -471,14 +483,69 @@ public:
 
 
 
-// TBA
+/* Triangle class.
+
+The `points` map is used as a convenience mechanism to check if a point is a vertex of the triangle. 
+
+The order of points stored in `vertices` matters for checking congruency and similarity correspondence.
+The `permute()` and `get_perm()` functions help with this by allowing vertices to be permuted.
+
+Assume `vertices = [A, B, C]`. Example usages:
+
+- `permute({1, 0, 2}) -> vertices = [B, A, C]`
+- `get_perm({B, A, C}) -> returns {1, 0, 2}` */
 class Triangle : public Object {
 public:
-    std::tuple<Point*, Point*, Point*> vertices;
-    Shape* shape;
+    std::array<Point*, 3> vertices;
+    Dimension* dimension = nullptr;
+    Predicate* dimension_why = nullptr;
     
     Triangle(std::string name) : Object(name) {}
+    Triangle(std::string name, Point* p1, Point* p2, Point* p3, Predicate* base_pred) 
+    : Object(name), vertices({p1, p2, p3}) {
+        points[p1] = base_pred;
+        points[p2] = base_pred;
+        points[p3] = base_pred;
+    }
 
+    /* Sets the root of `this`'s Dimension object to `d`. 
+    Note: If this Triangle already has a Dimension, then the old Dimension is overwritten. */
+    void set_dimension(Dimension* d, Predicate* pred);
+    /* Returns the root dimension of `this`, lazily updating it to the root. */
+    Dimension* get_dimension();
+    /* Returns true if the root of this Triangle has a Dimension object associated with it. */
+    bool has_dimension();
 
+    /* Rearranges the `vertices` to become `vertices = [old_v[perm[0]], old_v[perm[1]], old_v[perm[2]]]`. */
+    void permute(std::array<int, 3> perm);
+    /* Suppose there are two triangles `t1, t2` and a specific ordering of vertices `{A, B, C}` such that
+    the permutation `perm1` takes `t1 -> {A1, B1, C1}` and `perm2` takes `t2 -> {A2, B2, C2}`. 
+    Then the permutation `perm2 @ perm1^(-1)` takes `t2 -> t1`. */
+    static std::array<int, 3> compose_perm(std::array<int, 3> perm1, std::array<int, 3> perm2);
+    /* Given a permutation `other_vertices` of `vertices`, returns the permutation array that maps `vertices` 
+    to `other_vertices`. In other words, returns `perm` such that `vertices[perm[i]] = other_vertices[i]`. */
+    std::array<int, 3> get_perm(std::array<Point*, 3> other_vertices) const;
+
+    /* Returns the other two vertices of the triangle that are not `p`. 
+    If `p` is not a vertex of the triangle, returns a pair of nullptrs. */
+    std::pair<Point*, Point*> other_vertices(Point* p) const;
+    /* Returns the other two vertices of the triangle that are not `p`, replacing `p` with `new_p`.
+    If `p` is not a vertex of the triangle, returns a pair of nullptrs. */
+    std::pair<Point*, Point*> other_vertices(Point* p, Point* new_p);
+
+    /* Merge two triangles which have been shown to be identical. Only called on triangle pairs returned by 
+    `Triangle::check_incident_triangles()`, whose vertices have already been rearranged and set to be identical. 
+    Note: The dimensions of the two triangles are returned. They may then be merged by `GeometricGraph::set_dimensions_equal()`. */
+    std::optional<std::pair<Dimension*, Dimension*>> merge(Triangle* other, Predicate* pred);
+
+    /* Identify triangles `(perm, (t1, t2))` that need to be merged as a result of the point `other_p` being merged 
+    into the point `p`. This is done by checking those triangles containing `p` and `other_p` as vertices
+    respectively. 
+    `perm` is the vertex permutation that needs to be applied to `t2` to make its vertices line up with that of `t1`. The
+    permutation will be applied when the triangles' `Shape`s are merged.
+    Also replaces occurences of `other_p` in `t2->vertices` with `p`, and removes `t2` from `other_p->on_root_triangle`.
+    Note: Assumes that `p` and `other_p` are root points. */
+    static Generator<std::pair<std::pair<Triangle*, Triangle*>, std::array<int, 3>>>
+    check_incident_triangles(Point* p, Point* other_p, Predicate* pred);
 };
 

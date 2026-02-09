@@ -18,7 +18,7 @@ CMakeLists.txt
 
 Read [Outline.md](notes/Outline.md) for technical specifications, as well as [the other project notes](notes/).
 
-Current code length: 12772 lines
+Current code length: 13801 lines
 
 ## Current progress on 110 problems
 
@@ -26,83 +26,77 @@ Current code length: 12772 lines
 Loading problem 110-1
 Solving problem 110-1
 -------- Iteration 0: --------
-Derived 2 new predicates from DD and 4 new predicates from AR.
+Derived 3 new predicates from DD and 4 new predicates from AR.
 -------- Iteration 1: --------
-Derived 13 new predicates from DD and 22 new predicates from AR.
+Derived 22 new predicates from DD and 14 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 1!
-Total time: 29629 us
+Total time: 28117 us
 
 Loading problem 110-2
 Solving problem 110-2
 -------- Iteration 0: --------
 Derived 13 new predicates from DD and 30 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 0!
-Total time: 31373 us
+Total time: 24085 us
 
 Loading problem 110-3
 Solving problem 110-3
 -------- Iteration 0: --------
-Derived 4 new predicates from DD and 12 new predicates from AR.
+Derived 10 new predicates from DD and 12 new predicates from AR.
 -------- Iteration 1: --------
-Derived 19 new predicates from DD and 10 new predicates from AR.
+Derived 42 new predicates from DD and 20 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 1!
-Total time: 143179 us
+Total time: 146225 us
 
 Loading problem 110-4
 Solving problem 110-4
 -------- Iteration 0: --------
 Derived 22 new predicates from DD and 12 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 0!
-Total time: 45399 us
+Total time: 39408 us
 
 Loading problem 110-5
 Solving problem 110-5
 -------- Iteration 0: --------
 Derived 24 new predicates from DD and 30 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 0!
-Total time: 128023 us
+Total time: 99205 us
 
 Loading problem 110-6
 Solving problem 110-6
 -------- Iteration 0: --------
-Derived 1 new predicates from DD and 12 new predicates from AR.
+Derived 3 new predicates from DD and 12 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 0!
-Total time: 10690 us
+Total time: 7655 us
 
 Loading problem 110-7
 Solving problem 110-7
 -------- Iteration 0: --------
-Derived 12 new predicates from DD and 18 new predicates from AR.
+Derived 15 new predicates from DD and 18 new predicates from AR.
 -------- Iteration 1: --------
-Derived 3 new predicates from DD and 0 new predicates from AR.
--------- Iteration 2: --------
 Derived 28 new predicates from DD and 2 new predicates from AR.
--------- Iteration 3: --------
+-------- Iteration 2: --------
 Derived 1 new predicates from DD and 0 new predicates from AR.
-SOLVED!! Conclusion reached at iteration 3!
-Total time: 116224 us
+SOLVED!! Conclusion reached at iteration 2!
+Total time: 69826 us
 
 Loading problem 110-8
 Solving problem 110-8
 -------- Iteration 0: --------
-Derived 40 new predicates from DD and 8 new predicates from AR.
+Derived 42 new predicates from DD and 8 new predicates from AR.
 -------- Iteration 1: --------
-Derived 2 new predicates from DD and 0 new predicates from AR.
--------- Iteration 2: --------
 Derived 18 new predicates from DD and 16 new predicates from AR.
-SOLVED!! Conclusion reached at iteration 2!
-Total time: 191235 us
+SOLVED!! Conclusion reached at iteration 1!
+Total time: 91788 us
 
 Loading problem 110-9
 Solving problem 110-9
 -------- Iteration 0: --------
-Derived 90 new predicates from DD and 26 new predicates from AR.
+Derived 94 new predicates from DD and 26 new predicates from AR.
 -------- Iteration 1: --------
-Derived 4 new predicates from DD and 0 new predicates from AR.
--------- Iteration 2: --------
 Derived 64 new predicates from DD and 114 new predicates from AR.
-SOLVED!! Conclusion reached at iteration 2!
-Total time: 547391 us
+SOLVED!! Conclusion reached at iteration 1!
+Total time: 285018 us
 
 Loading problem 110-10
 Solving problem 110-10
@@ -111,7 +105,7 @@ Derived 24 new predicates from DD and 4 new predicates from AR.
 -------- Iteration 1: --------
 Derived 2 new predicates from DD and 0 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 1!
-Total time: 26295 us
+Total time: 23934 us
 
 Loading problem 110-11
 Solving problem 110-11
@@ -122,7 +116,7 @@ Derived 13 new predicates from DD and 4 new predicates from AR.
 -------- Iteration 2: --------
 Derived 1 new predicates from DD and 0 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 2!
-Total time: 77130 us
+Total time: 69387 us
 
 Loading problem 110-12
 Solving problem 110-12
@@ -131,47 +125,43 @@ Derived 13 new predicates from DD and 0 new predicates from AR.
 -------- Iteration 1: --------
 Derived 5 new predicates from DD and 1 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 1!
-Total time: 20063 us
+Total time: 16021 us
 
 Loading problem 110-13
 Solving problem 110-13
 -------- Iteration 0: --------
-Derived 0 new predicates from DD and 4 new predicates from AR.
+Derived 4 new predicates from DD and 4 new predicates from AR.
 -------- Iteration 1: --------
-Derived 4 new predicates from DD and 0 new predicates from AR.
--------- Iteration 2: --------
 Derived 34 new predicates from DD and 6 new predicates from AR.
-SOLVED!! Conclusion reached at iteration 2!
-Total time: 81475 us
+SOLVED!! Conclusion reached at iteration 1!
+Total time: 49140 us
 
 Loading problem 110-14
 Solving problem 110-14
 -------- Iteration 0: --------
 Derived 21 new predicates from DD and 73 new predicates from AR.
 -------- Iteration 1: --------
-Derived 4 new predicates from DD and 0 new predicates from AR.
+Derived 3 new predicates from DD and 0 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 1!
-Total time: 173537 us
+Total time: 152674 us
 
 Loading problem 110-15
 Solving problem 110-15
 -------- Iteration 0: --------
-Derived 0 new predicates from DD and 12 new predicates from AR.
+Derived 9 new predicates from DD and 12 new predicates from AR.
 -------- Iteration 1: --------
-Derived 9 new predicates from DD and 0 new predicates from AR.
--------- Iteration 2: --------
 Derived 53 new predicates from DD and 3 new predicates from AR.
--------- Iteration 3: --------
+-------- Iteration 2: --------
 Derived 2 new predicates from DD and 0 new predicates from AR.
-SOLVED!! Conclusion reached at iteration 3!
-Total time: 1063882 us
+SOLVED!! Conclusion reached at iteration 2!
+Total time: 932023 us
 
 Loading problem 110-16
 Solving problem 110-16
 -------- Iteration 0: --------
-Derived 3 new predicates from DD and 12 new predicates from AR.
+Derived 9 new predicates from DD and 12 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 0!
-Total time: 63146 us
+Total time: 64671 us
 
 Loading problem 110-17
 Solving problem 110-17
@@ -184,7 +174,7 @@ Derived 14 new predicates from DD and 17 new predicates from AR.
 -------- Iteration 3: --------
 Derived 1 new predicates from DD and 0 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 3!
-Total time: 156771 us
+Total time: 170560 us
 
 Loading problem 110-18
 Solving problem 110-18
@@ -195,32 +185,30 @@ Derived 2 new predicates from DD and 0 new predicates from AR.
 -------- Iteration 2: --------
 Derived 14 new predicates from DD and 17 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 2!
-Total time: 104742 us
+Total time: 114533 us
 
 Loading problem 110-19
 Solving problem 110-19
 -------- Iteration 0: --------
 Derived 24 new predicates from DD and 5 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 0!
-Total time: 6089 us
+Total time: 6450 us
 
 Loading problem 110-20
 Solving problem 110-20
 -------- Iteration 0: --------
-Derived 1 new predicates from DD and 12 new predicates from AR.
+Derived 5 new predicates from DD and 12 new predicates from AR.
 -------- Iteration 1: --------
-Derived 5 new predicates from DD and 0 new predicates from AR.
--------- Iteration 2: --------
-Derived 31 new predicates from DD and 0 new predicates from AR.
-SOLVED!! Conclusion reached at iteration 2!
-Total time: 73704 us
+Derived 30 new predicates from DD and 0 new predicates from AR.
+SOLVED!! Conclusion reached at iteration 1!
+Total time: 48238 us
 
 Loading problem 110-21
 Solving problem 110-21
 -------- Iteration 0: --------
 Derived 7 new predicates from DD and 8 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 0!
-Total time: 6423 us
+Total time: 7177 us
 
 Loading problem 110-22
 Solving problem 110-22
@@ -229,7 +217,7 @@ Derived 40 new predicates from DD and 16 new predicates from AR.
 -------- Iteration 1: --------
 Derived 3 new predicates from DD and 0 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 1!
-Total time: 107781 us
+Total time: 119467 us
 
 Loading problem 110-23
 Solving problem 110-23
@@ -238,7 +226,7 @@ Derived 41 new predicates from DD and 8 new predicates from AR.
 -------- Iteration 1: --------
 Derived 1 new predicates from DD and 0 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 1!
-Total time: 72717 us
+Total time: 82770 us
 
 Loading problem 110-24
 Solving problem 110-24
@@ -249,25 +237,25 @@ Derived 1 new predicates from DD and 0 new predicates from AR.
 -------- Iteration 2: --------
 Derived 9 new predicates from DD and 0 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 2!
-Total time: 56388 us
+Total time: 54392 us
 
 Loading problem 110-25
 Solving problem 110-25
 -------- Iteration 0: --------
-Derived 9 new predicates from DD and 12 new predicates from AR.
+Derived 15 new predicates from DD and 12 new predicates from AR.
 -------- Iteration 1: --------
-Derived 39 new predicates from DD and 96 new predicates from AR.
+Derived 62 new predicates from DD and 72 new predicates from AR.
 -------- Iteration 2: --------
-Derived 8 new predicates from DD and 0 new predicates from AR.
+Derived 3 new predicates from DD and 0 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 2!
-Total time: 1010326 us
+Total time: 1120970 us
 
 Loading problem 110-26
 Solving problem 110-26
 -------- Iteration 0: --------
 Derived 24 new predicates from DD and 30 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 0!
-Total time: 103435 us
+Total time: 108389 us
 
 Loading problem 110-27
 Solving problem 110-27
@@ -276,42 +264,38 @@ Derived 26 new predicates from DD and 30 new predicates from AR.
 -------- Iteration 1: --------
 Derived 7 new predicates from DD and 0 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 1!
-Total time: 284345 us
+Total time: 334936 us
 
 Loading problem 110-28
 Solving problem 110-28
 -------- Iteration 0: --------
-Derived 2 new predicates from DD and 12 new predicates from AR.
+Derived 3 new predicates from DD and 12 new predicates from AR.
 -------- Iteration 1: --------
-Derived 12 new predicates from DD and 1 new predicates from AR.
+Derived 19 new predicates from DD and 1 new predicates from AR.
 -------- Iteration 2: --------
-Derived 5 new predicates from DD and 0 new predicates from AR.
+Derived 3 new predicates from DD and 0 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 2!
-Total time: 521622 us
+Total time: 151161 us
 
 Loading problem 110-29
 Solving problem 110-29
 -------- Iteration 0: --------
-Derived 0 new predicates from DD and 12 new predicates from AR.
+Derived 1 new predicates from DD and 12 new predicates from AR.
 -------- Iteration 1: --------
-Derived 1 new predicates from DD and 0 new predicates from AR.
--------- Iteration 2: --------
 Derived 10 new predicates from DD and 0 new predicates from AR.
--------- Iteration 3: --------
+-------- Iteration 2: --------
 Derived 1 new predicates from DD and 0 new predicates from AR.
-SOLVED!! Conclusion reached at iteration 3!
-Total time: 45779 us
+SOLVED!! Conclusion reached at iteration 2!
+Total time: 36152 us
 
 Loading problem 110-30
 Solving problem 110-30
 -------- Iteration 0: --------
-Derived 7 new predicates from DD and 18 new predicates from AR.
+Derived 8 new predicates from DD and 18 new predicates from AR.
 -------- Iteration 1: --------
-Derived 1 new predicates from DD and 0 new predicates from AR.
--------- Iteration 2: --------
 Derived 10 new predicates from DD and 1 new predicates from AR.
-SOLVED!! Conclusion reached at iteration 2!
-Total time: 48777 us
+SOLVED!! Conclusion reached at iteration 1!
+Total time: 30876 us
 
 Loading problem 110-31
 Solving problem 110-31
@@ -320,52 +304,50 @@ Derived 2 new predicates from DD and 2 new predicates from AR.
 -------- Iteration 1: --------
 Derived 1 new predicates from DD and 0 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 1!
-Total time: 24292 us
+Total time: 21964 us
 
 Loading problem 110-32
 Solving problem 110-32
 -------- Iteration 0: --------
 Derived 12 new predicates from DD and 12 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 0!
-Total time: 5264 us
+Total time: 7530 us
 
 Loading problem 110-33
 Solving problem 110-33
 -------- Iteration 0: --------
-Derived 12 new predicates from DD and 12 new predicates from AR.
+Derived 14 new predicates from DD and 12 new predicates from AR.
 -------- Iteration 1: --------
-Derived 2 new predicates from DD and 0 new predicates from AR.
--------- Iteration 2: --------
 Derived 18 new predicates from DD and 10 new predicates from AR.
-SOLVED!! Conclusion reached at iteration 2!
-Total time: 58835 us
+SOLVED!! Conclusion reached at iteration 1!
+Total time: 42488 us
 
 Loading problem 110-34
 Solving problem 110-34
 -------- Iteration 0: --------
 Derived 12 new predicates from DD and 11 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 0!
-Total time: 7488 us
+Total time: 12601 us
 
 Loading problem 110-35
 Solving problem 110-35
 -------- Iteration 0: --------
-Derived 12 new predicates from DD and 14 new predicates from AR.
+Derived 18 new predicates from DD and 14 new predicates from AR.
 -------- Iteration 1: --------
-Derived 8 new predicates from DD and 0 new predicates from AR.
+Derived 31 new predicates from DD and 16 new predicates from AR.
 -------- Iteration 2: --------
-Derived 30 new predicates from DD and 16 new predicates from AR.
+Derived 1 new predicates from DD and 0 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 2!
-Total time: 183195 us
+Total time: 310568 us
 
 Loading problem 110-36
 Solving problem 110-36
 -------- Iteration 0: --------
-Derived 15 new predicates from DD and 29 new predicates from AR.
+Derived 21 new predicates from DD and 29 new predicates from AR.
 -------- Iteration 1: --------
-Derived 8 new predicates from DD and 0 new predicates from AR.
+Derived 31 new predicates from DD and 27 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 1!
-Total time: 187524 us
+Total time: 212233 us
 
 Loading problem 110-37
 Solving problem 110-37
@@ -374,74 +356,68 @@ Derived 40 new predicates from DD and 10 new predicates from AR.
 -------- Iteration 1: --------
 Derived 1 new predicates from DD and 0 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 1!
-Total time: 30800 us
+Total time: 36536 us
 
 Loading problem 110-38
 Solving problem 110-38
 -------- Iteration 0: --------
 Derived 20 new predicates from DD and 46 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 0!
-Total time: 29806 us
+Total time: 34549 us
 
 Loading problem 110-39
 Solving problem 110-39
 -------- Iteration 0: --------
 Derived 40 new predicates from DD and 19 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 0!
-Total time: 34269 us
+Total time: 35856 us
 
 Loading problem 110-40
 Solving problem 110-40
 -------- Iteration 0: --------
 Derived 1 new predicates from DD and 0 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 0!
-Total time: 2525 us
+Total time: 2686 us
 
 Loading problem 110-41
 Solving problem 110-41
 -------- Iteration 0: --------
-Derived 7 new predicates from DD and 77 new predicates from AR.
+Derived 11 new predicates from DD and 78 new predicates from AR.
 -------- Iteration 1: --------
-Derived 8 new predicates from DD and 0 new predicates from AR.
+Derived 31 new predicates from DD and 9 new predicates from AR.
 -------- Iteration 2: --------
-Derived 28 new predicates from DD and 9 new predicates from AR.
--------- Iteration 3: --------
 Derived 1 new predicates from DD and 0 new predicates from AR.
-SOLVED!! Conclusion reached at iteration 3!
-Total time: 404385 us
+SOLVED!! Conclusion reached at iteration 2!
+Total time: 320466 us
 
 Loading problem 110-42
 Solving problem 110-42
 -------- Iteration 0: --------
-Derived 3 new predicates from DD and 19 new predicates from AR.
+Derived 5 new predicates from DD and 19 new predicates from AR.
 -------- Iteration 1: --------
-Derived 13 new predicates from DD and 13 new predicates from AR.
+Derived 29 new predicates from DD and 13 new predicates from AR.
 -------- Iteration 2: --------
-Derived 11 new predicates from DD and 8 new predicates from AR.
+Derived 1 new predicates from DD and 0 new predicates from AR.
 -------- Iteration 3: --------
 Derived 1 new predicates from DD and 0 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 3!
-Total time: 317719 us
+Total time: 360406 us
 
 Loading problem 110-43
 Solving problem 110-43
 -------- Iteration 0: --------
-Derived 6 new predicates from DD and 13 new predicates from AR.
--------- Iteration 1: --------
-Derived 4 new predicates from DD and 0 new predicates from AR.
-SOLVED!! Conclusion reached at iteration 1!
-Total time: 56697 us
+Derived 8 new predicates from DD and 11 new predicates from AR.
+SOLVED!! Conclusion reached at iteration 0!
+Total time: 36731 us
 
 Loading problem 110-44
 Solving problem 110-44
 -------- Iteration 0: --------
-Derived 12 new predicates from DD and 12 new predicates from AR.
+Derived 13 new predicates from DD and 12 new predicates from AR.
 -------- Iteration 1: --------
-Derived 1 new predicates from DD and 0 new predicates from AR.
--------- Iteration 2: --------
 Derived 10 new predicates from DD and 1 new predicates from AR.
-SOLVED!! Conclusion reached at iteration 2!
-Total time: 33138 us
+SOLVED!! Conclusion reached at iteration 1!
+Total time: 19584 us
 
 Loading problem 110-45
 Solving problem 110-45
@@ -452,18 +428,16 @@ Derived 5 new predicates from DD and 21 new predicates from AR.
 -------- Iteration 2: --------
 Derived 2 new predicates from DD and 8 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 2!
-Total time: 209719 us
+Total time: 221561 us
 
 Loading problem 110-46
 Solving problem 110-46
 -------- Iteration 0: --------
-Derived 40 new predicates from DD and 44 new predicates from AR.
+Derived 44 new predicates from DD and 44 new predicates from AR.
 -------- Iteration 1: --------
-Derived 4 new predicates from DD and 0 new predicates from AR.
--------- Iteration 2: --------
 Derived 38 new predicates from DD and 64 new predicates from AR.
-SOLVED!! Conclusion reached at iteration 2!
-Total time: 172884 us
+SOLVED!! Conclusion reached at iteration 1!
+Total time: 118763 us
 
 Loading problem 110-47
 Solving problem 110-47
@@ -476,14 +450,49 @@ Derived 8 new predicates from DD and 1 new predicates from AR.
 -------- Iteration 3: --------
 Derived 2 new predicates from DD and 0 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 3!
-Total time: 102524 us
+Total time: 104208 us
 
 Loading problem 110-48
 Solving problem 110-48
 -------- Iteration 0: --------
 Derived 19 new predicates from DD and 1 new predicates from AR.
 SOLVED!! Conclusion reached at iteration 0!
-Total time: 4938 us
+Total time: 4909 us
 
-Solved 48 out of 48 problems.
+Loading problem 110-49
+Solving problem 110-49
+-------- Iteration 0: --------
+Derived 4 new predicates from DD and 0 new predicates from AR.
+-------- Iteration 1: --------
+Derived 2 new predicates from DD and 0 new predicates from AR.
+-------- Iteration 2: --------
+Derived 5 new predicates from DD and 0 new predicates from AR.
+-------- Iteration 3: --------
+Derived 5 new predicates from DD and 0 new predicates from AR.
+SOLVED!! Conclusion reached at iteration 3!
+Total time: 117633 us
+
+Loading problem 110-50
+Solving problem 110-50
+-------- Iteration 0: --------
+Derived 22 new predicates from DD and 30 new predicates from AR.
+-------- Iteration 1: --------
+Derived 13 new predicates from DD and 31 new predicates from AR.
+-------- Iteration 2: --------
+Derived 2 new predicates from DD and 0 new predicates from AR.
+SOLVED!! Conclusion reached at iteration 2!
+Total time: 309012 us
+
+Loading problem 110-51
+Solving problem 110-51
+-------- Iteration 0: --------
+Derived 47 new predicates from DD and 32 new predicates from AR.
+-------- Iteration 1: --------
+Derived 5 new predicates from DD and 14 new predicates from AR.
+-------- Iteration 2: --------
+Derived 2 new predicates from DD and 0 new predicates from AR.
+SOLVED!! Conclusion reached at iteration 2!
+Total time: 261699 us
+
+Solved 51 out of 51 problems.
 ```

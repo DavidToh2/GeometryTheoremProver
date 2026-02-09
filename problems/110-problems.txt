@@ -403,8 +403,7 @@ problem 110-48 {
     ? perp i e c d
 }
 
-# FIGURE OUT WHY THIS PROBLEM ISNT WORKING
-# problem 110-49 {
+problem 110-49 {
     a b c = triangle a b c;
     d = on_line_perp d : b a c;
     p q r s = midpoint p : a b, midpoint q : b c, midpoint r : c d, midpoint s : d a;
@@ -413,11 +412,19 @@ problem 110-48 {
 }
 #Once contri added, potential extension for 110-49 looking at intersection of ac and bd, and midpoint of ac
 
-# problem 110-50 {
+problem 110-50 {
     a b c = triangle a b c;
     d = on_line_perp d : b a c, on_circum d : a b c;
     m = intersection_ll m : a c b d;
     o = circumcenter o : a b c;
     p r = midpoint p : a b, midpoint r : c d
     ? cong o p r m
+}
+
+problem 110-51 {
+    a b c = triangle a b c;
+    d = on_line_perp d : b a c, on_circum d : a b c;
+    o = circumcenter o : a b c;
+    e = on_line e : d o, on_circum e : a b c
+    ? cong a e b c
 }
