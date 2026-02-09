@@ -616,10 +616,18 @@ void GeometricGraph::set_lengths_cong(Length* l, Length* l_other, Predicate* pre
     if (l == l_other) return;
     root_lengths.erase(l_other);
 
+    // Check for newly incident ratios as a result of the length merge
     auto gen_to_merge_ratios = Length::check_incident_ratios(l, l_other, pred);
     while (gen_to_merge_ratios) {
         auto pair = gen_to_merge_ratios();
         merge_ratios(pair.first, pair.second, pred);
+    }
+
+    // Check for newly isosceles triangles as a result of the length merge
+    auto gen_newly_isosceles = Length::check_incident_isosceles_triangles(l, l_other, pred);
+    while (gen_newly_isosceles) {
+        auto triple = gen_newly_isosceles();
+        
     }
 
     l->merge(l_other, pred);
@@ -1025,12 +1033,26 @@ Dimension* GeometricGraph::__add_new_dimension(Triangle* t, Predicate* base_pred
     root_dimensions.insert(dim);
 
     t->set_dimension(dim, base_pred);
+
+    // Check if the triangle is isosceles or equilateral
+    std::array<Segment*, 3> sides = {
+        try_get_segment(t->vertices[1], t->vertices[2]),
+        try_get_segment(t->vertices[2], t->vertices[0]),
+        try_get_segment(t->vertices[0], t->vertices[1])
+    };
+    std::array<bool, 3> _b = {
+        sides[1] && sides[2] && check_cong(sides[1], sides[2]),
+        sides[0] && sides[2] && check_cong(sides[0], sides[2]),
+        sides[0] && sides[1] && check_cong(sides[0], sides[1])
+    };
+    dim->isosceles_mask = {_b[1] || _b[2], _b[0] || _b[2], _b[0] || _b[1]};
+
     return dim;
 }
 
 Dimension* GeometricGraph::get_or_add_dimension(Triangle* t, Predicate* base_pred) {
     if (t->has_dimension()) {
-        return t->dimension;
+        return t->get_dimension();
     }
     return __add_new_dimension(t, base_pred);
 }
@@ -1050,14 +1072,14 @@ Shape* GeometricGraph::__add_new_shape(Dimension* dim, Predicate* base_pred) {
 Shape* GeometricGraph::try_get_shape(Triangle* t) {
     if (t->has_dimension()) {
         if (t->get_dimension()->has_shape()) {
-            return t->dimension->shape;
+            return t->get_dimension()->__get_shape();
         }
     }
     return nullptr;
 }
 Shape* GeometricGraph::get_or_add_shape(Dimension* dim, Predicate* base_pred) {
     if (dim->has_shape()) {
-        return dim->shape;
+        return dim->get_shape();
     }
     return __add_new_shape(dim, base_pred);
 }
@@ -1090,6 +1112,20 @@ void GeometricGraph::merge_triangles(Triangle* dest, Triangle* src, Predicate* p
     dest->merge(src, pred);
 }
 
+void GeometricGraph::set_triangle_isosceles(Point* p1, Point* p2, Point* p3, Predicate* pred) {
+    Triangle* t = try_get_triangle(p1, p2, p3);
+    if (!t) return;
+    if (!t->has_dimension()) return;
+    Dimension* dim = t->get_dimension();
+    std::array<int, 3> mask = t->get_perm({p1, p2, p3});
+    if (dim->has_shape()) {
+        Shape* shp = dim->get_shape();
+        shp->set_isosceles_masks(mask[0], mask[2]);
+    } else {
+        dim->set_isosceles(mask[0], mask[2]);
+    }
+}
+
 void GeometricGraph::set_triangles_congruent(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Predicate* pred) {
     Triangle* t1 = get_or_add_triangle(p1, p2, p3, pred);
     Triangle* t2 = get_or_add_triangle(p4, p5, p6, pred);
@@ -1114,13 +1150,33 @@ void GeometricGraph::set_triangles_congruent(Triangle* t1, Triangle* t2, std::ar
 void GeometricGraph::set_triangles_congruent(Dimension* dim1, Dimension* dim2, std::array<int, 3> perm, Predicate* pred) {
     root_dimensions.erase(dim2);
     if (dim2->has_shape()) {
-        dim2->shape->perm_all_triangles(perm);
-        dim1->merge(dim2, pred);
+        Shape* shp2 = dim2->get_shape();
+        shp2->perm_all_triangles(perm);
+
+        std::array<bool, 3> isosceles_mask = Dimension::or_isosceles_masks(dim1->isosceles_mask, dim2->isosceles_mask);
+        shp2->set_isosceles_masks(isosceles_mask);
+
         if (dim1->has_shape()) {
-            dim1->shape->merge(dim2->shape, pred);
+            Shape* shp1 = dim1->get_shape();
+            shp1->set_isosceles_masks(isosceles_mask);
+
+            shp1->merge(shp2, pred);
+            root_shapes.erase(shp2);
+        } else {
+            dim1->set_isosceles_mask(isosceles_mask);
         }
+        dim1->merge(dim2, pred);
+        shp2->root_obj2s.erase(dim2);
     } else {
         dim2->perm_all_triangles(perm);
+
+        std::array<bool, 3> isosceles_mask = Dimension::or_isosceles_masks(dim1->isosceles_mask, dim2->isosceles_mask);
+        dim2->set_isosceles_mask(isosceles_mask);
+        if (dim1->has_shape()) {
+            dim1->get_shape()->set_isosceles_masks(isosceles_mask);
+        } else {
+            dim1->set_isosceles_mask(isosceles_mask);
+        }
         dim1->merge(dim2, pred);
     }
 }
@@ -1138,21 +1194,33 @@ void GeometricGraph::set_triangles_similar(Point* p1, Point* p2, Point* p3, Poin
     set_triangles_similar(t1, t2, perm, pred);
 }
 void GeometricGraph::set_triangles_similar(Triangle* t1, Triangle* t2, std::array<int, 3> perm, Predicate* pred) {
-    Dimension* dim1 = t1->get_dimension();
-    Dimension* dim2 = t2->get_dimension();
+    Dimension* dim1 = get_or_add_dimension(t1, pred);
+    Dimension* dim2 = get_or_add_dimension(t2, pred);
+    std::array<bool, 3> isosceles_mask = Dimension::or_isosceles_masks(dim1->isosceles_mask, dim2->isosceles_mask);
+
     if (dim1->has_shape()) {
-        Shape* shp1 = dim1->shape;
+        Shape* shp1 = dim1->get_shape();
+        shp1->set_isosceles_masks(isosceles_mask);
+
         if (dim2->has_shape()) {
-            Shape* shp2 = dim2->shape;
+            Shape* shp2 = dim2->get_shape();
             shp2->perm_all_triangles(perm);
+            shp2->set_isosceles_masks(isosceles_mask);
+
             set_triangles_similar(shp1, shp2, pred);
         } else {
             dim2->perm_all_triangles(perm);
+            dim2->set_isosceles_mask(isosceles_mask);
+
             dim2->set_shape(shp1, pred);
         }
     } else {
+        dim1->set_isosceles_mask(isosceles_mask);
+
         Shape* shp2 = get_or_add_shape(dim2, pred);
         shp2->perm_all_triangles(perm);
+        shp2->set_isosceles_masks(isosceles_mask);
+
         dim1->set_shape(shp2, pred);
     }
 }

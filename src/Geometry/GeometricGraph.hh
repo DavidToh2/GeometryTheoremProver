@@ -486,6 +486,14 @@ public:
     their vertices are correctly permuted. */
     void merge_triangles(Triangle* dest, Triangle* src, Predicate* pred);
 
+    /* Attempts to set the triangle `p1p2p3` isosceles with `p1p2 = p2p3`. 
+    This is done by modifying the `isosceles_mask` of its Dimension, and percolating this change to all
+    similar triangles if it has a Shape.
+    By using `p1p2p3->get_perm({p1, p2, p3})` we get the indices of the three points. We then set the first
+    and third indices of the `isosceles_mask` to true. 
+    Note: The above steps are performed only if `p1p2p3` exists and has a Dimension. */
+    void set_triangle_isosceles(Point* p1, Point* p2, Point* p3, Predicate* pred);
+
     /* Records the two triangles `p1p2p3, p4p5p6` as congruent. */
     void set_triangles_congruent(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Predicate* pred);
     /* Records the two triangles `t1, t2` as congruent. */

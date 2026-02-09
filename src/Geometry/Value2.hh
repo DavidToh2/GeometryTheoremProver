@@ -117,7 +117,20 @@ public:
     /* Checks if the shapes `s1, s2` are similar. */
     static bool is_similar(Shape* s1, Shape* s2);
 
+    /* For all child Dimensions, sets `isosceles_mask[i1]` and `isosceles_mask[i2]` to true. 
+    Note: This function is only active for root nodes, and does not work on non-root nodes. */
+    void set_isosceles_masks(int i1, int i2);
+    /* Replaces the `isosceles_mask` of all child Dimensions with the given mask. 
+    Note: This function is only active for root nodes, and does not work on non-root nodes. */
+    void set_isosceles_masks(std::array<bool, 3> mask);
+    /* Applies a bool-wise OR operation to the `isosceles_mask` of all child Dimensions with the 
+    given mask. 
+    Note: This function is only active for root nodes, and does not work on non-root nodes. */
+    void setor_isosceles_masks(std::array<bool, 3> mask);
+
+    /* Returns all pairs of equal dimensions associated with this shape. */
     Generator<std::pair<Dimension*, Dimension*>> all_eq_pairs();
+    /* Returns all ordered pairs of equal dimensions associated with this shape. */
     Generator<std::pair<Dimension*, Dimension*>> all_eq_pairs_ordered();
 
     void merge(Shape* other, Predicate* pred);

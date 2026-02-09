@@ -153,6 +153,10 @@ To record congruency between two Triangles `t1` and `t2`,
 that of `t1`;
 - else if `t2` only has a Dimension, fetch it and permute all the triangles in its Dimension.
 - Having done that, we may then merge their two Dimensions and Shapes (in any order we want).
+
+The `isosceles_mask` indicates the vertices at which angles are equal. For instance, if ABC is
+isosceles with AB = AC, then the mask will be {false, true, true}, indicating that the angles at 
+vertices B and C are equal. If ABC is equilateral, then the false will be {true, true, true}.
 */
 class Dimension : public Object2 {
 public:
@@ -169,8 +173,22 @@ public:
     void add_triangle(Triangle* t, Predicate* pred);
     void perm_all_triangles(std::array<int, 3> perm);
 
+    /* Sets the Shape of the root of this Dimension.
+    This updates the `obj2s` and `root_obj2s` of `s`, as well as the `shape` and `shape_why` 
+    attributes of this Dimension. */
     void set_shape(Shape* s, Predicate* pred);
     bool has_shape();
+    Shape* __get_shape();
+    Shape* get_shape();
+
+    /* Sets `isosceles_mask[i1]` and `isosceles_mask[i2]` to true. */
+    void set_isosceles(int i1, int i2);
+    /* Replaces the isosceles mask with the one supplied. */
+    void set_isosceles_mask(std::array<bool, 3> mask);
+    /* Applies a per-bool OR operation with the given mask. */
+    void setor_isosceles_mask(std::array<bool, 3> mask);
+    /* Combines two isosceles masks using a per-bool OR operation. */
+    static std::array<bool, 3> or_isosceles_masks(std::array<bool, 3> mask1, std::array<bool, 3> mask2);
 
     /* Checks if the dimensions `d1` and `d2` are congruent.*/
     static bool is_congruent(Dimension* d1, Dimension* d2);

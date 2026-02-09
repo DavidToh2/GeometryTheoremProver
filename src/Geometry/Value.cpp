@@ -297,6 +297,36 @@ Generator<std::pair<Ratio*, Ratio*>> Length::check_incident_ratios(Length* l, Le
     }
     co_return;
 }
+Generator<std::array<Point*, 3>> Length::check_incident_isosceles_triangles(Length* l, Length* other_l, Predicate* pred) {
+    std::map<Point*, std::set<Point*>> point_to_cong_endpoints;
+    for (Segment* s : l->root_objs) {
+        Point* p1 = s->endpoints[0];
+        Point* p = s->endpoints[1];
+        point_to_cong_endpoints[p1].insert(p);
+        point_to_cong_endpoints[p].insert(p1);
+    }
+    for (Segment* s : other_l->root_objs) {
+        Point* p2 = s->endpoints[0];
+        Point* p3 = s->endpoints[1];
+        if (point_to_cong_endpoints.contains(p2)) {
+            for (Point* p1 : point_to_cong_endpoints[p2]) {
+                if (p1 != p3) {
+                    co_yield {p1, p2, p3};
+                }
+            }
+        }
+        if (point_to_cong_endpoints.contains(p3)) {
+            for (Point* p1 : point_to_cong_endpoints[p3]) {
+                if (p1 != p2) {
+                    co_yield {p1, p3, p2};
+                }
+            }
+        }
+    }
+    co_return;
+}
+
+
 bool Length::is_cong(Length* l1, Length* l2) {
     return (NodeUtils::same_as(l1, l2));
 }

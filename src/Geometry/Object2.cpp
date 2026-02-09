@@ -206,16 +206,41 @@ void Dimension::set_shape(Shape* s, Predicate* pred) {
 bool Dimension::has_shape() {
     return NodeUtils::get_root(this)->shape != nullptr;
 }
+Shape* Dimension::__get_shape() {
+    Shape* rs = NodeUtils::get_root(shape);
+    if (rs != shape) shape = rs;
+    return rs;
+}
+Shape* Dimension::get_shape() {
+    return NodeUtils::get_root(this)->__get_shape();
+}
+
+void Dimension::set_isosceles(int i1, int i2) {
+    isosceles_mask[i1] = true;
+    isosceles_mask[i2] = true;
+}
+void Dimension::set_isosceles_mask(std::array<bool, 3> mask) {
+    isosceles_mask = mask;
+}
+void Dimension::setor_isosceles_mask(std::array<bool, 3> mask) {
+    for (int i = 0; i < 3; ++i) {
+        isosceles_mask[i] = (isosceles_mask[i] || mask[i]);
+    }
+}
+std::array<bool, 3> Dimension::or_isosceles_masks(std::array<bool, 3> mask1, std::array<bool, 3> mask2) {
+    return { (mask1[0] || mask2[0]), (mask1[1] || mask2[1]), (mask1[2] || mask2[2]) };
+}
+
 bool Dimension::is_congruent(Dimension* d1, Dimension* d2) {
     Dimension* rd1 = NodeUtils::get_root(d1);
     Dimension* rd2 = NodeUtils::get_root(d2);
     if (rd1 == rd2) {
         return true;
     }
-    if (!rd1->shape || !rd2->shape) {
+    if (!rd1->has_shape() || !rd2->has_shape()) {
         return false;
     }
-    return (rd1->shape == rd2->shape);
+    return NodeUtils::same_as(rd1->shape, rd2->shape);
 }
 Generator<std::pair<Triangle*, Triangle*>> Dimension::all_cong_pairs() {
     Dimension* root_d = NodeUtils::get_root(this);
@@ -237,9 +262,9 @@ void Dimension::merge(Dimension* other, Predicate* pred) {
     root_other->root = root_this;
 
     if (root_other->has_shape()) {
-        root_other->shape->root_obj2s.erase(root_other);
+        root_other->get_shape()->root_obj2s.erase(root_other);
         if (!root_this->has_shape()) {
-            root_this->set_shape(root_other->shape, pred);
+            root_this->set_shape(root_other->get_shape(), pred);
         }
     }
 

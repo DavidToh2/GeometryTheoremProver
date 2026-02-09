@@ -21,6 +21,7 @@ class Dimension;
 
 class Angle;
 class Ratio;
+class Shape;
 
 /* Object class.
 
@@ -511,12 +512,22 @@ public:
     /* Sets the root of `this`'s Dimension object to `d`. 
     Note: If this Triangle already has a Dimension, then the old Dimension is overwritten. */
     void set_dimension(Dimension* d, Predicate* pred);
-    /* Returns the root dimension of `this`, lazily updating it to the root. */
+    /* Returns the root dimension of `root_this`, lazily updating it to the root.
+    Note: Assumes that `root_this` has a dimension. */
     Dimension* get_dimension();
     /* Returns true if the root of this Triangle has a Dimension object associated with it. */
     bool has_dimension();
+    /* Returns the root shape of `this`.
+    Note: Assumes that `this` has a Dimension, and said Dimension has a Shape. */
+    Shape* get_shape();
+    /* Returns true if the root of this Triangle has a Shape object associated with its Dimension. 
+    Note: returns false if the triangle does not have a Dimension as well. */
+    bool has_shape();
 
-    /* Rearranges the `vertices` to become `vertices = [old_v[perm[0]], old_v[perm[1]], old_v[perm[2]]]`. */
+    /* Rearranges the `vertices` to become `vertices = [old_v[perm[0]], old_v[perm[1]], old_v[perm[2]]]`.
+    Note: This does not affect the triangle's `Dimension` or `Shape`. In particular, the isosceles mask
+    is stored in the `Dimension` object and is not affected. Thereby to ensure consistency, it is a good
+    idea not to ever call this function, and instead only to rely on `Dimension::perm_all_triangles()`.  */
     void permute(std::array<int, 3> perm);
     /* Suppose there are two triangles `t1, t2` and a specific ordering of vertices `{A, B, C}` such that
     the permutation `perm1` takes `t1 -> {A1, B1, C1}` and `perm2` takes `t2 -> {A2, B2, C2}`. 

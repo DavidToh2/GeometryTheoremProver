@@ -132,5 +132,8 @@ public:
     Also removes `r2` from `other_l->on_ratio_1` and `other_l->on_ratio_2`. */
     static Generator<std::pair<Ratio*, Ratio*>> check_incident_ratios(Length* l, Length* other_l, Predicate* pred);
 
+    /* Identify triples of points `(p1, p2, p3)`, where `p1p2` has length `l` and `p2p3` has length `other_l`. */
+    static Generator<std::array<Point*, 3>> check_incident_isosceles_triangles(Length* l, Length* other_l, Predicate* pred);
+
     static bool is_cong(Length* l1, Length* l2);
 };

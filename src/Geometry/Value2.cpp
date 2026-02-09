@@ -92,6 +92,37 @@ bool Shape::is_similar(Shape* s1, Shape* s2) {
     return NodeUtils::same_as(s1, s2);
 }
 
+void Shape::set_isosceles_masks(int i1, int i2) {
+    Shape* root_this = NodeUtils::get_root(this);
+    if (this != root_this) return;
+
+    Dimension* dim = *(root_this->root_obj2s.begin());
+    if (dim->isosceles_mask[i1] && dim->isosceles_mask[i2]) return;
+
+    for (Dimension* dim : root_this->root_obj2s) {
+        dim->set_isosceles(i1, i2);
+    }
+}
+void Shape::set_isosceles_masks(std::array<bool, 3> mask) {
+    Shape* root_this = NodeUtils::get_root(this);
+    if (this != root_this) return;
+
+    Dimension* dim = *(root_this->root_obj2s.begin());
+    if (dim->isosceles_mask == mask) return;
+    
+    for (Dimension* dim : root_this->root_obj2s) {
+        dim->set_isosceles_mask(mask);
+    }
+}
+void Shape::setor_isosceles_masks(std::array<bool, 3> mask) {
+    Shape* root_this = NodeUtils::get_root(this);
+    if (this != root_this) return;
+
+    for (Dimension* dim : root_this->root_obj2s) {
+        dim->setor_isosceles_mask(mask);
+    }
+}
+
 void Shape::merge(Shape* other, Predicate* pred) {
     Shape* root_this = NodeUtils::get_root(this);
     Shape* root_other = NodeUtils::get_root(other);

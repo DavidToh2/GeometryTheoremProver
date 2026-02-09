@@ -703,6 +703,13 @@ Dimension* Triangle::get_dimension() {
 bool Triangle::has_dimension() {
     return (NodeUtils::get_root(this)->dimension != nullptr);
 }
+Shape* Triangle::get_shape() {
+    Dimension* d = this->get_dimension();
+    return d->get_shape();
+}
+bool Triangle::has_shape() {
+    return this->has_dimension() && this->get_dimension()->has_shape();
+}
 
 void Triangle::permute(std::array<int, 3> perm) {
     std::array<Point*, 3> old_v = vertices;
