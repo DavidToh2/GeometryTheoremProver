@@ -7,6 +7,9 @@ A B C : para A B A C, diff B C => coll A B C
 #alt_angles_para
 A B C D P Q : eqangle A B P Q C D P Q, ncoll A B C D => para A B C D
 
+#para_alt_angles
+A B C D O : para A B C D, coll A C O, ncoll A B C D => eqangle B A A O D C C O
+
 #cyclic_eqangle
 A B P Q : cyclic A B P Q => eqangle P A P B Q A Q B
 
@@ -33,7 +36,7 @@ A B C D M : midp M A B, midp M C D, diff A B C D => para A D B C
 #midp_parallelogram_midp (necessary as midp, cong and eqratio have separate matching rules)
 A B C D M : midp M A B, para A C B D, para A D B C, diff A B C D => midp M C D
 
-#para_para_cong
+#parallelogram_cong
 A B C D : para A B C D, para B C D A, diff A B C D => cong A B C D
 
 #isosceles_cong_eqangle
@@ -51,7 +54,7 @@ A B P Q : cong A P B P, cong A Q B Q, diff P Q => perp A B P Q
 A B C O X : circle O A B C, perp O A A X => eqangle A X A B C A C B
 
 #alternate_segment_theorem_2
-A B C O X : circle O A B C, eqangle A X A B C A C B => perp O A A X
+A B C O X : circle O A B C, eqangle C A C B A X A B => perp O A A X
 
 #r_triangle_Thales
 A B C M : perp A B B C, midp M A C => cong A M B M
@@ -61,9 +64,6 @@ A B C O : circle O A B C, coll O A C => perp A B B C
 
 #cyclic_para_trapezoid
 A B C D : cyclic A B C D, para A B C D => eqangle A D C D C D C B
-
-#ratio_theorem (converse not necessary by SAS simtri)
-A B C D O : eqratio O A A C O B B D, coll O A C, coll O B D, ncoll A B C => para A B C D
 
 #circumcenter_angle
 A B C M O : circle O A B C, midp M B C, ncoll O B C => eqangle A B A C O B O M
@@ -76,3 +76,42 @@ A B C H : perp A B C H, perp B C A H, diff A B C H => perp C A B H
 
 #in/excenter
 A B C I : eqangle A B B I I B B C, eqangle B A A I I A A C, diff A B C I => eqangle A C C I I C C B
+
+#SSS (contri)
+A B C P Q R : cong A B P Q, cong B C Q R, cong C A R P, ncoll A B C => contri A B C P Q R
+
+#SAS (contri)
+A B C P Q R : cong A B P Q, cong B C Q R, eqangle B A B C Q P Q R, ncoll A B C => contri A B C P Q R
+A B C P Q R : cong A B P Q, cong B C Q R, eqangle B A B C Q R Q P, ncoll A B C => contri A B C P Q R
+
+#SAS (contri, para version)
+A B C P Q R : cong A B P Q, cong B C Q R, para A B P Q, para B C Q R, ncoll A B C => contri A B C P Q R
+
+#ASA (contri)
+A B C P Q R : cong A B P Q, eqangle B A B C Q P Q R, eqangle C A C B R P R Q, ncoll A B C => contri A B C P Q R
+A B C P Q R : cong A B P Q, eqangle B A B C Q R Q P, eqangle C A C B R Q R P, ncoll A B C => contri A B C P Q R
+
+#ASA (contri, para version)
+A B C P Q R : cong A B P Q, para A B P Q, para A C P R, para B C Q R, ncoll A B C => contri A B C P Q R
+
+#SSS (simtri)
+A B C P Q R : eqratio B A B C Q P Q R, eqratio C A C B R P R Q, ncoll A B C => simtri A B C P Q R
+
+#SAS (simtri)
+A B C P Q R : eqratio B A B C Q P Q R, eqangle B A B C Q P Q R, ncoll A B C => simtri A B C P Q R
+
+#SAS (simtri, para version)
+A B C P Q R : eqratio B A B C Q P Q R, para B A Q P, para B C Q R, ncoll A B C => simtri A B C P Q R
+
+#AAA (simtri)
+A B C P Q R : eqangle B A B C Q P Q R, eqangle C A C B R P R Q, ncoll A B C => simtri A B C P Q R
+A B C P Q R : eqangle B A B C Q R Q P, eqangle C A C B R Q R P, ncoll A B C => simtri A B C P Q R
+
+#AAA (simtri, para version)
+A B C P Q R : para A B P Q, para B C Q R, para A C P R, ncoll A B C => simtri A B C P Q R
+A B C P Q R : para A B R Q, para B C Q P, eqangle B A A C R P P Q => simtri A B C P Q R
+
+#ratio_theorem
+A B C D O : eqratio O A A C O B B D, coll O A C, coll O B D, ncoll A B C => simtri O A B O C D
+A B C D O : eqangle O A A C O B B D, coll O A C, coll O B D, ncoll A B C => simtri O A B O C D
+A B C D O : para A B C D, coll O A C, coll O B D, ncoll A B C => simtri O A B O C D

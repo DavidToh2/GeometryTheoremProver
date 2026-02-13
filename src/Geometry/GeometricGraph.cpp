@@ -100,6 +100,9 @@ void GeometricGraph::__try_add_point(const std::string point_id) {
     if (!points.contains(point_id)) {
         points[point_id] = std::make_unique<Point>(point_id);
         root_points.insert(points[point_id].get());
+        new_object = true;
+    } else {
+        new_object = false;
     }
 }
 
@@ -206,6 +209,9 @@ Line* GeometricGraph::get_or_add_line(Point* p1, Point* p2, DDEngine &dd) {
     Line* l = __try_get_line(rp1, rp2);
     if (!l) {
         l = __add_new_line(rp1, rp2, dd.base_pred.get());
+        new_object = true;
+    } else {
+        new_object = false;
     }
     return l;
 }
@@ -292,8 +298,10 @@ Direction* GeometricGraph::__add_new_direction(Line* l, Predicate* base_pred) {
 Direction* GeometricGraph::get_or_add_direction(Line* l, DDEngine &dd) {
     Line* root_l = NodeUtils::get_root(l);
     if (root_l->has_direction()) {
+        new_object = false;
         return root_l->get_direction();
     }
+    new_object = true;
     return __add_new_direction(root_l, dd.base_pred.get());
 }
 
@@ -489,6 +497,9 @@ Circle* GeometricGraph::get_or_add_circle(Point* p1, Point* p2, Point* p3, DDEng
     Circle* circ = __try_get_circle(rp1, rp2, rp3);
     if (!circ) {
         circ = __add_new_circle(rp1, rp2, rp3, dd.base_pred.get());
+        new_object = true;
+    } else {
+        new_object = false;
     }
     return circ;
 }
@@ -498,17 +509,24 @@ Circle* GeometricGraph::get_or_add_circle(Point* c, Point* p1, DDEngine& dd) {
     Circle* circ = __try_get_circle(rc, rp1);
     if (!circ) {
         circ = __add_new_circle(rc, rp1, dd.base_pred.get());
+        new_object = true;
+    } else {
+        new_object = false;
     }
     return circ;
 }
 
 Point* GeometricGraph::get_or_add_circle_center(Circle* c, DDEngine& dd) {
     Point* p = c->get_center();
-    if (p) return p;
+    if (p) {
+        new_object = false;
+        return p;
+    }
     std::string p_id = "adhoc_p" + std::to_string(adhoc++);
     points[p_id] = std::make_unique<Point>(p_id);
     p = points[p_id].get();
     c->set_center(p, dd.base_pred.get());
+    new_object = true;
     return p;
 }
 
@@ -565,6 +583,9 @@ Segment* GeometricGraph::get_or_add_segment(Point* p1, Point* p2, DDEngine &dd) 
     if (!s) {
         Line* l = get_or_add_line(rp1, rp2, dd);
         s = __add_new_segment(rp1, rp2, l, dd.base_pred.get());
+        new_object = true;
+    } else {
+        new_object = false;
     }
     return s;
 }
@@ -600,8 +621,10 @@ Length* GeometricGraph::__add_new_length(Segment* s, Predicate* base_pred) {
 Length* GeometricGraph::get_or_add_length(Segment* s, DDEngine &dd) {
     Segment* root_s = NodeUtils::get_root(s);
     if (root_s->has_length()) {
+        new_object = false;
         return root_s->get_length();
     }
+    new_object = true;
     return __add_new_length(root_s, dd.base_pred.get());
 }
 
@@ -626,8 +649,8 @@ void GeometricGraph::set_lengths_cong(Length* l, Length* l_other, Predicate* pre
     // Check for newly isosceles triangles as a result of the length merge
     auto gen_newly_isosceles = Length::check_incident_isosceles_triangles(l, l_other, pred);
     while (gen_newly_isosceles) {
-        auto triple = gen_newly_isosceles();
-        
+        auto [p1, p2, p3] = gen_newly_isosceles();
+        set_triangle_isosceles(p1, p2, p3, pred);
     }
 
     l->merge(l_other, pred);
@@ -738,6 +761,9 @@ Angle* GeometricGraph::get_or_add_angle(Direction* d1, Direction* d2, DDEngine& 
     Angle* a = __try_get_angle(rd1, rd2);
     if (!a) {
         a = __add_new_angle(rd1, rd2, dd.base_pred.get());
+        new_object = true; 
+    } else { 
+        new_object = false;
     }
     return a;
 }
@@ -747,6 +773,9 @@ Angle* GeometricGraph::get_or_add_angle(Line* l1, Line* l2, DDEngine& dd) {
     Angle* a = __try_get_angle(rl1, rl2);
     if (!a) {
         a = __add_new_angle(rl1, rl2, dd.base_pred.get());
+        new_object = true; 
+    } else { 
+        new_object = false;
     }
     return a;
 }
@@ -756,6 +785,9 @@ Angle* GeometricGraph::get_or_add_angle(Point* p1, Point* p2, Point* p3, Point* 
     Angle* a = __try_get_angle(l1, l2);
     if (!a) {
         a = __add_new_angle(l1, l2, dd.base_pred.get());
+        new_object = true; 
+    } else { 
+        new_object = false;
     }
     return a;
 }
@@ -765,6 +797,9 @@ Angle* GeometricGraph::get_or_add_angle(Point* p1, Point* p2, Point* p3, DDEngin
     Angle* a = __try_get_angle(l1, l2);
     if (!a) {
         a = __add_new_angle(l1, l2, dd.base_pred.get());
+        new_object = true; 
+    } else { 
+        new_object = false;
     }
     return a;
 }
@@ -799,8 +834,10 @@ Measure* GeometricGraph::__add_new_measure(Angle* a, Predicate* base_pred) {
 Measure* GeometricGraph::get_or_add_measure(Angle* a, DDEngine& dd) {
     Angle* ra = NodeUtils::get_root(a);
     if (ra->__has_measure()) {
+        new_object = false;
         return ra->__get_measure();
     }
+    new_object = true;
     return __add_new_measure(ra, dd.base_pred.get());
 }
 
@@ -904,6 +941,9 @@ Ratio* GeometricGraph::get_or_add_ratio(Length* l1, Length* l2, DDEngine& dd) {
     Ratio* r = __try_get_ratio(rl1, rl2);
     if (!r) {
         r = __add_new_ratio(rl1, rl2, dd.base_pred.get());
+        new_object = true; 
+    } else { 
+        new_object = false;
     }
     return r;
 }
@@ -913,6 +953,9 @@ Ratio* GeometricGraph::get_or_add_ratio(Segment* s1, Segment* s2, DDEngine& dd) 
     Ratio* r = __try_get_ratio(rs1, rs2);
     if (!r) {
         r = __add_new_ratio(rs1, rs2, dd.base_pred.get());
+        new_object = true; 
+    } else { 
+        new_object = false;
     }
     return r;
 }
@@ -922,6 +965,9 @@ Ratio* GeometricGraph::get_or_add_ratio(Point* p1, Point* p2, Point* p3, Point* 
     Ratio* r = __try_get_ratio(s1, s2);
     if (!r) {
         r = __add_new_ratio(s1, s2, dd.base_pred.get());
+        new_object = true; 
+    } else { 
+        new_object = false;
     }
     return r;
 }
@@ -956,8 +1002,10 @@ Fraction* GeometricGraph::__add_new_fraction(Ratio* r, Predicate* base_pred) {
 Fraction* GeometricGraph::get_or_add_fraction(Ratio* r, DDEngine& dd) {
     Ratio* rr = NodeUtils::get_root(r);
     if (rr->__has_fraction()) {
+        new_object = false;
         return rr->__get_fraction();
     }
+    new_object = true;
     return __add_new_fraction(rr, dd.base_pred.get());
 }
 
@@ -1052,8 +1100,10 @@ Dimension* GeometricGraph::__add_new_dimension(Triangle* t, Predicate* base_pred
 
 Dimension* GeometricGraph::get_or_add_dimension(Triangle* t, Predicate* base_pred) {
     if (t->has_dimension()) {
+        new_object = false;
         return t->get_dimension();
     }
+    new_object = true;
     return __add_new_dimension(t, base_pred);
 }
 
@@ -1079,8 +1129,10 @@ Shape* GeometricGraph::try_get_shape(Triangle* t) {
 }
 Shape* GeometricGraph::get_or_add_shape(Dimension* dim, Predicate* base_pred) {
     if (dim->has_shape()) {
+        new_object = false;
         return dim->get_shape();
     }
+    new_object = true;
     return __add_new_shape(dim, base_pred);
 }
 
@@ -1099,6 +1151,9 @@ Triangle* GeometricGraph::get_or_add_triangle(Point* p1, Point* p2, Point* p3, P
     Triangle* t = __try_get_triangle(rp1, rp2, rp3);
     if (!t) {
         t = __add_new_triangle(rp1, rp2, rp3, base_pred);
+        new_object = true;
+    } else {
+        new_object = false;
     }
     return t;
 }
@@ -1110,6 +1165,13 @@ void GeometricGraph::merge_triangles(Triangle* dest, Triangle* src, Predicate* p
     root_triangles.erase(src);
 
     dest->merge(src, pred);
+}
+
+bool GeometricGraph::check_same_orientation(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6) {
+    return Cartesian::same_orientation(
+        point_nums[p1], point_nums[p2], point_nums[p3],
+        point_nums[p4], point_nums[p5], point_nums[p6]
+    );
 }
 
 void GeometricGraph::set_triangle_isosceles(Point* p1, Point* p2, Point* p3, Predicate* pred) {
@@ -1135,6 +1197,21 @@ void GeometricGraph::set_triangles_congruent(Point* p1, Point* p2, Point* p3, Po
     if (NodeUtils::same_as(t1, t2)) {
         if (perm1 == perm2) return;
         // Special logic for when t1 == t2: some isosceles masks will have to be set
+
+        std::array<bool, 3> new_isosceles_mask = {true, true, true};
+        for (int i=0; i<3; i++) {
+            if (perm1[i] == perm2[i]) {
+                new_isosceles_mask[perm1[i]] = false;
+            }
+        }
+        Dimension* dim = get_or_add_dimension(t1, pred);
+        if (dim->has_shape()) {
+            Shape* shp = dim->get_shape();
+            shp->set_isosceles_masks(new_isosceles_mask);
+        } else {
+            dim->set_isosceles_mask(new_isosceles_mask);
+        }
+        return;
     }
 
     // perm takes t2 to t1
@@ -1184,9 +1261,28 @@ void GeometricGraph::set_triangles_congruent(Dimension* dim1, Dimension* dim2, s
 void GeometricGraph::set_triangles_similar(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Predicate* pred) {
     Triangle* t1 = get_or_add_triangle(p1, p2, p3, pred);
     Triangle* t2 = get_or_add_triangle(p4, p5, p6, pred);
-    if (t1 == t2) return;
     std::array<int, 3> perm1 = t1->get_perm({p1, p2, p3});
     std::array<int, 3> perm2 = t2->get_perm({p4, p5, p6});
+
+    if (NodeUtils::same_as(t1, t2)) {
+        if (perm1 == perm2) return;
+        // Special logic for when t1 == t2: some isosceles masks will have to be set
+
+        std::array<bool, 3> new_isosceles_mask = {true, true, true};
+        for (int i=0; i<3; i++) {
+            if (perm1[i] == perm2[i]) {
+                new_isosceles_mask[perm1[i]] = false;
+            }
+        }
+        Dimension* dim = get_or_add_dimension(t1, pred);
+        if (dim->has_shape()) {
+            Shape* shp = dim->get_shape();
+            shp->set_isosceles_masks(new_isosceles_mask);
+        } else {
+            dim->set_isosceles_mask(new_isosceles_mask);
+        }
+        return;
+    }
 
     // perm takes t2 to t1
     std::array<int, 3> perm = Triangle::compose_perm(perm1, perm2);
@@ -1196,29 +1292,35 @@ void GeometricGraph::set_triangles_similar(Point* p1, Point* p2, Point* p3, Poin
 void GeometricGraph::set_triangles_similar(Triangle* t1, Triangle* t2, std::array<int, 3> perm, Predicate* pred) {
     Dimension* dim1 = get_or_add_dimension(t1, pred);
     Dimension* dim2 = get_or_add_dimension(t2, pred);
-    std::array<bool, 3> isosceles_mask = Dimension::or_isosceles_masks(dim1->isosceles_mask, dim2->isosceles_mask);
 
     if (dim1->has_shape()) {
         Shape* shp1 = dim1->get_shape();
-        shp1->set_isosceles_masks(isosceles_mask);
 
         if (dim2->has_shape()) {
             Shape* shp2 = dim2->get_shape();
             shp2->perm_all_triangles(perm);
+
+            std::array<bool, 3> isosceles_mask = Dimension::or_isosceles_masks(dim1->isosceles_mask, dim2->isosceles_mask);
+            shp1->set_isosceles_masks(isosceles_mask);
             shp2->set_isosceles_masks(isosceles_mask);
 
             set_triangles_similar(shp1, shp2, pred);
         } else {
             dim2->perm_all_triangles(perm);
+
+            std::array<bool, 3> isosceles_mask = Dimension::or_isosceles_masks(dim1->isosceles_mask, dim2->isosceles_mask);
+            shp1->set_isosceles_masks(isosceles_mask);
             dim2->set_isosceles_mask(isosceles_mask);
 
             dim2->set_shape(shp1, pred);
         }
     } else {
-        dim1->set_isosceles_mask(isosceles_mask);
 
         Shape* shp2 = get_or_add_shape(dim2, pred);
         shp2->perm_all_triangles(perm);
+
+        std::array<bool, 3> isosceles_mask = Dimension::or_isosceles_masks(dim1->isosceles_mask, dim2->isosceles_mask);
+        dim1->set_isosceles_mask(isosceles_mask);
         shp2->set_isosceles_masks(isosceles_mask);
 
         dim1->set_shape(shp2, pred);
@@ -1341,12 +1443,16 @@ bool GeometricGraph::check_contri(Point* p1, Point* p2, Point* p3, Point* p4, Po
     Triangle* t1 = try_get_triangle(p1, p2, p3);
     Triangle* t2 = try_get_triangle(p4, p5, p6);
     if (!t1 || !t2) return false;
+    
+    if (!t1->has_dimension() || !t2->has_dimension()) return false;
+    Dimension* dim1 = t1->get_dimension();
+    Dimension* dim2 = t2->get_dimension();
 
-    std::array<int, 3> perm1 = t1->get_perm({p1, p2, p3});
-    std::array<int, 3> perm2 = t2->get_perm({p4, p5, p6});
+    std::array<int, 3> perm1 = t1->get_scalene_perm({p1, p2, p3}, dim1->isosceles_mask);
+    std::array<int, 3> perm2 = t2->get_scalene_perm({p4, p5, p6}, dim2->isosceles_mask);
     if (perm1 != perm2) return false;
 
-    return check_contri(t1, t2);
+    return check_contri(dim1, dim2);
 }
 bool GeometricGraph::check_contri(Triangle* t1, Triangle* t2) {
     if (!t1->has_dimension() || !t2->has_dimension()) return false;
@@ -1362,11 +1468,19 @@ bool GeometricGraph::check_simtri(Point* p1, Point* p2, Point* p3, Point* p4, Po
     Triangle* t2 = try_get_triangle(p4, p5, p6);
     if (!t1 || !t2) return false;
 
-    std::array<int, 3> perm1 = t1->get_perm({p1, p2, p3});
-    std::array<int, 3> perm2 = t2->get_perm({p4, p5, p6});
+    if (!t1->has_dimension() || !t2->has_dimension()) return false;
+    Dimension* dim1 = t1->get_dimension();
+    Dimension* dim2 = t2->get_dimension();
+
+    std::array<int, 3> perm1 = t1->get_scalene_perm({p1, p2, p3}, dim1->isosceles_mask);
+    std::array<int, 3> perm2 = t2->get_scalene_perm({p4, p5, p6}, dim2->isosceles_mask);
     if (perm1 != perm2) return false;
 
-    return check_simtri(t1, t2);
+    if (check_contri(dim1, dim2)) return true;
+
+    if (!dim1->has_shape() || !dim2->has_shape()) return false;
+
+    return check_simtri(dim1->get_shape(), dim2->get_shape());
 }
 bool GeometricGraph::check_simtri(Triangle* t1, Triangle* t2) {
     Shape* shp1 = try_get_shape(t1);
@@ -1801,10 +1915,13 @@ bool GeometricGraph::__make_eqangle(Point* p1, Point* p2, Point* p3, Point* p4,
     Point* p5, Point* p6, Point* p7, Point* p8, 
     Predicate* pred, DDEngine &dd, AREngine &ar) {
 
+    bool new_objects = false;
     Angle* a1 = get_or_add_angle(p1, p2, p3, p4, dd);
+    new_objects |= new_object;
     Angle* a2 = get_or_add_angle(p5, p6, p7, p8, dd);
+    new_objects |= new_object;
 
-    if (check_eqangle(a1, a2)) return false;
+    if (check_eqangle(a1, a2)) return new_objects;
     
     if (a1->has_measure()) {
         if (a2->has_measure()) {
@@ -1846,10 +1963,13 @@ bool GeometricGraph::make_ar_eqangle(Predicate* pred, DDEngine& dd) {
     Direction* d3 = static_cast<Direction*>(pred->args[2]);
     Direction* d4 = static_cast<Direction*>(pred->args[3]);
 
+    bool new_objects = false;
     Angle* a1 = get_or_add_angle(d1, d2, dd);
+    new_objects |= new_object;
     Angle* a2 = get_or_add_angle(d3, d4, dd);
+    new_objects |= new_object;
 
-    if (check_eqangle(a1, a2)) return false;
+    if (check_eqangle(a1, a2)) return new_objects;
 
     Line* l1 = get_line_from_direction(d1);
     Line* l2 = get_line_from_direction(d2);
@@ -1905,10 +2025,13 @@ bool GeometricGraph::__make_eqratio(Point* p1, Point* p2, Point* p3, Point* p4,
     Point* p5, Point* p6, Point* p7, Point* p8,
     Predicate* pred, DDEngine &dd, AREngine &ar) {
 
+    bool new_objects = false;
     Ratio* r1 = get_or_add_ratio(p1, p2, p3, p4, dd);
+    new_objects |= new_object;
     Ratio* r2 = get_or_add_ratio(p5, p6, p7, p8, dd);
+    new_objects |= new_object;
 
-    if (check_eqratio(r1, r2)) return false;
+    if (check_eqratio(r1, r2)) return new_objects;
 
     if (r1->has_fraction()) {
         if (r2->has_fraction()) {
@@ -1942,10 +2065,13 @@ bool GeometricGraph::make_ar_eqratio(Predicate* pred, DDEngine &dd) {
     Length* l3 = static_cast<Length*>(pred->args[2]);
     Length* l4 = static_cast<Length*>(pred->args[3]);
 
+    bool new_objects = false;
     Ratio* r1 = get_or_add_ratio(l1, l2, dd);
+    new_objects |= new_object;
     Ratio* r2 = get_or_add_ratio(l3, l4, dd);
+    new_objects |= new_object;
 
-    if (check_eqratio(r1, r2)) return false;
+    if (check_eqratio(r1, r2)) return new_objects;
 
     Segment* s1 = get_segment_from_length(l1);
     Segment* s2 = get_segment_from_length(l2);
@@ -2005,10 +2131,7 @@ bool GeometricGraph::__make_contri(Point* p1, Point* p2, Point* p3, Point* p4, P
 
     set_triangles_congruent(p1, p2, p3, p4, p5, p6, pred);
 
-    bool same_orientation = Cartesian::same_orientation(
-        point_nums[p1], point_nums[p2], point_nums[p3],
-        point_nums[p4], point_nums[p5], point_nums[p6]
-    );
+    bool same_orientation = check_same_orientation(p1, p2, p3, p4, p5, p6);
 
     __make_cong(p1, p2, p4, p5, pred, dd, ar);
     __make_cong(p2, p3, p5, p6, pred, dd, ar);
@@ -2057,10 +2180,7 @@ bool GeometricGraph::__make_simtri(Point* p1, Point* p2, Point* p3, Point* p4, P
 
     set_triangles_similar(p1, p2, p3, p4, p5, p6, pred);
 
-    bool same_orientation = Cartesian::same_orientation(
-        point_nums[p1], point_nums[p2], point_nums[p3],
-        point_nums[p4], point_nums[p5], point_nums[p6]
-    );
+    bool same_orientation = check_same_orientation(p1, p2, p3, p4, p5, p6);
 
     __make_eqratio(p1, p2, p2, p3, p4, p5, p5, p6, pred, dd, ar);
     __make_eqratio(p3, p2, p2, p1, p6, p5, p5, p4, pred, dd, ar);
@@ -2281,6 +2401,12 @@ int GeometricGraph::synthesise_preds(DDEngine &dd, AREngine &ar) {
             case pred_t::EQRATIO:
                 res = make_eqratio(pred, dd, ar);
                 break;
+            case pred_t::CONTRI:
+                res = make_contri(pred, dd, ar);
+                break;
+            case pred_t::SIMTRI:
+                res = make_simtri(pred, dd, ar);
+                break;
             case pred_t::MIDP:
                 res = make_midp(pred, dd, ar);
                 break;
@@ -2434,20 +2560,24 @@ void GeometricGraph::reset_problem() {
     lines.clear();
     circles.clear();
     segments.clear();
+    triangles.clear();
 
     directions.clear();
     lengths.clear();
 
     angles.clear();
     ratios.clear();
+    dimensions.clear();
 
     measures.clear();
     fractions.clear();
+    shapes.clear();
 
     root_points.clear();
     root_lines.clear();
     root_circles.clear();
     root_segments.clear();
+    root_triangles.clear();
 
     root_directions.clear();
     root_lengths.clear();
@@ -2457,9 +2587,11 @@ void GeometricGraph::reset_problem() {
 
     root_measures.clear();
     root_fractions.clear();
+    root_dimensions.clear();
     
     root_measure_vals.clear();
     root_fraction_vals.clear();
+    root_shapes.clear();
 
     point_nums.clear();
     line_nums.clear();
@@ -2470,4 +2602,6 @@ void GeometricGraph::reset_problem() {
     point_to_num_eq_set.clear();
 
     adhoc = 0;
+
+    new_object = false;
 }

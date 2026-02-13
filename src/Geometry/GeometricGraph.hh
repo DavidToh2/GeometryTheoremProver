@@ -27,6 +27,10 @@ class GeometricGraph {
 public:
     int adhoc = 0;
 
+    /* Flag storing whether the most recent invocation of `get_or_add_` created a new object, or fetched
+    an existing one */
+    bool new_object = false;
+
     // Geometric objects
 
     uptrmap<Point> points;
@@ -486,6 +490,9 @@ public:
     their vertices are correctly permuted. */
     void merge_triangles(Triangle* dest, Triangle* src, Predicate* pred);
 
+    /* Returns true if `p1p2p3` and `p4p5p6` are either both clockwise or both anticlockwise. */
+    bool check_same_orientation(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6);
+
     /* Attempts to set the triangle `p1p2p3` isosceles with `p1p2 = p2p3`. 
     This is done by modifying the `isosceles_mask` of its Dimension, and percolating this change to all
     similar triangles if it has a Shape.
@@ -548,12 +555,32 @@ public:
     bool check_eqratio(Length* l1, Length* l2, Length* l3, Length* l4);
     bool check_eqratio(Ratio* r1, Ratio* r2);
 
+    /* Checks if the triangles `p1p2p3` and `p4p5p6` are congruent, with points in this order.
+    For ordinary scalene triangles, it suffices to check the order of permutation of vertices, and then check that
+    their Dimensions coincide, which is what this function's overloads do.
+    For isosceles and equilateral triangles, consider the following illustrative scenario: `p1p2 = p1p3, p4p6 = p4p5`
+    and the triangles `t1 = [p1, p2, p3], t2 = [p4, p6, p5]`. Looking at their isosceles masks, we also see that
+    `isos_t1 = [0, 1, 1], isos_t2 = [0, 1, 1]`. We could use the isosceles masks as an indicator of which entries
+    of `perm` can be ignored! This is achieved using `Triangle::get_scalene_perm()`. */
     bool check_contri(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6);
+    /* Checks if the triangles `t1, t2` are congruent. 
+    This function does not account for ordering of the triangles' vertices. Use the point-overloaded version of
+    this function to check vertex ordering. */
     bool check_contri(Triangle* t1, Triangle* t2);
+    /* Checks if the Dimensions `dim1, dim2` are equivalent. */
     bool check_contri(Dimension* dim1, Dimension* dim2);
 
+    /* Checks if the triangles `p1p2p3` and `p4p5p6`are similar, with points in this order.
+    For ordinary scalene triangles, it suffices to check the order of permutation of vertices, and then check that
+    their Shapes coincide, which is what this function's overloads do.
+    For isosceles and equilateral triangles, we use `Triangle::get_scalene_perm()` to check the order of permutation
+    of non-isosceles participating vertices. */
     bool check_simtri(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6);
+    /* Checks if the triangles `t1, t2` are similar. 
+    This function does not account for ordering of the triangles' vertices. Use the point-overloaded version of
+    this function to check vertex ordering. */
     bool check_simtri(Triangle* t1, Triangle* t2);
+    /* Checks if the Shapes `shp1, shp2` are equivalent. */
     bool check_simtri(Shape* shp1, Shape* shp2);
 
     bool check_midp(Point* m, Point* p1, Point* p2);

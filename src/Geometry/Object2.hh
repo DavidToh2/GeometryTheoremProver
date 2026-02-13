@@ -190,6 +190,14 @@ public:
     /* Combines two isosceles masks using a per-bool OR operation. */
     static std::array<bool, 3> or_isosceles_masks(std::array<bool, 3> mask1, std::array<bool, 3> mask2);
 
+    template<typename... T>
+    requires (std::same_as<T, int> && ...)
+    static std::array<bool, 3> make_isosceles_mask(T... indices) {
+        std::array<bool, 3> mask = {false, false, false};
+        ((mask[indices] = true), ...);
+        return mask;
+    }
+
     /* Checks if the dimensions `d1` and `d2` are congruent.*/
     static bool is_congruent(Dimension* d1, Dimension* d2);
 

@@ -44,7 +44,9 @@ as well as the identification of corresponding points, as in
 |  | `contri a1 b1 c1 a2 b2 c2`<br>`simtri a1 b1 c1 a2 b2 c2` | Triangle congruency and similarity predicates |
 |  | `midp m x1 x2`<br>`circle o x1 x2 x3` | Midpoint and circle center respectively |
 |  | `constangle n x1 x2 x3`<br>`constratio n x1 x2 x3 x4` | Constant-equality predicates for the segments or angles formed by the points |
-| Degenerate Predicates | `diff p q ...`<br>`ncoll x y z ...`<br>`convex a b c d` | Points `p`, `q` are not equal<br>The points `x, y, z` are not collinear<br>`abcd` is a convex quadrilateral |
+| Degenerate Predicates | `diff p q ...`<br>`ncoll x y z ...`<br>`npara p q r s`<br>`sameclock/diffclock a b c p q r`<br>`convex a b c d` | Points `p`, `q` are not equal<br>The points `x, y, z` are not collinear<br>`pq` and `rs` are not parallel<br>`abc` and `pqr` are either both clockwise or both counterclockwise; and the converse<br>`abcd` is a convex quadrilateral |
+
+Note: The matching rules for `eqangle`, `perp` and `para`, as well as those of `eqratio` and `cong`, will not interfere with one another. The rule for `eqangle`, for instance, iterates over `Measure`s, while that of `para` iterates over `Direction`s. 
 
 There is room for expanding the list of available predicates, in order to encode more complex rules.
 

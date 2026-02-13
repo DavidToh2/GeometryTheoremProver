@@ -20,7 +20,8 @@ const std::string PREDICATE_NAMES[] = {
     "eqangle", "eqratio", 
     "contri", "simtri", "midp", "circle",
     "constangle", "constratio",
-    "diff", "ncoll", "npara",
+    "diff", "ncoll", "npara", 
+    "sameclock", "diffclock",
     "sameside", "convex",
     "last"
 };
@@ -64,8 +65,10 @@ enum class pred_t {
     DIFF,
     NCOLL,
     NPARA,
-    SAMESIDE,
-    CONVEX,
+    SAMECLOCK,
+    DIFFCLOCK,
+    SAMESIDE,   // not used
+    CONVEX,     // not used
     LAST    // not used
 };
 

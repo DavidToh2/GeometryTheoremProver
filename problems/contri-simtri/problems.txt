@@ -1,0 +1,88 @@
+problem p1a {
+    a d e = triangle a d e;
+    b = on_line b : a d;
+    c = on_line_para c : b d e, on_line c : a e
+    ? simtri a b c a d e
+}
+
+problem p1b {
+    a d e = triangle a d e;
+    b = on_line b : a d;
+    c = on_line_at_angle c : b a e d a, on_line c : a e
+    ? simtri a b c a d e
+}
+
+problem p2a {
+    a b c = triangle a b c;
+    d e f = midpoint d : b c, midpoint e : c a, midpoint f : a b
+    ? contri d e f a f e
+}
+
+problem p2b {
+    a b c = triangle a b c;
+    d e f = midpoint d : b c, midpoint e : c a, midpoint f : a b
+    ? simtri d e f a b c
+}
+
+problem p2c {
+    a b c = triangle a b c;
+    d e f = midpoint d : b c, midpoint e : c a, midpoint f : a b;
+    m = intersection_ll m : a d e f
+    ? cong e m f m
+}
+
+problem 3a {
+    a b c d = cyclic_quad a b c d;
+    e = intersection_ll e : a b c d
+    ? simtri a d e c b e
+}
+
+problem 3b {
+    a b c d = cyclic_quad a b c d;
+    f = intersection_ll f : a c b d
+    ? simtri a b f d c f
+}
+
+problem 4a {
+    a b c = r_triangle a b c;
+    d = foot d : a b c
+    ? simtri b d a a d c
+}
+
+problem 4b {
+    a b c = r_triangle a b c;
+    d = foot d : a b c
+    ? simtri d b a a b c
+}
+
+problem 5 {
+    a b c = triangle a b c;
+    d e f h = orthocenter2 d e f h : a b c
+    ? simtri a e f a b c
+}
+
+problem 6 {
+    a b c = triangle a b c;
+    d e f i = incenter2 d e f i : a b c
+    ? contri a e i a f i
+}
+
+problem 7 {
+    a b c = r_triangle b a c;
+    d = on_line_perp d : c c b, on_line_perp d : b a c
+    ? simtri a b c b c d
+}
+
+problem 8a {
+    a b c = triangle a b c;
+    d e f h = orthocenter2 d e f h : a b c;
+    m n = midpoint m : b c, midpoint n : e f
+    ? eqangle a m m b e n n a
+}
+
+problem 8b {
+    a b c = triangle a b c;
+    d e f h = orthocenter2 d e f h : a b c;
+    m n = midpoint m : b c, midpoint n : e f
+    ? eqangle m h h b f h h n
+}

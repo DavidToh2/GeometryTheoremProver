@@ -80,6 +80,9 @@ Predicate* DDEngine::insert_predicate(std::unique_ptr<Predicate> &&predicate) {
 Predicate* DDEngine::insert_new_predicate(std::unique_ptr<Predicate> &&predicate) {
     Predicate* p = predicate.get();
     std::string hash = p->hash;
+    if (hash == "contri e m b c m e") {
+        int i = 1;
+    }
     if (has_predicate_by_hash(hash)) {
         predicate.reset();
         return predicates.at(hash).get();
@@ -1171,29 +1174,48 @@ Generator<bool> DDEngine::match_eqangle(PredicateTemplate* pred_template, Geomet
 
     } else {
 
-        for (Measure* m : ggraph.root_measures) {
-            auto gen_angle_pairs = m->all_eq_pairs_ordered();
-            while (gen_angle_pairs) {
-                auto [angle1, angle2] = gen_angle_pairs();
+        if (ggraph.root_measures.size() > 0) {
+            for (Measure* m : ggraph.root_measures) {
+                auto gen_angle_pairs = m->all_eq_pairs_ordered();
+                while (gen_angle_pairs) {
+                    auto [angle1, angle2] = gen_angle_pairs();
 
-                // Match points for the first angle
-                Direction* d1 = angle1->direction1, *d2 = angle1->direction2, *d3 = angle2->direction1, *d4 = angle2->direction2;
-                std::array<std::array<Direction*, 4>, 4> dss = {
-                    std::array<Direction*, 4>{d1, d2, d3, d4},
-                    std::array<Direction*, 4>{d3, d4, d1, d2},
-                    std::array<Direction*, 4>{d2, d1, d4, d3},
-                    std::array<Direction*, 4>{d4, d3, d2, d1}
-                };
-                for (std::array<Direction*, 4> &ds : dss) {
-                    auto gen =  __match_eqangle(pred_template, ggraph, 0, ds);
-                    while (gen) {
-                        if (gen()) {
-                            co_yield true;
+                    // Match points for the first angle
+                    Direction* d1 = angle1->direction1, *d2 = angle1->direction2, *d3 = angle2->direction1, *d4 = angle2->direction2;
+                    std::array<std::array<Direction*, 4>, 4> dss = {
+                        std::array<Direction*, 4>{d1, d2, d3, d4},
+                        std::array<Direction*, 4>{d3, d4, d1, d2},
+                        std::array<Direction*, 4>{d2, d1, d4, d3},
+                        std::array<Direction*, 4>{d4, d3, d2, d1}
+                    };
+                    for (std::array<Direction*, 4> &ds : dss) {
+                        auto gen =  __match_eqangle(pred_template, ggraph, 0, ds);
+                        while (gen) {
+                            if (gen()) {
+                                co_yield true;
+                            }
                         }
                     }
                 }
             }
-        }
+        } 
+        // else if (ggraph.root_angles.size() > 0) {
+        //     for (Angle* a : ggraph.root_angles) {
+        //         Direction* d1 = a->direction1, *d2 = a->direction2; 
+        //         std::array<std::array<Direction*, 4>, 2> dss = { 
+        //             std::array<Direction*, 4>{d1, d2, d1, d2},  
+        //             std::array<Direction*, 4>{d2, d1, d2, d1} 
+        //         }; 
+        //         for (std::array<Direction*, 4> &ds : dss) { 
+        //             auto gen = __match_eqangle(pred_template, ggraph, 0, ds); 
+        //             while (gen) { 
+        //                 if (gen()) { 
+        //                     co_yield true; 
+        //                 } 
+        //             } 
+        //         }
+        //     }
+        // }
         
     }
     co_return;
@@ -1698,6 +1720,34 @@ Generator<bool> DDEngine::match_npara(PredicateTemplate* pred_template, Geometri
     co_return;
 }
 
+Generator<bool> DDEngine::match_sameclock(PredicateTemplate* pred_template, GeometricGraph &ggraph) {
+    if (!pred_template->args_filled()) {
+        throw DDInternalError("SAMECLOCK predicate requires all arguments to be set for matching.");
+    }
+    Point* p1 = pred_template->args[0]->get_point();
+    Point* p2 = pred_template->args[1]->get_point();
+    Point* p3 = pred_template->args[2]->get_point();
+    Point* p4 = pred_template->args[3]->get_point();
+    Point* p5 = pred_template->args[4]->get_point();
+    Point* p6 = pred_template->args[5]->get_point();
+    co_yield ggraph.check_same_orientation(p1, p2, p3, p4, p5, p6);
+    co_return;
+}
+
+Generator<bool> DDEngine::match_diffclock(PredicateTemplate* pred_template, GeometricGraph &ggraph) {
+    if (!pred_template->args_filled()) {
+        throw DDInternalError("DIFFCLOCK predicate requires all arguments to be set for matching.");
+    }
+    Point* p1 = pred_template->args[0]->get_point();
+    Point* p2 = pred_template->args[1]->get_point();
+    Point* p3 = pred_template->args[2]->get_point();
+    Point* p4 = pred_template->args[3]->get_point();
+    Point* p5 = pred_template->args[4]->get_point();
+    Point* p6 = pred_template->args[5]->get_point();
+    co_yield !(ggraph.check_same_orientation(p1, p2, p3, p4, p5, p6));
+    co_return;
+}
+
 Generator<bool> DDEngine::match(Theorem* theorem, int i, int n, GeometricGraph &ggraph) {
     
     if (i == n) {
@@ -1750,6 +1800,9 @@ Generator<bool> DDEngine::match(Theorem* theorem, int i, int n, GeometricGraph &
 void DDEngine::search(GeometricGraph &ggraph) {
 
     for (auto& thr : theorems) {
+        if (thr.first == "cong_eqangle_eqangle_ncoll_contri") {
+            int i = 1;
+        }
         int matches = 0;
         Theorem* theorem = thr.second.get();
         int n = theorem->preconditions.predicates.size();

@@ -736,6 +736,19 @@ std::array<int, 3> Triangle::get_perm(std::array<Point*, 3> other_vertices) cons
     }
     return perm;
 }
+std::array<int, 3> Triangle::get_scalene_perm(std::array<Point*, 3> other_vertices, std::array<bool, 3> isosceles_mask) const {
+    std::array<int, 3> perm = {-1, -1, -1};
+    for (int i = 0; i < 3; ++i) {
+        if (isosceles_mask[i]) continue;
+        for (int j = 0; j < 3; ++j) {
+            if (vertices[i] == other_vertices[j]) {
+                perm[j] = i;
+                break;
+            }
+        }
+    }
+    return perm;
+}
 
 std::pair<Point*, Point*> Triangle::other_vertices(Point* p) const {
     return ( (vertices[0] == p) ?

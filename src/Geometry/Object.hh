@@ -534,8 +534,17 @@ public:
     Then the permutation `perm2 @ perm1^(-1)` takes `t2 -> t1`. */
     static std::array<int, 3> compose_perm(std::array<int, 3> perm1, std::array<int, 3> perm2);
     /* Given a permutation `other_vertices` of `vertices`, returns the permutation array that maps `vertices` 
-    to `other_vertices`. In other words, returns `perm` such that `vertices[perm[i]] = other_vertices[i]`. */
+    to `other_vertices`. 
+    In other words, returns `perm` such that `vertices[perm[i]] = other_vertices[i]`.
+    In other words, `perm[i]` is the index of the `i`th element of `other_vertices` in `vertices`. */
     std::array<int, 3> get_perm(std::array<Point*, 3> other_vertices) const;
+    /* Given a permutation `other_vertices` of `vertices`, returns the permutation array that maps `vertices` 
+    to `other_vertices`, ignoring all vertices whose corresponding `isosceles_mask` has been set to True.
+    In other words, returns `perm` such that, for all non-isosceles participating vertices, we have
+    `vertices[perm[i]] = other_vertices[i]`. For isosceles participating vertices, `perm[i]` will store `-1`.
+    This is useful for checking triangle congruence and similarity.
+    Note: The `isosceles_mask` has to be manually passed in. */
+    std::array<int, 3> get_scalene_perm(std::array<Point*, 3> other_vertices, std::array<bool, 3> isosceles_mask) const;
 
     /* Returns the other two vertices of the triangle that are not `p`. 
     If `p` is not a vertex of the triangle, returns a pair of nullptrs. */

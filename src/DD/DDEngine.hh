@@ -76,6 +76,8 @@ public:
     Generator<bool> match_diff(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> match_ncoll(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> match_npara(PredicateTemplate* pred_template, GeometricGraph &ggraph);
+    Generator<bool> match_sameclock(PredicateTemplate* pred_template, GeometricGraph &ggraph);
+    Generator<bool> match_diffclock(PredicateTemplate* pred_template, GeometricGraph &ggraph);
 
     // Map from predicate type to matching function
     std::map<pred_t, Generator<bool>(DDEngine::*)(PredicateTemplate*, GeometricGraph &)> match_function_map = {
