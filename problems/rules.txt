@@ -19,6 +19,10 @@ A B P Q : eqangle P A P B Q A Q B, diff A B P Q => cyclic A B P Q
 #perp_perp_cyclic
 A B C D : perp A B B C, perp A D D C, diff B D => cyclic A B C D
 
+#eqratio_cyclic
+A B C D E : coll A E C, coll B E D, ncoll A B C, sameside_p E A C, sameside_p E B D, eqratio E A E B E D E C => cyclic A B C D
+A B C D E : coll A E C, coll B E D, ncoll A B C, diffside_p E A C, diffside_p E B D, eqratio E A E B E D E C => cyclic A B C D
+
 #circle_radius_cong
 A B C O : cong O A O B, cong O B O C, diff O A B C => circle O A B C
 A B C O : circle O A B C => cong O A O B
@@ -66,10 +70,10 @@ A B C O : circle O A B C, coll O A C => perp A B B C
 A B C D : cyclic A B C D, para A B C D => eqangle A D C D C D C B
 
 #circumcenter_angle
-A B C M O : circle O A B C, midp M B C, ncoll O B C => eqangle A B A C O B O M
+#A B C M O : circle O A B C, midp M B C, ncoll O B C => eqangle A B A C O B O M
 
 #circumcenter_angle_2
-A B C M O : circle O A B C, coll M B C, eqangle A B A C O B O M => midp M B C
+#A B C M O : circle O A B C, coll M B C, eqangle A B A C O B O M => midp M B C
 
 #orthocenter
 A B C H : perp A B C H, perp B C A H, diff A B C H => perp C A B H
@@ -81,15 +85,15 @@ A B C I : eqangle A B B I I B B C, eqangle B A A I I A A C, diff A B C I => eqan
 A B C P Q R : cong A B P Q, cong B C Q R, cong C A R P, ncoll A B C => contri A B C P Q R
 
 #SAS (contri)
-A B C P Q R : cong A B P Q, cong B C Q R, eqangle B A B C Q P Q R, ncoll A B C => contri A B C P Q R
-A B C P Q R : cong A B P Q, cong B C Q R, eqangle B A B C Q R Q P, ncoll A B C => contri A B C P Q R
+A B C P Q R : cong A B P Q, cong B C Q R, sameclock A B C P Q R, eqangle B A B C Q P Q R, ncoll A B C => contri A B C P Q R
+A B C P Q R : cong A B P Q, cong B C Q R, diffclock A B C P Q R, eqangle B A B C Q R Q P, ncoll A B C => contri A B C P Q R
 
 #SAS (contri, para version)
 A B C P Q R : cong A B P Q, cong B C Q R, para A B P Q, para B C Q R, ncoll A B C => contri A B C P Q R
 
 #ASA (contri)
-A B C P Q R : cong A B P Q, eqangle B A B C Q P Q R, eqangle C A C B R P R Q, ncoll A B C => contri A B C P Q R
-A B C P Q R : cong A B P Q, eqangle B A B C Q R Q P, eqangle C A C B R Q R P, ncoll A B C => contri A B C P Q R
+A B C P Q R : cong A B P Q, eqangle B A B C Q P Q R, sameclock A B C P Q R, eqangle C A C B R P R Q, ncoll A B C => contri A B C P Q R
+A B C P Q R : cong A B P Q, eqangle B A B C Q R Q P, diffclock A B C P Q R, eqangle C A C B R Q R P, ncoll A B C => contri A B C P Q R
 
 #ASA (contri, para version)
 A B C P Q R : cong A B P Q, para A B P Q, para A C P R, para B C Q R, ncoll A B C => contri A B C P Q R
@@ -98,20 +102,21 @@ A B C P Q R : cong A B P Q, para A B P Q, para A C P R, para B C Q R, ncoll A B 
 A B C P Q R : eqratio B A B C Q P Q R, eqratio C A C B R P R Q, ncoll A B C => simtri A B C P Q R
 
 #SAS (simtri)
-A B C P Q R : eqratio B A B C Q P Q R, eqangle B A B C Q P Q R, ncoll A B C => simtri A B C P Q R
+A B C P Q R : eqratio B A B C Q P Q R, sameclock A B C P Q R, eqangle B A B C Q P Q R, ncoll A B C => simtri A B C P Q R
+A B C P Q R : eqratio B A B C Q P Q R, diffclock A B C P Q R, eqangle B A B C Q R Q P, ncoll A B C => simtri A B C P Q R
 
 #SAS (simtri, para version)
 A B C P Q R : eqratio B A B C Q P Q R, para B A Q P, para B C Q R, ncoll A B C => simtri A B C P Q R
 
 #AAA (simtri)
-A B C P Q R : eqangle B A B C Q P Q R, eqangle C A C B R P R Q, ncoll A B C => simtri A B C P Q R
-A B C P Q R : eqangle B A B C Q R Q P, eqangle C A C B R Q R P, ncoll A B C => simtri A B C P Q R
+A B C P Q R : eqangle B A B C Q P Q R, sameclock A B C P Q R, eqangle C A C B R P R Q, ncoll A B C => simtri A B C P Q R
+A B C P Q R : eqangle B A B C Q R Q P, diffclock A B C P Q R, eqangle C A C B R Q R P, ncoll A B C => simtri A B C P Q R
 
 #AAA (simtri, para version)
 A B C P Q R : para A B P Q, para B C Q R, para A C P R, ncoll A B C => simtri A B C P Q R
-A B C P Q R : para A B R Q, para B C Q P, eqangle B A A C R P P Q => simtri A B C P Q R
+A B C P Q R : para A B R Q, para B C Q P, eqangle B A A C R P P Q, ncoll A B C => simtri A B C P Q R
 
 #ratio_theorem
-A B C D O : eqratio O A A C O B B D, coll O A C, coll O B D, ncoll A B C => simtri O A B O C D
-A B C D O : eqangle O A A C O B B D, coll O A C, coll O B D, ncoll A B C => simtri O A B O C D
+A B C D O : coll O A C, coll O B D, eqratio O A A C O B B D, ncoll A B C => simtri O A B O C D
+A B C D O : coll O A C, coll O B D, eqangle O A A C O B B D, ncoll A B C => simtri O A B O C D
 A B C D O : para A B C D, coll O A C, coll O B D, ncoll A B C => simtri O A B O C D

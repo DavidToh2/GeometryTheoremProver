@@ -189,5 +189,20 @@ TEST_SUITE("CartesianPoint") {
         }
         CHECK(all_pass_2);
     }
+
+    TEST_CASE("acute_angle") {
+        CartesianPoint a(0, 0);
+        CartesianPoint b(1, 0);
+        CartesianPoint c(1, 1);
+        CartesianPoint d(1, 2);
+        CartesianPoint e(2, 2);
+
+        CHECK(Cartesian::acute_angle(a, b, c));
+        CHECK(Cartesian::acute_angle(a, c, d));
+        CHECK_FALSE(Cartesian::acute_angle(c, b, d));
+
+        CHECK(Cartesian::acute_angle(a, c, e));
+        CHECK_FALSE(Cartesian::acute_angle(c, a, e));
+    }
 }
 

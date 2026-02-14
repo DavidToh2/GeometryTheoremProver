@@ -1424,14 +1424,16 @@ Generator<bool> DDEngine::match_midp(PredicateTemplate* pred_template, Geometric
             case 0b10: {
                 Segment* s1 = ggraph.try_get_segment(m, p1);
                 if (s1) {
-                    Length* l1 = s1->get_length();
-                    for (Segment* s2 : l1->root_objs) {
-                        if (s1 == s2) continue;
-                        if (Point* pt = s2->other_endpoint(m)) {
-                            if (!ggraph.check_coll(s1, s2)) continue;
-                            pred_template->set_arg(unsets, pt);
-                            co_yield true;
-                            pred_template->clear_arg(unsets);
+                    if (s1->has_length()) {
+                        Length* l1 = s1->get_length();
+                        for (Segment* s2 : l1->root_objs) {
+                            if (s1 == s2) continue;
+                            if (Point* pt = s2->other_endpoint(m)) {
+                                if (!ggraph.check_coll(s1, s2)) continue;
+                                pred_template->set_arg(unsets, pt);
+                                co_yield true;
+                                pred_template->clear_arg(unsets);
+                            }
                         }
                     }
                 }
@@ -1476,6 +1478,7 @@ Generator<bool> DDEngine::match_midp(PredicateTemplate* pred_template, Geometric
                 auto gen_seg_1 = p1->endpoint_of_segments();
                 while (gen_seg_1) {
                     s1 = gen_seg_1();
+                    if (!s1->has_length()) continue;
                     Point* pm = s1->other_endpoint(p1);
                     Length* l1 = s1->get_length();
                     for (Segment* s2 : l1->root_objs) {
@@ -1745,6 +1748,28 @@ Generator<bool> DDEngine::match_diffclock(PredicateTemplate* pred_template, Geom
     Point* p5 = pred_template->args[4]->get_point();
     Point* p6 = pred_template->args[5]->get_point();
     co_yield !(ggraph.check_same_orientation(p1, p2, p3, p4, p5, p6));
+    co_return;
+}
+
+Generator<bool> DDEngine::match_sameside_p(PredicateTemplate* pred_template, GeometricGraph &ggraph) {
+    if (!pred_template->args_filled()) {
+        throw DDInternalError("SAMESIDE_P predicate requires all arguments to be set for matching.");
+    }
+    Point* p1 = pred_template->args[0]->get_point();
+    Point* p2 = pred_template->args[1]->get_point();
+    Point* p3 = pred_template->args[2]->get_point();
+    co_yield ggraph.check_sameside(p1, p2, p3);
+    co_return;
+}
+
+Generator<bool> DDEngine::match_diffside_p(PredicateTemplate* pred_template, GeometricGraph &ggraph) {
+    if (!pred_template->args_filled()) {
+        throw DDInternalError("DIFFSIDE_P predicate requires all arguments to be set for matching.");
+    }
+    Point* p1 = pred_template->args[0]->get_point();
+    Point* p2 = pred_template->args[1]->get_point();
+    Point* p3 = pred_template->args[2]->get_point();
+    co_yield !(ggraph.check_sameside(p1, p2, p3));
     co_return;
 }
 

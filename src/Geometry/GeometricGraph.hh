@@ -274,9 +274,9 @@ public:
     Length* __add_new_length(Segment* s, Predicate* base_pred);
     /* Gets the length of the root of segment `s`, creating a new length if it does not yet exist. */
     Length* get_or_add_length(Segment* s, DDEngine &dd);
-    /* Given a length `l`, gets any root segment with this length. */
+    /* Given a length `l`, gets any root segment with length the root of this node. */
     constexpr Segment* get_segment_from_length(Length* l) {
-        return *(l->root_objs.begin());
+        return *(NodeUtils::get_root(l)->root_objs.begin());
     }
 
     /* Merges the lengths of the root of segment `s_other` into the root of segment `s`. 
@@ -564,8 +564,8 @@ public:
     of `perm` can be ignored! This is achieved using `Triangle::get_scalene_perm()`. */
     bool check_contri(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6);
     /* Checks if the triangles `t1, t2` are congruent. 
-    This function does not account for ordering of the triangles' vertices. Use the point-overloaded version of
-    this function to check vertex ordering. */
+    Note: This version of the function does not check point permutations nor isosceles masks, only node equality. Use
+    the point-overloaded version of this function instead. */
     bool check_contri(Triangle* t1, Triangle* t2);
     /* Checks if the Dimensions `dim1, dim2` are equivalent. */
     bool check_contri(Dimension* dim1, Dimension* dim2);
@@ -577,8 +577,8 @@ public:
     of non-isosceles participating vertices. */
     bool check_simtri(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6);
     /* Checks if the triangles `t1, t2` are similar. 
-    This function does not account for ordering of the triangles' vertices. Use the point-overloaded version of
-    this function to check vertex ordering. */
+    Note: This version of the function does not check point permutations nor isosceles masks, only node equality. Use
+    the point-overloaded version of this function instead. */
     bool check_simtri(Triangle* t1, Triangle* t2);
     /* Checks if the Shapes `shp1, shp2` are equivalent. */
     bool check_simtri(Shape* shp1, Shape* shp2);
@@ -607,6 +607,11 @@ public:
         check_ncoll(p);
     }
     bool check_ncoll(std::set<Point*> &pts);
+
+    /* Returns true if the vectors `a->x` and `a->y` are within 90 degrees of each other.
+    This is used to check, in the cases where `a, x, y` are collinear, whether `x, y` lie on the same
+    side of `a`. */
+    bool check_sameside(Point* a, Point* x, Point* y);
 
     bool check(PredicateTemplate* pred);
 

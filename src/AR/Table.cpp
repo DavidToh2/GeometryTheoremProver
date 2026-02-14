@@ -30,8 +30,8 @@ void Expr::strip(Expr& expr) {
 }
 void Expr::mod_pi(Expr& expr, const Var pi) {
     if (expr.contains(pi)) {
-        while (expr[pi] > 1) expr[pi] -= 1;
-        while (expr[pi] < 0) expr[pi] += 1;
+        double coeff = expr[pi];
+        expr[pi] = coeff - std::floor(coeff);
     }
 }
 bool Expr::all_zeroes(const Expr& expr) {
@@ -348,6 +348,12 @@ bool Table::add_eq_2(const Expr::Var& var1, const Expr::Var& var2, float m, floa
         && add_eq({{var1, m}, {var2, -n}}, pred)
     );
 }
+bool Table::add_eq_3(const Expr::Var& var1, const Expr::Var& var2, float f, int m, int n, Predicate* pred) {
+    return (
+        record_eq_3_as_seen(var1, var2, Frac(m, n))
+        && add_eq({{var1, 1}, {var2, -1}, {one, (float)m/n}}, pred) 
+    );
+}
 bool Table::add_eq_3(const Expr::Var& var1, const Expr::Var& var2, float f, Predicate* pred) {
     return (
         record_eq_3_as_seen(var1, var2, Frac(f))
@@ -358,7 +364,7 @@ bool Table::add_eq_4(const Expr::Var& var1, const Expr::Var& var2, const Expr::V
     std::vector<std::pair<Expr::VarPair, Expr::VarPair>> links;
     return (
         (record_eq_4_as_seen(var1, var2, var3, var4) || record_eq_4_as_seen(var1, var3, var2, var4))
-        && add_eq(Expr::add_fold(Expr::Expr{{var1, 1}, {var2, -1}}, Expr::Expr{{var3, -1}, {var4, 1}}, offset), pred)
+        && add_eq(Expr::add_fold(Expr::Expr{{var1, 1}}, Expr::Expr{{var2, -1}}, Expr::Expr{{var3, -1}}, Expr::Expr{{var4, 1}}, offset), pred)
         // && Table::update_equal_groups(equal_groups, {{var1, var2}, {var3, var4}}, links)
         // && Table::update_equal_groups(equal_groups, {{var2, var1}, {var4, var3}}, links)
     );

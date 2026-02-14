@@ -78,6 +78,8 @@ public:
     Generator<bool> match_npara(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> match_sameclock(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> match_diffclock(PredicateTemplate* pred_template, GeometricGraph &ggraph);
+    Generator<bool> match_sameside_p(PredicateTemplate* pred_template, GeometricGraph &ggraph);
+    Generator<bool> match_diffside_p(PredicateTemplate* pred_template, GeometricGraph &ggraph);
 
     // Map from predicate type to matching function
     std::map<pred_t, Generator<bool>(DDEngine::*)(PredicateTemplate*, GeometricGraph &)> match_function_map = {
@@ -92,7 +94,11 @@ public:
         {pred_t::CIRCLE, &DDEngine::match_circle},
         {pred_t::DIFF, &DDEngine::match_diff},
         {pred_t::NCOLL, &DDEngine::match_ncoll},
-        {pred_t::NPARA, &DDEngine::match_npara}
+        {pred_t::NPARA, &DDEngine::match_npara},
+        {pred_t::SAMECLOCK, &DDEngine::match_sameclock},
+        {pred_t::DIFFCLOCK, &DDEngine::match_diffclock},
+        {pred_t::SAMESIDE_P, &DDEngine::match_sameside_p},
+        {pred_t::DIFFSIDE_P, &DDEngine::match_diffside_p},
     };
 
     Generator<bool> match(Theorem* theorem, int i, int n, GeometricGraph &ggraph);

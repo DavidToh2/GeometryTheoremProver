@@ -79,3 +79,42 @@ problem p10 {
     h = reflect h : b a e
     ? eqangle f d d g h a a d
 }
+
+problem p11 {
+    a b c = triangle a b c;
+    o = circumcenter o : a b c;
+    d = reflect d : b a c
+    ? eqangle b a a d b o o c
+}
+
+problem p12a {
+    a b c = triangle a b c;
+    o = circumcenter o : a b c;
+    d = reflect d : a b c;
+    i = circumcenter i : b c d;
+    m = intersection_ll m : o i b c
+    ? eqangle b o o c c i i b
+}
+
+problem p12b {
+    a b c = triangle a b c;
+    o = circumcenter o : a b c;
+    d = reflect d : a b c;
+    i = circumcenter i : b c d;
+    m = intersection_ll m : o i b c
+    ? cong b m c m
+}
+
+problem p13a {
+    a b c = triangle a b c;
+    o i = incenter i : a b c, circumcenter o : a b c;
+    d e f = intersection_lc d : i o a, intersection_lc e : i o b, intersection_lc f : i o c
+    ? cong b d d i
+}
+
+problem p13b {
+    a b c = triangle a b c;
+    o i = incenter i : a b c, circumcenter o : a b c;
+    d e f = intersection_lc d : i o a, intersection_lc e : i o b, intersection_lc f : i o c
+    ? perp a d e f
+}

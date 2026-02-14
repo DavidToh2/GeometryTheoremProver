@@ -38,15 +38,17 @@ as well as the identification of corresponding points, as in
 
 | Declarations |  |  |
 |---|---|---|
-| Predicate | `coll x1 x2 ...`<br>`cyclic x1 x2 ...` | An arbitrary-length list of collinear or concyclic points |
+| Predicate | `coll x1 x2 x3`<br>`cyclic x1 x2 x3 x4` | Three collinear points or four concyclic points |
 |  | `para x1 x2 x3 x4`<br>`perp x1 x2 x3 x4` | `x1x2` is either parallel or perpendicular to `x3x4` |
 |  | `cong x1 x2 x3 x4`<br>`eqangle x1 x2 x3 y1 y2 y3`<br>`eqratio x1 x2 x3 x4 y1 y2 y3 y4` | Equality predicates for the segments or angles formed by the points |
 |  | `contri a1 b1 c1 a2 b2 c2`<br>`simtri a1 b1 c1 a2 b2 c2` | Triangle congruency and similarity predicates |
 |  | `midp m x1 x2`<br>`circle o x1 x2 x3` | Midpoint and circle center respectively |
 |  | `constangle n x1 x2 x3`<br>`constratio n x1 x2 x3 x4` | Constant-equality predicates for the segments or angles formed by the points |
-| Degenerate Predicates | `diff p q ...`<br>`ncoll x y z ...`<br>`npara p q r s`<br>`sameclock/diffclock a b c p q r`<br>`convex a b c d` | Points `p`, `q` are not equal<br>The points `x, y, z` are not collinear<br>`pq` and `rs` are not parallel<br>`abc` and `pqr` are either both clockwise or both counterclockwise; and the converse<br>`abcd` is a convex quadrilateral |
+| Degenerate Predicates | `diff p q ...`<br>`ncoll x y z ...`<br>`npara p q r s`<br>`same/diffside_p a x y`<br>`same/diffclock a b c p q r`<br>`convex a b c d` | Points `p`, `q` are not equal<br>The points `x, y, z` are not collinear<br>`pq` and `rs` are not parallel<br>Angle `xay` is acute; and conversely obtuse<br>`abc` and `pqr` are either both (counter)clockwise; and converse<br>`abcd` is a convex quadrilateral |
 
 Note: The matching rules for `eqangle`, `perp` and `para`, as well as those of `eqratio` and `cong`, will not interfere with one another. The rule for `eqangle`, for instance, iterates over `Measure`s, while that of `para` iterates over `Direction`s. 
+
+Note: The `circle` predicate is special as it also adds all radii `cong`s, together with populating information about "angle at circumcenter is twice angle at circumference" into the AREngine.
 
 There is room for expanding the list of available predicates, in order to encode more complex rules.
 

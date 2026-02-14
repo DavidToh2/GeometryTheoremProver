@@ -232,15 +232,7 @@ std::array<bool, 3> Dimension::or_isosceles_masks(std::array<bool, 3> mask1, std
 }
 
 bool Dimension::is_congruent(Dimension* d1, Dimension* d2) {
-    Dimension* rd1 = NodeUtils::get_root(d1);
-    Dimension* rd2 = NodeUtils::get_root(d2);
-    if (rd1 == rd2) {
-        return true;
-    }
-    if (!rd1->has_shape() || !rd2->has_shape()) {
-        return false;
-    }
-    return NodeUtils::same_as(rd1->shape, rd2->shape);
+    return NodeUtils::same_as(d1, d2);
 }
 Generator<std::pair<Triangle*, Triangle*>> Dimension::all_cong_pairs() {
     Dimension* root_d = NodeUtils::get_root(this);

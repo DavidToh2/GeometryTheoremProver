@@ -217,6 +217,7 @@ Line* GeometricGraph::get_or_add_line(Point* p1, Point* p2, DDEngine &dd) {
 }
 
 Line* GeometricGraph::try_get_line(Point* p1, Point* p2) {
+    if (NodeUtils::same_as(p1, p2)) return nullptr;
     return __try_get_line(NodeUtils::get_root(p1), NodeUtils::get_root(p2));
 }
 
@@ -480,12 +481,20 @@ std::pair<Circle*, Circle*> GeometricGraph::__try_get_circles(Point* p1, Point* 
     return ret;
 }
 Circle* GeometricGraph::try_get_circle(Point* p1, Point* p2, Point* p3) {
+    if ((NodeUtils::same_as(p1, p2)) || (NodeUtils::same_as(p2, p3)) || (NodeUtils::same_as(p3, p1))) {
+        return nullptr;
+    }
     return __try_get_circle(NodeUtils::get_root(p1), NodeUtils::get_root(p2), NodeUtils::get_root(p3));
 }
 Circle* GeometricGraph::try_get_circle(Point* c, Point* p1) {
+    if (NodeUtils::same_as(c, p1)) return nullptr;
     return __try_get_circle(c, NodeUtils::get_root(p1));
 }
 std::pair<Circle*, Circle*> GeometricGraph::try_get_circles(Point* p1, Point* p2, Point* p3, Point* p4) {
+    if ((NodeUtils::same_as(p1, p2)) || (NodeUtils::same_as(p1, p3)) || (NodeUtils::same_as(p1, p4)) ||
+        (NodeUtils::same_as(p2, p3)) || (NodeUtils::same_as(p2, p4))) {
+        return {nullptr, nullptr};
+    }
     return __try_get_circles(NodeUtils::get_root(p1), NodeUtils::get_root(p2), NodeUtils::get_root(p3), NodeUtils::get_root(p4));
 }
 
@@ -590,6 +599,7 @@ Segment* GeometricGraph::get_or_add_segment(Point* p1, Point* p2, DDEngine &dd) 
     return s;
 }
 Segment* GeometricGraph::try_get_segment(Point* p1, Point* p2) {
+    if (NodeUtils::same_as(p1, p2)) return nullptr;
     return __try_get_segment(NodeUtils::get_root(p1), NodeUtils::get_root(p2));
 }
 void GeometricGraph::merge_segments(Segment* dest, Segment* src, Predicate* pred) {
@@ -1393,6 +1403,7 @@ bool GeometricGraph::check_cong(Point* p1, Point* p2, Point* p3, Point* p4) {
 }
 
 bool GeometricGraph::check_cong(Segment* s1, Segment* s2) {
+    if (s1 == s2) return true;
     if (!s1->has_length() || !s2->has_length()) { return false; }
     return check_cong(s1->get_length(), s2->get_length());
 }
@@ -1444,7 +1455,12 @@ bool GeometricGraph::check_contri(Point* p1, Point* p2, Point* p3, Point* p4, Po
     Triangle* t2 = try_get_triangle(p4, p5, p6);
     if (!t1 || !t2) return false;
     
-    if (!t1->has_dimension() || !t2->has_dimension()) return false;
+    if (!t1->has_dimension() || !t2->has_dimension()) {
+        return (NodeUtils::same_as(t1, t2) && 
+            NodeUtils::same_as(p1, p4) && 
+            NodeUtils::same_as(p2, p5) && 
+            NodeUtils::same_as(p3, p6));
+    }
     Dimension* dim1 = t1->get_dimension();
     Dimension* dim2 = t2->get_dimension();
 
@@ -1455,7 +1471,7 @@ bool GeometricGraph::check_contri(Point* p1, Point* p2, Point* p3, Point* p4, Po
     return check_contri(dim1, dim2);
 }
 bool GeometricGraph::check_contri(Triangle* t1, Triangle* t2) {
-    if (!t1->has_dimension() || !t2->has_dimension()) return false;
+    if (!t1->has_dimension() || !t2->has_dimension()) return NodeUtils::same_as(t1, t2);
     return check_contri(t1->get_dimension(), t2->get_dimension());
 }
 bool GeometricGraph::check_contri(Dimension* dim1, Dimension* dim2) { 
@@ -1468,7 +1484,12 @@ bool GeometricGraph::check_simtri(Point* p1, Point* p2, Point* p3, Point* p4, Po
     Triangle* t2 = try_get_triangle(p4, p5, p6);
     if (!t1 || !t2) return false;
 
-    if (!t1->has_dimension() || !t2->has_dimension()) return false;
+    if (!t1->has_dimension() || !t2->has_dimension()) {
+        return (NodeUtils::same_as(t1, t2) && 
+            NodeUtils::same_as(p1, p4) && 
+            NodeUtils::same_as(p2, p5) && 
+            NodeUtils::same_as(p3, p6));
+    }
     Dimension* dim1 = t1->get_dimension();
     Dimension* dim2 = t2->get_dimension();
 
@@ -1485,7 +1506,7 @@ bool GeometricGraph::check_simtri(Point* p1, Point* p2, Point* p3, Point* p4, Po
 bool GeometricGraph::check_simtri(Triangle* t1, Triangle* t2) {
     Shape* shp1 = try_get_shape(t1);
     Shape* shp2 = try_get_shape(t2);
-    if (!shp1 || !shp2) return false;
+    if (!shp1 || !shp2) return NodeUtils::same_as(t1, t2);
     return check_simtri(shp1, shp2);
 }
 bool GeometricGraph::check_simtri(Shape* shp1, Shape* shp2) { 
@@ -1549,6 +1570,11 @@ bool GeometricGraph::check_ncoll(std::set<Point*> &pts) {
         }
     }
     return true;
+}
+
+
+bool GeometricGraph::check_sameside(Point* a, Point* x, Point* y) {
+    return Cartesian::acute_angle(point_nums[a], point_nums[x], point_nums[y]);
 }
 
 
@@ -1730,6 +1756,26 @@ bool GeometricGraph::__make_cyclic(Point* rp1, Point* rp2, Point* rp3, Point* rp
     } else if (c412) {
         if (c123) merge_circles(c412, c123, pred, ar);
     }
+
+    // if (c->has_center()) {
+    //     Point* center = c->get_center();
+    //     // Set the radius tp-c
+
+    //     // Set every angle involving tp and c
+    //     auto it = c->points.begin(), jt = it;
+    //     while (it != c->points.end()) {
+    //         jt = std::next(jt);
+    //         if (jt == c->points.end()) break;
+    //         if ((*jt).first == tp) jt = std::next(jt);
+
+    //         Point* ap = (*it).first, *bp = (*jt).first;
+    //         Angle* angle_at_center = get_or_add_angle(tp, center, center, ap, dd);
+    //         Angle* angle_on_circumference = get_or_add_angle(tp, bp, bp, ap, dd);
+            
+
+    //         it = jt;
+    //     }
+    // }
     return true;
 }
 
@@ -1963,6 +2009,11 @@ bool GeometricGraph::make_ar_eqangle(Predicate* pred, DDEngine& dd) {
     Direction* d3 = static_cast<Direction*>(pred->args[2]);
     Direction* d4 = static_cast<Direction*>(pred->args[3]);
 
+    // Skip over predicates which just set d1-d2 = d1-d2
+    if (NodeUtils::same_as(d1, d3) && NodeUtils::same_as(d2, d4)) {
+        return false;
+    }
+
     bool new_objects = false;
     Angle* a1 = get_or_add_angle(d1, d2, dd);
     new_objects |= new_object;
@@ -2065,6 +2116,11 @@ bool GeometricGraph::make_ar_eqratio(Predicate* pred, DDEngine &dd) {
     Length* l3 = static_cast<Length*>(pred->args[2]);
     Length* l4 = static_cast<Length*>(pred->args[3]);
 
+    // Skip over predicates which just set l1/l2 = l1/l2
+    if (NodeUtils::same_as(l1, l3) && NodeUtils::same_as(l2, l4)) {
+        return false;
+    }
+
     bool new_objects = false;
     Ratio* r1 = get_or_add_ratio(l1, l2, dd);
     new_objects |= new_object;
@@ -2124,10 +2180,7 @@ bool GeometricGraph::make_contri(Predicate* pred, DDEngine &dd, AREngine &ar) {
 bool GeometricGraph::__make_contri(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6,
     Predicate* pred, DDEngine &dd, AREngine &ar) {
 
-    Triangle* t1 = get_or_add_triangle(p1, p2, p3, pred);
-    Triangle* t2 = get_or_add_triangle(p4, p5, p6, pred);
-
-    if (check_contri(t1, t2)) return false;
+    if (check_contri(p1, p2, p3, p4, p5, p6)) return false;
 
     set_triangles_congruent(p1, p2, p3, p4, p5, p6, pred);
 
@@ -2173,10 +2226,7 @@ bool GeometricGraph::make_simtri(Predicate* pred, DDEngine &dd, AREngine &ar) {
 bool GeometricGraph::__make_simtri(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6,
     Predicate* pred, DDEngine &dd, AREngine &ar) {
 
-    Triangle* t1 = get_or_add_triangle(p1, p2, p3, pred);
-    Triangle* t2 = get_or_add_triangle(p4, p5, p6, pred);
-
-    if (check_simtri(t1, t2)) return false;
+    if (check_simtri(p1, p2, p3, p4, p5, p6)) return false;
 
     set_triangles_similar(p1, p2, p3, p4, p5, p6, pred);
 
@@ -2212,8 +2262,6 @@ bool GeometricGraph::__make_simtri(Point* p1, Point* p2, Point* p3, Point* p4, P
     }
     
     return true;
-    
-    return true;
 }
 
 bool GeometricGraph::make_midp(Predicate* pred, DDEngine &dd, AREngine &ar) {
@@ -2233,8 +2281,10 @@ bool GeometricGraph::__make_midp(Point* m, Point* p1, Point* p2,
         make_coll(pred, dd, ar);
     }
 
+    Segment* s = get_or_add_segment(p1, p2, dd);
     Segment* s1 = get_or_add_segment(p1, m, dd);
     Segment* s2 = get_or_add_segment(m, p2, dd);
+    Length* l = get_or_add_length(s, dd);
     Length* l1 = get_or_add_length(s1, dd);
     Length* l2 = get_or_add_length(s2, dd);
 
@@ -2247,7 +2297,7 @@ bool GeometricGraph::__make_midp(Point* m, Point* p1, Point* p2,
         std::swap(l1, l2);
     }
     
-    ar.add_midp(s1, s2, l1, l2, pred);
+    ar.add_midp(s1, s2, l, l1, l2, pred);
 
     return true;
 }

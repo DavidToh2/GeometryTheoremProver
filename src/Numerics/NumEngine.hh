@@ -118,6 +118,9 @@ public:
     in this order. */
     Generator<CartesianRay> compute_angle_trisect(Numeric* num);
 
+    /* Given three points A, B, C: generate the line tangent to the circumcircle
+    of triangle ABC at point A. */
+    Generator<CartesianLine> compute_line_tangent(Numeric* num);
     /* Given three points A, O, B: generate the points X, Y which are the tangents
     from the point A to the circle centered at O with radius OB. */
     Generator<CartesianPoint> compute_tangents(Numeric* num);
@@ -178,6 +181,8 @@ public:
         {num_t::LINE_PERP, &NumEngine::compute_line_perp},
 
         {num_t::ANGLE_EXBISECT, &NumEngine::compute_angle_exbisect},
+
+        {num_t::LINE_TANGENT, &NumEngine::compute_line_tangent},
     };
 
     std::map<num_t, Generator<CartesianCircle>(NumEngine::*)(Numeric*)> compute_function_map_circle = {

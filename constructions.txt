@@ -68,6 +68,11 @@ cyclic_quad a b c d :
 - cyclic a b c d
 - a b c d = cyclic_quad
 
+r_quadrangle x : a b c
+- diff a b c
+- perp x a a b, perp x c c b
+- x = line_perp a a b, line_perp c c b
+
 rectangle a b c d : 
 - diff a b
 - perp a b b c, para a b c d, para a d b c, perp a b a d, cong a b c d, cong a d b c, cong a c b d
@@ -133,7 +138,7 @@ on_line_perp x : a b c
 
 on_ray x : a b
 - diff a b
-- coll x a b
+- coll x a b, sameside_p a b x
 - x = ray a b
 
 on_circle x : o a
@@ -230,7 +235,7 @@ on_angle_trisect x y : a b c
 
 circumcenter x : a b c
 - ncoll a b c
-- cong x a x b, cong x b x c
+- circle x a b c, cong x a x b, cong x b x c
 - x = line_bisect a b, line_bisect a c
 
 incenter i : a b c
@@ -276,11 +281,18 @@ lc_tangent x : a o
 - perp a x a o
 - x = line_perp a a o
 
+# Tangent at a to circumcircle of abc
+on_tangent x : a b c
+- diff a b c
+- eqangle x a a b a c c b, eqangle x a a c a b b c
+- x = line_tangent a b c
+
 # Tangents from point a to circle centered at o with radius ob
 tangents x y : a o b
 - diff o a, diff o b, diff a b
 - cong o x o b, perp a x o x, cong o y o b, perp a y o y
 - x y = tangents a o b
+# Note: use r_quadrangle x : b o c for the intersection x of tangents to circle centered at o at b, c
 
 # Single common EXTERNAL tangent
 common_tangent x y : o a i b

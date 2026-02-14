@@ -6,7 +6,7 @@ namespace NumUtils {
         a *= 2;
         double D = b * b - 2 * a * c;
         if (D < 0) return {false, {0.0, 0.0}};
-        double sqrtD = std::sqrt(D);
+        double sqrtD = D < 1e-6 ? 0.0 : std::sqrt(D);
         return {true, {(-b - sqrtD) / a, (-b + sqrtD) / a}};
     }
 

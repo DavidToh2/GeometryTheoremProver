@@ -57,6 +57,30 @@ TEST_SUITE("GeometricGraph: Triangle congruence and similarity") {
             Dimension::make_isosceles_mask() == std::array<bool, 3>{false, false, false}
         ));
     }
+    TEST_CASE("Triangle orientation") {
+        GeometricGraph ggraph;
+        DDEngine dd;
+        AREngine ar;
+        Predicate* base_pred = dd.base_pred.get();
+
+        Point* a = ggraph.__add_new_point("a");
+        Point* b = ggraph.__add_new_point("b", {1, 0});
+        Point* c = ggraph.__add_new_point("c", {1, 1});
+        Point* d = ggraph.__add_new_point("d", {0, 1});
+
+        REQUIRE((
+            ggraph.check_same_orientation(a, b, c, a, b, c) &&
+            ggraph.check_same_orientation(a, b, c, b, c, d) &&
+            ggraph.check_same_orientation(b, c, d, c, d, a) &&
+            ggraph.check_same_orientation(b, d, a, c, a, b)
+        ));
+        REQUIRE_FALSE((
+            ggraph.check_same_orientation(a, b, c, c, b, a) ||
+            ggraph.check_same_orientation(a, b, c, d, c, b) ||
+            ggraph.check_same_orientation(b, c, d, a, c, b) ||
+            ggraph.check_same_orientation(b, d, a, c, b, a)
+        ));
+    }
     TEST_CASE("Congruence") {
         GeometricGraph ggraph;
         DDEngine dd;

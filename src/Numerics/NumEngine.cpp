@@ -464,6 +464,27 @@ Generator<CartesianRay> NumEngine::compute_angle_trisect(Numeric* num) {
 }
 
 
+Generator<CartesianLine> NumEngine::compute_line_tangent(Numeric* num) {
+    CartesianPoint a = get_arg_cartesian(num, 0);
+    CartesianPoint b = get_arg_cartesian(num, 1);
+    CartesianPoint c = get_arg_cartesian(num, 2);
+    double aa = a.norm2();
+    double bb = b.norm2();
+    double cc = c.norm2();
+    double d = a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y);
+    double e = aa * (c.y - b.y) + bb * (a.y - c.y) + cc * (b.y - a.y);
+    double f = aa * (b.x - c.x) + bb * (c.x - a.x) + cc * (a.x - b.x);
+    double ab = a.x * b.y - a.y * b.x;
+    double bc = b.x * c.y - b.y * c.x;
+    double ca = c.x * a.y - c.y * a.x;
+    double g = aa * bc + bb * ca + cc * ab;
+    co_yield CartesianLine(
+        2 * d * a.x + e,
+        2 * d * a.y + f,
+        - g - d * aa
+    );
+    co_return;
+}
 Generator<CartesianPoint> NumEngine::compute_tangents(Numeric* num) {
     CartesianPoint a = get_arg_cartesian(num, 0);
     CartesianPoint o = get_arg_cartesian(num, 1);

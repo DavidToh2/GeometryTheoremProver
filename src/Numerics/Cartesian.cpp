@@ -168,6 +168,7 @@ intersect(const CartesianLine &l, const CartesianCircle &c) {
 
     double p = c.c.x, q = c.c.y, r = c.r;
     if (NumUtils::is_close(l.b, 0.0)) {
+        // vertical line
         double x = -l.c / l.a;
         double A = l.a * l.a + l.b * l.b;
         double B = 2 * (l.b * l.c + l.a * l.b * p - l.a * l.a * q);
@@ -179,6 +180,7 @@ intersect(const CartesianLine &l, const CartesianCircle &c) {
         return {{{x, sols.first}}, {{x, sols.second}}};
 
     } else if (NumUtils::is_close(l.a, 0.0)) {
+        // horizontal line
         double y = -l.c / l.b;
         double A = l.a * l.a + l.b * l.b;
         double B = 2 * (l.a * l.c + l.a * l.b * q - l.b * l.b * p);
@@ -390,6 +392,13 @@ CartesianLine perp_bisect(const CartesianPoint &p1, const CartesianPoint &p2) {
 }
 
 CartesianPoint foot(const CartesianPoint &p, const CartesianLine &l) {
+    double a_b = l.a / l.b, b_a = l.b / l.a, a_c = l.a / l.c, b_c = l.b / l.c;
+    double aa_ = 1 / (1 + b_a * b_a), bb_ = 1 / (1 + a_b * a_b), ab_ = 1 / (a_b + b_a),
+        ac_ = 1 / (a_c + b_a * b_c), bc_ = 1 / (b_c + a_b * a_c);
+    return CartesianPoint(
+        p.x * (1 - aa_) - p.y * ab_ - ac_,
+        p.y * (1 - bb_) - p.x * ab_ - bc_
+    );
     return CartesianPoint(
         p.x - l.a * (l.a * p.x + l.b * p.y + l.c) / (l.a * l.a + l.b * l.b),
         p.y - l.b * (l.a * p.x + l.b * p.y + l.c) / (l.a * l.a + l.b * l.b)

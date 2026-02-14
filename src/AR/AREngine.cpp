@@ -10,6 +10,8 @@
 #include "Common/NumUtils.hh"
 
 #include "Common/Debug.hh"
+#include <cmath>
+#include <numbers>
 #if DEBUG_ARENGINE
     #define LOG(x) do {std::cout << x << std::endl;} while(0)
 #else 
@@ -104,7 +106,7 @@ void AREngine::update_point_merger(Point* dest, Point* src, Predicate* pred) {
         Expr::Var new_var = __get_var(disp);
         if (var == new_var) continue;
 
-        LOG("--- Point merger: Updating displacement variable " << var << " to " << new_var);
+        LOG("AR: Point merger: Updating displacement variable " << var << " to " << new_var);
         displacement_table.add_eq_2(var, new_var, 1, 1, pred);
     }
 }
@@ -116,7 +118,7 @@ void AREngine::update_line_merger(Line* dest, Line* src, Predicate* pred) {
         Expr::Var new_var = __get_var(disp);
         if (var == new_var) continue;
 
-        LOG("--- Line merger: Updating displacement variable " << var << " to " << new_var);
+        LOG("AR: Line merger: Updating displacement variable " << var << " to " << new_var);
         displacement_table.add_eq_2(var, new_var, 1, 1, pred);
     }
 }
@@ -137,8 +139,9 @@ void AREngine::add_cong(
     displacement_table.add_eq_4(disp_var1, disp_var2, disp_var3, disp_var4, pred);
 }
 void AREngine::add_midp(
-    Segment* s1, Segment* s2, Length* l1, Length* l2, Predicate* pred
+    Segment* s1, Segment* s2, Length* l, Length* l1, Length* l2, Predicate* pred
 ) {
+    Expr::Var var = __get_var(l);
     Expr::Var var1 = __get_var(l1);
     Expr::Var var2 = __get_var(l2);
 
@@ -147,16 +150,19 @@ void AREngine::add_midp(
     if (m != m_) {
         throw ARInternalError("AREngine::add_midp(): Midpoints " + m->name + ", " + m_->name + " do not coincide for both segments");
     }
-    Line* l = s1->get_line();
-    if (l != s2->get_line()) {
+    Line* line = s1->get_line();
+    if (line != s2->get_line()) {
         throw ARInternalError("AREngine::add_midp(): Segments " + s1->name + ", " + s2->name + " are not on the same line");
     }
 
-    Expr::Var disp_var1 = __get_var(Displacement{l, p1});
-    Expr::Var disp_var2 = __get_var(Displacement{l, m});
-    Expr::Var disp_var3 = __get_var(Displacement{l, p2});
+    Expr::Var disp_var1 = __get_var(Displacement{line, p1});
+    Expr::Var disp_var2 = __get_var(Displacement{line, m});
+    Expr::Var disp_var3 = __get_var(Displacement{line, p2});
 
     ratio_table.add_eq_2(var1, var2, 1, 1, pred);
+    // we don't need full precision of ln2 here - the FRAC stuff slows it down massively
+    // so we just use a precomputed constant 355/512
+    ratio_table.add_eq_3(var, var1, M_LN2, 355, 512, pred);   
     displacement_table.add_eq_4(disp_var1, disp_var2, disp_var2, disp_var3, pred);
 }
 

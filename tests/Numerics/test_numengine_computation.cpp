@@ -1,6 +1,7 @@
 
 #include <doctest.h>
 #include <memory>
+#include <iostream>
 
 #include "Common/NumUtils.hh"
 #include "Numerics/Cartesian.hh"
@@ -510,6 +511,21 @@ TEST_SUITE("NumEngine Computation") {
 
         REQUIRE(NumUtils::is_close(cab.r, cef.r));
 
+        SUBCASE("line_tangent") {
+            Numeric num1("i = line_tangent a c e", point_map);
+            auto gen = ne.compute_line_tangent(&num1);
+            CartesianLine line = gen();
+            CHECK(line.contains(CartesianPoint(-7.7373372370592, -3.9196413474696)));
+
+            Numeric num2("j = line_tangent c a e", point_map);
+            auto gen2 = ne.compute_line_tangent(&num2);
+            CartesianLine line2 = gen2();
+            Numeric num3("k = line_tangent e a c", point_map);
+            auto gen3 = ne.compute_line_tangent(&num3);
+            CartesianLine line3 = gen3();
+            CartesianPoint d = Cartesian::intersect(line2, line3).value();
+            CHECK(d == CartesianPoint(-4.4717835709978, -2.8122963182687));
+        }
         SUBCASE("tangents") {
             Numeric num("i j = tangents g a b", point_map);
             // AE, AF are tangent to the circle centered at B with radius BC

@@ -73,8 +73,10 @@ TEST_SUITE("CartesianCircle") {
             // The massive discrepancy is definitely due to my program here. Geogebra probably has
             // some bigfloat module integrated in it.
             CartesianPoint expected = CartesianPoint(-4.1773210401249, 5.2121023936012);
-            CHECK(CartesianPoint::is_close(p1.value(), expected));
-            CHECK(CartesianPoint::is_close(p2.value(), expected));
+            // CHECK(CartesianPoint::is_close(p1.value(), expected));
+            // CHECK(CartesianPoint::is_close(p2.value(), expected));
+            CHECK(p1.value() == expected);
+            CHECK(p2.value() == expected);
 
             CartesianRay r3_1(expected, c);
             auto [p3, p4] = Cartesian::intersect(r3_1, circ);

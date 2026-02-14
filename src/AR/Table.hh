@@ -233,6 +233,9 @@ public:
     Used by `angle_table` to `add_const_angle` and `add_perp`.
     Used by `ratio_table` to `add_const_ratio` (passing in `std::log(m/n)`). */
     bool add_eq_3(const Expr::Var& var1, const Expr::Var& var2, float f, Predicate* pred);
+    /* Adds an expression of the form `var1 - var2 = m/n` to the `Table`.
+    See the float-overloaded version of the more function for more details. */
+    bool add_eq_3(const Expr::Var& var1, const Expr::Var& var2, float f, int m, int n, Predicate* pred);
 
     /* Adds an expression of the form `var1 - var2 - var3 + var4 = 0` to the `Table`.
     Used by `angle_table` to `add_eqangle`.

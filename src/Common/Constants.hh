@@ -22,7 +22,8 @@ const std::string PREDICATE_NAMES[] = {
     "constangle", "constratio",
     "diff", "ncoll", "npara", 
     "sameclock", "diffclock",
-    "sameside", "convex",
+    "sameside_p", "diffside_p",
+    "convex",
     "last"
 };
 
@@ -38,9 +39,11 @@ const std::string NUMERIC_NAMES[] = {
     "trisegment",
     "mirror", "reflect",
     "angle_eq2", "angle_eq3", "angle_mirror", "angle_bisect", "angle_exbisect","angle_trisect",
-    "tangents",  "common_tangent", "common_tangent2",
+    "line_tangent", "tangents",  "common_tangent", "common_tangent2",
     "last"
 };
+
+// For AREngine::Table
 
 const std::string ONE = "1";
 const std::string PI = "pi";
@@ -67,7 +70,8 @@ enum class pred_t {
     NPARA,
     SAMECLOCK,
     DIFFCLOCK,
-    SAMESIDE,   // not used
+    SAMESIDE_P,
+    DIFFSIDE_P,
     CONVEX,     // not used
     LAST    // not used
 };
@@ -110,6 +114,7 @@ enum class num_t {
     ANGLE_BISECT,
     ANGLE_EXBISECT,
     ANGLE_TRISECT,
+    LINE_TANGENT,
     TANGENTS,
     COMMON_TANGENT,
     COMMON_TANGENT2,

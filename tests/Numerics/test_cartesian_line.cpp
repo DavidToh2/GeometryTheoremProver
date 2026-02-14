@@ -225,11 +225,14 @@ TEST_SUITE("CartesianLine") {
         CartesianLine lab(a, b);
         CartesianLine lac(a, c);
         CartesianLine lbc(b, c);
+        // std::cout << std::setprecision(15) << lbc.a << " " << lbc.b << " " << lbc.c << "\n";
 
         CartesianPoint a_f = Cartesian::foot(a, lbc);
+        CartesianPoint expected0(5.0165530726808, 8.5657460716845);
         // Note: Actual coordinates are 5.01655359029296, 8.56574619902034
         // The discrepancy from Geogebra's coordinates is approximately 5e-7
-        CHECK(CartesianPoint::is_close(a_f, CartesianPoint(5.0165530726808, 8.5657460716845)));
+        CHECK(CartesianPoint::is_close(a_f, expected0));
+        // CHECK(a_f == expected0);
 
         CartesianPoint b_f = Cartesian::foot(b, lac);
         CartesianLine lac_perp = Cartesian::perp_line(b, lac);

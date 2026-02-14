@@ -198,7 +198,7 @@ public:
         return mask;
     }
 
-    /* Checks if the dimensions `d1` and `d2` are congruent.*/
+    /* Checks if the dimensions `d1` and `d2` are similar */
     static bool is_congruent(Dimension* d1, Dimension* d2);
 
     Generator<std::pair<Triangle*, Triangle*>> all_cong_pairs();

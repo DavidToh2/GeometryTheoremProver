@@ -86,3 +86,108 @@ problem 8b {
     m n = midpoint m : b c, midpoint n : e f
     ? eqangle m h h b f h h n
 }
+
+problem 9 {
+    a b c = triangle a b c;
+    t = on_tangent t : b a c, on_line t : a c;
+    m n = midpoint m : a b, midpoint n : b c
+    ? eqangle b t t n m t t a
+}
+
+problem 10 {
+    a c b d = cyclic_quad a c b d;
+    k = intersection_ll k : a b c d;
+    e = free e;
+    f = on_circum f : c d e, on_line f : e k
+    ? cyclic a e b f
+}
+
+problem 11 {
+    o a c e = quadrilateral o a c e;
+    b = on_line b : o a;
+    d = on_line d : o c, on_line_para d : b a c;
+    f = on_line f : o e, on_line_para f : d c e;
+    i = on_angle_bisect i : a o e;
+    j = on_line_perp j : o o i;
+    g = reflect g : a o j;
+    h = reflect h : e o j
+    ? cyclic b f h g
+}
+
+problem 12 {
+    a b c d = cyclic_quad a b c d;
+    o = circumcenter o : a b c;
+    p = intersection_ll p : a c b d;
+    m n = midpoint m : b d, midpoint n : a c;
+    q = intersection_cc q : p a b c d
+    ? perp o q q p
+}
+
+problem 13a {
+    b c = segment b c;
+    o = on_line_bisect o : b c;
+    t = r_quadrangle t : b o c;
+    m = intersection_ll m : o t b c
+    ? midp m b c
+}
+
+problem 13b {
+    b c = segment b c;
+    o = on_line_bisect o : b c;
+    t = r_quadrangle t : b o c;
+    m = intersection_ll m : o t b c
+    ? simtri o m b b m t
+}
+
+problem 14a {
+    a b c = triangle a b c;
+    d e f i = incenter2 d e f i : a b c;
+    m = on_line m : a i, on_circum m : a b c;
+    n = midpoint n : b c;
+    s = intersection_ll s : i m b c
+    ? simtri b m n a i f
+}
+
+problem 14b {
+    a b c = triangle a b c;
+    d e f i = incenter2 d e f i : a b c;
+    m = on_line m : a i, on_circum m : a b c;
+    n = midpoint n : b c;
+    s = intersection_ll s : i m b c
+    ? eqratio i s s m a i i m
+}
+
+problem 15 {
+    o b i = triangle o b i;
+    d = reflect d : b o i;
+    a c = common_tangent a c : o b i b;
+    m = intersection_ll m : a c b d
+    ? cong a m c m
+}
+
+problem 16a {
+    a b c = triangle a b c;
+    o = circumcenter o : a b c;
+    t = r_quadrangle t : b o c;
+    n = on_line n : a t, on_circum n : a b c;
+    m = intersection_ll m : o t b c
+    ? cyclic a o m n
+}
+
+problem 16b {
+    a b c = triangle a b c;
+    o = circumcenter o : a b c;
+    t = r_quadrangle t : b o c;
+    n = on_line n : a t, on_circum n : a b c;
+    m = intersection_ll m : o t b c
+    ? simtri a m c c m n
+}
+
+problem 17 {
+    a b c = triangle a b c;
+    d e f i = incenter2 d e f i : a b c;
+    j = excenter j : a b c;
+    k = excenter k : b c a;
+    l = excenter l : c a b
+    ? simtri d e f j k l
+}

@@ -231,4 +231,10 @@ namespace Cartesian {
     ) {
         return !(orientation_of(p1, p2, p3) ^ orientation_of(p4, p5, p6));
     }
+
+    /* Given three points A, B, C: determines whether the angle between vectors A->B and A->C is less than or
+    greater than 90 degrees */
+    constexpr bool acute_angle(const CartesianPoint &a, const CartesianPoint &b, const CartesianPoint &c) {
+        return Cartesian::dot(b - a, c - a) > 0;
+    }
 };
