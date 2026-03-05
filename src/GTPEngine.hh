@@ -5,14 +5,16 @@
 #include "Numerics/NumEngine.hh"
 #include "Geometry/GeometricGraph.hh"
 #include "Parsers/InputParser.hh"
+#include "Traceback/TracebackEngine.hh"
 
 class GTPEngine {
 
 public:
-    GeometricGraph ggraph;
     DDEngine dd;
     AREngine ar;
     NumEngine nm;
+    TracebackEngine tr;
+    GeometricGraph ggraph;
     InputParser inputParser;
     
     std::string rule_filepath;

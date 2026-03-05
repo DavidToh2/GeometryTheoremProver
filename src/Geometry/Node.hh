@@ -20,25 +20,32 @@ public:
 
     Node* parent = nullptr;
     Node* root = this;
-    Predicate* parent_why = nullptr;
+    std::vector<Node*> children;
+    PredSet parent_why;
 
     Node(std::string name) : name(name), root(this) {}
 
     constexpr bool is_root() { return (root == this); }
 
     /* Merge `other` into `this` node.
-    This function maps the `parent` and `root` attributes. */
-    constexpr void merge(Node* other, Predicate* pred) {
+    This function maps the `parent`, `root` and `children` attributes. */
+    constexpr void merge(Node* other, PredSet &&preds) {
         if (this == other) return;
         other->parent = this;
-        other->parent_why = pred;
+        std::swap(other->parent_why, preds);
         other->root = this;
+        children.emplace_back(other);
     }
 
     constexpr std::string to_string() { return name; }
 };
 
 namespace NodeUtils {
+
+    template <std::derived_from<Node> Key>
+    Key* get_parent(Key* n) {
+        return static_cast<Key*>(n->parent);
+    }
 
     /* Returns the root of any `Node` object. 
     This function has the secondary purpose of lazily updating the `root` pointer for every node it passes through to the correct root. */
@@ -261,6 +268,31 @@ namespace NodeUtils {
             co_yield {k4, k3, k2, k1};
         }
         co_return;
+    }
+
+    template<std::derived_from<Node> T>
+    Generator<T> all_children(T* node) {
+        auto it = node->children.begin();
+        while (it != node->children.end()) {
+            T child = static_cast<T>(*it);
+            co_yield child;
+            auto gen = all_children<T>(child);
+            while (gen) {
+                co_yield gen();
+            }
+            ++it;
+        }
+    }
+
+    template<std::derived_from<Node> T>
+    void all_children(T* node, std::set<T*> &s) {
+        s.insert(node);
+        auto it = node->children.begin();
+        while (it != node->children.end()) {
+            T* child = static_cast<T*>(*it);
+            all_children(child, s);
+            ++it;
+        }
     }
 
 } // namespace NodeUtils

@@ -80,9 +80,6 @@ Predicate* DDEngine::insert_predicate(std::unique_ptr<Predicate> &&predicate) {
 Predicate* DDEngine::insert_new_predicate(std::unique_ptr<Predicate> &&predicate) {
     Predicate* p = predicate.get();
     std::string hash = p->hash;
-    if (hash == "contri e m b c m e") {
-        int i = 1;
-    }
     if (has_predicate_by_hash(hash)) {
         predicate.reset();
         return predicates.at(hash).get();
@@ -1332,9 +1329,6 @@ Generator<bool> DDEngine::match_eqratio(PredicateTemplate* pred_template, Geomet
             s[2]->get_length(),
             s[3]->get_length()
         };
-        if (!ggraph.check_eqratio(l[0], l[1], l[2], l[3])) {
-            co_return;
-        }
         Ratio* r[2] = {
             ggraph.try_get_ratio(l[0], l[1]),
             ggraph.try_get_ratio(l[2], l[3])

@@ -16,7 +16,6 @@ Only root Value nodes populate their `root_objs` sets. */
 template <std::derived_from<Object> T>
 class Value : public Node {
 public:
-    std::map<T*, Predicate*> objs;
     std::set<T*> root_objs;
 
     Value(std::string name) : Node(name) {}
@@ -26,7 +25,7 @@ public:
 
 A Direction indicates the orientation of a `Line` (with respect to some fixed frame of reference).
 
-The most up-to-date records of `perp` and `objs` are always stored by the root node. 
+The most up-to-date records of `perp` and `root_objs` are always stored by the root node. 
 
 Every direction stores the set of `angle` s for which it is the `direction1` and `direction2` respectively.
 These must always be root `angle` s. Only root directions populate these sets. */
@@ -64,6 +63,7 @@ public:
 
     /* Associate the line `l` with the root direction of `this`, by adding the former to the `objs` 
     and `root_objs` of the latter. 
+    Calls `Line::set_direction()`, which does the exact same thing.
     Note: If `l` is already present in `objs`, then nothing happens. */
     void add_line(Line* l, Predicate* pred);
 
@@ -112,7 +112,8 @@ public:
     Length(std::string name) : Value(name) {}
 
     /* Associate the segment `s` with the root length of `this`, by adding the former to the `objs` 
-    and `root_objs` of the latter. Calls `s->set_length()`, which does the exact same thing.
+    and `root_objs` of the latter. 
+    Calls `Segment::set_length()`, which does the exact same thing.
     Note: If `s` is already present in `objs`, then nothing happens. */
     void add_segment(Segment* s, Predicate* pred);
 

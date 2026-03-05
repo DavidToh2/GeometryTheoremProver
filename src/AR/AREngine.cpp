@@ -11,7 +11,7 @@
 
 #include "Common/Debug.hh"
 #include <cmath>
-#include <numbers>
+
 #if DEBUG_ARENGINE
     #define LOG(x) do {std::cout << x << std::endl;} while(0)
 #else 
@@ -171,7 +171,7 @@ void AREngine::add_midp(
 
 
 
-Generator<std::tuple<Direction*, Direction*, double, std::vector<Predicate*>>> 
+Generator<std::tuple<Direction*, Direction*, double, std::set<Predicate*>>> 
 AREngine::get_all_constangles_and_why() {
     auto gen = angle_table.get_all_eq_3s_and_why();
     while (gen) {
@@ -182,7 +182,7 @@ AREngine::get_all_constangles_and_why() {
     }
     co_return;
 }
-Generator<std::tuple<Direction*, Direction*, Direction*, Direction*, std::vector<Predicate*>>> 
+Generator<std::tuple<Direction*, Direction*, Direction*, Direction*, std::set<Predicate*>>> 
 AREngine::get_all_eqangles_and_why() {
     auto gen = angle_table.get_all_eq_4s_and_why();
     while (gen) {
@@ -196,7 +196,7 @@ AREngine::get_all_eqangles_and_why() {
     }
     co_return;
 }
-Generator<std::tuple<Direction*, Direction*, std::vector<Predicate*>>> 
+Generator<std::tuple<Direction*, Direction*, std::set<Predicate*>>> 
 AREngine::get_all_paras_and_why() {
     auto gen = angle_table.get_all_eq_2s_and_why();
     while (gen) {
@@ -210,7 +210,7 @@ AREngine::get_all_paras_and_why() {
 
 
 
-Generator<std::tuple<Length*, Length*, double, std::vector<Predicate*>>> 
+Generator<std::tuple<Length*, Length*, double, std::set<Predicate*>>> 
 AREngine::get_all_constratios_and_why() {
     auto gen = ratio_table.get_all_eq_3s_and_why();
     while (gen) {
@@ -221,7 +221,7 @@ AREngine::get_all_constratios_and_why() {
     }
     co_return;
 }
-Generator<std::tuple<Length*, Length*, Length*, Length*, std::vector<Predicate*>>>
+Generator<std::tuple<Length*, Length*, Length*, Length*, std::set<Predicate*>>>
 AREngine::get_all_eqratios_and_why() {
     auto gen = ratio_table.get_all_eq_4s_and_why();
     while (gen) {
@@ -238,7 +238,7 @@ AREngine::get_all_eqratios_and_why() {
 
 
 
-Generator<std::tuple<Length*, Length*, std::vector<Predicate*>>> 
+Generator<std::tuple<Length*, Length*, std::set<Predicate*>>> 
 AREngine::get_all_congs_and_why_1() {
     auto gen1 = ratio_table.get_all_eq_2s_and_why();
     while (gen1) {
@@ -249,7 +249,7 @@ AREngine::get_all_congs_and_why_1() {
     }
     co_return;
 }
-Generator<std::tuple<Point*, Point*, Point*, Point*, std::vector<Predicate*>>> 
+Generator<std::tuple<Point*, Point*, Point*, Point*, std::set<Predicate*>>> 
 AREngine::get_all_congs_and_why_2() {
     auto gen2 = displacement_table.get_all_eq_4s_and_why();
     while (gen2) {

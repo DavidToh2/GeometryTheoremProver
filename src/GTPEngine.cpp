@@ -32,6 +32,8 @@ GTPEngine::GTPEngine(
     for (auto rule : rules) {
         dd.add_theorem_template_from_text(rule);
     }
+
+    this->ggraph.tr = &tr;
 }
 
 void GTPEngine::load_problem(

@@ -79,7 +79,7 @@ matrix `A`.
 - `c : std::vector<float>`:
 A vector storing either 1 or -1, indicating whether each column is positive or negative.
 
-- `deps : std::vector<Predicate*>`:
+- `deps : std::set<Predicate*>`:
 A list of predicates, one for each column pair of `A`.
 
 The matrix `A` is only used to solve the Mixed-Integer Linear Program (MILP) used to
@@ -324,7 +324,7 @@ public:
     corresponds to `expr`. To find the smallest such linear combination, we use linear
     optimisation. 
     Called by `get_all_eq_Ns_and_why()`. */
-    std::vector<Predicate*> why(const Expr::Expr& expr);
+    std::set<Predicate*> why(const Expr::Expr& expr);
 
     /* Gets all pairs of distinct variables `(v1, v2)`. */
     Generator<Expr::VarPair> all_varpairs() const;
@@ -343,7 +343,7 @@ public:
 
     Used by `angle_table` to `get_all_paras`.
     Used by `ratio_table` to `get_all_congs`. */
-    Generator<std::tuple<Expr::Var, Expr::Var, std::vector<Predicate*>>> get_all_eq_2s_and_why();
+    Generator<std::tuple<Expr::Var, Expr::Var, std::set<Predicate*>>> get_all_eq_2s_and_why();
 
     /* Returns all unordered pairs of distinct variables `(v1, v2)` and float `f` which have
     been deduced to satisfy `v1 - v2 = f`.
@@ -351,7 +351,7 @@ public:
 
     Used by `angle_table` to `get_all_const_angles`. (This includes `perp`s.)
     Used by `ratio_table` to `get_all_const_ratios`. */
-    Generator<std::tuple<Expr::Var, Expr::Var, Frac, std::vector<Predicate*>>> get_all_eq_3s_and_why();
+    Generator<std::tuple<Expr::Var, Expr::Var, Frac, std::set<Predicate*>>> get_all_eq_3s_and_why();
 
     /* Returns all unordered 4-tuples of distinct variables `((v1, v2), (v3, v4))` which have
     been deduced to satisfy `v1 - v2 = v3 - v4`.
@@ -361,7 +361,7 @@ public:
     Used by `angle_table` to `get_all_eqangles`.
     Used by `ratio_table` to `get_all_eqratios`.
     Used by `displacement_table` to `get_all_congs`. */
-    Generator<std::tuple<Expr::Var, Expr::Var, Expr::Var, Expr::Var, std::vector<Predicate*>>> get_all_eq_4s_and_why();
+    Generator<std::tuple<Expr::Var, Expr::Var, Expr::Var, Expr::Var, std::set<Predicate*>>> get_all_eq_4s_and_why();
 
 
     std::string __print_A() const;

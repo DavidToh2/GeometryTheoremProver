@@ -119,21 +119,21 @@ public:
     /* Returns all unordered pairs of directions `(d1, d2)` and a double `f` satisfying
     `Angle(d1, d2) = f`. Here, `f` is a decimal between 0 and 180. Perpendicular pairs
     of directions are returned with `f = 90`. */
-    Generator<std::tuple<Direction*, Direction*, double, std::vector<Predicate*>>> 
+    Generator<std::tuple<Direction*, Direction*, double, std::set<Predicate*>>> 
     get_all_constangles_and_why();
-    Generator<std::tuple<Direction*, Direction*, Direction*, Direction*, std::vector<Predicate*>>> 
+    Generator<std::tuple<Direction*, Direction*, Direction*, Direction*, std::set<Predicate*>>> 
     get_all_eqangles_and_why();
-    Generator<std::tuple<Direction*, Direction*, std::vector<Predicate*>>> 
+    Generator<std::tuple<Direction*, Direction*, std::set<Predicate*>>> 
     get_all_paras_and_why();
 
-    Generator<std::tuple<Length*, Length*, double, std::vector<Predicate*>>> 
+    Generator<std::tuple<Length*, Length*, double, std::set<Predicate*>>> 
     get_all_constratios_and_why();
-    Generator<std::tuple<Length*, Length*, Length*, Length*, std::vector<Predicate*>>> 
+    Generator<std::tuple<Length*, Length*, Length*, Length*, std::set<Predicate*>>> 
     get_all_eqratios_and_why();
 
-    Generator<std::tuple<Length*, Length*, std::vector<Predicate*>>> 
+    Generator<std::tuple<Length*, Length*, std::set<Predicate*>>> 
     get_all_congs_and_why_1();
-    Generator<std::tuple<Point*, Point*, Point*, Point*, std::vector<Predicate*>>> 
+    Generator<std::tuple<Point*, Point*, Point*, Point*, std::set<Predicate*>>> 
     get_all_congs_and_why_2();
 
     /* Derive new predicates. */

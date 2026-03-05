@@ -64,18 +64,29 @@ public:
 	bool validate_degeneracy_args(GeometricGraph &ggraph);
 };
 
-class PredVec {
+class PredSet {
 public:
-	std::vector<Predicate*> preds;
+	std::set<Predicate*> preds;
 
-	PredVec() {}
-	PredVec(std::initializer_list<Predicate*> init_list) : preds(init_list) {}
-	PredVec(std::vector<Predicate*> &&vec) : preds(std::move(vec)) {}
+	PredSet() {}
+	PredSet(std::initializer_list<Predicate*> init_list) : preds(init_list) {}
+	PredSet(std::set<Predicate*> &&vec) : preds(std::move(vec)) {}
+
+	/* Move constructor */
+	PredSet(PredSet&& other) : preds(std::move(other.preds)) {}
 
 	void operator+=(Predicate* pred);
-	void operator+=(const PredVec& other);
+	void insert(Predicate* pred);
+	void operator+=(const PredSet& other);
+	void insert(std::initializer_list<Predicate*> list);
 
-	explicit operator std::vector<Predicate*>() const { return preds; }
+	/* Make move-assignment the default for operator= */
+	void operator=(PredSet&& other);
+
+	int size() const;
+	bool contains(Predicate* pred) const;
+
+	explicit operator std::set<Predicate*>() const { return preds; }
 
 	std::string to_string() const;
 };
@@ -87,15 +98,16 @@ public:
 	pred_t name;
 	std::vector<Node*> args;
 	Frac frac_arg;
-	PredVec why; // keep
+	PredSet why; // keep
 
 	Predicate() : name(pred_t::BASE), hash(Utils::to_pred_str(pred_t::BASE)) {}
+	Predicate(const pred_t name, Frac f);	// placeholder for debugging purposes
 	Predicate(const pred_t name, std::vector<Node*> &&nodes);
 	Predicate(const pred_t name, std::vector<Node*> &&nodes, Frac f);
-	Predicate(const pred_t name, std::vector<Node*> &&nodes, PredVec &&why);
-	Predicate(const pred_t name, std::vector<Node*> &&nodes, Frac f, PredVec &&why);
-	Predicate(const pred_t name, std::vector<Node*> &&nodes, std::vector<Predicate*> &&why);
-	Predicate(const pred_t name, std::vector<Node*> &&nodes, Frac f, std::vector<Predicate*> &&why);
+	Predicate(const pred_t name, std::vector<Node*> &&nodes, PredSet &&why);
+	Predicate(const pred_t name, std::vector<Node*> &&nodes, Frac f, PredSet &&why);
+	Predicate(const pred_t name, std::vector<Node*> &&nodes, std::set<Predicate*> &&why);
+	Predicate(const pred_t name, std::vector<Node*> &&nodes, Frac f, std::set<Predicate*> &&why);
 	Predicate(PredicateTemplate &pred_template);
 
 	static std::unique_ptr<Predicate> 

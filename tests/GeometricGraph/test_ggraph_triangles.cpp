@@ -11,6 +11,8 @@ TEST_SUITE("GeometricGraph: Triangle congruence and similarity") {
         GeometricGraph ggraph;
         DDEngine dd;
         AREngine ar;
+        TracebackEngine tr;
+        ggraph.tr = &tr;
         Predicate* base_pred = dd.base_pred.get();
 
         Point* a = ggraph.__add_new_point("a");
@@ -61,6 +63,8 @@ TEST_SUITE("GeometricGraph: Triangle congruence and similarity") {
         GeometricGraph ggraph;
         DDEngine dd;
         AREngine ar;
+        TracebackEngine tr;
+        ggraph.tr = &tr;
         Predicate* base_pred = dd.base_pred.get();
 
         Point* a = ggraph.__add_new_point("a");
@@ -85,6 +89,8 @@ TEST_SUITE("GeometricGraph: Triangle congruence and similarity") {
         GeometricGraph ggraph;
         DDEngine dd;
         AREngine ar;
+        TracebackEngine tr;
+        ggraph.tr = &tr;
         Predicate* base_pred = dd.base_pred.get();
 
         Point* a = ggraph.__add_new_point("a");
@@ -138,6 +144,8 @@ TEST_SUITE("GeometricGraph: Triangle congruence and similarity") {
         GeometricGraph ggraph;
         DDEngine dd;
         AREngine ar;
+        TracebackEngine tr;
+        ggraph.tr = &tr;
         Predicate* base_pred = dd.base_pred.get();
 
         Point* a = ggraph.__add_new_point("a", {-8, 0});
@@ -290,6 +298,8 @@ TEST_SUITE("GeometricGraph: Triangle congruence and similarity") {
         GeometricGraph ggraph;
         DDEngine dd;
         AREngine ar;
+        TracebackEngine tr;
+        ggraph.tr = &tr;
         Predicate* base_pred = dd.base_pred.get();
 
         Point* a = ggraph.__add_new_point("a", {0, -2});

@@ -7,7 +7,6 @@
 #include "Common/Generator.hh"
 
 class Predicate;
-class PredVec;
 
 class Point;
 class Line;
@@ -102,11 +101,6 @@ is handlded by `GeometricGraph::merge_points()`.
 */
 class Point : public Node {
 public:
-    std::map<Line*, std::map<Point*, PredVec>> on_line;
-    std::map<Circle*, std::map<Point*, PredVec>> on_circle;
-    std::map<Circle*, std::map<Point*, PredVec>> center_of_circle;
-    std::map<Segment*, std::map<Point*, PredVec>> endpoint_of_segment;
-    std::map<Triangle*, std::map<Point*, PredVec>> vertex_of_triangle;
     std::set<Line*> on_root_line;
     std::set<Circle*> on_root_circle;
     std::set<Circle*> center_of_root_circle;
@@ -116,36 +110,31 @@ public:
     Point(std::string name) : Node(name) {}
 
     /* Set `this` point to be on the line `l`. What this does:
-    - Inserts `l` into `this->on_line` along with `pred`;
     - Inserts `root_l` into `this->on_root_line`;
     - Inserts `this` into `l->points` along with `pred`.
     Note: Assumes that `this` is a root node.
     Note: This function is idempotent. */
     void set_this_on(Line* l, Predicate* pred);
     /* Set `this` point to be on the circle `c`. What this does:
-    - Inserts `c` into `this->on_circle` along with `pred`;
     - Inserts `root_c` into `this->on_root_circle`;
     - Inserts `this` into `c->points` along with `pred`.
     Note: Assumes that `this` is a root node.
     Note: This function is idempotent. */
     void set_this_on(Circle* c, Predicate* pred);
     /* Sets `this` point to be the center of circle `c`. What this does:
-    - Inserts `c` into `this->center_of_circle` along with `pred`;
     - Inserts `root_c` into `this->center_of_root_circle`;
     - Inserts `this` into `c->center` along with `pred`.
     Note: Assumes that `this` is a root node.
     Note: This function is idempotent. */
     void set_this_center_of(Circle* c, Predicate* pred);
     /* Sets `this` point as an endpoint of segment `s`. What this does:
-    - Inserts `s` into `this->endpoint_of_segment` along with `pred`;
-    - Inserts `root_s` into `this->endpoint_of_root_segment`;
+    - Inserts `root_s` into `this->endpoint_of_root_segment`.
     Note: `s->endpoints` needs to be separately filled in.
     Note: Assumes that `this` is a root node.
     Note: This function is idempotent. */
     void set_this_endpoint_of(Segment* s, Predicate* pred);
     /* Sets `this` point as a vertex of triangle `t`. What this does:
-    - Inserts `t` into `this->vertex_of_triangle` along with `pred`;
-    - Inserts `root_t` into `this->vertex_of_root_triangle`;
+    - Inserts `root_t` into `this->vertex_of_root_triangle`.
     Note: `t->vertices` needs to be separately filled in.
     Note: Assumes that `this` is a root node.
     Note: This function is idempotent. */
@@ -169,11 +158,6 @@ public:
     bool is_on(Line* l);
     bool is_on(Circle* c);
 
-    /* Gets the predicate `on_line[l][this]` as stored in `root_this`. */
-    PredVec __why_on(Line* l);
-    PredVec why_on(Line* l);
-    PredVec why_on(Circle* c);
-
     /* Returns the root line nodes that the root of this point is on */
     Generator<Line*> on_lines();
     /* Returns the root circle nodes that the root of this point is on*/
@@ -186,23 +170,23 @@ public:
     /* Returns the root triangle nodes that the root of this point is a vertex of */
     Generator<Triangle*> vertex_of_triangles();
 
-    /* Merge two point nodes. We merge them at their root nodes; it is pointless to merge anywhere else. 
+    /* Merge two point nodes. These point nodes must be roots; it is pointless to merge anywhere else. 
     The `on_circle` and `on_line` of `get_root(other)` are moved into that of `get_root(this)`.
     All other `Objects` referencing `get_root(other)` are switched out to reference `get_root(this)`. 
     Note: This function has no effect if `this` and `other` already have the same root.*/
-    void merge(Point* other, Predicate* pred);
+    void merge(Point* other, PredSet &&preds);
 
     /* Merge two `on_` records in some `Point` object. This empties the second record. */
     template <std::derived_from<Object> Key>
     static void merge_dmaps(
-        std::map<Key*, std::map<Point*, PredVec>> &dest, 
-        std::map<Key*, std::map<Point*, PredVec>> &src, 
+        std::map<Key*, std::map<Point*, PredSet>> &dest, 
+        std::map<Key*, std::map<Point*, PredSet>> &src, 
         Predicate* pred
     ) {
         for (auto it = src.begin(); it != src.end(); ) {
             Key* obj = it->first;
             if (!dest.contains(obj)) {
-                dest[obj] = std::map<Point*, PredVec>();
+                dest[obj] = std::map<Point*, PredSet>();
             }
             // Note: dest[obj] and src[obj] should not have any overlapping keys, since the only possible
             // keys are the children of dest and src respectively
@@ -279,14 +263,14 @@ public:
     /* Returns all root angles for which the root of this line is a `line2` */
     Generator<Angle*> on_angles_as_line2();
 
-    /* Merge two line nodes. We merge them at their root nodes. The `points` of `get_root(other)` are copied 
+    /* Merge two line nodes. The line nodes must be roots. The `points` of `get_root(other)` are copied 
     into that of `get_root(this)`. 
-    Note: The directions of `root_other` and `root_this` are returned if they both exist. This is so they may 
-    then be merged by `GeometricGraph::set_directions_para()`.
-    Note: The copying behaviour does not copy over points that are already in `get_root(this)`. The effect is
+    Note: The directions of `other` and `this` are returned if they both exist. This is so they may then be 
+    merged by `GeometricGraph::set_directions_para()`.
+    Note: The copying behaviour does not copy over points that are already in `this`. The effect is
     necessary because two lines being merged will necessarily have two duplicate points. 
-    Note: This function has no effect if `this` and `other` already have the same root.*/
-    std::optional<std::pair<Direction*, Direction*>> merge(Line* other, Predicate* pred);
+    Note: This function has no effect if `this` and `other` are identical.*/
+    std::optional<std::pair<Direction*, Direction*>> merge(Line* other, PredSet &&preds);
 
     /* Identify all pairs of lines `(l1, l2)` that need to be merged (into a single line) as a result of `p` 
     and `other_p` being deduced to be the same. Any such pair of lines will have another point `q` lying on

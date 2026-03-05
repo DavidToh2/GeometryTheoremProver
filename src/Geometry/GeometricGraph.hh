@@ -13,6 +13,7 @@
 #include "Value2.hh"
 #include "DD/DDEngine.hh"
 #include "AR/AREngine.hh"
+#include "Traceback/TracebackEngine.hh"
 #include "Numerics/Cartesian.hh"
 #include "Numerics/NumEngine.hh"
 
@@ -83,6 +84,10 @@ public:
 
     std::vector<std::set<Point*>> num_eq_point_sets;
     std::map<Point*, int> point_to_num_eq_set;
+
+    // Traceback
+
+    TracebackEngine* tr;
 
 
     /* Populate newly resolved CartesianPoints from the NumEngine into our numeric maps */
@@ -213,6 +218,7 @@ public:
     A more time-efficient method than calling `__try_get_circle()` twice. 
     Returns `nullptr` in either or both values if the corresponding circumcircle does not exist. 
     Note: All points must be root points. 
+    Note: Assumes that p1 and p2 are distinct.
     Note: It is entirely possible that both returned pointers point to the exact same circle. */
     std::pair<Circle*, Circle*> __try_get_circles(Point* p1, Point* p2, Point* p3, Point* p4);
 
@@ -521,15 +527,16 @@ public:
 
 
 
-    /* Check collinearity. This is done by checking if the root lines `p1p2` and `p1p3` are identical. */
+    /* Check collinearity. This is done by checking if the root line `p1p2` contains the point `p3`. */
     bool check_coll(Point* p1, Point* p2, Point* p3);
     /* Check if the root node of p1 lies on the root node of l. See `Line::contains()` for more info. */
     bool check_coll(Point* p1, Line* l);
     /* Check if two segments lie on the same line. See `Segment::on_same_line()` for more info. */
     bool check_coll(Segment* s1, Segment* s2);
 
+    /* Check cyclicity. This is done by checking if the root circle `p1p2p3` contains the point `p4`. */
     bool check_cyclic(Point* p1, Point* p2, Point* p3, Point* p4);
-
+    /* Check if the root node of p1 lies on the root node of c. See `Circle::contains()` for more info. */
     bool check_cyclic(Point* p1, Circle* c);
 
     bool check_para(Point* p1, Point* p2, Point* p3, Point* p4);
@@ -552,7 +559,7 @@ public:
     bool check_eqangle(Angle* a1, Angle* a2);
 
     bool check_eqratio(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Point* p7, Point* p8);
-    bool check_eqratio(Length* l1, Length* l2, Length* l3, Length* l4);
+    bool check_eqratio(Segment* s1, Segment* s2, Segment* s3, Segment* s4);
     bool check_eqratio(Ratio* r1, Ratio* r2);
 
     /* Checks if the triangles `p1p2p3` and `p4p5p6` are congruent, with points in this order.
@@ -665,7 +672,7 @@ public:
     bool __make_midp(Point* m, Point* p1, Point* p2, 
         Predicate* pred, DDEngine &dd, AREngine &ar);
 
-    bool make_circle(Predicate* pred, DDEngine &dd);
+    bool make_circle(Predicate* pred, DDEngine &dd, AREngine &ar);
     bool __make_circle(Point* c, Point* p1, Point* p2, Point* p3, 
         Predicate* pred, DDEngine &dd);
 

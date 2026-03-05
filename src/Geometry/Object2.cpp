@@ -13,7 +13,6 @@ void Angle::set_measure(Measure* m, Predicate* base_pred) {
     } else {
         root_this->measure = root_m;
         root_this->measure_why = base_pred;
-        root_m->obj2s[this] = base_pred;
         root_m->root_obj2s.insert(root_this);
     }
 }
@@ -61,9 +60,7 @@ std::optional<std::pair<Measure*, Measure*>> Angle::__merge(Angle* other, Predic
     if (this == other) {
         return std::nullopt;
     }
-    other->parent = this;
-    other->parent_why = pred;
-    other->root = this;
+    this->Node::merge(other, pred);
 
     direction1->on_angles_1.erase(other);
     direction2->on_angles_2.erase(other);
@@ -97,7 +94,6 @@ void Ratio::set_fraction(Fraction* f, Predicate* base_pred) {
     
     root_this->fraction = root_f;
     root_this->fraction_why = base_pred;
-    root_f->obj2s[this] = base_pred;
     root_f->root_obj2s.insert(root_this);
 }
 bool Ratio::__has_fraction() {
@@ -148,9 +144,7 @@ std::optional<std::pair<Fraction*, Fraction*>> Ratio::__merge(Ratio* other, Pred
     if (this == other) {
         return std::nullopt;
     }
-    other->parent = this;
-    other->parent_why = pred;
-    other->root = this;
+    this->Node::merge(other, pred);
 
     length1->on_ratio_1.erase(other);
     length2->on_ratio_2.erase(other);
@@ -200,7 +194,6 @@ void Dimension::set_shape(Shape* s, Predicate* pred) {
     Shape* root_s = NodeUtils::get_root(s);
     root_d->shape = root_s;
     root_d->shape_why = pred;
-    root_s->obj2s[root_d] = pred;
     root_s->root_obj2s.insert(root_d);
 }
 bool Dimension::has_shape() {
@@ -249,9 +242,7 @@ void Dimension::merge(Dimension* other, Predicate* pred) {
     if (root_this == root_other) {
         return;
     }
-    root_other->parent = root_this;
-    root_other->parent_why = pred;
-    root_other->root = root_this;
+    root_this->Node::merge(root_other, pred);
 
     if (root_other->has_shape()) {
         root_other->get_shape()->root_obj2s.erase(root_other);

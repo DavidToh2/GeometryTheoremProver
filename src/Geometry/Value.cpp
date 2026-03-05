@@ -108,13 +108,8 @@ std::optional<std::pair<Direction*, Direction*>> Direction::merge(Direction* oth
     if (root_this == root_other) {
         return std::nullopt;
     }
-    root_other->root = root_this;
-    root_other->parent = root_this;
-    root_other->parent_why = pred;
+    root_this->Node::merge(root_other, pred);
 
-    for (const auto& [obj, p] : root_other->objs) {
-        root_this->objs[obj] = root_other->objs[obj];
-    }
     // std::set::merge has move semantics
     root_this->root_objs.merge(root_other->root_objs);
     root_other->root_objs.clear();
@@ -237,13 +232,8 @@ void Length::merge(Length* other, Predicate* pred) {
     if (root_this == root_other) {
         return;
     }
-    root_other->root = root_this;
-    root_other->parent = root_this;
-    root_other->parent_why = pred;
+    root_this->Node::merge(root_other, pred);
 
-    for (const auto& [obj, p] : root_other->objs) {
-        root_this->objs[obj] = root_other->objs[obj];
-    }
     // std::set::merge has move semantics
     root_this->root_objs.merge(root_other->root_objs);
     root_other->root_objs.clear();

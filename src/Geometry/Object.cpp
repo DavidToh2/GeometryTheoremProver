@@ -71,39 +71,18 @@ Predicate* Object::why_contains(Point *p) {
 void Point::set_this_on(Line* l, Predicate* pred) {
     Line* rl = NodeUtils::get_root(l);
     if (on_root_line.contains(rl)) return;
-
-    if (!on_line.contains(l)) {
-        on_line[l] = std::map<Point*, PredVec>();
-    }
-    if (!on_line[l].contains(this)) {
-        on_line[l][this] += pred;
-    }
     on_root_line.insert(rl);
     rl->points[this] = pred;
 }
 void Point::set_this_on(Circle* c, Predicate* pred) {
     Circle* rc = NodeUtils::get_root(c);
     if (on_root_circle.contains(rc)) return;
-
-    if (!on_circle.contains(c)) {
-        on_circle[c] = std::map<Point*, PredVec>();
-    }
-    if (!on_circle[c].contains(this)) {
-        on_circle[c][this] += pred;
-    }
     on_root_circle.insert(rc);
     rc->points[this] = pred;
 }
 void Point::set_this_center_of(Circle* c, Predicate* pred) {
     Circle* rc = NodeUtils::get_root(c);
     if (center_of_root_circle.contains(rc)) return;
-
-    if (!center_of_circle.contains(c)) {
-        center_of_circle[c] = std::map<Point*, PredVec>();
-    }
-    if (!center_of_circle[c].contains(this)) {
-        center_of_circle[c][this] += pred;
-    }
     center_of_root_circle.insert(rc);
     rc->center = this;
     rc->center_why = pred;
@@ -111,25 +90,11 @@ void Point::set_this_center_of(Circle* c, Predicate* pred) {
 void Point::set_this_endpoint_of(Segment* s, Predicate* pred) {
     Segment* rs = NodeUtils::get_root(s);
     if (endpoint_of_root_segment.contains(rs)) return;
-
-    if (!endpoint_of_segment.contains(s)) {
-        endpoint_of_segment[s] = std::map<Point*, PredVec>();
-    }
-    if (!endpoint_of_segment[s].contains(this)) {
-        endpoint_of_segment[s][this] += pred;
-    }
     endpoint_of_root_segment.insert(rs);
 }
 void Point::set_this_vertex_of(Triangle* t, Predicate* pred) {
     Triangle* rt = NodeUtils::get_root(t);
     if (vertex_of_root_triangle.contains(rt)) return;
-
-    if (!vertex_of_triangle.contains(t)) {
-        vertex_of_triangle[t] = std::map<Point*, PredVec>();
-    }
-    if (!vertex_of_triangle[t].contains(this)) {
-        vertex_of_triangle[t][this] += pred;
-    }
     vertex_of_root_triangle.insert(rt);
 }
 
@@ -158,25 +123,6 @@ bool Point::is_on(Circle* c) {
     return rp->is_this_on(c);
 }
 
-PredVec Point::__why_on(Line* l) {
-    Line* rl = NodeUtils::get_root(l);
-    Point* rp = NodeUtils::get_root(this);
-    if (rp->on_root_line.contains(rl)) {
-        if (rp->on_line.contains(l)) {
-            if (rp->on_line[l].contains(this)) {
-                return rp->on_line[l][this];
-            }
-        }
-    }
-    // TODO: Fix this. We should store the PredVecs somewhere else and use pointers to
-    // refer to them
-    return {};
-}
-PredVec Point::why_on(Line* l) {
-    Line* rl = NodeUtils::get_root(l);
-    Point* rp = NodeUtils::get_root(this);
-    return NodeUtils::get_root(this)->__why_on(l);
-}
 
 Generator<Line*> Point::on_lines() {
     Point* rp = NodeUtils::get_root(this);
@@ -222,22 +168,18 @@ Generator<Triangle*> Point::vertex_of_triangles() {
     co_return;
 }
 
-void Point::merge(Point* other, Predicate* pred) {
+void Point::merge(Point* other, PredSet &&preds) {
 
-    Point* root_this = NodeUtils::get_root(this);
-    Point* root_other = NodeUtils::get_root(other);
-    root_this->Node::merge(root_other, pred);
+    if (NodeUtils::same_as(this, other)) return;
 
-    Point::merge_dmaps(root_this->on_line, root_other->on_line, pred);
-    Point::merge_dmaps(root_this->on_circle, root_other->on_circle, pred);
-    Point::merge_dmaps(root_this->center_of_circle, root_other->center_of_circle, pred);
-    Point::merge_dmaps(root_this->endpoint_of_segment, root_other->endpoint_of_segment, pred);
+    this->Node::merge(other, std::move(preds));
 
     // std::set::merge has move semantics
-    root_this->on_root_line.merge(root_other->on_root_line);
-    root_this->on_root_circle.merge(root_other->on_root_circle);
-    root_this->center_of_root_circle.merge(root_other->center_of_root_circle);
-    root_this->endpoint_of_root_segment.merge(root_other->endpoint_of_root_segment);
+    this->on_root_line.merge(other->on_root_line);
+    this->on_root_circle.merge(other->on_root_circle);
+    this->center_of_root_circle.merge(other->center_of_root_circle);
+    this->endpoint_of_root_segment.merge(other->endpoint_of_root_segment);
+    this->vertex_of_root_triangle.merge(other->vertex_of_root_triangle);
 
     // Segment endpoints and triangle vertices are promoted in Segment::check_incident_segments and
     // Triangle::check_incident_triangles respectively
@@ -255,7 +197,6 @@ void Line::set_direction(Direction* d, Predicate* pred) {
     } else {
         root_this->direction = root_d;
         root_this->direction_why = pred;
-        root_d->objs[this] = pred;
         root_d->root_objs.insert(root_this);
     }
 }
@@ -306,13 +247,13 @@ Generator<Angle*> Line::on_angles_as_line2() {
     return this->get_direction()->on_angles_as_direction2();
 }
 
-std::optional<std::pair<Direction*, Direction*>> Line::merge(Line* other, Predicate* pred) {
+std::optional<std::pair<Direction*, Direction*>> Line::merge(Line* other, PredSet &&preds) {
     Line* root_this = NodeUtils::get_root(this);
     Line* root_other = NodeUtils::get_root(other);
     if (root_this == root_other) {
         return std::nullopt;
     }
-    root_this->Node::merge(root_other, pred);
+    root_this->Node::merge(root_other, std::move(preds));
 
     /* For every point pt in root_other->points, set pt on root_this.
     
@@ -463,9 +404,7 @@ std::optional<std::pair<Point*, Point*>> Circle::merge(Circle* other, Predicate*
     if (root_this == root_other) {
         return std::nullopt;
     }
-    root_other->parent = root_this;
-    root_other->parent_why = pred;
-    root_other->root = root_this;
+    root_this->Node::merge(root_other, pred);
 
     for (const auto& [pt, _] : root_other->points) {
         pt->on_root_circle.erase(root_other);
@@ -566,7 +505,6 @@ void Segment::set_length(Length* l, Predicate* pred) {
     } else {
         root_this->length = root_l;
         root_this->length_why = pred;
-        root_l->objs[this] = pred;
         root_l->root_objs.insert(root_this);
     }
 }
@@ -631,9 +569,7 @@ std::optional<std::pair<Length*, Length*>> Segment::merge(Segment* other, Predic
     if (root_this == root_other) {
         return std::nullopt;
     }
-    root_other->parent = root_this;
-    root_other->parent_why = pred;
-    root_other->root = root_this;
+    root_this->Node::merge(root_other, pred);
 
     root_other->endpoints[0]->endpoint_of_root_segment.erase(root_other);
     root_other->endpoints[1]->endpoint_of_root_segment.erase(root_other);
@@ -780,9 +716,7 @@ std::optional<std::pair<Dimension*, Dimension*>> Triangle::merge(Triangle* other
     if (root_this == root_other) {
         return std::nullopt;
     }
-    root_other->parent = root_this;
-    root_other->parent_why = pred;
-    root_other->root = root_this;
+    root_this->Node::merge(root_other, pred);
 
     for (Point* v : root_other->vertices) {
         v->vertex_of_root_triangle.erase(root_other);

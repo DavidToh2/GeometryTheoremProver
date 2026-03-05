@@ -25,7 +25,6 @@ by invoking functions. */
 template <std::derived_from<Object2> T>
 class Value2 : public Node {
 public:
-    std::map<T*, Predicate*> obj2s;
     std::set<T*> root_obj2s;
     Frac val = -1;
     Predicate* val_why = nullptr;

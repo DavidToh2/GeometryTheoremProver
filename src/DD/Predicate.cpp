@@ -136,7 +136,10 @@ bool PredicateTemplate::validate_degeneracy_args(GeometricGraph &ggraph) {
 
 
 
-
+Predicate::Predicate(const pred_t pred_name, Frac f) 
+: name(pred_name), frac_arg(f) {
+    hash = Utils::to_pred_str(pred_name) + " " + f.to_string();
+}
 Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes)
 : args(std::move(nodes)), name(pred_name) {
     hash = Utils::to_pred_str(pred_name);
@@ -149,26 +152,26 @@ Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, Frac f)
     frac_arg = f;
     hash = hash + " " + f.to_string();
 }
-Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, PredVec &&why)
+Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, PredSet &&why)
 : args(std::move(nodes)), name(pred_name), why(std::move(why)) {
     hash = Utils::to_pred_str(pred_name);
     for (Node* node : args) {
         hash = hash + " " + node->name;
     }
 }
-Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, Frac f, PredVec &&why)
+Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, Frac f, PredSet &&why)
 : Predicate(pred_name, std::move(nodes), std::move(why)) {
     frac_arg = f;
     hash = hash + " " + f.to_string();
 }
-Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, std::vector<Predicate*> &&why)
+Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, std::set<Predicate*> &&why)
 : args(std::move(nodes)), name(pred_name), why(std::move(why)) {
     hash = Utils::to_pred_str(pred_name);
     for (Node* node : args) {
         hash = hash + " " + node->name;
     }
 }
-Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, Frac f, std::vector<Predicate*> &&why)
+Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, Frac f, std::set<Predicate*> &&why)
 : Predicate(pred_name, std::move(nodes), std::move(why)) {
     frac_arg = f;
     hash = hash + " " + f.to_string();
@@ -219,21 +222,40 @@ std::string Predicate::to_string() const { return hash; }
 
 
 
-void PredVec::operator+=(Predicate* pred) {
-    preds.emplace_back(pred);
+void PredSet::operator+=(Predicate* pred) {
+    preds.insert(pred);
 }
-void PredVec::operator+=(const PredVec& other) {
-    preds.insert(preds.end(), other.preds.begin(), other.preds.end());
+void PredSet::insert(Predicate* pred) {
+    preds.insert(pred);
+}
+void PredSet::operator+=(const PredSet& other) {
+    Utils::__unify_sets(preds, other.preds);
+}
+void PredSet::insert(std::initializer_list<Predicate*> list) {
+    for (Predicate* pred : list) {
+        preds.insert(pred);
+    }
 }
 
-std::string PredVec::to_string() const {
+void PredSet::operator=(PredSet&& other) {
+    std::swap(preds, other.preds);
+}
+
+int PredSet::size() const { 
+    return preds.size(); 
+}
+bool PredSet::contains(Predicate* pred) const { 
+    return preds.contains(pred); 
+}
+std::string PredSet::to_string() const {
     if (preds.empty()) {
         return "EMPTY";
     }
-    std::string res = preds[0]->to_string();
-    for (auto iter = preds.begin() + 1; iter != preds.end(); ++iter) {
-        res = res + " && " + (*iter)->to_string(); 
-    }
+    auto iter = preds.begin();
+    std::string res = (*iter)->to_string();
+    do {
+        res = res + " && " + (*(iter++))->to_string();
+    } while (iter != preds.end());
     return res;
 }
 

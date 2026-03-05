@@ -11,6 +11,8 @@ TEST_SUITE("GeometricGraph: Node merging") {
         GeometricGraph ggraph;
         DDEngine dd;
         AREngine ar;
+        TracebackEngine tr;
+        ggraph.tr = &tr;
         Predicate* base_pred = dd.base_pred.get();
 
         Point* a = ggraph.__add_new_point("a");
@@ -331,6 +333,8 @@ TEST_SUITE("GeometricGraph: Node merging") {
         GeometricGraph ggraph;
         DDEngine dd;
         AREngine ar;
+        TracebackEngine tr;
+        ggraph.tr = &tr;
         Predicate* base_pred = dd.base_pred.get();
 
         Point* a = ggraph.__add_new_point("a", {-1, 1});

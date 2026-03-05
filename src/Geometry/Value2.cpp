@@ -15,13 +15,8 @@ void Measure::merge(Measure* other, Predicate* pred) {
     if (root_this == root_other) {
         return;
     }
-    root_other->parent = root_this;
-    root_other->parent_why = pred;
-    root_other->root = root_this;
+    root_this->Node::merge(root_other, pred);
 
-    for (auto [a, p] : root_other->obj2s) {
-        root_this->obj2s[a] = pred;
-    }
     // std::set::merge has move semantics
     root_this->root_obj2s.merge(root_other->root_obj2s);
     root_other->root_obj2s.clear();
@@ -50,13 +45,8 @@ void Fraction::merge(Fraction* other, Predicate* pred) {
     if (root_this == root_other) {
         return;
     }
-    root_other->parent = root_this;
-    root_other->parent_why = pred;
-    root_other->root = root_this;
+    root_this->Node::merge(root_other, pred);
 
-    for (auto [r, p] : root_other->obj2s) {
-        root_this->obj2s[r] = pred;
-    }
     // std::set::merge has move semantics
     root_this->root_obj2s.merge(root_other->root_obj2s);
     root_other->root_obj2s.clear();
@@ -129,12 +119,9 @@ void Shape::merge(Shape* other, Predicate* pred) {
     if (root_this == root_other) {
         return;
     }
-    root_other->parent = root_this;
-    root_other->parent_why = pred;
-    root_other->root = root_this;
+    root_this->Node::merge(root_other, pred);
 
-    for (auto [d, p] : root_other->obj2s) {
-        root_this->obj2s[d] = pred;
+    for (Dimension* d : root_other->root_obj2s) {
         d->shape = root_this;
     }
 

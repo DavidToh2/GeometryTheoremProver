@@ -34,3 +34,9 @@ public:
     explicit NumericsInternalError(const std::string& message)
         : std::runtime_error(message) {}
 };
+
+class TracebackInternalError : public std::runtime_error {
+public:
+    explicit TracebackInternalError(const std::string& message)
+        : std::runtime_error(message) {}
+};

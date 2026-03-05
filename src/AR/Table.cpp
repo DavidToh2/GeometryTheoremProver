@@ -298,7 +298,7 @@ bool Table::register_expr(const Expr::Expr& expr, Predicate* pred) {
     num_eqs += 1;
     c.emplace_back(1);
     c.emplace_back(-1);
-    deps.push_back(pred);
+    deps.emplace_back(pred);
     return true;
 }
 
@@ -372,8 +372,8 @@ bool Table::add_eq_4(const Expr::Var& var1, const Expr::Var& var2, const Expr::V
 
 
 
-std::vector<Predicate*> Table::why(const Expr::Expr& expr) {
-    std::vector<Predicate*> result;
+std::set<Predicate*> Table::why(const Expr::Expr& expr) {
+    std::set<Predicate*> result;
 
     Expr::Expr target = expr;
     Expr::strip(target);
@@ -396,7 +396,7 @@ std::vector<Predicate*> Table::why(const Expr::Expr& expr) {
 
     for (int i = 0; i < num_eqs; i++) {
         if (!(NumUtils::is_close(solution[2*i], 0.0) && NumUtils::is_close(solution[2*i + 1], 0.0))) {
-            result.push_back(deps[i]);
+            result.insert(deps[i]);
         }
     }
     return result;
@@ -445,7 +445,7 @@ void Table::generate_all_eqs() {
     }
 }
 
-Generator<std::tuple<Expr::Var, Expr::Var, std::vector<Predicate*>>> Table::get_all_eq_2s_and_why() {
+Generator<std::tuple<Expr::Var, Expr::Var, std::set<Predicate*>>> Table::get_all_eq_2s_and_why() {
     for (const auto& [eh, varpairs] : eq_2s) {
         for (const auto& [v1, v2] : varpairs) {
             if (is_eq_2_seen(v1, v2)) continue;
@@ -455,13 +455,13 @@ Generator<std::tuple<Expr::Var, Expr::Var, std::vector<Predicate*>>> Table::get_
             Expr::strip(em);
             Expr::fix(em);
 
-            std::vector<Predicate*> _why = why(em); 
+            std::set<Predicate*> _why = why(em); 
             co_yield {v1, v2, _why};
         }
     }
     co_return;
 }
-Generator<std::tuple<Expr::Var, Expr::Var, Frac, std::vector<Predicate*>>> Table::get_all_eq_3s_and_why() {
+Generator<std::tuple<Expr::Var, Expr::Var, Frac, std::set<Predicate*>>> Table::get_all_eq_3s_and_why() {
     for (auto& [eh, varpairs] : eq_3s) {
         Frac f(eh.at(one));
         for (const auto& [v1, v2] : varpairs) {
@@ -472,13 +472,13 @@ Generator<std::tuple<Expr::Var, Expr::Var, Frac, std::vector<Predicate*>>> Table
             Expr::strip(em);
             Expr::fix(em);
 
-            std::vector<Predicate*> _why = why(em);
+            std::set<Predicate*> _why = why(em);
             co_yield {v1, v2, f, _why};
         }
     }
     co_return;
 }
-Generator<std::tuple<Expr::Var, Expr::Var, Expr::Var, Expr::Var, std::vector<Predicate*>>> Table::get_all_eq_4s_and_why() {
+Generator<std::tuple<Expr::Var, Expr::Var, Expr::Var, Expr::Var, std::set<Predicate*>>> Table::get_all_eq_4s_and_why() {
     std::vector<std::pair<Expr::VarPair, Expr::VarPair>> links;
     for (auto it = eq_4s.begin(); it != eq_4s.end(); ++it) {
         EqualGroup varpairs = it->second;
@@ -501,7 +501,7 @@ Generator<std::tuple<Expr::Var, Expr::Var, Expr::Var, Expr::Var, std::vector<Pre
 
         Expr::Expr e{{v1, 1}, {v2, -1}, {v3, -1}, {v4, 1}};
         Expr::__minus(e, em);
-        std::vector<Predicate*> _why = why(e);
+        std::set<Predicate*> _why = why(e);
         co_yield {v1, v2, v3, v4, _why};
     }
     co_return;
