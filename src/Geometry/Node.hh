@@ -6,6 +6,7 @@
 #include <map>
 #include <array>
 
+#include "Common/Constants.hh"
 #include "Common/Generator.hh"
 #include "DD/Predicate.hh"
 
@@ -50,7 +51,7 @@ namespace NodeUtils {
     /* Returns the root of any `Node` object. 
     This function has the secondary purpose of lazily updating the `root` pointer for every node it passes through to the correct root. */
     template <std::derived_from<Node> Key>
-    Key* get_root(Key* n) {
+    constexpr Key* get_root(Key* n) {
         if (!n->is_root()) {
             n->root = get_root(n->root);
         }
@@ -73,9 +74,9 @@ namespace NodeUtils {
         return (get_root(a) == get_root(b));
     }
 
-    /* Takes in as input a map of the form `std::map<Object*, T>`. Returns all keys in the map. 
+    /* Takes in as input a map of the form `std::map<Key, T>`. Returns all keys in the map. 
     Note: In ordinary conditions we won't need to use this, as we can simply use a regular iterator of the form `for (auto [key, _] : map) { ... }`*/
-    template <std::derived_from<Node> Key, typename Map>
+    template <std::derived_from<Node> Key, Constants::IsStdMap Map>
     Generator<Key*> all(Map& m) {
         for (const auto& [key, _] : m) {
             co_yield static_cast<Key*>(key);
@@ -83,11 +84,11 @@ namespace NodeUtils {
         co_return;
     }
 
-    /* Takes in as input a map of the form `std::map<Object*, T>`. This will usually be `on_line`, `on_circle`, `points` etc. 
+    /* Takes in as input a map of the form `std::map<Key, T>`. 
     Returns the roots of all keys in the map.
 
     Note: No deduplication occurs. */
-    template <std::derived_from<Node> Key, typename Map>
+    template <std::derived_from<Node> Key, Constants::IsStdMap Map>
     Generator<Key*> all_roots(Map& m) {
         for (const auto& [key, _] : m) {
             Node* r = get_root(key);
@@ -96,9 +97,9 @@ namespace NodeUtils {
         co_return;
     }
 
-    /* Takes in as input a map of the form `std::map<Object*, T>`. This will usually be `on_line`, `on_circle`, `points` etc. 
+    /* Takes in as input a map of the form `std::map<Key, T>`.
     Returns all distinct roots of all keys in the map. */
-    template <std::derived_from<Node> Key, typename Map>
+    template <std::derived_from<Node> Key, Constants::IsStdMap Map>
     Generator<Key*> all_roots_dedup(Map& m) {
         std::set<Node*> yielded;
         for (const auto& [key, _] : m) {
@@ -111,9 +112,9 @@ namespace NodeUtils {
         co_return;
     }
 
-    /* Takes in as input a map of the form `std::map<Object*, T>`. This will usually be `points`. 
+    /* Takes in as input a map of the form `std::map<Key, T>`.
     Returns all pairs of keys in the map. */
-    template <std::derived_from<Node> Key, typename Map>
+    template <std::derived_from<Node> Key, Constants::IsStdMap Map>
     Generator<std::pair<Key*, Key*>> all_pairs(Map& m) {
         for (auto it = m.begin(); it != m.end(); ++it) {
             for (auto jt = std::next(it); jt != m.end(); ++jt) {
@@ -123,9 +124,9 @@ namespace NodeUtils {
         co_return;
     }
 
-    /* Takes in as input a map of the form `std::map<Object*, T>`. This will usually be `points`. 
+    /* Takes in as input a map of the form `std::map<Key, T>`.
     Returns all ordered pairs of keys in the map. */
-    template <std::derived_from<Node> Key, typename Map>
+    template <std::derived_from<Node> Key, Constants::IsStdMap Map>
     Generator<std::pair<Key*, Key*>> all_pairs_ordered(Map& m) {
         for (auto it = m.begin(); it != m.end(); ++it) {
             for (auto jt = std::next(it); jt != m.end(); ++jt) {
@@ -138,7 +139,7 @@ namespace NodeUtils {
         co_return;
     }
 
-    /* Take in as input a set of pointers to `Value`s. This will usually be a `root_objs` set.
+    /* Take in as input a set of pointers to `Value`s.
     Returns all pairs of values in the set. */
     template <std::derived_from<Node> Value>
     Generator<std::pair<Value*, Value*>> all_pairs(std::set<Value*>& s) {
@@ -150,7 +151,7 @@ namespace NodeUtils {
         co_return;
     }
 
-    /* Take in as input a set of pointers to `Value`s. This will usually be a `root_objs` set.
+    /* Take in as input a set of pointers to `Value`s.
     Returns all ordered pairs of values in the set. */
     template <std::derived_from<Node> Value>
     Generator<std::pair<Value*, Value*>> all_pairs_ordered(std::set<Value*>& s) {
@@ -163,9 +164,9 @@ namespace NodeUtils {
         co_return;
     }
 
-    /* Takes in as input a map of the form `std::map<Object*, T>`. This will usually be `objs`. 
+    /* Takes in as input a map of the form `std::map<Key, T>`. 
     Returns all distinct pairs of roots of keys in the map. */
-    template <std::derived_from<Node> Key, typename Map>
+    template <std::derived_from<Node> Key, Constants::IsStdMap Map>
     Generator<std::pair<Key*, Key*>> all_root_pairs_dedup(Map& m) {
         std::vector<Node*> yielded_1;
         auto roots_1 = all_roots_dedup<Key>(m);
@@ -179,9 +180,9 @@ namespace NodeUtils {
         co_return;
     }
 
-    /* Takes in as input a map of the form `std::map<Object*, T>`. This will usually be `points`. 
+    /* Takes in as input a map of the form `std::map<Key, T>`.
     Returns all triples of keys in the map. */
-    template <std::derived_from<Node> Key, typename Map>
+    template <std::derived_from<Node> Key, Constants::IsStdMap Map>
     Generator<std::tuple<Key*, Key*, Key*>> all_triples(Map& m) {
         for (auto it = m.begin(); it != m.end(); ++it) {
             for (auto jt = std::next(it); jt != m.end(); ++jt) {
@@ -195,9 +196,9 @@ namespace NodeUtils {
         co_return;
     }
 
-    /* Takes in as input a map of the form `std::map<Object*, T>`. This will usually be `points`. 
+    /* Takes in as input a map of the form `std::map<Key, T>`.
     Returns all ordered triples of keys in the map. */
-    template <std::derived_from<Node> Key, typename Map>
+    template <std::derived_from<Node> Key, Constants::IsStdMap Map>
     Generator<std::tuple<Key*, Key*, Key*>> all_triples_ordered(Map& m) {
         auto unordered_gen = all_triples<Key>(m);
         while (unordered_gen) {
@@ -212,9 +213,40 @@ namespace NodeUtils {
         co_return;
     }
 
-    /* Takes in as input a map of the form `std::map<Object*, T>`. This will usually be `points`. 
+    /* Take in as input a set of pointers to `Value`s.
+    Returns all triples of values in the set. */
+    template <std::derived_from<Node> Value>
+    Generator<std::tuple<Value*, Value*, Value*>> all_triples(std::set<Value*>& s) {
+        for (auto it = s.begin(); it != s.end(); ++it) {
+            for (auto jt = std::next(it); jt != s.end(); ++jt) {
+                for (auto kt = std::next(jt); kt != s.end(); ++kt) {
+                    co_yield {(*it), (*jt), (*kt)};
+                }
+            }
+        }
+        co_return;
+    }
+
+    /* Takes in as input a set of pointers to `Value`s.
+    Returns all ordered triples of values in the set. */
+    template <std::derived_from<Node> Value>
+    Generator<std::tuple<Value*, Value*, Value*>> all_triples_ordered(std::set<Value*>& s) {
+        auto unordered_gen = all_triples<Value>(s);
+        while (unordered_gen) {
+            auto [k1, k2, k3] = unordered_gen();
+            co_yield {k1, k2, k3};
+            co_yield {k1, k3, k2};
+            co_yield {k2, k1, k3};
+            co_yield {k2, k3, k1};
+            co_yield {k3, k1, k2};
+            co_yield {k3, k2, k1};
+        }
+        co_return;
+    }
+
+    /* Takes in as input a map of the form `std::map<Key, T>`.
     Returns all quadruples of keys in the map. */
-    template <std::derived_from<Node> Key, typename Map>
+    template <std::derived_from<Node> Key, Constants::IsStdMap Map>
     Generator<std::tuple<Key*, Key*, Key*, Key*>> all_quads(Map& m) {
         for (auto it = m.begin(); it != m.end(); ++it) {
             for (auto jt = std::next(it); jt != m.end(); ++jt) {
@@ -231,12 +263,66 @@ namespace NodeUtils {
         co_return;
     }
 
-    /* Takes in as input a map of the form `std::map<Object*, T>`. This will usually be `points`. 
+    /* Takes in as input a map of the form `std::map<Key, T>`.
     Returns all quadruples of keys in the map. */
-    template <std::derived_from<Node> Key, typename Map>
+    template <std::derived_from<Node> Key, Constants::IsStdMap Map>
     Generator<std::tuple<Key*, Key*, Key*, Key*>> all_quads_ordered(Map& m) {
         
         auto unordered_gen = all_quads<Key>(m);
+        while (unordered_gen) {
+            auto [k1, k2, k3, k4] = unordered_gen();
+            co_yield {k1, k2, k3, k4};
+            co_yield {k1, k2, k4, k3};
+            co_yield {k1, k3, k2, k4};
+            co_yield {k1, k3, k4, k2};
+            co_yield {k1, k4, k2, k3};
+            co_yield {k1, k4, k3, k2};
+
+            co_yield {k2, k1, k3, k4};
+            co_yield {k2, k1, k4, k3};
+            co_yield {k2, k3, k1, k4};
+            co_yield {k2, k3, k4, k1};
+            co_yield {k2, k4, k1, k3};
+            co_yield {k2, k4, k3, k1};
+
+            co_yield {k3, k1, k2, k4};
+            co_yield {k3, k1, k4, k2};
+            co_yield {k3, k2, k1, k4};
+            co_yield {k3, k2, k4, k1};
+            co_yield {k3, k4, k1, k2};
+            co_yield {k3, k4, k2, k1};
+
+            co_yield {k4, k1, k2, k3};
+            co_yield {k4, k1, k3, k2};
+            co_yield {k4, k2, k1, k3};
+            co_yield {k4, k2, k3, k1};
+            co_yield {k4, k3, k1, k2};
+            co_yield {k4, k3, k2, k1};
+        }
+        co_return;
+    }
+
+    /* Take in as input a set of pointers to `Value`s.
+    Returns all quadruplets of values in the set. */
+    template<std::derived_from<Node> Value>
+    Generator<std::tuple<Value*, Value*, Value*, Value*>> all_quads(std::set<Value*>& s) {
+        for (auto it = s.begin(); it != s.end(); ++it) {
+            for (auto jt = std::next(it); jt != s.end(); ++jt) {
+                for (auto kt = std::next(jt); kt != s.end(); ++kt) {
+                    for (auto lt = std::next(kt); lt != s.end(); ++lt) {
+                        co_yield {(*it), (*jt), (*kt), (*lt)};
+                    }
+                }
+            }
+        }
+        co_return;
+    }
+
+    /* Takes in as input a set of pointers to `Value`s.
+    Returns all ordered quadruples of values in the set. */
+    template<std::derived_from<Node> Value>
+    Generator<std::tuple<Value*, Value*, Value*, Value*>> all_quads_ordered(std::set<Value*>& s) {
+        auto unordered_gen = all_quads(s);
         while (unordered_gen) {
             auto [k1, k2, k3, k4] = unordered_gen();
             co_yield {k1, k2, k3, k4};

@@ -20,6 +20,10 @@ void TracebackEngine::set_point_as_endpoint(Point* p, Segment* s, Predicate* pre
 void TracebackEngine::set_point_as_vertex(Point* p, Triangle* t, Predicate* pred) {
     point_as_triangle_vertex[p][t] = pred;
 }
+void TracebackEngine::set_directions_perp(Direction* d1, Direction* d2, Predicate* pred) {
+    perp_directions[{d1, d2}] = pred;
+    perp_directions[{d2, d1}] = pred;
+}
 void TracebackEngine::set_direction_of(Direction* d, Line* l, Predicate* pred) {
     direction_of_lines[d][l] = pred;
 }
@@ -37,6 +41,12 @@ void TracebackEngine::set_fraction_of(Fraction* f, Ratio* r, Predicate* pred) {
 }
 void TracebackEngine::set_shape_of(Shape* s, Dimension* d, Predicate* pred) {
     shape_of_dimensions[s][d] = pred;
+}
+void TracebackEngine::set_measure_val(Measure* m, Frac val, Predicate* pred) {
+    measure_vals[m] = {val, pred};
+}
+void TracebackEngine::set_fraction_val(Fraction* f, Frac val, Predicate* pred) {
+    fraction_vals[f] = {val, pred};
 }
 
 void TracebackEngine::set_goal(Predicate* pred) {

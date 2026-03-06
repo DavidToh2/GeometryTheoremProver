@@ -16,9 +16,9 @@
 
 Generator<Point*> Object::all_points() {
     Object* root_this = NodeUtils::get_root(this);
-    for (auto const& it : root_this->points) {
-        Point* pbuf = it.first;
-        co_yield pbuf;
+    for (auto const& pt_ : root_this->points) {
+        Point* pt = pt_;
+        co_yield pt;
     }
     co_return;
 }
@@ -54,45 +54,33 @@ bool Object::contains(Point *p) {
     return NodeUtils::get_root(this)->__contains(p);
 }
 
-Predicate* Object::__why_contains(Point* p) {
-    Point* rp = NodeUtils::get_root(p);
-    if (points.contains(rp)) {
-        return points[rp];
-    }
-    return nullptr;
-}
-Predicate* Object::why_contains(Point *p) {
-    return NodeUtils::get_root(this)->__why_contains(p);
-}
 
 
 
-
-void Point::set_this_on(Line* l, Predicate* pred) {
+void Point::set_this_on(Line* l) {
     Line* rl = NodeUtils::get_root(l);
     if (on_root_line.contains(rl)) return;
     on_root_line.insert(rl);
-    rl->points[this] = pred;
+    rl->points.insert(this);
 }
-void Point::set_this_on(Circle* c, Predicate* pred) {
+void Point::set_this_on(Circle* c) {
     Circle* rc = NodeUtils::get_root(c);
     if (on_root_circle.contains(rc)) return;
     on_root_circle.insert(rc);
-    rc->points[this] = pred;
+    rc->points.insert(this);
 }
-void Point::set_this_center_of(Circle* c, Predicate* pred) {
+void Point::set_this_center_of(Circle* c) {
     Circle* rc = NodeUtils::get_root(c);
     if (center_of_root_circle.contains(rc)) return;
     center_of_root_circle.insert(rc);
     rc->center = this;
-    rc->center_why = pred;
 }
-void Point::set_this_endpoint_of(Segment* s, Predicate* pred) {
+void Point::set_this_endpoint_of(Segment* s) {
     Segment* rs = NodeUtils::get_root(s);
     if (endpoint_of_root_segment.contains(rs)) return;
     endpoint_of_root_segment.insert(rs);
 }
-void Point::set_this_vertex_of(Triangle* t, Predicate* pred) {
+void Point::set_this_vertex_of(Triangle* t) {
     Triangle* rt = NodeUtils::get_root(t);
     if (vertex_of_root_triangle.contains(rt)) return;
     vertex_of_root_triangle.insert(rt);
@@ -105,13 +93,13 @@ bool Point::is_this_on(Circle* c) {
     return on_root_circle.contains(NodeUtils::get_root(c));
 }
 
-void Point::set_on(Line* l, Predicate* pred) {
+void Point::set_on(Line* l) {
     Point* rp = NodeUtils::get_root(this);
-    rp->set_this_on(l, pred);
+    rp->set_this_on(l);
 }
-void Point::set_on(Circle* c, Predicate* pred) {
+void Point::set_on(Circle* c) {
     Point* rp = NodeUtils::get_root(this);
-    rp->set_this_on(c, pred);
+    rp->set_this_on(c);
 }
 
 bool Point::is_on(Line* l) {
@@ -189,16 +177,11 @@ void Point::merge(Point* other, PredSet &&preds) {
 
 
 
-void Line::set_direction(Direction* d, Predicate* pred) {
+void Line::set_direction(Direction* d) {
     Line* root_this = NodeUtils::get_root(this);
     Direction* root_d = NodeUtils::get_root(d);
-    if (root_this->__has_direction()) {
-        root_this->direction->merge(root_d, pred);
-    } else {
-        root_this->direction = root_d;
-        root_this->direction_why = pred;
-        root_d->root_objs.insert(root_this);
-    }
+    root_this->direction = root_d;
+    root_d->root_objs.insert(root_this);
 }
 bool Line::__has_direction() {
     return (direction != nullptr);
@@ -250,10 +233,10 @@ Generator<Angle*> Line::on_angles_as_line2() {
 std::optional<std::pair<Direction*, Direction*>> Line::merge(Line* other, PredSet &&preds) {
     Line* root_this = NodeUtils::get_root(this);
     Line* root_other = NodeUtils::get_root(other);
-    if (root_this == root_other) {
+    if (this == other) {
         return std::nullopt;
     }
-    root_this->Node::merge(root_other, std::move(preds));
+    this->Node::merge(other, std::move(preds));
 
     /* For every point pt in root_other->points, set pt on root_this.
     
@@ -267,20 +250,20 @@ std::optional<std::pair<Direction*, Direction*>> Line::merge(Line* other, PredSe
     contain l_other, which is not desirable since l_other is no longer a root.
     
     We thus need to remove l_other from p_other->on_root_line specifically, before entering this function. */
-    for (const auto& [pt, _] : root_other->points) {
-        pt->on_root_line.erase(root_other);
+    for (const auto& pt : other->points) {
+        pt->on_root_line.erase(other);
             
-        if (!root_this->points.contains(pt)) {
-            pt->set_this_on(root_this, pred);
+        if (!this->points.contains(pt)) {
+            pt->set_this_on(this);
         }
     }
 
-    if (root_other->__has_direction()) {
-        root_other->__get_direction()->root_objs.erase(root_other);
-        if (root_this->__has_direction()) {
-            return {{root_this->__get_direction(), root_other->__get_direction()}};
+    if (other->__has_direction()) {
+        other->__get_direction()->root_objs.erase(other);
+        if (this->__has_direction()) {
+            return {{this->__get_direction(), other->__get_direction()}};
         } else {
-            root_this->set_direction(root_other->direction, pred);
+            this->set_direction(other->direction);
         }
     }
     return std::nullopt;
@@ -306,8 +289,9 @@ Line::check_incident_lines(Point *p, Point *other_p, Predicate *pred) {
     std::map<Point*, Line*> point_to_line;
     for (auto it = p->on_root_line.begin(); it != p->on_root_line.end(); ++it) {
         Line* l1 = *it;
-        Utils::replace_key_in_map(l1->points, other_p, p);
-        for (auto& [p1, _] : l1->points) {
+        l1->points.erase(other_p);
+        l1->points.insert(p);
+        for (auto& p1 : l1->points) {
             if (p1 != p) {
                 point_to_line[p1] = l1;
             }
@@ -316,8 +300,9 @@ Line::check_incident_lines(Point *p, Point *other_p, Predicate *pred) {
     for (auto it = other_p->on_root_line.begin(); it != other_p->on_root_line.end(); ) {
         Line* l2 = *it;
         bool merge_happened = false;
-        Utils::replace_key_in_map(l2->points, other_p, p);
-        for (auto& [p1, _] : l2->points) {
+        l2->points.erase(other_p);
+        l2->points.insert(p);
+        for (auto& p1 : l2->points) {
             if (point_to_line.contains(p1)) {
                 // See the comment in Line::merge() for an explanation of why this line is necessary
                 if (!merge_happened) it = other_p->on_root_line.erase(it);
@@ -335,7 +320,7 @@ Line::check_incident_lines(Line* l, Line* other_l, Predicate* pred) {
 
     std::map<Line*, Point*> line_to_point;
     for (auto it = l->points.begin(); it != l->points.end(); ++it) {
-        Point* p1 = it->first;
+        Point* p1 = *it;
         if (other_l->contains(p1)) continue;
         for (auto it1 = p1->on_root_line.begin(); it1 != p1->on_root_line.end(); ++it1) {
             Line* l1 = *it1;
@@ -345,7 +330,7 @@ Line::check_incident_lines(Line* l, Line* other_l, Predicate* pred) {
         }
     }
     for (auto it = other_l->points.begin(); it != other_l->points.end(); ++it) {
-        Point* p2 = it->first;
+        Point* p2 = *it;
         for (auto it2 = p2->on_root_line.begin(); it2 != p2->on_root_line.end(); ++it2) {
             Line* l2 = *it2;
             if (l2 != l && l2 != other_l) {
@@ -365,13 +350,12 @@ Line::check_incident_lines(Line* l, Line* other_l, Predicate* pred) {
 
 
 
-void Circle::__set_center(Point* p, Predicate* pred) {
+void Circle::__set_center(Point* p) {
     p = NodeUtils::get_root(p);
     center = p;
-    center_why = pred;
 }
-void Circle::set_center(Point* p, Predicate* pred) {
-    NodeUtils::get_root(this)->__set_center(p, pred);
+void Circle::set_center(Point* p) {
+    NodeUtils::get_root(this)->__set_center(p);
 }
 bool Circle::__has_center() {
     return (center != nullptr);
@@ -398,27 +382,26 @@ Generator<Circle*> Circle::all_circles_through(Point* p1, Point* p2) {
     co_return;
 }
 
-std::optional<std::pair<Point*, Point*>> Circle::merge(Circle* other, Predicate* pred) {
-    Circle* root_this = NodeUtils::get_root(this);
-    Circle* root_other = NodeUtils::get_root(other);
-    if (root_this == root_other) {
+std::optional<std::pair<Point*, Point*>> Circle::merge(Circle* other, PredSet &&preds) {
+    
+    if (this == other) {
         return std::nullopt;
     }
-    root_this->Node::merge(root_other, pred);
+    this->Node::merge(other, std::move(preds));
 
-    for (const auto& [pt, _] : root_other->points) {
-        pt->on_root_circle.erase(root_other);
-        if (!root_this->points.contains(pt)) {
-            pt->set_this_on(root_this, pred);
+    for (const auto& pt : other->points) {
+        pt->on_root_circle.erase(other);
+        if (!this->points.contains(pt)) {
+            pt->set_this_on(this);
         }
     }
 
-    if (root_other->__has_center()) {
-        root_other->__get_center()->center_of_root_circle.erase(root_other);
-        if (root_this->__has_center()) {
-            return {{root_this->__get_center(), root_other->center}};
+    if (other->__has_center()) {
+        other->__get_center()->center_of_root_circle.erase(other);
+        if (this->__has_center()) {
+            return {{this->__get_center(), other->center}};
         } else {
-            root_this->__set_center(root_other->center, pred);
+            this->__set_center(other->__get_center());
         }
     }
     return std::nullopt;
@@ -431,7 +414,8 @@ Circle::check_incident_circles_by_intersections(Point *p, Point *other_p, Predic
     std::map<Point*, Circle*> center_to_circle;
     for (auto it = p->on_root_circle.begin(); it != p->on_root_circle.end(); ++it) {
         Circle* c1 = *it;
-        Utils::replace_key_in_map(c1->points, other_p, p);
+        c1->points.erase(other_p);
+        c1->points.insert(p);
         auto gen_point_pairs_on_c1 = c1->all_point_pairs_ordered();
         while (gen_point_pairs_on_c1) {
             auto pair1 = gen_point_pairs_on_c1();
@@ -446,7 +430,8 @@ Circle::check_incident_circles_by_intersections(Point *p, Point *other_p, Predic
     for (auto it = other_p->on_root_circle.begin(); it != other_p->on_root_circle.end(); ) {
         Circle* c2 = *it;
         bool merge_happened = false;
-        Utils::replace_key_in_map(c2->points, other_p, p);
+        c2->points.erase(other_p);
+        c2->points.insert(p);
         auto gen_point_pairs_on_c2 = c2->all_point_pairs();
         while (gen_point_pairs_on_c2) {
             auto pair2 = gen_point_pairs_on_c2();
@@ -474,7 +459,7 @@ Circle::check_incident_circles_by_center(Point *p, Point *other_p, Predicate *pr
     std::map<Point*, Circle*> point_to_circle;
     for (auto it = p->center_of_root_circle.begin(); it != p->center_of_root_circle.end(); ++it) {
         Circle* c1 = *it;
-        for (auto [p1, _] : c1->points) {
+        for (auto p1 : c1->points) {
             assert(!point_to_circle.contains(p1));
             point_to_circle[p1] = c1;
         }
@@ -482,9 +467,9 @@ Circle::check_incident_circles_by_center(Point *p, Point *other_p, Predicate *pr
     for (auto it = other_p->center_of_root_circle.begin(); it != other_p->center_of_root_circle.end(); ) {
         Circle* c2 = *it;
         bool merge_happened = false;
-        c2->set_center(p, c2->center_why);
+        c2->set_center(p);
         
-        for (auto [p1, _] : c2->points) {
+        for (auto p1 : c2->points) {
             if (point_to_circle.contains(p1)) {
                 if (!merge_happened) it = other_p->center_of_root_circle.erase(it);
                 merge_happened = true;
@@ -497,16 +482,11 @@ Circle::check_incident_circles_by_center(Point *p, Point *other_p, Predicate *pr
 
 
 
-void Segment::set_length(Length* l, Predicate* pred) {
+void Segment::set_length(Length* l) {
     Segment* root_this = NodeUtils::get_root(this);
     Length* root_l = NodeUtils::get_root(l);
-    if (root_this->__has_length()) {
-        root_this->length->merge(root_l, pred);
-    } else {
-        root_this->length = root_l;
-        root_this->length_why = pred;
-        root_l->root_objs.insert(root_this);
-    }
+    root_this->length = root_l;
+    root_l->root_objs.insert(root_this);
 }
 bool Segment::__has_length() {
     return (length != nullptr);
@@ -563,25 +543,24 @@ Generator<Ratio*> Segment::on_ratios_as_segment2() {
 }
 
 
-std::optional<std::pair<Length*, Length*>> Segment::merge(Segment* other, Predicate* pred) {
-    Segment* root_this = NodeUtils::get_root(this);
-    Segment* root_other = NodeUtils::get_root(other);
-    if (root_this == root_other) {
+std::optional<std::pair<Length*, Length*>> Segment::merge(Segment* other, PredSet &&preds) {
+
+    if (this == other) {
         return std::nullopt;
     }
-    root_this->Node::merge(root_other, pred);
+    this->Node::merge(other, std::move(preds));
 
-    root_other->endpoints[0]->endpoint_of_root_segment.erase(root_other);
-    root_other->endpoints[1]->endpoint_of_root_segment.erase(root_other);
+    other->endpoints[0]->endpoint_of_root_segment.erase(other);
+    other->endpoints[1]->endpoint_of_root_segment.erase(other);
 
-    root_this->points.merge(root_other->points);
+    this->points.merge(other->points);
 
-    if (root_other->__has_length()) {
-        root_other->__get_length()->root_objs.erase(root_other);
-        if (root_this->__has_length()) {
-            return {{root_this->__get_length(), root_other->length}};
+    if (other->__has_length()) {
+        other->__get_length()->root_objs.erase(other);
+        if (this->__has_length()) {
+            return {{this->__get_length(), other->length}};
         } else {
-            root_this->set_length(root_other->length, pred);
+            this->set_length(other->length);
         }
     }
     return std::nullopt;
@@ -623,12 +602,11 @@ Generator<std::pair<Segment*, Segment*>> Segment::check_incident_segments(Point 
 
 
 
-void Triangle::set_dimension(Dimension* d, Predicate* pred) {
+void Triangle::set_dimension(Dimension* d) {
     Triangle* root_this = NodeUtils::get_root(this);
     Dimension* root_d = NodeUtils::get_root(d);
     root_this->dimension = root_d;
-    root_this->dimension_why = pred;
-    root_d->root_triangles[root_this] = pred;
+    root_d->root_triangles.insert(root_this);
 }
 Dimension* Triangle::get_dimension() {
     Triangle* root_this = NodeUtils::get_root(this);
@@ -710,19 +688,18 @@ std::pair<Point*, Point*> Triangle::other_vertices(Point* p, Point* new_p) {
     }
 }
 
-std::optional<std::pair<Dimension*, Dimension*>> Triangle::merge(Triangle* other, Predicate* pred) {
-    Triangle* root_this = NodeUtils::get_root(this);
-    Triangle* root_other = NodeUtils::get_root(other);
-    if (root_this == root_other) {
+std::optional<std::pair<Dimension*, Dimension*>> Triangle::merge(Triangle* other, PredSet &&preds) {
+    
+    if (this == other) {
         return std::nullopt;
     }
-    root_this->Node::merge(root_other, pred);
+    this->Node::merge(other, std::move(preds));
 
-    for (Point* v : root_other->vertices) {
-        v->vertex_of_root_triangle.erase(root_other);
+    for (Point* v : other->vertices) {
+        v->vertex_of_root_triangle.erase(other);
     }
 
-    return {{root_this->get_dimension(), root_other->get_dimension()}};
+    return {{this->get_dimension(), other->get_dimension()}};
 }
 
 Generator<std::pair<std::pair<Triangle*, Triangle*>, std::array<int, 3>>> 

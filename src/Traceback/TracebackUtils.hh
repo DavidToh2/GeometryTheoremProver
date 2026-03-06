@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include "Common/Exceptions.hh"
 #include "Geometry/Node.hh"
 
 namespace TracebackUtils {
@@ -33,6 +34,9 @@ namespace TracebackUtils {
     PredSet why_ancestor(T* child, T* ancestor) {
         PredSet res;
         while (child != ancestor) {
+            if (child->is_root()) {
+                throw TracebackInternalError("TracebackUtils::why_ancestor(): child is not a descendant of ancestor");
+            }
             res += child->parent_why;
             child = NodeUtils::get_parent(child);
         }

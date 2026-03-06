@@ -27,12 +27,11 @@ class Value2 : public Node {
 public:
     std::set<T*> root_obj2s;
     Frac val = -1;
-    Predicate* val_why = nullptr;
 
     Value2(std::string name) : Node(name) {}
 
     constexpr bool has_val() { return (val > -0.9); }
-    constexpr void remove_val() { val = -1; val_why = nullptr; }
+    constexpr void remove_val() { val = -1; }
 };
 
 
@@ -50,7 +49,7 @@ public:
     and `root_obj2s` of the latter, as well as updating the `measure` and `measure_why` of the former.
     This is done by calling `Angle::set_measure()`. 
     Note: If `a` is already present in `obj2s`, then overwriting by `pred` occurs. */
-    void add_angle(Angle* a, Predicate* pred);
+    void add_angle(Angle* a);
 
     /* Returns all pairs of equal angles associated with this measure. */
     Generator<std::pair<Angle*, Angle*>> all_eq_pairs();
@@ -59,7 +58,7 @@ public:
 
     /* Merges the root node of `other` into the root node of `this`.
     Warning: The `val`s of the two measures are not reconciled. */
-    void merge(Measure* other, Predicate* pred);
+    void merge(Measure* other, PredSet &&preds);
 };
 
 class Fraction : public Value2<Ratio> {
@@ -70,7 +69,7 @@ public:
     and `root_obj2s` of the latter, as well as updating the `fraction` and `fraction_why` of the former.
     This is done by calling `Ratio::set_fraction()`.
     Note: If `r` is already present in `obj2s`, then overwriting by `pred` occurs. */
-    void add_ratio(Ratio* r, Predicate* pred);
+    void add_ratio(Ratio* r);
 
     /* Returns all pairs of equal ratios associated with this fraction. */
     Generator<std::pair<Ratio*, Ratio*>> all_eq_pairs();
@@ -79,7 +78,7 @@ public:
 
     /* Merges the root node of `other` into the root node of `this`.
     Warning: The `val`s of the two fractions are not reconciled. */
-    void merge(Fraction* other, Predicate* pred);
+    void merge(Fraction* other, PredSet &&preds);
 };
 
 
@@ -103,10 +102,10 @@ public:
     Shape(std::string name) : Value2(name) {}
 
     /* Associate a dimension `d` with the root shape of `this`, by adding the former to the `obj2s` 
-    and `root_obj2s` of the latter, as well as updating the `shape` and `shape_why` of the former.
+    and `root_obj2s` of the latter, as well as updating the `shape` of the former.
     This is done by calling `Dimension::add_shape()`.
     Note: If `d` is already present in `obj2s`, then overwriting by `pred` occurs. */
-    void add_dimension(Dimension* d, Predicate* pred);
+    void add_dimension(Dimension* d);
 
     /* Permutes the vertex ordering of every single Triangle in every single Dimension associated
     with this Shape.
@@ -132,5 +131,5 @@ public:
     /* Returns all ordered pairs of equal dimensions associated with this shape. */
     Generator<std::pair<Dimension*, Dimension*>> all_eq_pairs_ordered();
 
-    void merge(Shape* other, Predicate* pred);
+    void merge(Shape* other, PredSet &&preds);
 };

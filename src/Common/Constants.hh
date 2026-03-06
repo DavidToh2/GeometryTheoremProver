@@ -1,6 +1,10 @@
 #pragma once
 
 #include <string>
+#include <map>
+#include <set>
+#include <concepts>
+#include <type_traits>
 
 constexpr double TOL = 1e-9;
 constexpr double TOL2 = 1e-3;
@@ -47,6 +51,20 @@ const std::string NUMERIC_NAMES[] = {
 
 const std::string ONE = "1";
 const std::string PI = "pi";
+
+template <typename T>
+inline constexpr bool is_std_map_v = false;
+template <typename K, typename V, typename Comp, typename Alloc>
+inline constexpr bool is_std_map_v<std::map<K, V, Comp, Alloc>> = true;
+template <typename T>
+concept IsStdMap = is_std_map_v<std::remove_cvref_t<T>>;
+
+template <typename T>
+inline constexpr bool is_std_set_v = false;
+template <typename K, typename Comp, typename Alloc>
+inline constexpr bool is_std_set_v<std::set<K, Comp, Alloc>> = true;
+template <typename T>
+concept IsStdSet = is_std_set_v<std::remove_cvref_t<T>>;
 
 } // namespace Constants
 

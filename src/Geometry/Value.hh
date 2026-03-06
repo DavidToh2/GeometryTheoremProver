@@ -33,7 +33,6 @@ class Direction : public Value<Line> {
 public:
 
     Direction* perp = nullptr;
-    Predicate* perp_why = nullptr;
     std::set<Angle*> on_angles_1;
     std::set<Angle*> on_angles_2;
 
@@ -44,16 +43,19 @@ public:
     /* Checks if the root node of `this` has a perp */
     bool has_perp();
 
-    /* Sets `this` 's `perp` and `perp_why` attributes to be `d` and `pred` respectively.
-    Note: Does not set `d` 's `perp` and `perp_why` attributes. Thus, `__set_perp()` needs to be called
-    twice, one for `this` and one for `d`.
+    /* Sets `this->perp = d`.
+    Note: Does not set `d->perp`. Thus, `__set_perp()` needs to be called twice, one for `this` 
+    and one for `d`.
     Note: Assumes that `this` and `d` are both root nodes.
-    Note: Assumes that `this` and `d` do not already have `perp` set. */
-    void __set_perp(Direction *d, Predicate* pred);
-    /* Sets the root nodes of `this` and `d` to be perpendicular to each other. 
-    If `this` already has a `perp`, then `this->perp` is merged into `d`.
-    If `d` already has a `perp`, then `d->perp` is merged into `this`. */
-    void set_perp(Direction *d, Predicate* pred);
+    Note: Assumes that `this` does not already have `perp` set: otherwise its old `perp` is
+    overwritten. */
+    void __set_perp(Direction *d);
+    /* Sets `this` and `d` to be perpendicular to each other. 
+    If `this` already has a `perp`, then `this->perp` is overwritten by `d`.
+    If `d` already has a `perp`, then `d->perp` is overwritten by `this`.
+    Note: To ensure correct merging behaviour, extract the old `perp`s of `this` and `d`, then merge
+    them after the set is done. */
+    void set_perp(Direction *d);
 
     /* Get the root of the perpendicular of `this`. */
     Direction* __get_perp();
@@ -64,8 +66,10 @@ public:
     /* Associate the line `l` with the root direction of `this`, by adding the former to the `objs` 
     and `root_objs` of the latter. 
     Calls `Line::set_direction()`, which does the exact same thing.
+    Note: Assumes that `l` does not already have a direction. Code using this function should manually 
+    check if `l` already has a direction.
     Note: If `l` is already present in `objs`, then nothing happens. */
-    void add_line(Line* l, Predicate* pred);
+    void add_line(Line* l);
 
     /* Returns all pairs of parallel lines associated with this direction. */
     Generator<std::pair<Line*, Line*>> all_para_pairs();
@@ -83,10 +87,9 @@ public:
     Generator<Angle*> on_angles_as_direction2();
 
     /* Merge the root nodes of `this` and `other`. 
-    Also correctly sets their `perp`s, unless both `perp`s are already present, in which case they
-    are returned (for further merging by GeometricGraph). */
-    std::optional<std::pair<Direction*, Direction*>> merge(Direction* other, Predicate* pred);
-    std::optional<std::pair<Direction*, Direction*>> __check_perps_for_merge(Direction* other, Predicate* pred);
+    Warning: This does NOT merge their `perp`s. Code using this function should first extract `this->perp` 
+    and `other->perp`, then merge them separately. */
+    void merge(Direction* other, PredSet &&preds);
 
     /* Identify pairs of angles `(a1, a2)` that need to be merged as a result of the directions `d` and 
     `other_d` being deduced as parallel. 
@@ -115,7 +118,7 @@ public:
     and `root_objs` of the latter. 
     Calls `Segment::set_length()`, which does the exact same thing.
     Note: If `s` is already present in `objs`, then nothing happens. */
-    void add_segment(Segment* s, Predicate* pred);
+    void add_segment(Segment* s);
 
     Generator<std::pair<Segment*, Segment*>> all_cong_pairs();
     Generator<std::pair<Segment*, Segment*>> all_cong_pairs_ordered();
@@ -126,7 +129,7 @@ public:
     Generator<Ratio*> on_ratios_as_length2();
 
     /* Merges the root nodes of `this` and `other`. */
-    void merge(Length* other, Predicate* pred);
+    void merge(Length* other, PredSet &&preds);
 
     /* Identify pairs of ratios `(r1, r2)` that need to be merged as a result of the lengths `l` and `other_l`
     being deduced as equal.

@@ -247,6 +247,9 @@ int PredSet::size() const {
 bool PredSet::contains(Predicate* pred) const { 
     return preds.contains(pred); 
 }
+bool PredSet::empty() const {
+    return preds.empty();
+}
 std::string PredSet::to_string() const {
     if (preds.empty()) {
         return "EMPTY";

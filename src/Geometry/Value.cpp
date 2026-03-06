@@ -12,29 +12,12 @@ template class Value<Triangle>;
 bool Direction::__has_perp() { return (perp != nullptr); }
 bool Direction::has_perp() { return NodeUtils::get_root(this)->__has_perp(); }
 
-void Direction::__set_perp(Direction *d, Predicate* pred) {
+void Direction::__set_perp(Direction *d) {
     this->perp = d;
-    this->perp_why = pred;
 }
-void Direction::set_perp(Direction *d, Predicate* pred) {
-    Direction* root_this = NodeUtils::get_root(this);
-    Direction* root_d = NodeUtils::get_root(d);
-
-    if (root_this->__has_perp()) {
-        if (root_d->__has_perp()) {
-            root_this->merge(root_d->perp, pred);
-        } else {
-            root_d->__set_perp(root_this, pred);
-        }
-        root_d->merge(root_this->perp, pred);
-    } else {
-        root_this->__set_perp(root_d, pred);
-        if (root_d->__has_perp()) {
-            root_this->merge(root_d->perp, pred); 
-        } else {
-            root_d->__set_perp(root_this, pred);
-        }
-    }
+void Direction::set_perp(Direction *d) {
+    this->__set_perp(d);
+    d->__set_perp(this);
 }
 
 Direction* Direction::__get_perp() {
@@ -44,9 +27,9 @@ Direction* Direction::get_perp() {
     return NodeUtils::get_root(this)->__get_perp();
 }
 
-void Direction::add_line(Line* l, Predicate* pred) {
+void Direction::add_line(Line* l) {
     if (!l->has_direction()) {
-        l->set_direction(this, pred);
+        l->set_direction(this);
     }
 }
 
@@ -102,38 +85,24 @@ Generator<Angle*> Direction::on_angles_as_direction2() {
     co_return;
 }
 
-std::optional<std::pair<Direction*, Direction*>> Direction::merge(Direction* other, Predicate* pred) {
-    Direction* root_this = NodeUtils::get_root(this);
-    Direction* root_other = NodeUtils::get_root(other);
-    if (root_this == root_other) {
-        return std::nullopt;
-    }
-    root_this->Node::merge(root_other, pred);
-
-    // std::set::merge has move semantics
-    root_this->root_objs.merge(root_other->root_objs);
-    root_other->root_objs.clear();
-
-    root_this->on_angles_1.merge(root_other->on_angles_1);
-    root_this->on_angles_2.merge(root_other->on_angles_2);
-
-    return root_this->__check_perps_for_merge(root_other, pred);
-}
-
-std::optional<std::pair<Direction*, Direction*>> Direction::__check_perps_for_merge(Direction* other, Predicate* pred) {
-    if (other->__has_perp()) {
-        if (__has_perp()) {
-            if (!NodeUtils::same_as(__get_perp(), other->__get_perp())) {
-                return {{perp, other->perp}};
-            }
-        } else {
-            __set_perp(other->__get_perp(), pred);
-            perp_why = other->perp_why;
+void Direction::merge(Direction* other, PredSet &&preds) {
+    
+    if (this == other) return;
+    if (other->has_perp()) {
+        Direction* other_perp = other->get_perp();
+        other_perp->__set_perp(this);
+        if (!this->has_perp()) {
+            this->__set_perp(other_perp);
         }
     }
-    // No need to populate root_other->perp, as the most up-to-date records of `perp` are always stored by
-    // the root node
-    return std::nullopt;
+    this->Node::merge(other, std::move(preds));
+
+    // std::set::merge has move semantics
+    this->root_objs.merge(other->root_objs);
+    other->root_objs.clear();
+
+    this->on_angles_1.merge(other->on_angles_1);
+    this->on_angles_2.merge(other->on_angles_2);
 }
 
 Generator<std::pair<Angle*, Angle*>> Direction::check_incident_angles(Direction* d, Direction* other_d, Predicate* pred) {
@@ -196,9 +165,9 @@ bool Direction::is_perp(Direction* d1, Direction* d2) {
 
 
 
-void Length::add_segment(Segment* s, Predicate* pred) {
+void Length::add_segment(Segment* s) {
     if (!s->__has_length()) {
-        s->set_length(this, pred);
+        s->set_length(this);
     }
 }
 
@@ -226,20 +195,18 @@ Generator<Ratio*> Length::on_ratios_as_length2() {
     co_return;
 }
 
-void Length::merge(Length* other, Predicate* pred) {
-    Length* root_this = NodeUtils::get_root(this);
-    Length* root_other = NodeUtils::get_root(other);
-    if (root_this == root_other) {
+void Length::merge(Length* other, PredSet &&preds) {
+    if (this == other) {
         return;
     }
-    root_this->Node::merge(root_other, pred);
+    this->Node::merge(other, std::move(preds));
 
     // std::set::merge has move semantics
-    root_this->root_objs.merge(root_other->root_objs);
-    root_other->root_objs.clear();
+    this->root_objs.merge(other->root_objs);
+    other->root_objs.clear();
 
-    root_this->on_ratio_1.merge(root_other->on_ratio_1);
-    root_this->on_ratio_2.merge(root_other->on_ratio_2);
+    this->on_ratio_1.merge(other->on_ratio_1);
+    this->on_ratio_2.merge(other->on_ratio_2);
 }
 
 Generator<std::pair<Ratio*, Ratio*>> Length::check_incident_ratios(Length* l, Length* other_l, Predicate* pred) {

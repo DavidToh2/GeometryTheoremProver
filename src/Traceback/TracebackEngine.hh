@@ -22,6 +22,8 @@ public:
     std::map<Point*, std::map<Segment*, Predicate*>> point_as_segment_endpoint;
     std::map<Point*, std::map<Triangle*, Predicate*>> point_as_triangle_vertex;
 
+    std::map<std::pair<Direction*, Direction*>, Predicate*> perp_directions;
+
     std::map<Direction*, std::map<Line*, Predicate*>> direction_of_lines;
     std::map<Length*, std::map<Segment*, Predicate*>> length_of_segments;
     std::map<Dimension*, std::map<Triangle*, Predicate*>> dimension_of_triangles;
@@ -30,11 +32,16 @@ public:
     std::map<Fraction*, std::map<Ratio*, Predicate*>> fraction_of_ratios;
     std::map<Shape*, std::map<Dimension*, Predicate*>> shape_of_dimensions;
 
+    std::map<Measure*, std::pair<Frac, Predicate*>> measure_vals;
+    std::map<Fraction*, std::pair<Frac, Predicate*>> fraction_vals;
+
     void set_point_on(Point* p, Line* l, Predicate* pred);
     void set_point_on(Point* p, Circle* c, Predicate* pred);
     void set_point_as_center(Point* p, Circle* c, Predicate* pred);
     void set_point_as_endpoint(Point* p, Segment* s, Predicate* pred);
     void set_point_as_vertex(Point* p, Triangle* t, Predicate* pred);
+
+    void set_directions_perp(Direction* d1, Direction* d2, Predicate* pred);
 
     void set_direction_of(Direction* d, Line* l, Predicate* pred);
     void set_length_of(Length* len, Segment* s, Predicate* pred);
@@ -43,6 +50,9 @@ public:
     void set_measure_of(Measure* m, Angle* a, Predicate* pred);
     void set_fraction_of(Fraction* f, Ratio* r, Predicate* pred);
     void set_shape_of(Shape* s, Dimension* d, Predicate* pred);
+
+    void set_measure_val(Measure* m, Frac val, Predicate* pred);
+    void set_fraction_val(Fraction* f, Frac val, Predicate* pred);
 
     void set_goal(Predicate* pred);
 

@@ -158,7 +158,7 @@ public:
     /* Gets any two points on a line.
     Note: The given line should be a root line, so `points` is populated. */
     constexpr std::pair<Point*, Point*> __get_points_on_line(Line* l) {
-        return {l->points.begin()->first, std::next(l->points.begin())->first};
+        return {*(l->points.begin()), *(std::next(l->points.begin()))};
     }
     /* Gets any two points on root_line. */
     constexpr std::pair<Point*, Point*> get_points_on_line(Line* l)  {
@@ -509,20 +509,24 @@ public:
 
     /* Records the two triangles `p1p2p3, p4p5p6` as congruent. */
     void set_triangles_congruent(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Predicate* pred);
-    /* Records the two triangles `t1, t2` as congruent. */
+    /* Records the two triangles `t1, t2` as congruent.
+    Note: For traceback purposes, assumes that `t1` and `t2` are root triangles. */
     void set_triangles_congruent(Triangle* t1, Triangle* t2, std::array<int, 3> perm, Predicate* pred);
     /* Records the two triangle dimensions `dim1` and `dim2` as congruent. 
     The triangles in dimension `dim2`, as well as all triangles in `dim2->shape`, will be permuted according
-    to `perm`. */
+    to `perm`.
+    Note: For traceback purposes, assumes that `dim1` and `dim2` are root dimensions. */
     void set_triangles_congruent(Dimension* dim1, Dimension* dim2, std::array<int, 3> perm, Predicate* pred);
 
     /* Records the two triangles `p1p2p3, p4p5p6` as similar. */
     void set_triangles_similar(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Predicate* pred);
-    /* Records the two triangles `t1, t2` as similar. */
+    /* Records the two triangles `t1, t2` as similar. 
+    Note: For traceback purposes, assumes that `t1` and `t2` are root triangles. */
     void set_triangles_similar(Triangle* t1, Triangle* t2, std::array<int, 3> perm, Predicate* pred);
     /* Records the two triangle shapes `shp1` and `shp2` as similar.
     Note: This assumes that the triangle vertices in `shp2` have already been correctly permuted to align
-    to those in `shp1` - in other words, that `shp2->perm_all_triangles()` has already been called. */
+    to those in `shp1` - in other words, that `shp2->perm_all_triangles()` has already been called. 
+    Note: For traceback purposes, assumes that `shp1` and `shp2` are root shapes. */
     void set_triangles_similar(Shape* shp1, Shape* shp2, Predicate* pred);
 
 

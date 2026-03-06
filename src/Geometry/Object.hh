@@ -29,8 +29,9 @@ by root objects. */
 class Object : public Node {
 
 public:
-    std::map<Point*, Predicate*> points;
+    std::set<Point*> points;
     Object(std::string name) : Node(name) {}
+    Object(std::string name, std::initializer_list<Point*> pts) : Node(name), points(pts) {}
 
     /* Returns every root point on the root of this object */
     Generator<Point*> all_points();
@@ -52,12 +53,6 @@ public:
     bool __contains(Point *p);
     /* Checks if the root node of `this` contains the root node of `p` */
     bool contains(Point *p);
-
-    /* Gets the predicate explaining why `root_p` lies on `root_this`
-    Note: assumes that `this` is a root node */
-    Predicate* __why_contains(Point* p);
-    /* Gets the predicate explaining why `root_p` lies on `root_this` */
-    Predicate* why_contains(Point *p);
 };
 
 
@@ -111,34 +106,34 @@ public:
 
     /* Set `this` point to be on the line `l`. What this does:
     - Inserts `root_l` into `this->on_root_line`;
-    - Inserts `this` into `l->points` along with `pred`.
+    - Inserts `this` into `l->points`.
     Note: Assumes that `this` is a root node.
     Note: This function is idempotent. */
-    void set_this_on(Line* l, Predicate* pred);
+    void set_this_on(Line* l);
     /* Set `this` point to be on the circle `c`. What this does:
     - Inserts `root_c` into `this->on_root_circle`;
-    - Inserts `this` into `c->points` along with `pred`.
+    - Inserts `this` into `c->points`.
     Note: Assumes that `this` is a root node.
     Note: This function is idempotent. */
-    void set_this_on(Circle* c, Predicate* pred);
+    void set_this_on(Circle* c);
     /* Sets `this` point to be the center of circle `c`. What this does:
     - Inserts `root_c` into `this->center_of_root_circle`;
-    - Inserts `this` into `c->center` along with `pred`.
+    - Sets `this` as `c->center`.
     Note: Assumes that `this` is a root node.
     Note: This function is idempotent. */
-    void set_this_center_of(Circle* c, Predicate* pred);
+    void set_this_center_of(Circle* c);
     /* Sets `this` point as an endpoint of segment `s`. What this does:
     - Inserts `root_s` into `this->endpoint_of_root_segment`.
     Note: `s->endpoints` needs to be separately filled in.
     Note: Assumes that `this` is a root node.
     Note: This function is idempotent. */
-    void set_this_endpoint_of(Segment* s, Predicate* pred);
+    void set_this_endpoint_of(Segment* s);
     /* Sets `this` point as a vertex of triangle `t`. What this does:
     - Inserts `root_t` into `this->vertex_of_root_triangle`.
     Note: `t->vertices` needs to be separately filled in.
     Note: Assumes that `this` is a root node.
     Note: This function is idempotent. */
-    void set_this_vertex_of(Triangle* t, Predicate* pred);
+    void set_this_vertex_of(Triangle* t);
 
     /* Checks if `this` point lies on the root of node `l`. This is done by checking against the 
     set `on_root_line` of `this`.
@@ -151,8 +146,8 @@ public:
     - Inserts `l` into `root_this->on_line` along with `pred`;
     - Inserts `root_l` into `root_this->on_root_line`;
     - Inserts `root_this` into `l->points` along with `pred`. */
-    void set_on(Line* l, Predicate* pred);
-    void set_on(Circle* c, Predicate* pred);
+    void set_on(Line* l);
+    void set_on(Circle* c);
     /* Checks if `root_this` lies on the root of node `l`. This is done by checking against the 
     set `on_root_line` of `root_this`. */
     bool is_on(Line* l);
@@ -220,19 +215,15 @@ class Line : public Object {
 
 public:
     Direction* direction = nullptr;
-    Predicate* direction_why = nullptr;
 
     Line(std::string name) : Object(name) {}
-    Line(std::string name, Point* p1, Point* p2, Predicate* base_pred) : Object(name) {
-        points[p1] = base_pred;
-        points[p2] = base_pred;
-    }
+    Line(std::string name, Point* p1, Point* p2) : Object(name, {p1, p2}) {}
 
     /* Add the root node of `d` as the direction of the root node of `this`. 
-    This updates the `objs` and `root_objs` of `root_d`, as well as the `direction` and `direction_why` of `root_this`.
-    Warning: If the root node of `this` already has another direction, the directions are merged.
+    This updates the `objs` and `root_objs` of `root_d`, as well as the `direction` of `root_this`.
+    Warning: If the root node of `this` already has another direction, the old direction is overwritten.
     Warning: Code using this function should manually check if `this` already has a direction. */
-    void set_direction(Direction* d, Predicate* pred);
+    void set_direction(Direction* d);
     /* Checks if `this` has a direction.
     Note: assumes that `this` is a root node. */
     bool __has_direction();
@@ -286,6 +277,7 @@ public:
     to `other_l`. The tuples `{l1, {p1, p2}}` are returned to then be checked for numeric equality by the
     incidence detection algorithm.
     Note: This function should be called *before* `l->merge(other_l)` occurs.
+    Note: All generated lines and points are root nodes.
     */
     static Generator<std::pair<Line*, std::pair<Point*, Point*>>> 
     check_incident_lines(Line* l, Line* other_l, Predicate* pred);
@@ -310,27 +302,21 @@ center. */
 class Circle : public Object {
 public:
     Point* center = nullptr;
-    Predicate* center_why = nullptr;
 
     Circle(std::string name) : Object(name) {}
-    Circle(std::string name, Point* p1, Point* p2, Point* p3, Predicate* base_pred) : Object(name) {
-        points[p1] = base_pred;
-        points[p2] = base_pred;
-        points[p3] = base_pred;
-    }
-    Circle(std::string name, Point* c, Predicate* base_pred) : Object(name), center(c), center_why(base_pred) {
-
-    }
-    Circle(std::string name, Point* c, Point* p1, Predicate* base_pred) : Object(name), center(c), center_why(base_pred) {
-        points[p1] = base_pred;
-    }
+    Circle(std::string name, Point* p1, Point* p2, Point* p3) 
+    : Object(name, {p1, p2, p3}) {}
+    Circle(std::string name, Point* c) 
+    : Object(name), center(c) {}
+    Circle(std::string name, Point* c, Point* p1) 
+    : Object(name, {p1}), center(c) {}
 
     /* Sets the center of `this` circle to the root of `p`. 
     Note: If `this` circle already has a center, it is overwritten. */
-    void __set_center(Point* p, Predicate* pred);
+    void __set_center(Point* p);
     /* Sets the center of the root node of `this` circle to the root of `p`.
     Note: If a center already exists, it is overwritten. */
-    void set_center(Point* p, Predicate* pred);
+    void set_center(Point* p);
     /* Checks if `this` circle has a center. */
     bool __has_center();
     /* Checks if the root of `this` circle has a center. */
@@ -356,7 +342,7 @@ public:
     Note: The copying behaviour does not copy over points that are already in `get_root(this)`. The effect is
     necessary because two circles being merged will necessarily have two duplicate points. 
     Note: This function has no effect if `this` and `other` already have the same root.*/
-    std::optional<std::pair<Point*, Point*>> merge(Circle* other, Predicate* pred);
+    std::optional<std::pair<Point*, Point*>> merge(Circle* other, PredSet &&preds);
 
     /* Identify all pairs of circles `(c1, c2)` that need to be merged (into a single circle) as a result of both 
     `p` and `other_p` being deduced to be the same. The circles in each pair either have exactly two common 
@@ -399,19 +385,16 @@ class Segment : public Object {
 public:
     std::array<Point*, 2> endpoints;
     Length* length = nullptr;
-    Predicate* length_why = nullptr;
     Line* on_line = nullptr;
 
     Segment(std::string name) : Object(name) {}
-    Segment(std::string name, Point* p1, Point* p2, Line* l, Predicate* base_pred) : Object(name), endpoints({p1, p2}), on_line(l) {
-        points[p1] = base_pred;
-        points[p2] = base_pred;
-    }
+    Segment(std::string name, Point* p1, Point* p2, Line* l, Predicate* base_pred) 
+    : Object(name, {p1, p2}), endpoints({p1, p2}), on_line(l) {}
 
     /* Sets the length of the root node of `this` segment to the root of `l`.
-    Warning: If the root node of `this` already has another length, the new length is merged into the old.
+    Warning: If the root node of `this` already has a length, the old length is overwritten.
     Warning: Code using this function should manually check if `this` already has a length.  */
-    void set_length(Length* l, Predicate* pred);
+    void set_length(Length* l);
     /* Checks if `this` has a length.
     Note: assumes that `this` is a root node. */
     bool __has_length();
@@ -454,7 +437,7 @@ public:
     Note: The lengths of `root_other` and `root_this` are returned if they both exist. This is so they may 
     then be merged by `GeometricGraph::set_lengths_equal()`.
     Warning: Assumes that `this.endpoints == other.endpoints`. */
-    std::optional<std::pair<Length*, Length*>> merge(Segment* other, Predicate* pred);
+    std::optional<std::pair<Length*, Length*>> merge(Segment* other, PredSet &&preds);
 
     /* Identify segments `(s1, s2)` that need to be merged as a result of the point `other_p` being merged 
     into the point `p`. This is done by checking those segments containing `p` and `other_p` as endpoints 
@@ -483,19 +466,14 @@ class Triangle : public Object {
 public:
     std::array<Point*, 3> vertices;
     Dimension* dimension = nullptr;
-    Predicate* dimension_why = nullptr;
     
     Triangle(std::string name) : Object(name) {}
     Triangle(std::string name, Point* p1, Point* p2, Point* p3, Predicate* base_pred) 
-    : Object(name), vertices({p1, p2, p3}) {
-        points[p1] = base_pred;
-        points[p2] = base_pred;
-        points[p3] = base_pred;
-    }
+    : Object(name, {p1, p2, p3}), vertices({p1, p2, p3}) {}
 
     /* Sets the root of `this`'s Dimension object to `d`. 
     Note: If this Triangle already has a Dimension, then the old Dimension is overwritten. */
-    void set_dimension(Dimension* d, Predicate* pred);
+    void set_dimension(Dimension* d);
     /* Returns the root dimension of `root_this`, lazily updating it to the root.
     Note: Assumes that `root_this` has a dimension. */
     Dimension* get_dimension();
@@ -540,7 +518,7 @@ public:
     /* Merge two triangles which have been shown to be identical. Only called on triangle pairs returned by 
     `Triangle::check_incident_triangles()`, whose vertices have already been rearranged and set to be identical. 
     Note: The dimensions of the two triangles are returned. They may then be merged by `GeometricGraph::set_dimensions_equal()`. */
-    std::optional<std::pair<Dimension*, Dimension*>> merge(Triangle* other, Predicate* pred);
+    std::optional<std::pair<Dimension*, Dimension*>> merge(Triangle* other, PredSet &&preds);
 
     /* Identify triangles `(perm, (t1, t2))` that need to be merged as a result of the point `other_p` being merged 
     into the point `p`. This is done by checking those triangles containing `p` and `other_p` as vertices

@@ -5,16 +5,11 @@
 #include "Common/Exceptions.hh"
 
 
-void Angle::set_measure(Measure* m, Predicate* base_pred) {
+void Angle::set_measure(Measure* m) {
     Angle* root_this = NodeUtils::get_root(this);
     Measure* root_m = NodeUtils::get_root(m);
-    if (root_this->__has_measure()) {
-        root_this->measure->merge(root_m, base_pred);
-    } else {
-        root_this->measure = root_m;
-        root_this->measure_why = base_pred;
-        root_m->root_obj2s.insert(root_this);
-    }
+    root_this->measure = root_m;
+    root_m->root_obj2s.insert(root_this);
 }
 Measure* Angle::__get_measure() {
     Measure* m = NodeUtils::get_root(measure);
@@ -56,11 +51,11 @@ Generator<std::pair<Line*, Line*>> Angle::all_line_pairs() {
     co_return;
 }
 
-std::optional<std::pair<Measure*, Measure*>> Angle::__merge(Angle* other, Predicate* pred) {
+std::optional<std::pair<Measure*, Measure*>> Angle::__merge(Angle* other, PredSet &&preds) {
     if (this == other) {
         return std::nullopt;
     }
-    this->Node::merge(other, pred);
+    this->Node::merge(other, std::move(preds));
 
     direction1->on_angles_1.erase(other);
     direction2->on_angles_2.erase(other);
@@ -70,30 +65,27 @@ std::optional<std::pair<Measure*, Measure*>> Angle::__merge(Angle* other, Predic
         if (__has_measure()) {
             return {{__get_measure(), other->measure}};
         } else {
-            set_measure(other->measure, pred);
+            set_measure(other->measure);
         }
     }
     return std::nullopt;
 }
-std::optional<std::pair<Measure*, Measure*>> Angle::merge(Angle* other, Predicate* pred) {
-    Angle* root_this = NodeUtils::get_root(this);
-    Angle* root_other = NodeUtils::get_root(other);
-    if (!NodeUtils::same_as(root_this->direction1, root_other->direction1) || 
-        !NodeUtils::same_as(root_this->direction2, root_other->direction2)) {
-        throw GGraphInternalError("Error: Cannot merge angles " + root_this->name + " and " + root_other->name + " with different directions.");
+std::optional<std::pair<Measure*, Measure*>> Angle::merge(Angle* other, PredSet &&preds) {
+    if (!NodeUtils::same_as(this->direction1, other->direction1) || 
+        !NodeUtils::same_as(this->direction2, other->direction2)) {
+        throw GGraphInternalError("Error: Cannot merge angles " + this->name + " and " + other->name + " with different directions.");
     }
-    return root_this->__merge(root_other, pred);
+    return this->__merge(other, std::move(preds));
 }
 
 
 
-void Ratio::set_fraction(Fraction* f, Predicate* base_pred) {
+void Ratio::set_fraction(Fraction* f) {
     Ratio* root_this = NodeUtils::get_root(this);
     Fraction* root_f = NodeUtils::get_root(f);
     if (root_this->__has_fraction() && root_this->__get_fraction() == root_f) return;
     
     root_this->fraction = root_f;
-    root_this->fraction_why = base_pred;
     root_f->root_obj2s.insert(root_this);
 }
 bool Ratio::__has_fraction() {
@@ -140,11 +132,11 @@ Generator<std::pair<Segment*, Segment*>> Ratio::all_segment_pairs() {
     co_return;
 }
 
-std::optional<std::pair<Fraction*, Fraction*>> Ratio::__merge(Ratio* other, Predicate* pred) {
+std::optional<std::pair<Fraction*, Fraction*>> Ratio::__merge(Ratio* other, PredSet &&preds) {
     if (this == other) {
         return std::nullopt;
     }
-    this->Node::merge(other, pred);
+    this->Node::merge(other, std::move(preds));
 
     length1->on_ratio_1.erase(other);
     length2->on_ratio_2.erase(other);
@@ -154,34 +146,31 @@ std::optional<std::pair<Fraction*, Fraction*>> Ratio::__merge(Ratio* other, Pred
         if (__has_fraction()) {
             return {{__get_fraction(), other->fraction}};
         } else {
-            set_fraction(other->fraction, pred);
+            set_fraction(other->fraction);
         }
     }
     return std::nullopt;
 }
-std::optional<std::pair<Fraction*, Fraction*>> Ratio::merge(Ratio* other, Predicate* pred) {
-    Ratio* root_this = NodeUtils::get_root(this);
-    Ratio* root_other = NodeUtils::get_root(other);
-    if (!NodeUtils::same_as(root_this->length1, root_other->length1) || 
-        !NodeUtils::same_as(root_this->length2, root_other->length2)) {
-        throw GGraphInternalError("Error: Cannot merge ratios " + root_this->name + " and " + root_other->name + " with different lengths.");
+std::optional<std::pair<Fraction*, Fraction*>> Ratio::merge(Ratio* other, PredSet &&preds) {
+    if (!NodeUtils::same_as(this->length1, other->length1) || 
+        !NodeUtils::same_as(this->length2, other->length2)) {
+        throw GGraphInternalError("Error: Cannot merge ratios " + this->name + " and " + other->name + " with different lengths.");
     }
-    return root_this->__merge(root_other, pred);
+    return this->__merge(other, std::move(preds));
 }
 
 
 
-void Dimension::add_triangle(Triangle* t, Predicate* pred) {
+void Dimension::add_triangle(Triangle* t) {
     Triangle* root_t = NodeUtils::get_root(t);
-    root_triangles[root_t] = pred;
+    root_triangles.insert(root_t);
     root_t->dimension = NodeUtils::get_root(this);
-    root_t->dimension_why = pred;
 }
 void Dimension::perm_all_triangles(std::array<int, 3> perm) {
     Dimension* root_d = NodeUtils::get_root(this);
     if (this != root_d) return;
 
-    for (auto& [t, pred] : root_d->root_triangles) {
+    for (Triangle* t : root_d->root_triangles) {
         t->permute(perm);
     }
     std::array<bool, 3> old_isosceles_mask = isosceles_mask;
@@ -189,11 +178,10 @@ void Dimension::perm_all_triangles(std::array<int, 3> perm) {
         isosceles_mask[i] = old_isosceles_mask[perm[i]];
     }
 }
-void Dimension::set_shape(Shape* s, Predicate* pred) {
+void Dimension::set_shape(Shape* s) {
     Dimension* root_d = NodeUtils::get_root(this);
     Shape* root_s = NodeUtils::get_root(s);
     root_d->shape = root_s;
-    root_d->shape_why = pred;
     root_s->root_obj2s.insert(root_d);
 }
 bool Dimension::has_shape() {
@@ -236,18 +224,18 @@ Generator<std::pair<Triangle*, Triangle*>> Dimension::all_cong_pairs_ordered() {
     return NodeUtils::all_pairs_ordered<Triangle>(root_d->root_triangles);
 }
 
-void Dimension::merge(Dimension* other, Predicate* pred) {
+void Dimension::merge(Dimension* other, PredSet &&preds) {
     Dimension* root_this = NodeUtils::get_root(this);
     Dimension* root_other = NodeUtils::get_root(other);
     if (root_this == root_other) {
         return;
     }
-    root_this->Node::merge(root_other, pred);
+    root_this->Node::merge(root_other, std::move(preds));
 
     if (root_other->has_shape()) {
         root_other->get_shape()->root_obj2s.erase(root_other);
         if (!root_this->has_shape()) {
-            root_this->set_shape(root_other->get_shape(), pred);
+            root_this->set_shape(root_other->get_shape());
         }
     }
 

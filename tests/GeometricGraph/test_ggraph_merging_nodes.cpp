@@ -46,7 +46,7 @@ TEST_SUITE("GeometricGraph: Node merging") {
             ggraph.__set_point_numeric(h, {1, 0});
 
             Line* ab = ggraph.get_or_add_line(a, b, dd);
-            d->set_this_on(ab, base_pred);
+            d->set_this_on(ab);
             REQUIRE(ggraph.get_or_add_line(a, d, dd) == ab);
 
             Line* cd = ggraph.get_or_add_line(c, d, dd);

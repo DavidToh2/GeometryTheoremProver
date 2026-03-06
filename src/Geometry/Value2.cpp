@@ -3,23 +3,21 @@
 #include "Object2.hh"
 #include "Value2.hh"
 
-void Measure::add_angle(Angle* a, Predicate* pred) {
+void Measure::add_angle(Angle* a) {
     Measure* root_this = NodeUtils::get_root(this);
     Angle* root_a = NodeUtils::get_root(a);
-    root_a->set_measure(root_this, pred);
+    root_a->set_measure(root_this);
 }
 
-void Measure::merge(Measure* other, Predicate* pred) {
-    Measure* root_this = NodeUtils::get_root(this);
-    Measure* root_other = NodeUtils::get_root(other);
-    if (root_this == root_other) {
+void Measure::merge(Measure* other, PredSet &&preds) {
+    if (this == other) {
         return;
     }
-    root_this->Node::merge(root_other, pred);
+    this->Node::merge(other, std::move(preds));
 
     // std::set::merge has move semantics
-    root_this->root_obj2s.merge(root_other->root_obj2s);
-    root_other->root_obj2s.clear();
+    this->root_obj2s.merge(other->root_obj2s);
+    other->root_obj2s.clear();
 }
 
 Generator<std::pair<Angle*, Angle*>> Measure::all_eq_pairs() {
@@ -33,19 +31,19 @@ Generator<std::pair<Angle*, Angle*>> Measure::all_eq_pairs_ordered() {
 
 
 
-void Fraction::add_ratio(Ratio* r, Predicate* pred) {
+void Fraction::add_ratio(Ratio* r) {
     Fraction* root_this = NodeUtils::get_root(this);
     Ratio* root_r = NodeUtils::get_root(r);
-    root_r->set_fraction(root_this, pred);
+    root_r->set_fraction(root_this);
 }
 
-void Fraction::merge(Fraction* other, Predicate* pred) {
+void Fraction::merge(Fraction* other, PredSet &&preds) {
     Fraction* root_this = NodeUtils::get_root(this);
     Fraction* root_other = NodeUtils::get_root(other);
     if (root_this == root_other) {
         return;
     }
-    root_this->Node::merge(root_other, pred);
+    root_this->Node::merge(root_other, std::move(preds));
 
     // std::set::merge has move semantics
     root_this->root_obj2s.merge(root_other->root_obj2s);
@@ -63,10 +61,10 @@ Generator<std::pair<Ratio*, Ratio*>> Fraction::all_eq_pairs_ordered() {
 
 
 
-void Shape::add_dimension(Dimension* d, Predicate* pred) {
+void Shape::add_dimension(Dimension* d) {
     Shape* root_this = NodeUtils::get_root(this);
     Dimension* root_d = NodeUtils::get_root(d);
-    root_d->set_shape(root_this, pred);
+    root_d->set_shape(root_this);
 }
 
 void Shape::perm_all_triangles(std::array<int, 3> perm) {
@@ -113,13 +111,13 @@ void Shape::setor_isosceles_masks(std::array<bool, 3> mask) {
     }
 }
 
-void Shape::merge(Shape* other, Predicate* pred) {
+void Shape::merge(Shape* other, PredSet &&preds) {
     Shape* root_this = NodeUtils::get_root(this);
     Shape* root_other = NodeUtils::get_root(other);
     if (root_this == root_other) {
         return;
     }
-    root_this->Node::merge(root_other, pred);
+    root_this->Node::merge(root_other, std::move(preds));
 
     for (Dimension* d : root_other->root_obj2s) {
         d->shape = root_this;

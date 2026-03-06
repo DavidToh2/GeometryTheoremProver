@@ -166,8 +166,8 @@ void GeometricGraph::merge_points(Point* dest, Point* src, Predicate* pred, AREn
     preds += TracebackUtils::why_ancestor(dest, root_dest);
     preds += TracebackUtils::why_ancestor(src, root_src);
 
-    dest->merge(src, std::move(preds));
-    ar.update_point_merger(dest, src, pred);
+    root_dest->merge(root_src, std::move(preds));
+    ar.update_point_merger(root_dest, root_src, pred);
 }
 
 
@@ -184,13 +184,13 @@ Line* GeometricGraph::__add_new_line(Point* p1, Point* p2, Predicate* base_pred)
     if (Utils::isinmap(line_id, lines)) {
         throw GGraphInternalError("Error: Line with id " + line_id + " already exists in GeometricGraph.");
     }
-    lines[line_id] = std::make_unique<Line>(line_id, p1, p2, base_pred);
+    lines[line_id] = std::make_unique<Line>(line_id, p1, p2);
     Line* l = lines[line_id].get();
     line_nums[l] = compute_line_from_points(p1, p2); // throws NumericsInternalError if line is degenerate
 
     root_lines.insert(l);
-    p1->set_this_on(l, base_pred);
-    p2->set_this_on(l, base_pred);
+    p1->set_this_on(l);
+    p2->set_this_on(l);
 
     // For traceback:
     tr->set_point_on(p1, l, base_pred);
@@ -231,11 +231,15 @@ Line* GeometricGraph::try_get_line(Point* p1, Point* p2) {
 }
 
 void GeometricGraph::merge_lines(Line* dest, Line* src, Predicate* pred, AREngine& ar) {
-    dest = NodeUtils::get_root(dest);
-    src = NodeUtils::get_root(src);
-    if (dest == src) return;
+    Line* root_dest = NodeUtils::get_root(dest);
+    Line* root_src = NodeUtils::get_root(src);
+    if (root_dest == root_src) return;
 
-    std::set<Line*> L{dest}, L1{src}, L2{};
+    PredSet preds{pred};
+    preds += TracebackUtils::why_ancestor(dest, root_dest);
+    preds += TracebackUtils::why_ancestor(src, root_src);
+
+    std::set<Line*> L{root_dest}, L1{root_src}, L2{};
 
     // Step 1: Identify all lines which are incident
     while (!L1.empty()) {
@@ -272,12 +276,14 @@ void GeometricGraph::merge_lines(Line* dest, Line* src, Predicate* pred, AREngin
 
     // Step 2: Merge all identified lines, which now reside in L
     for (auto it = L.begin(); it != L.end(); ++it) {
-        Line* l = NodeUtils::get_root(*it);
-        if (l == dest) continue;
+        Line* l = *it; // root line
+        if (l == root_dest) continue;
 
-        root_lines.erase(NodeUtils::get_root(l));
-        auto dirs = dest->merge(l, pred);
-        ar.update_line_merger(dest, l, pred);
+        root_lines.erase(l);
+
+        PredSet preds_copy(preds);
+        auto dirs = root_dest->merge(l, std::move(preds_copy));
+        ar.update_line_merger(root_dest, l, pred);
 
         // Check if the lines have directions that need to be merged
         if (dirs) {
@@ -298,8 +304,8 @@ Direction* GeometricGraph::__add_new_direction(Line* l, Predicate* base_pred) {
     Direction* dir = directions[dir_id].get();
     direction_gradients[dir] = compute_direction_angle(l);
 
-    dir->add_line(l, base_pred);
-    l->set_direction(dir, base_pred);
+    dir->add_line(l);
+    l->set_direction(dir);
     root_directions.insert(dir);
 
     // For traceback
@@ -320,12 +326,20 @@ Direction* GeometricGraph::get_or_add_direction(Line* l, DDEngine &dd) {
 
 
 void GeometricGraph::set_directions_para(Direction* dest, Direction* src, Predicate* pred) {
-    dest = NodeUtils::get_root(dest);
-    src = NodeUtils::get_root(src);
-    if (dest == src) return;
-    root_directions.erase(NodeUtils::get_root(src));
-    if (src->has_perp()) {
-        root_directions.erase(NodeUtils::get_root(src->perp));
+    Direction* root_dest = NodeUtils::get_root(dest);
+    Direction* root_src = NodeUtils::get_root(src);
+    if (root_dest == root_src) return;
+
+    PredSet preds{pred};
+    preds += TracebackUtils::why_ancestor(dest, root_dest);
+    preds += TracebackUtils::why_ancestor(src, root_src);
+
+    Direction* root_dest_perp = root_dest->has_perp() ? root_dest->get_perp() : nullptr;
+    Direction* root_src_perp = root_src->has_perp() ? root_src->get_perp() : nullptr;
+
+    root_directions.erase(root_src);
+    if (root_src_perp) {
+        root_directions.erase(root_src_perp);
     }
 
     // Check for incident angles as a result of the direction merge
@@ -335,58 +349,63 @@ void GeometricGraph::set_directions_para(Direction* dest, Direction* src, Predic
         merge_angles(pair.first, pair.second, pred);
     }
     
+    root_dest->merge(root_src, std::move(preds));
+
     // Check if the directions' perps also need to be merged
-    auto perps = dest->merge(src, pred);
-    if (perps) {
-        set_directions_para(perps->first, perps->second, pred);
+    if (root_dest_perp && root_src_perp) {
+        set_directions_para(root_dest_perp, root_src_perp, pred);
     }
 
     // We do not check for incident lines as a result of the merge. This is
-    // because we already have the rule para A B A C => coll B C.
+    // because we already have the rule para A B A C => coll A B C.
 }
 
 void GeometricGraph::set_directions_perp(Direction* d1, Direction* d2, Predicate* pred) {
-    d1 = NodeUtils::get_root(d1);
-    d2 = NodeUtils::get_root(d2);
-    if (d1 == d2) {
+    Direction* rd1 = NodeUtils::get_root(d1);
+    Direction* rd2 = NodeUtils::get_root(d2);
+    if (rd1 == rd2) {
         throw GGraphInternalError("Error: Cannot set a direction perpendicular to itself.");
     }
+    PredSet preds{pred};
+    preds += TracebackUtils::why_ancestor(d1, rd1);
+    preds += TracebackUtils::why_ancestor(d2, rd2);
+
     Direction* dp1 = nullptr, *dp2 = nullptr;
-    if (d1->has_perp()) {
-        dp1 = d1->get_perp();
-        // dp1 will be merged into d2. Check for newly incident angles
-        auto gen_to_merge_angles_1 = Direction::check_incident_angles(d2, dp1, pred);
+    if (rd1->has_perp()) {
+        dp1 = rd1->get_perp();
+        // dp1 will be merged into rd2. Check for newly incident angles
+        auto gen_to_merge_angles_1 = Direction::check_incident_angles(rd2, dp1, pred);
         while (gen_to_merge_angles_1) {
             auto pair = gen_to_merge_angles_1();
             merge_angles(pair.first, pair.second, pred);
         }
     }
-    if (d2->has_perp()) {
-        dp2 = d2->get_perp();
-        // dp2 will be merged into d1. Check for newly incident angles
-        auto gen_to_merge_angles_2 = Direction::check_incident_angles(d1, dp2, pred);
+    if (rd2->has_perp()) {
+        dp2 = rd2->get_perp();
+        // dp2 will be merged into rd1. Check for newly incident angles
+        auto gen_to_merge_angles_2 = Direction::check_incident_angles(rd1, dp2, pred);
         while (gen_to_merge_angles_2) {
             auto pair = gen_to_merge_angles_2();
             merge_angles(pair.first, pair.second, pred);
         }
     }
 
-    d1->set_perp(d2, pred);
+    // (rd1 <- dp2) perp to (rd2 <- dp1)
+
+    rd1->set_perp(rd2);
 
     if (dp1) {
-        if (!dp1->is_root()) {
-            root_directions.erase(dp1);
+        root_directions.erase(dp1);
+        if (dp2) {
+            PredSet preds_copy(preds);
+            rd2->merge(dp1, std::move(preds_copy));
         } else {
-            // TODO: Remove these
-            assert(false);
+            rd2->merge(dp1, std::move(preds));
         }
     }
     if (dp2) {
-        if (!dp2->is_root()) {
-            root_directions.erase(dp2);
-        } else {
-            assert(false);
-        }
+        root_directions.erase(dp2);
+        rd1->merge(dp2, std::move(preds));
     }
 }
 
@@ -404,14 +423,14 @@ Circle* GeometricGraph::__add_new_circle(Point* p1, Point* p2, Point* p3, Predic
     if (Utils::isinmap(circle_id, circles)) {
         throw GGraphInternalError("Error: Circle " + circle_id + " already exists in GeometricGraph.");
     }
-    circles[circle_id] = std::make_unique<Circle>(circle_id, p1, p2, p3, base_pred);
+    circles[circle_id] = std::make_unique<Circle>(circle_id, p1, p2, p3);
     Circle* circ = circles[circle_id].get();
     circle_nums[circ] = compute_circle_from_points(p1, p2, p3); // throws NumericsInternalError if points are collinear or coincide
 
     root_circles.insert(circ);
-    p1->set_this_on(circ, base_pred);
-    p2->set_this_on(circ, base_pred);
-    p3->set_this_on(circ, base_pred);
+    p1->set_this_on(circ);
+    p2->set_this_on(circ);
+    p3->set_this_on(circ);
 
     // For traceback
     tr->set_point_on(p1, circ, base_pred);
@@ -425,13 +444,13 @@ Circle* GeometricGraph::__add_new_circle(Point* c, Point* p1, Predicate* base_pr
     if (Utils::isinmap(circle_id, circles)) {
         throw GGraphInternalError("Error: Circle " + circle_id + " already exists in GeometricGraph.");
     }
-    circles[circle_id] = std::make_unique<Circle>(circle_id, c, p1, base_pred);
+    circles[circle_id] = std::make_unique<Circle>(circle_id, c, p1);
     Circle* circ = circles[circle_id].get();
     circle_nums[circ] = compute_circle_from_points(c, p1); // throws NumericsInternalError if c, p1 coincide
 
     root_circles.insert(circ);
-    p1->set_this_on(circ, base_pred);
-    c->set_this_center_of(circ, base_pred);
+    p1->set_this_on(circ);
+    c->set_this_center_of(circ);
 
     // For traceback
     tr->set_point_on(p1, circ, base_pred);
@@ -444,9 +463,11 @@ Circle* GeometricGraph::__add_new_circle(Point* c, Predicate* base_pred) {
     if (Utils::isinmap(circle_id, circles)) {
         throw GGraphInternalError("Error: Circle " + circle_id + " already exists in GeometricGraph.");
     }
-    circles[circle_id] = std::make_unique<Circle>(circle_id, c, base_pred);
+    circles[circle_id] = std::make_unique<Circle>(circle_id, c);
     Circle* circ = circles[circle_id].get();
     root_circles.insert(circ);
+
+    tr->set_point_as_center(c, circ, base_pred);
 
     // TODO: No numeric added. Not sure if any is necessary in fact.
     // This constructor is unused
@@ -558,21 +579,29 @@ Point* GeometricGraph::get_or_add_circle_center(Circle* c, DDEngine& dd) {
     std::string p_id = "adhoc_p" + std::to_string(adhoc++);
     points[p_id] = std::make_unique<Point>(p_id);
     p = points[p_id].get();
-    c->set_center(p, dd.base_pred.get());
+    c->set_center(p);
     new_object = true;
+
+    tr->set_point_as_center(p, c, dd.base_pred.get());
     return p;
 }
 
 void GeometricGraph::set_circle_center(Point* cp, Circle* c, Predicate* pred) {
-    NodeUtils::get_root(c)->set_center(NodeUtils::get_root(cp), pred);
+    NodeUtils::get_root(c)->set_center(NodeUtils::get_root(cp));
     tr->set_point_as_center(cp, c, pred);
 }
 void GeometricGraph::merge_circles(Circle* dest, Circle* src, Predicate* pred, AREngine& ar) {
-    dest = NodeUtils::get_root(dest);
-    src = NodeUtils::get_root(src);
-    if (dest == src) return;
-    root_circles.erase(NodeUtils::get_root(src));
-    auto p2 = dest->merge(src, pred);
+    Circle* root_dest = NodeUtils::get_root(dest);
+    Circle* root_src = NodeUtils::get_root(src);
+    if (root_dest == root_src) return;
+
+    PredSet preds{pred};
+    preds += TracebackUtils::why_ancestor(dest, root_dest);
+    preds += TracebackUtils::why_ancestor(src, root_src);
+
+    root_circles.erase(root_src);
+
+    auto p2 = root_dest->merge(root_src, std::move(preds));
     if (p2) {
         merge_points(p2->first, p2->second, pred, ar);
     }
@@ -597,8 +626,8 @@ Segment* GeometricGraph::__add_new_segment(Point* p1, Point* p2, Line* l, Predic
     Segment* s = segments[segment_id].get();
 
     root_segments.insert(s);
-    p1->set_this_endpoint_of(s, base_pred);
-    p2->set_this_endpoint_of(s, base_pred);
+    p1->set_this_endpoint_of(s);
+    p2->set_this_endpoint_of(s);
 
     // For traceback
     tr->set_point_as_endpoint(p1, s, base_pred);
@@ -632,12 +661,17 @@ Segment* GeometricGraph::try_get_segment(Point* p1, Point* p2) {
     return __try_get_segment(NodeUtils::get_root(p1), NodeUtils::get_root(p2));
 }
 void GeometricGraph::merge_segments(Segment* dest, Segment* src, Predicate* pred) {
-    dest = NodeUtils::get_root(dest);
-    src = NodeUtils::get_root(src);
-    if (dest == src) return;
-    root_segments.erase(src);
+    Segment* root_dest = NodeUtils::get_root(dest);
+    Segment* root_src = NodeUtils::get_root(src);
+    if (root_dest == root_src) return;
 
-    auto l2 = dest->merge(src, pred);
+    PredSet preds{pred};
+    preds += TracebackUtils::why_ancestor(dest, root_dest);
+    preds += TracebackUtils::why_ancestor(src, root_src);
+
+    root_segments.erase(root_src);
+
+    auto l2 = root_dest->merge(root_src, std::move(preds));
     if (l2) {
         set_lengths_cong(l2->first, l2->second, pred);
     }
@@ -652,7 +686,7 @@ Length* GeometricGraph::__add_new_length(Segment* s, Predicate* base_pred) {
     }
     lengths[length_id] = std::make_unique<Length>(length_id);
     Length* l = lengths[length_id].get();
-    l->add_segment(s, base_pred);
+    l->add_segment(s);
     root_lengths.insert(l);
 
     // For traceback
@@ -675,27 +709,32 @@ void GeometricGraph::set_lengths_cong(Segment* s, Segment* s_other, Predicate* p
     Length* l_other = s_other->get_length();
     set_lengths_cong(l, l_other, pred);
 }
-void GeometricGraph::set_lengths_cong(Length* l, Length* l_other, Predicate* pred) {
-    l = NodeUtils::get_root(l);
-    l_other = NodeUtils::get_root(l_other);
-    if (l == l_other) return;
-    root_lengths.erase(l_other);
+void GeometricGraph::set_lengths_cong(Length* l1, Length* l2, Predicate* pred) {
+    Length* root_l1 = NodeUtils::get_root(l1);
+    Length* root_l2 = NodeUtils::get_root(l2);
+    if (root_l1 == root_l2) return;
+
+    PredSet preds{pred};
+    preds += TracebackUtils::why_ancestor(l1, root_l1);
+    preds += TracebackUtils::why_ancestor(l2, root_l2);
+
+    root_lengths.erase(root_l2);
 
     // Check for newly incident ratios as a result of the length merge
-    auto gen_to_merge_ratios = Length::check_incident_ratios(l, l_other, pred);
+    auto gen_to_merge_ratios = Length::check_incident_ratios(root_l1, root_l2, pred);
     while (gen_to_merge_ratios) {
         auto pair = gen_to_merge_ratios();
         merge_ratios(pair.first, pair.second, pred);
     }
 
     // Check for newly isosceles triangles as a result of the length merge
-    auto gen_newly_isosceles = Length::check_incident_isosceles_triangles(l, l_other, pred);
+    auto gen_newly_isosceles = Length::check_incident_isosceles_triangles(root_l1, root_l2, pred);
     while (gen_newly_isosceles) {
         auto [p1, p2, p3] = gen_newly_isosceles();
         set_triangle_isosceles(p1, p2, p3, pred);
     }
 
-    l->merge(l_other, pred);
+    root_l1->merge(root_l2, std::move(preds));
 }
 
 
@@ -849,12 +888,17 @@ Angle* GeometricGraph::get_or_add_angle(Point* p1, Point* p2, Point* p3, DDEngin
 
 
 void GeometricGraph::merge_angles(Angle* dest, Angle* src, Predicate* pred) {
-    dest = NodeUtils::get_root(dest);
-    src = NodeUtils::get_root(src);
-    if (dest == src) return;
-    root_angles.erase(src);
+    Angle* root_dest = NodeUtils::get_root(dest);
+    Angle* root_src = NodeUtils::get_root(src);
+    if (root_dest == root_src) return;
 
-    auto ms = dest->merge(src, pred);
+    PredSet preds{pred};
+    preds += TracebackUtils::why_ancestor(dest, root_dest);
+    preds += TracebackUtils::why_ancestor(src, root_src);
+
+    root_angles.erase(root_src);
+
+    auto ms = root_dest->merge(root_src, std::move(preds));
     if (ms) {
         set_measures_equal(ms->first, ms->second, pred);
     }
@@ -870,7 +914,7 @@ Measure* GeometricGraph::__add_new_measure(Angle* a, Predicate* base_pred) {
     }
     measures[measure_id] = std::make_unique<Measure>(measure_id);
     Measure* m = measures[measure_id].get();
-    a->set_measure(m, base_pred);
+    a->set_measure(m);
     root_measures.insert(m);
 
     // For traceback
@@ -890,12 +934,17 @@ Measure* GeometricGraph::get_or_add_measure(Angle* a, DDEngine& dd) {
 
 
 void GeometricGraph::set_measures_equal(Measure* m1, Measure* m2, Predicate* pred) {
-    m1 = NodeUtils::get_root(m1);
-    m2 = NodeUtils::get_root(m2);
-    if (m1 == m2) return;
-    root_measures.erase(m2);
+    Measure* root_m1 = NodeUtils::get_root(m1);
+    Measure* root_m2 = NodeUtils::get_root(m2);
+    if (root_m1 == root_m2) return;
 
-    m1->merge(m2, pred);
+    PredSet preds{pred};
+    preds += TracebackUtils::why_ancestor(m1, root_m1);
+    preds += TracebackUtils::why_ancestor(m2, root_m2);
+
+    root_measures.erase(root_m2);
+
+    root_m1->merge(root_m2, std::move(preds));
 }
 
 bool GeometricGraph::set_measure_val(Measure* m, Frac f, Predicate* pred) {
@@ -906,8 +955,10 @@ bool GeometricGraph::set_measure_val(Measure* m, Frac f, Predicate* pred) {
             throw GGraphInternalError("GeometricGraph::set_measure_val(): Contradictory measure value assignment attempted.");
         }
     }
+
     m->val = f;
-    m->val_why = pred;
+    tr->set_measure_val(m, f, pred);
+
     if (root_measure_vals.contains(f)) {
         set_measures_equal(root_measure_vals[f], m, pred);
     } else {
@@ -1020,12 +1071,17 @@ Ratio* GeometricGraph::get_or_add_ratio(Point* p1, Point* p2, Point* p3, Point* 
 }
 
 void GeometricGraph::merge_ratios(Ratio* dest, Ratio* src, Predicate* pred) {
-    dest = NodeUtils::get_root(dest);
-    src = NodeUtils::get_root(src);
-    if (dest == src) return;
-    root_ratios.erase(src);
+    Ratio* root_dest = NodeUtils::get_root(dest);
+    Ratio* root_src = NodeUtils::get_root(src);
+    if (root_dest == root_src) return;
 
-    auto fracs = dest->merge(src, pred);
+    PredSet preds{pred};
+    preds += TracebackUtils::why_ancestor(dest, root_dest);
+    preds += TracebackUtils::why_ancestor(src, root_src);
+
+    root_ratios.erase(root_src);
+
+    auto fracs = root_dest->merge(root_src, std::move(preds));
     if (fracs) {
         set_fractions_equal(fracs->first, fracs->second, pred);
     }
@@ -1041,7 +1097,7 @@ Fraction* GeometricGraph::__add_new_fraction(Ratio* r, Predicate* base_pred) {
     }
     fractions[fraction_id] = std::make_unique<Fraction>(fraction_id);
     Fraction* f = fractions[fraction_id].get();
-    r->set_fraction(f, base_pred);
+    r->set_fraction(f);
     root_fractions.insert(f);
 
     // For traceback
@@ -1061,12 +1117,17 @@ Fraction* GeometricGraph::get_or_add_fraction(Ratio* r, DDEngine& dd) {
 }
 
 void GeometricGraph::set_fractions_equal(Fraction* f1, Fraction* f2, Predicate* pred) {
-    f1 = NodeUtils::get_root(f1);
-    f2 = NodeUtils::get_root(f2);
-    if (f1 == f2) return;
-    root_fractions.erase(f2);
+    Fraction* root_f1 = NodeUtils::get_root(f1);
+    Fraction* root_f2 = NodeUtils::get_root(f2);
+    if (root_f1 == root_f2) return;
 
-    f1->merge(f2, pred);
+    PredSet preds{pred};
+    preds += TracebackUtils::why_ancestor(f1, root_f1);
+    preds += TracebackUtils::why_ancestor(f2, root_f2);
+
+    root_fractions.erase(root_f2);
+
+    root_f1->merge(root_f2, std::move(preds));
 }
 
 bool GeometricGraph::set_fraction_val(Fraction* f, Frac val, Predicate* pred) {
@@ -1077,8 +1138,10 @@ bool GeometricGraph::set_fraction_val(Fraction* f, Frac val, Predicate* pred) {
             throw GGraphInternalError("GeometricGraph::set_fraction_val(): Contradictory fraction value assignment attempted.");
         }
     }
+
     f->val = val;
-    f->val_why = pred;
+    tr->set_fraction_val(f, val, pred);
+
     if (root_fraction_vals.contains(val)) {
         set_fractions_equal(root_fraction_vals[val], f, pred);
     } else {
@@ -1104,9 +1167,9 @@ Triangle* GeometricGraph::__add_new_triangle(Point* p1, Point* p2, Point* p3, Pr
     triangles[triangle_id] = std::make_unique<Triangle>(triangle_id, p1, p2, p3, base_pred);
     Triangle* t = triangles[triangle_id].get();
     root_triangles.insert(t);
-    p1->set_this_vertex_of(t, base_pred);
-    p2->set_this_vertex_of(t, base_pred);
-    p3->set_this_vertex_of(t, base_pred);
+    p1->set_this_vertex_of(t);
+    p2->set_this_vertex_of(t);
+    p3->set_this_vertex_of(t);
 
     // For traceback
     tr->set_point_as_vertex(p1, t, base_pred);
@@ -1133,11 +1196,11 @@ Dimension* GeometricGraph::__add_new_dimension(Triangle* t, Predicate* base_pred
     if (Utils::isinmap(dimension_id, dimensions)) {
         throw GGraphInternalError("Error: Dimension with id " + dimension_id + " already exists in GeometricGraph.");
     }
-    dimensions[dimension_id] = std::make_unique<Dimension>(dimension_id, t, base_pred);
+    dimensions[dimension_id] = std::make_unique<Dimension>(dimension_id, t);
     Dimension* dim = dimensions[dimension_id].get();
     root_dimensions.insert(dim);
 
-    t->set_dimension(dim, base_pred);
+    t->set_dimension(dim);
 
     // Check if the triangle is isosceles or equilateral
     std::array<Segment*, 3> sides = {
@@ -1176,7 +1239,7 @@ Shape* GeometricGraph::__add_new_shape(Dimension* dim, Predicate* base_pred) {
     Shape* shape = shapes[shape_id].get();
     root_shapes.insert(shape);
 
-    dim->set_shape(shape, base_pred);
+    dim->set_shape(shape);
 
     // For traceback
     tr->set_shape_of(shape, dim, base_pred);
@@ -1223,12 +1286,17 @@ Triangle* GeometricGraph::get_or_add_triangle(Point* p1, Point* p2, Point* p3, P
 }
 
 void GeometricGraph::merge_triangles(Triangle* dest, Triangle* src, Predicate* pred) {
-    dest = NodeUtils::get_root(dest);
-    src = NodeUtils::get_root(src);
-    if (dest == src) return;
-    root_triangles.erase(src);
+    Triangle* root_dest = NodeUtils::get_root(dest);
+    Triangle* root_src = NodeUtils::get_root(src);
+    if (root_dest == root_src) return;
 
-    dest->merge(src, pred);
+    PredSet preds{pred};
+    preds += TracebackUtils::why_ancestor(dest, root_dest);
+    preds += TracebackUtils::why_ancestor(src, root_src);
+
+    root_triangles.erase(root_src);
+
+    root_dest->merge(root_src, std::move(preds));
 }
 
 bool GeometricGraph::check_same_orientation(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6) {
@@ -1301,12 +1369,13 @@ void GeometricGraph::set_triangles_congruent(Dimension* dim1, Dimension* dim2, s
             Shape* shp1 = dim1->get_shape();
             shp1->set_isosceles_masks(isosceles_mask);
 
-            shp1->merge(shp2, pred);
+            shp1->merge(shp2, {pred});
             root_shapes.erase(shp2);
         } else {
             dim1->set_isosceles_mask(isosceles_mask);
         }
-        dim1->merge(dim2, pred);
+
+        dim1->merge(dim2, {pred});
         shp2->root_obj2s.erase(dim2);
     } else {
         dim2->perm_all_triangles(perm);
@@ -1318,7 +1387,8 @@ void GeometricGraph::set_triangles_congruent(Dimension* dim1, Dimension* dim2, s
         } else {
             dim1->set_isosceles_mask(isosceles_mask);
         }
-        dim1->merge(dim2, pred);
+
+        dim1->merge(dim2, {pred});
     }
 }
 
@@ -1376,7 +1446,10 @@ void GeometricGraph::set_triangles_similar(Triangle* t1, Triangle* t2, std::arra
             shp1->set_isosceles_masks(isosceles_mask);
             dim2->set_isosceles_mask(isosceles_mask);
 
-            dim2->set_shape(shp1, pred);
+            dim2->set_shape(shp1);
+
+            // For traceback
+            tr->set_shape_of(shp1, dim2, pred);
         }
     } else {
 
@@ -1387,13 +1460,16 @@ void GeometricGraph::set_triangles_similar(Triangle* t1, Triangle* t2, std::arra
         dim1->set_isosceles_mask(isosceles_mask);
         shp2->set_isosceles_masks(isosceles_mask);
 
-        dim1->set_shape(shp2, pred);
+        dim1->set_shape(shp2);
+
+        // For traceback
+        tr->set_shape_of(shp2, dim1, pred);
     }
 }
 void GeometricGraph::set_triangles_similar(Shape* shp1, Shape* shp2, Predicate* pred) {
     if (NodeUtils::same_as(shp1, shp2)) return;
     root_shapes.erase(shp2);
-    shp1->merge(shp2, pred);
+    shp1->merge(shp2, {pred});
 }
 
 
@@ -1757,17 +1833,17 @@ bool GeometricGraph::__make_coll(Point* rp1, Point* rp2, Point* rp3,
         if (p3p1) merge_lines(p2p3, p3p1, pred, ar);
         if (p1p2) merge_lines(p2p3, p1p2, pred, ar);
         if (!(p3p1) && !(p1p2)) {
-            tp->set_this_on(l, pred);
+            tp->set_this_on(l);
             tr->set_point_on(tp, l, pred);
         }
     } else if (p3p1) {
         if (p1p2) merge_lines(p3p1, p1p2, pred, ar);
         else {
-            tp->set_this_on(l, pred);
+            tp->set_this_on(l);
             tr->set_point_on(tp, l, pred);
         }
     } else {
-        tp->set_this_on(l, pred);
+        tp->set_this_on(l);
         tr->set_point_on(tp, l, pred);
     }
     return true;
@@ -1814,24 +1890,24 @@ bool GeometricGraph::__make_cyclic(Point* rp1, Point* rp2, Point* rp3, Point* rp
         if (c412) merge_circles(c234, c412, pred, ar);
         if (c123) merge_circles(c234, c123, pred, ar);
         if (!(c341) && !(c412) && !(c123)) {
-            tp->set_this_on(c, pred);
+            tp->set_this_on(c);
             tr->set_point_on(tp, c, pred);
         }
     } else if (c341) {
         if (c412) merge_circles(c341, c412, pred, ar);
         if (c123) merge_circles(c341, c123, pred, ar);
         if (!c412 && !c123) {
-            tp->set_this_on(c, pred);
+            tp->set_this_on(c);
             tr->set_point_on(tp, c, pred);
         }
     } else if (c412) {
         if (c123) merge_circles(c412, c123, pred, ar);
         else {
-            tp->set_this_on(c, pred);
+            tp->set_this_on(c);
             tr->set_point_on(tp, c, pred);
         }
     } else {
-        tp->set_this_on(c, pred);
+        tp->set_this_on(c);
         tr->set_point_on(tp, c, pred);
     }
 
@@ -1881,7 +1957,7 @@ bool GeometricGraph::__make_para(Point* p1, Point* p2, Point* p3, Point* p4,
         set_directions_para(d12, d34, pred);
         ar.add_para(d12, d34, pred);
     } else {
-        d12->add_line(p3p4, pred);
+        d12->add_line(p3p4);
         tr->set_direction_of(d12, p3p4, pred);
     }
     return true;
@@ -1927,7 +2003,7 @@ bool GeometricGraph::__make_perp(Point* p1, Point* p2, Point* p3, Point* p4,
     Direction* d34 = get_or_add_direction(p3p4, dd);
 
     set_directions_perp(d12, d34, pred);
-    // TODO: Should add traceback here
+    tr->set_directions_perp(d12, d34, pred);
 
     if (direction_gradients[d12] < direction_gradients[d34]) {
         std::swap(d12, d34);
@@ -1985,7 +2061,7 @@ bool GeometricGraph::__make_cong(Point* p1, Point* p2, Point* p3, Point* p4,
         // by definition of how GeometricGraph::__add_new_segment works.
         ar.add_cong(s1, s2, l1, l2, pred);
     } else {
-        s2->set_length(l1, pred);
+        s2->set_length(l1);
         tr->set_length_of(l1, s2, pred);
     } 
     return true;
@@ -2065,16 +2141,16 @@ bool GeometricGraph::__make_eqangle(Point* p1, Point* p2, Point* p3, Point* p4,
             set_measures_equal(m1, m2, pred);
         } else {
             Measure* m1 = a1->get_measure();
-            a2->set_measure(m1, pred);
+            a2->set_measure(m1);
             tr->set_measure_of(m1, a2, pred);
         }
     } else if (a2->has_measure()) {
         Measure* m2 = a2->get_measure();
-        a1->set_measure(m2, pred);
+        a1->set_measure(m2);
         tr->set_measure_of(m2, a1, pred);
     } else {
         Measure* m = __add_new_measure(a1, pred);
-        a2->set_measure(m, pred);
+        a2->set_measure(m);
         tr->set_measure_of(m, a2, pred);
     }
     
@@ -2140,16 +2216,16 @@ bool GeometricGraph::make_ar_eqangle(Predicate* pred, DDEngine& dd) {
             set_measures_equal(m1, m2, pred);
         } else {
             Measure* m1 = a1->get_measure();
-            a2->set_measure(m1, pred);
+            a2->set_measure(m1);
             tr->set_measure_of(m1, a2, pred);
         }
     } else if (a2->has_measure()) {
         Measure* m2 = a2->get_measure();
-        a1->set_measure(m2, pred);
+        a1->set_measure(m2);
         tr->set_measure_of(m2, a1, pred);
     } else {
         Measure* m = __add_new_measure(a1, pred);
-        a2->set_measure(m, pred);
+        a2->set_measure(m);
         tr->set_measure_of(m, a2, pred);
     }
     return true;
@@ -2186,16 +2262,16 @@ bool GeometricGraph::__make_eqratio(Point* p1, Point* p2, Point* p3, Point* p4,
             set_fractions_equal(f1, f2, pred);
         } else {
             Fraction* f1 = r1->get_fraction();
-            r2->set_fraction(f1, pred);
+            r2->set_fraction(f1);
             tr->set_fraction_of(f1, r2, pred);
         }
     } else if (r2->has_fraction()) {
         Fraction* f2 = r2->get_fraction();
-        r1->set_fraction(f2, pred);
+        r1->set_fraction(f2);
         tr->set_fraction_of(f2, r1, pred);
     } else {
         Fraction* f = __add_new_fraction(r1, pred);
-        r2->set_fraction(f, pred);
+        r2->set_fraction(f);
         tr->set_fraction_of(f, r2, pred);
     }
 
@@ -2253,16 +2329,16 @@ bool GeometricGraph::make_ar_eqratio(Predicate* pred, DDEngine &dd) {
             set_fractions_equal(f1, f2, pred);
         } else {
             Fraction* f1 = r1->get_fraction();
-            r2->set_fraction(f1, pred);
+            r2->set_fraction(f1);
             tr->set_fraction_of(f1, r2, pred);
         }
     } else if (r2->has_fraction()) {
         Fraction* f2 = r2->get_fraction();
-        r1->set_fraction(f2, pred);
+        r1->set_fraction(f2);
         tr->set_fraction_of(f2, r1, pred);
     } else {
         Fraction* f = __add_new_fraction(r1, pred);
-        r2->set_fraction(f, pred);
+        r2->set_fraction(f);
         tr->set_fraction_of(f, r2, pred);
     }
     return true;
@@ -2639,7 +2715,7 @@ void GeometricGraph::__print_lines(std::ostream& os) {
     for (auto& l : lines) {
         Line* line = l.second.get();
         os << line->to_string() << " : ";
-        for (auto& [p, _] : line->points) {
+        for (Point* p : line->points) {
             os << p->to_string() << " ";
         }
         os << std::endl;
@@ -2652,7 +2728,7 @@ void GeometricGraph::__print_circles(std::ostream& os) {
     for (auto& c : circles) {
         Circle* circ = c.second.get();
         os << circ->to_string() << " : ";
-        for (auto& [p, _] : circ->points) {
+        for (Point* p : circ->points) {
             os << p->to_string() << " ";
         }
         os << std::endl;

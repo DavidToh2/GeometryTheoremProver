@@ -74,6 +74,8 @@ public:
 
 	/* Move constructor */
 	PredSet(PredSet&& other) : preds(std::move(other.preds)) {}
+	/* Copy constructor */
+	PredSet(const PredSet& other) : preds(other.preds) {}
 
 	void operator+=(Predicate* pred);
 	void insert(Predicate* pred);
@@ -85,6 +87,7 @@ public:
 
 	int size() const;
 	bool contains(Predicate* pred) const;
+	bool empty() const;
 
 	explicit operator std::set<Predicate*>() const { return preds; }
 

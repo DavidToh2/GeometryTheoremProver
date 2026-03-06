@@ -38,7 +38,6 @@ public:
     Direction* direction1;
     Direction* direction2;
     Measure* measure = nullptr;
-    Predicate* measure_why = nullptr;
 
     Angle(std::string name, Direction* d1, Direction* d2) : Object2(name), direction1(d1), direction2(d2) {
         d1->on_angles_1.insert(this);
@@ -46,10 +45,10 @@ public:
     }
     
     /* Adds the root node of `m` as the measure of the root node of `this`.
-    This updates the `obj2s` and `root_obj2s` of `root_m`, as well as the `measure` and `measure_why` of `root_this`.
-    Warning: If the root node of `this` already has a measure, the new measure is merged into the old.
+    This updates the `obj2s` and `root_obj2s` of `root_m`, as well as the `measure` of `root_this`.
+    Warning: If the root node of `this` already has a measure, the old measure is overwritten.
     Warning: Code using this function should manually check if `this` already has a measure. */
-    void set_measure(Measure* m, Predicate* base_pred);
+    void set_measure(Measure* m);
     /* Checks if `this` has a measure.
     Note: assumes that `this` is a root node */
     bool __has_measure();
@@ -76,13 +75,13 @@ public:
     Note: `this` and `other` should be root nodes.
     WARNING: This assumes that the `direction1` and `direction2` of `this` and `other` are already equal. The
     function has undefined behaviour if they are not. */
-    std::optional<std::pair<Measure*, Measure*>> __merge(Angle* other, Predicate* pred);
+    std::optional<std::pair<Measure*, Measure*>> __merge(Angle* other, PredSet &&preds);
     /* Merges the root node of `other` into the root node of `this`.
     Note: The measures of `this` and `other` are returned if they both exist. This is so they may then be merged
     by `GeometricGraph::set_measures_equal()`.
     Note: Throws if `direction1` and `direction2` are not equal. (This is ordinarily taken care of by
     `Direction::check_incident_angles()`.) */
-    std::optional<std::pair<Measure*, Measure*>> merge(Angle* other, Predicate* pred);
+    std::optional<std::pair<Measure*, Measure*>> merge(Angle* other, PredSet &&preds);
 };
 
 class Ratio : public Object2 {
@@ -90,7 +89,6 @@ public:
     Length* length1;
     Length* length2;
     Fraction* fraction = nullptr;
-    Predicate* fraction_why = nullptr;
 
     Ratio(std::string name, Length* l1, Length* l2) : Object2(name), length1(l1), length2(l2) {
         l1->on_ratio_1.insert(this);
@@ -98,10 +96,10 @@ public:
     }
 
     /* Adds the root node of `f` as the fraction of the root node of `this`.
-    This updates the `obj2s` and `root_obj2s` of `root_f`, as well as the `fraction` and `fraction_why` of `root_this`.
-    Warning: If the root node of `this` already has a fraction, the new fraction is merged into the old.
+    This updates the `obj2s` and `root_obj2s` of `root_f`, as well as the `fraction` of `root_this`.
+    Warning: If the root node of `this` already has a fraction, the old fraction is overwritten.
     Warning: Code using this function should manually check if `this` already has a fraction. */
-    void set_fraction(Fraction* f, Predicate* base_pred);
+    void set_fraction(Fraction* f);
     /* Checks if `this` has a fraction.
     Note: assumes that `this` is a root node */
     bool __has_fraction();
@@ -128,12 +126,12 @@ public:
     Note: `this` and `other` should be root nodes.
     WARNING: This assumes that the `length1` and `length2` of `this` and `other` are already equal. The function 
     has undefined behaviour if they are not. */
-    std::optional<std::pair<Fraction*, Fraction*>> __merge(Ratio* other, Predicate* pred);
+    std::optional<std::pair<Fraction*, Fraction*>> __merge(Ratio* other, PredSet &&preds);
     /* Merges the root node of `other` into the root node of `this`.
     Note: The Fractions of `this` and `other` are returned if they both exist. This is so they may then be merged
     by `GeometricGraph::set_fractions_equal()`.
     Note: Throws if `length1` and `length2` are not equal. */
-    std::optional<std::pair<Fraction*, Fraction*>> merge(Ratio* other, Predicate* pred);
+    std::optional<std::pair<Fraction*, Fraction*>> merge(Ratio* other, PredSet &&preds);
 };
 
 
@@ -160,23 +158,23 @@ vertices B and C are equal. If ABC is equilateral, then the false will be {true,
 */
 class Dimension : public Object2 {
 public:
-    std::map<Triangle*, Predicate*> root_triangles;
+    std::set<Triangle*> root_triangles;
     Shape* shape = nullptr;
-    Predicate* shape_why = nullptr;
     std::array<bool, 3> isosceles_mask = {false, false, false};
 
     Dimension(std::string name) : Object2(name) {}
-    Dimension(std::string name, Triangle* t, Predicate* base_pred) : Object2(name), shape(nullptr) {
-        root_triangles[t] = base_pred;
+    Dimension(std::string name, Triangle* t) : Object2(name), shape(nullptr) {
+        root_triangles.insert(t);
     }
 
-    void add_triangle(Triangle* t, Predicate* pred);
+    void add_triangle(Triangle* t);
     void perm_all_triangles(std::array<int, 3> perm);
 
     /* Sets the Shape of the root of this Dimension.
     This updates the `obj2s` and `root_obj2s` of `s`, as well as the `shape` and `shape_why` 
-    attributes of this Dimension. */
-    void set_shape(Shape* s, Predicate* pred);
+    attributes of this Dimension. 
+    Warning: If this Dimension already has a Shape, the new Shape will replace it. */
+    void set_shape(Shape* s);
     bool has_shape();
     Shape* __get_shape();
     Shape* get_shape();
@@ -207,5 +205,5 @@ public:
     /* Merges the `other` Dimension into `this` Dimension.
     This does not do anything about the two Dimensions' triangle vertex ordering, nor their Shapes.
     See the class documentation for a more detailed description of the congruency recording process. */
-    void merge(Dimension* other, Predicate* pred);
+    void merge(Dimension* other, PredSet &&preds);
 };
