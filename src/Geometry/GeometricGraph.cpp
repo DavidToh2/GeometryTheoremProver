@@ -140,7 +140,7 @@ void GeometricGraph::merge_points(Point* dest, Point* src, PredSet preds, DDEngi
         to_merge_lines.emplace_back(l1, l2, preds_mergelines);
     }
     for (const auto& [l1, l2, preds_mergelines] : to_merge_lines) {
-        merge_lines(l1, l2, preds_mergelines, dd, ar);
+        merge_lines(l1, {{l2, preds_mergelines}}, dd, ar);
     }
     auto gen_to_merge_circles_1 = Circle::check_incident_circles_by_intersections(root_dest, root_src);
     while (gen_to_merge_circles_1) {
@@ -254,15 +254,24 @@ Line* GeometricGraph::try_get_line(Point* p1, Point* p2) {
     return __try_get_line(NodeUtils::get_root(p1), NodeUtils::get_root(p2));
 }
 
-void GeometricGraph::merge_lines(Line* dest, Line* src, PredSet preds, DDEngine& dd, AREngine& ar) {
+void GeometricGraph::merge_lines(
+    Line* dest, std::vector<std::pair<Line*, PredSet>> srcs, DDEngine& dd, AREngine& ar
+) {
     Line* root_dest = NodeUtils::get_root(dest);
-    Line* root_src = NodeUtils::get_root(src);
-    if (root_dest == root_src) return;
 
-    preds += TracebackUtils::why_ancestor(dest, root_dest);
-    preds += TracebackUtils::why_ancestor(src, root_src);
+    std::map<Line*, PredSet> L{{root_dest, {}}}, L1{}, L2{};
 
-    std::map<Line*, PredSet> L{{root_dest, {}}}, L1{{root_src, preds}}, L2{};
+    for (auto& [src, preds] : srcs) {
+        Line* root_src = NodeUtils::get_root(src);
+        if (root_dest == root_src) continue;
+
+        preds += TracebackUtils::why_ancestor(dest, root_dest);
+        preds += TracebackUtils::why_ancestor(src, root_src);
+
+        L1.insert({root_src, preds});
+    }
+
+    if (L1.empty()) return;
 
     // Step 1: Identify all lines which are incident
     while (!L1.empty()) {
@@ -1930,14 +1939,21 @@ bool GeometricGraph::__make_coll(Point* rp1, Point* rp2, Point* rp3,
     }
 
     if (p2p3) {
-        if (p3p1) merge_lines(p2p3, p3p1, why_on_p2p3 + why_on_p3p1, dd, ar);
-        if (p1p2) merge_lines(p2p3, p1p2, why_on_p2p3 + why_on_p1p2, dd, ar);
+        std::vector<std::pair<Line*, PredSet>> src_lines;
+        if (p3p1) src_lines.push_back({p3p1, why_on_p2p3 + why_on_p3p1});
+        if (p1p2) src_lines.push_back({p1p2, why_on_p2p3 + why_on_p1p2});
         if (!(p3p1) && !(p1p2)) {
             tp->set_this_on(l);
             tr->set_point_on(tp, l, pred);
+        } else {
+            merge_lines(p2p3, std::move(src_lines), dd, ar);
         }
     } else if (p3p1) {
-        if (p1p2) merge_lines(p3p1, p1p2, why_on_p3p1 + why_on_p1p2, dd, ar);
+        std::vector<std::pair<Line*, PredSet>> src_lines;
+        if (p1p2) {
+            src_lines.push_back({p1p2, why_on_p3p1 + why_on_p1p2});
+            merge_lines(p3p1, std::move(src_lines), dd, ar);
+        }
         else {
             tp->set_this_on(l);
             tr->set_point_on(tp, l, pred);

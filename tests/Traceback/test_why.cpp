@@ -168,6 +168,13 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ));
         REQUIRE(l4->points.size() == 7);
 
+        PredSet why_eq_l4_l7 = TracebackUtils::why_ancestor(l7, l4);
+        REQUIRE((
+            why_eq_l4_l7.size() == 2 &&
+            why_eq_l4_l7.contains(base_pred) &&
+            why_eq_l4_l7.contains(preds[6])    // coll D E I
+        ));
+
         PredSet why_eq_l4_l8 = TracebackUtils::why_ancestor(l8, l4);
         REQUIRE((
             why_eq_l4_l8.size() == 3 &&
@@ -242,8 +249,6 @@ TEST_SUITE("TracebackEngine: why_() functions") {
 
         // preds[0]: coll A B C
         PredSet why_coll_abc = tr.why_coll(a, b, c);
-
-        std::cout << why_coll_abc.to_string() << std::endl;
         
         REQUIRE((
             why_coll_abc.size() == 2 &&
@@ -277,7 +282,27 @@ TEST_SUITE("TracebackEngine: why_() functions") {
             why_coll_bgh.contains(preds[5])     // base D A
         ));
 
-        PredSet why_coll_egh = tr.why_coll(e, g, h);
-        std::cout << why_coll_egh.to_string() << std::endl;
+        /* tr.why_coll(e, g, h) is an invalid call. This is because
+        - later on in the process, E and G are merged, so they become the same point */
+
+        PredSet why_coll_bdf = tr.why_coll(b, d, f);
+        REQUIRE((
+            why_coll_bdf.size() == 7 &&
+            why_coll_bdf.contains(base_pred) &&
+            why_coll_bdf.contains(preds[0]) &&  // coll A B C
+            why_coll_bdf.contains(preds[2]) &&  // coll F E D
+            why_coll_bdf.contains(preds[3]) &&  // coll I G D
+            why_coll_bdf.contains(preds[4]) &&  // base I C
+            why_coll_bdf.contains(preds[5]) &&  // base D A
+            why_coll_bdf.contains(preds[6])     // coll D E I
+        ));
+
+        PredSet why_coll_edi = tr.why_coll(e, d, i);
+        std::cout << why_coll_edi.to_string() << std::endl;
+        REQUIRE((
+            why_coll_edi.size() == 2 &&
+            why_coll_edi.contains(base_pred) &&
+            why_coll_edi.contains(preds[6])     // coll D E I
+        ));
     }
 }

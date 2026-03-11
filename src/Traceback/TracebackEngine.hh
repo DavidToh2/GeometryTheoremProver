@@ -16,7 +16,8 @@
 IMPORTANT INVARIANT: All nodes passed to any function must be root nodes at their time of invocation.
 The traceback will only search through predicates where these nodes were involved as root nodes. 
 
-INVARIANT: The predicate traceback functions `why_pred()` must take points which*/
+INVARIANT: The predicate traceback functions `why_pred()` can only take points which are distinct at the
+end of the solving process. */
 class TracebackEngine {
 
 public:

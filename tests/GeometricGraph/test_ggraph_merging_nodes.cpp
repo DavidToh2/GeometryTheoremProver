@@ -135,7 +135,7 @@ TEST_SUITE("GeometricGraph: Node merging") {
             ggraph.__make_coll(d, g, h, nullptr, dd, ar);   // l7 : d, g, h
             REQUIRE((NodeUtils::get_root(l7) == l7 && l7->contains(d)));
 
-            ggraph.merge_lines(l1, l2, base_pred, dd, ar);
+            ggraph.merge_lines(l1, {{l2, base_pred}}, dd, ar);
             
             /* On first round, [ab, bc] generates (acd, (a, c)) for L1
             On second round, [bc, acd] generates (bde, (b, d))

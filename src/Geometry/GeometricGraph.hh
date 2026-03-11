@@ -164,10 +164,10 @@ public:
         return __get_points_on_line(NodeUtils::get_root(l));
     }
 
-    /* Merges `src` line into `dest` line. 
+    /* Merges all the lines in `srcs` into `dest`. 
     This employs the detection algorithm described in the project notes.
     This also merges their `Direction`s. */
-    void merge_lines(Line* dest, Line* src, PredSet preds, DDEngine& dd, AREngine& ar);
+    void merge_lines(Line* dest, std::vector<std::pair<Line*, PredSet>> srcs, DDEngine& dd, AREngine& ar);
 
 
     /* Add a new direction to the line `l`.
