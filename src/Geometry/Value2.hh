@@ -58,7 +58,7 @@ public:
 
     /* Merges the root node of `other` into the root node of `this`.
     Warning: The `val`s of the two measures are not reconciled. */
-    void merge(Measure* other, PredSet &&preds);
+    void merge(Measure* other, Predicate* pred);
 };
 
 class Fraction : public Value2<Ratio> {
@@ -78,7 +78,7 @@ public:
 
     /* Merges the root node of `other` into the root node of `this`.
     Warning: The `val`s of the two fractions are not reconciled. */
-    void merge(Fraction* other, PredSet &&preds);
+    void merge(Fraction* other, Predicate* pred);
 };
 
 
@@ -131,5 +131,5 @@ public:
     /* Returns all ordered pairs of equal dimensions associated with this shape. */
     Generator<std::pair<Dimension*, Dimension*>> all_eq_pairs_ordered();
 
-    void merge(Shape* other, PredSet &&preds);
+    void merge(Shape* other, Predicate* pred);
 };

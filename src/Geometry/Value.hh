@@ -89,12 +89,12 @@ public:
     /* Merge the root nodes of `this` and `other`. 
     Warning: This does NOT merge their `perp`s. Code using this function should first extract `this->perp` 
     and `other->perp`, then merge them separately. */
-    void merge(Direction* other, PredSet &&preds);
+    void merge(Direction* other, Predicate* pred);
 
     /* Identify pairs of angles `(a1, a2)` that need to be merged as a result of the directions `d` and 
     `other_d` being deduced as parallel. 
     Also removes `a2` from `other_d->on_angles_1` and `other_d->on_angles_2`. */
-    static Generator<std::pair<Angle*, Angle*>> check_incident_angles(Direction* d, Direction* other_d, Predicate* pred);
+    static Generator<std::pair<Angle*, Angle*>> check_incident_angles(Direction* d, Direction* other_d);
 
     static bool is_para(Direction* d1, Direction* d2);
     static bool is_perp(Direction* d1, Direction* d2);
@@ -129,7 +129,7 @@ public:
     Generator<Ratio*> on_ratios_as_length2();
 
     /* Merges the root nodes of `this` and `other`. */
-    void merge(Length* other, PredSet &&preds);
+    void merge(Length* other, Predicate* pred);
 
     /* Identify pairs of ratios `(r1, r2)` that need to be merged as a result of the lengths `l` and `other_l`
     being deduced as equal.

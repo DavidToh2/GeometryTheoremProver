@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <deque>
+
 #include "Common/Exceptions.hh"
 #include "Geometry/Node.hh"
 
@@ -12,10 +14,10 @@ namespace TracebackUtils {
         std::array<T*, 3> ns{n1, n2, n3};
         for (int i=0; i<3; i++) {
             parents[i].emplace_back(ns[i]);
-            do {
-                ns[i] = static_cast<T*>(ns[i]->parent);
+            while (!ns[i]->is_root()) {
+                ns[i] = NodeUtils::get_parent(ns[i]);
                 parents[i].emplace_back(ns[i]);
-            } while (!ns[i]->is_root());
+            }
         }
         std::array<int, 3> sizes{
             static_cast<int>(parents[0].size())-1, 
@@ -37,7 +39,19 @@ namespace TracebackUtils {
             if (child->is_root()) {
                 throw TracebackInternalError("TracebackUtils::why_ancestor(): child is not a descendant of ancestor");
             }
-            res += child->parent_why;
+            std::deque<Predicate*> preds{child->parent_why};
+            while (!preds.empty()) {
+                Predicate* pred = preds.front();
+                // Decompose all EQ predicates
+                if (pred->name == pred_t::EQ) {
+                    for (Predicate* p_why : pred->why.preds) {
+                        if (p_why) preds.emplace_back(p_why);
+                    }
+                } else {
+                    res += pred;
+                }
+                preds.pop_front();
+            }
             child = NodeUtils::get_parent(child);
         }
         return res;

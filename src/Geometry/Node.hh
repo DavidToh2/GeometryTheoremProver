@@ -22,7 +22,7 @@ public:
     Node* parent = nullptr;
     Node* root = this;
     std::vector<Node*> children;
-    PredSet parent_why;
+    Predicate* parent_why;
 
     Node(std::string name) : name(name), root(this) {}
 
@@ -30,10 +30,10 @@ public:
 
     /* Merge `other` into `this` node.
     This function maps the `parent`, `root` and `children` attributes. */
-    constexpr void merge(Node* other, PredSet &&preds) {
+    constexpr void merge(Node* other, Predicate* pred) {
         if (this == other) return;
         other->parent = this;
-        std::swap(other->parent_why, preds);
+        other->parent_why = pred;
         other->root = this;
         children.emplace_back(other);
     }
@@ -357,10 +357,10 @@ namespace NodeUtils {
     }
 
     template<std::derived_from<Node> T>
-    Generator<T> all_children(T* node) {
+    Generator<T*> all_children(T* node) {
         auto it = node->children.begin();
         while (it != node->children.end()) {
-            T child = static_cast<T>(*it);
+            T* child = static_cast<T*>(*it);
             co_yield child;
             auto gen = all_children<T>(child);
             while (gen) {

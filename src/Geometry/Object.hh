@@ -169,7 +169,7 @@ public:
     The `on_circle` and `on_line` of `get_root(other)` are moved into that of `get_root(this)`.
     All other `Objects` referencing `get_root(other)` are switched out to reference `get_root(this)`. 
     Note: This function has no effect if `this` and `other` already have the same root.*/
-    void merge(Point* other, PredSet &&preds);
+    void merge(Point* other, Predicate* pred);
 
     /* Merge two `on_` records in some `Point` object. This empties the second record. */
     template <std::derived_from<Object> Key>
@@ -261,16 +261,16 @@ public:
     Note: The copying behaviour does not copy over points that are already in `this`. The effect is
     necessary because two lines being merged will necessarily have two duplicate points. 
     Note: This function has no effect if `this` and `other` are identical.*/
-    std::optional<std::pair<Direction*, Direction*>> merge(Line* other, PredSet &&preds);
+    std::optional<std::pair<Direction*, Direction*>> merge(Line* other, Predicate* pred);
 
     /* Identify all pairs of lines `(l1, l2)` that need to be merged (into a single line) as a result of `p` 
-    and `other_p` being deduced to be the same. Any such pair of lines will have another point `q` lying on
-    both. The tuples `{q, {l1, l2}}` are returned to then be checked for numeric equality - only when q is
-    numerically distinct from both `p` and `other_p` do we merge the pair.
+    and `other_p` being deduced to be the same. `l1` currently contains `p` and `l2` contains `other_p`, and both
+    contain some other common point `q`. The tuples `{q, {l1, l2}}` are returned to then be checked for numeric 
+    equality - only when `q` is numerically distinct from both `p` and `other_p` do we merge the pair.
     Also replaces `other_p` with `p` in `l2->points`, and removes `l2` from `other_p->on_root_line`.
     Note: This function should be called *before* `p->merge(other_p)` occurs. */
     static Generator<std::pair<Point*, std::pair<Line*, Line*>>> 
-    check_incident_lines(Point* p, Point* other_p, Predicate* pred);
+    check_incident_lines(Point* p, Point* other_p);
 
     /* Identify all lines `l1` which might possibly be identical to both lines `l` and `other_l`, which are
     about to be merged. Any such line `l1` will have one point `p1` belonging to `l`, and another `p2` belonging
@@ -280,7 +280,7 @@ public:
     Note: All generated lines and points are root nodes.
     */
     static Generator<std::pair<Line*, std::pair<Point*, Point*>>> 
-    check_incident_lines(Line* l, Line* other_l, Predicate* pred);
+    check_incident_lines(Line* l, Line* other_l);
 };
 
 
@@ -342,7 +342,7 @@ public:
     Note: The copying behaviour does not copy over points that are already in `get_root(this)`. The effect is
     necessary because two circles being merged will necessarily have two duplicate points. 
     Note: This function has no effect if `this` and `other` already have the same root.*/
-    std::optional<std::pair<Point*, Point*>> merge(Circle* other, PredSet &&preds);
+    std::optional<std::pair<Point*, Point*>> merge(Circle* other, Predicate* pred);
 
     /* Identify all pairs of circles `(c1, c2)` that need to be merged (into a single circle) as a result of both 
     `p` and `other_p` being deduced to be the same. The circles in each pair either have exactly two common 
@@ -351,7 +351,7 @@ public:
     Also replaces `other_p` with `p` in `c2->points`, and removes `c2` from `other_p->on_root_circle`.
     Note: This function should be called before `p->merge(other_p)` occurs. */
     static Generator<std::pair<std::pair<Point*, Point*>, std::pair<Circle*, Circle*>>> 
-    check_incident_circles_by_intersections(Point* p, Point* other_p, Predicate* pred);
+    check_incident_circles_by_intersections(Point* p, Point* other_p);
 
     /* Identify all pairs of circles `(c1, c2)` that need to be merged (into a single circle) as a result of both 
     `p` and `other_p` being deduced to be the same. The circles in each pair must have exactly one common point; 
@@ -359,7 +359,7 @@ public:
     Also replaces `other_p` with `p` for `c2->center` (using `Circle::set_center()`).
     Note: This function should be called before `p->merge(other_p)` occurs. */
     static Generator<std::pair<Point*, std::pair<Circle*, Circle*>>> 
-    check_incident_circles_by_center(Point* p, Point* other_p, Predicate* pred);
+    check_incident_circles_by_center(Point* p, Point* other_p);
 };
 
 
@@ -437,7 +437,7 @@ public:
     Note: The lengths of `root_other` and `root_this` are returned if they both exist. This is so they may 
     then be merged by `GeometricGraph::set_lengths_equal()`.
     Warning: Assumes that `this.endpoints == other.endpoints`. */
-    std::optional<std::pair<Length*, Length*>> merge(Segment* other, PredSet &&preds);
+    std::optional<std::pair<Length*, Length*>> merge(Segment* other, Predicate* pred);
 
     /* Identify segments `(s1, s2)` that need to be merged as a result of the point `other_p` being merged 
     into the point `p`. This is done by checking those segments containing `p` and `other_p` as endpoints 
@@ -446,7 +446,7 @@ public:
     Also replaces occurences of `other_p` in `s2->endpoints` with `p`, and removes `s2` from 
     `other_p->endpoint_of_root_segment`.
     Note: Assumes that `p` and `other_p` are root points. */
-    static Generator<std::pair<Segment*, Segment*>> check_incident_segments(Point* p, Point* other_p, Predicate* pred);
+    static Generator<std::pair<Segment*, Segment*>> check_incident_segments(Point* p, Point* other_p);
 };
 
 
@@ -518,7 +518,7 @@ public:
     /* Merge two triangles which have been shown to be identical. Only called on triangle pairs returned by 
     `Triangle::check_incident_triangles()`, whose vertices have already been rearranged and set to be identical. 
     Note: The dimensions of the two triangles are returned. They may then be merged by `GeometricGraph::set_dimensions_equal()`. */
-    std::optional<std::pair<Dimension*, Dimension*>> merge(Triangle* other, PredSet &&preds);
+    std::optional<std::pair<Dimension*, Dimension*>> merge(Triangle* other, Predicate* pred);
 
     /* Identify triangles `(perm, (t1, t2))` that need to be merged as a result of the point `other_p` being merged 
     into the point `p`. This is done by checking those triangles containing `p` and `other_p` as vertices
@@ -528,6 +528,6 @@ public:
     Also replaces occurences of `other_p` in `t2->vertices` with `p`, and removes `t2` from `other_p->on_root_triangle`.
     Note: Assumes that `p` and `other_p` are root points. */
     static Generator<std::pair<std::pair<Triangle*, Triangle*>, std::array<int, 3>>>
-    check_incident_triangles(Point* p, Point* other_p, Predicate* pred);
+    check_incident_triangles(Point* p, Point* other_p);
 };
 

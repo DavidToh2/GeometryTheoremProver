@@ -9,11 +9,11 @@ void Measure::add_angle(Angle* a) {
     root_a->set_measure(root_this);
 }
 
-void Measure::merge(Measure* other, PredSet &&preds) {
+void Measure::merge(Measure* other, Predicate* pred) {
     if (this == other) {
         return;
     }
-    this->Node::merge(other, std::move(preds));
+    this->Node::merge(other, pred);
 
     // std::set::merge has move semantics
     this->root_obj2s.merge(other->root_obj2s);
@@ -37,13 +37,13 @@ void Fraction::add_ratio(Ratio* r) {
     root_r->set_fraction(root_this);
 }
 
-void Fraction::merge(Fraction* other, PredSet &&preds) {
+void Fraction::merge(Fraction* other, Predicate* pred) {
     Fraction* root_this = NodeUtils::get_root(this);
     Fraction* root_other = NodeUtils::get_root(other);
     if (root_this == root_other) {
         return;
     }
-    root_this->Node::merge(root_other, std::move(preds));
+    root_this->Node::merge(root_other, pred);
 
     // std::set::merge has move semantics
     root_this->root_obj2s.merge(root_other->root_obj2s);
@@ -111,13 +111,13 @@ void Shape::setor_isosceles_masks(std::array<bool, 3> mask) {
     }
 }
 
-void Shape::merge(Shape* other, PredSet &&preds) {
+void Shape::merge(Shape* other, Predicate* pred) {
     Shape* root_this = NodeUtils::get_root(this);
     Shape* root_other = NodeUtils::get_root(other);
     if (root_this == root_other) {
         return;
     }
-    root_this->Node::merge(root_other, std::move(preds));
+    root_this->Node::merge(root_other, pred);
 
     for (Dimension* d : root_other->root_obj2s) {
         d->shape = root_this;

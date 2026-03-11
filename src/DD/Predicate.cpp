@@ -241,6 +241,13 @@ void PredSet::operator=(PredSet&& other) {
     std::swap(preds, other.preds);
 }
 
+PredSet PredSet::operator+(const PredSet& other) const {
+    PredSet res(*this);
+    res += other;
+    // Return Value Optimisation (RVO) applies here:
+    return res;
+}
+
 int PredSet::size() const { 
     return preds.size(); 
 }
@@ -255,10 +262,10 @@ std::string PredSet::to_string() const {
         return "EMPTY";
     }
     auto iter = preds.begin();
-    std::string res = (*iter)->to_string();
-    do {
+    std::string res = (*iter++)->to_string();
+    while (iter != preds.end()) {
         res = res + " && " + (*(iter++))->to_string();
-    } while (iter != preds.end());
+    }
     return res;
 }
 

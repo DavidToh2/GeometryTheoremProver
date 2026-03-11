@@ -51,7 +51,9 @@ public:
     Also adds new predicates into `std::vector<Predicate*> recent_predicates`. */
     Predicate* insert_new_predicate(std::unique_ptr<Predicate> &&predicate);
     /* Inserts an already known predicate into the engine (specifically `utrmap<Predicate> predicates`).
-    Returns a raw pointer to the predicate, whether it was newly inserted or already existed. */
+    Returns a raw pointer to the predicate, whether it was newly inserted or already existed.
+    Used to insert predicates for which the GeometricGraph does not need to be updated - for example,
+    rule preconditions. */
     Predicate* insert_predicate(std::unique_ptr<Predicate> &&predicate);
     bool has_predicate_by_hash(const std::string hash);
 

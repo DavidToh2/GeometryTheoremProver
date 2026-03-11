@@ -156,11 +156,11 @@ Generator<Triangle*> Point::vertex_of_triangles() {
     co_return;
 }
 
-void Point::merge(Point* other, PredSet &&preds) {
+void Point::merge(Point* other, Predicate* pred) {
 
     if (NodeUtils::same_as(this, other)) return;
 
-    this->Node::merge(other, std::move(preds));
+    this->Node::merge(other, pred);
 
     // std::set::merge has move semantics
     this->on_root_line.merge(other->on_root_line);
@@ -230,13 +230,13 @@ Generator<Angle*> Line::on_angles_as_line2() {
     return this->get_direction()->on_angles_as_direction2();
 }
 
-std::optional<std::pair<Direction*, Direction*>> Line::merge(Line* other, PredSet &&preds) {
+std::optional<std::pair<Direction*, Direction*>> Line::merge(Line* other, Predicate* pred) {
     Line* root_this = NodeUtils::get_root(this);
     Line* root_other = NodeUtils::get_root(other);
     if (this == other) {
         return std::nullopt;
     }
-    this->Node::merge(other, std::move(preds));
+    this->Node::merge(other, pred);
 
     /* For every point pt in root_other->points, set pt on root_this.
     
@@ -270,7 +270,7 @@ std::optional<std::pair<Direction*, Direction*>> Line::merge(Line* other, PredSe
 }
 
 Generator<std::pair<Point*, std::pair<Line*, Line*>>> 
-Line::check_incident_lines(Point *p, Point *other_p, Predicate *pred) {
+Line::check_incident_lines(Point *p, Point *other_p) {
 
     /* Note: By the object incidence invariant, it is entirely possible for two distinct lines to simultaneously
     contain two or more point objects which are numerically equivalent. What this means for the point_to_line
@@ -316,7 +316,7 @@ Line::check_incident_lines(Point *p, Point *other_p, Predicate *pred) {
 }
 
 Generator<std::pair<Line*, std::pair<Point*, Point*>>> 
-Line::check_incident_lines(Line* l, Line* other_l, Predicate* pred) {
+Line::check_incident_lines(Line* l, Line* other_l) {
 
     std::map<Line*, Point*> line_to_point;
     for (auto it = l->points.begin(); it != l->points.end(); ++it) {
@@ -382,12 +382,12 @@ Generator<Circle*> Circle::all_circles_through(Point* p1, Point* p2) {
     co_return;
 }
 
-std::optional<std::pair<Point*, Point*>> Circle::merge(Circle* other, PredSet &&preds) {
+std::optional<std::pair<Point*, Point*>> Circle::merge(Circle* other, Predicate* pred) {
     
     if (this == other) {
         return std::nullopt;
     }
-    this->Node::merge(other, std::move(preds));
+    this->Node::merge(other, pred);
 
     for (const auto& pt : other->points) {
         pt->on_root_circle.erase(other);
@@ -408,7 +408,7 @@ std::optional<std::pair<Point*, Point*>> Circle::merge(Circle* other, PredSet &&
 }
 
 Generator<std::pair<std::pair<Point*, Point*>, std::pair<Circle*, Circle*>>> 
-Circle::check_incident_circles_by_intersections(Point *p, Point *other_p, Predicate *pred) {
+Circle::check_incident_circles_by_intersections(Point *p, Point *other_p) {
 
     std::map<std::pair<Point*, Point*>, Circle*> point_pair_to_circle;
     std::map<Point*, Circle*> center_to_circle;
@@ -454,7 +454,7 @@ Circle::check_incident_circles_by_intersections(Point *p, Point *other_p, Predic
     co_return;
 }
 Generator<std::pair<Point*, std::pair<Circle*, Circle*>>> 
-Circle::check_incident_circles_by_center(Point *p, Point *other_p, Predicate *pred) {
+Circle::check_incident_circles_by_center(Point *p, Point *other_p) {
 
     std::map<Point*, Circle*> point_to_circle;
     for (auto it = p->center_of_root_circle.begin(); it != p->center_of_root_circle.end(); ++it) {
@@ -543,12 +543,12 @@ Generator<Ratio*> Segment::on_ratios_as_segment2() {
 }
 
 
-std::optional<std::pair<Length*, Length*>> Segment::merge(Segment* other, PredSet &&preds) {
+std::optional<std::pair<Length*, Length*>> Segment::merge(Segment* other, Predicate* pred) {
 
     if (this == other) {
         return std::nullopt;
     }
-    this->Node::merge(other, std::move(preds));
+    this->Node::merge(other, pred);
 
     other->endpoints[0]->endpoint_of_root_segment.erase(other);
     other->endpoints[1]->endpoint_of_root_segment.erase(other);
@@ -565,7 +565,7 @@ std::optional<std::pair<Length*, Length*>> Segment::merge(Segment* other, PredSe
     }
     return std::nullopt;
 }
-Generator<std::pair<Segment*, Segment*>> Segment::check_incident_segments(Point *p, Point *other_p, Predicate *pred) {
+Generator<std::pair<Segment*, Segment*>> Segment::check_incident_segments(Point *p, Point *other_p) {
     std::map<Point*, Segment*> endpoint_to_segment;
     for (auto it = p->endpoint_of_root_segment.begin(); it != p->endpoint_of_root_segment.end(); ++it) {
         Segment* s = *it;
@@ -688,12 +688,12 @@ std::pair<Point*, Point*> Triangle::other_vertices(Point* p, Point* new_p) {
     }
 }
 
-std::optional<std::pair<Dimension*, Dimension*>> Triangle::merge(Triangle* other, PredSet &&preds) {
+std::optional<std::pair<Dimension*, Dimension*>> Triangle::merge(Triangle* other, Predicate* pred) {
     
     if (this == other) {
         return std::nullopt;
     }
-    this->Node::merge(other, std::move(preds));
+    this->Node::merge(other, pred);
 
     for (Point* v : other->vertices) {
         v->vertex_of_root_triangle.erase(other);
@@ -703,7 +703,7 @@ std::optional<std::pair<Dimension*, Dimension*>> Triangle::merge(Triangle* other
 }
 
 Generator<std::pair<std::pair<Triangle*, Triangle*>, std::array<int, 3>>> 
-Triangle::check_incident_triangles(Point* p, Point* other_p, Predicate* pred) {
+Triangle::check_incident_triangles(Point* p, Point* other_p) {
     std::map<std::pair<Point*, Point*>, Triangle*> vertex_pair_to_triangle;
     for (auto it = p->vertex_of_root_triangle.begin(); it != p->vertex_of_root_triangle.end(); ++it) {
         Triangle* t1 = *it;

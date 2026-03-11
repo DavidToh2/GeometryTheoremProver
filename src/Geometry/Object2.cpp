@@ -51,11 +51,11 @@ Generator<std::pair<Line*, Line*>> Angle::all_line_pairs() {
     co_return;
 }
 
-std::optional<std::pair<Measure*, Measure*>> Angle::__merge(Angle* other, PredSet &&preds) {
+std::optional<std::pair<Measure*, Measure*>> Angle::__merge(Angle* other, Predicate* pred) {
     if (this == other) {
         return std::nullopt;
     }
-    this->Node::merge(other, std::move(preds));
+    this->Node::merge(other, pred);
 
     direction1->on_angles_1.erase(other);
     direction2->on_angles_2.erase(other);
@@ -70,12 +70,12 @@ std::optional<std::pair<Measure*, Measure*>> Angle::__merge(Angle* other, PredSe
     }
     return std::nullopt;
 }
-std::optional<std::pair<Measure*, Measure*>> Angle::merge(Angle* other, PredSet &&preds) {
+std::optional<std::pair<Measure*, Measure*>> Angle::merge(Angle* other, Predicate* pred) {
     if (!NodeUtils::same_as(this->direction1, other->direction1) || 
         !NodeUtils::same_as(this->direction2, other->direction2)) {
         throw GGraphInternalError("Error: Cannot merge angles " + this->name + " and " + other->name + " with different directions.");
     }
-    return this->__merge(other, std::move(preds));
+    return this->__merge(other, pred);
 }
 
 
@@ -132,11 +132,11 @@ Generator<std::pair<Segment*, Segment*>> Ratio::all_segment_pairs() {
     co_return;
 }
 
-std::optional<std::pair<Fraction*, Fraction*>> Ratio::__merge(Ratio* other, PredSet &&preds) {
+std::optional<std::pair<Fraction*, Fraction*>> Ratio::__merge(Ratio* other, Predicate* pred) {
     if (this == other) {
         return std::nullopt;
     }
-    this->Node::merge(other, std::move(preds));
+    this->Node::merge(other, pred);
 
     length1->on_ratio_1.erase(other);
     length2->on_ratio_2.erase(other);
@@ -151,12 +151,12 @@ std::optional<std::pair<Fraction*, Fraction*>> Ratio::__merge(Ratio* other, Pred
     }
     return std::nullopt;
 }
-std::optional<std::pair<Fraction*, Fraction*>> Ratio::merge(Ratio* other, PredSet &&preds) {
+std::optional<std::pair<Fraction*, Fraction*>> Ratio::merge(Ratio* other, Predicate* pred) {
     if (!NodeUtils::same_as(this->length1, other->length1) || 
         !NodeUtils::same_as(this->length2, other->length2)) {
         throw GGraphInternalError("Error: Cannot merge ratios " + this->name + " and " + other->name + " with different lengths.");
     }
-    return this->__merge(other, std::move(preds));
+    return this->__merge(other, pred);
 }
 
 
@@ -224,13 +224,13 @@ Generator<std::pair<Triangle*, Triangle*>> Dimension::all_cong_pairs_ordered() {
     return NodeUtils::all_pairs_ordered<Triangle>(root_d->root_triangles);
 }
 
-void Dimension::merge(Dimension* other, PredSet &&preds) {
+void Dimension::merge(Dimension* other, Predicate* pred) {
     Dimension* root_this = NodeUtils::get_root(this);
     Dimension* root_other = NodeUtils::get_root(other);
     if (root_this == root_other) {
         return;
     }
-    root_this->Node::merge(root_other, std::move(preds));
+    root_this->Node::merge(root_other, pred);
 
     if (root_other->has_shape()) {
         root_other->get_shape()->root_obj2s.erase(root_other);

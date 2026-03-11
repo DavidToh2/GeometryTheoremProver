@@ -25,13 +25,13 @@ TEST_SUITE("GeometricGraph: Node merging") {
         Point* h = ggraph.__add_new_point("h");
 
         SUBCASE("Node parent/root hierarchy") {
-            ggraph.merge_points(a, b, base_pred, ar);
-            ggraph.merge_points(c, d, base_pred, ar);
-            ggraph.merge_points(a, c, base_pred, ar);
-            ggraph.merge_points(e, f, base_pred, ar);
-            ggraph.merge_points(g, h, base_pred, ar);
-            ggraph.merge_points(f, h, base_pred, ar);
-            ggraph.merge_points(d, h, base_pred, ar);
+            ggraph.merge_points(a, b, base_pred, dd, ar);
+            ggraph.merge_points(c, d, base_pred, dd, ar);
+            ggraph.merge_points(a, c, base_pred, dd, ar);
+            ggraph.merge_points(e, f, base_pred, dd, ar);
+            ggraph.merge_points(g, h, base_pred, dd, ar);
+            ggraph.merge_points(f, h, base_pred, dd, ar);
+            ggraph.merge_points(d, h, base_pred, dd, ar);
 
             bool all_pass = true;
             for (Point* p : {b, c, d, e, f, g, h}) {
@@ -46,14 +46,14 @@ TEST_SUITE("GeometricGraph: Node merging") {
             ggraph.__set_point_numeric(h, {1, 0});
 
             Line* ab = ggraph.get_or_add_line(a, b, dd);
-            d->set_this_on(ab);
+            ggraph.__make_coll(a, b, d, base_pred, dd, ar);   // ab : a, b, d
             REQUIRE(ggraph.get_or_add_line(a, d, dd) == ab);
 
             Line* cd = ggraph.get_or_add_line(c, d, dd);
             auto &m0 = cd->points; // {c, d}
             REQUIRE((m0.size() == 2 && m0.contains(c) && m0.contains(d)));
 
-            ggraph.merge_points(a, c, base_pred, ar);
+            ggraph.merge_points(a, c, base_pred, dd, ar);
             Line* r_ab = NodeUtils::get_root(ab);
             REQUIRE(NodeUtils::same_as(ab, cd));
 
@@ -70,16 +70,16 @@ TEST_SUITE("GeometricGraph: Node merging") {
             Line* ef = ggraph.get_or_add_line(e, f, dd);
             Line* gh = ggraph.get_or_add_line(g, h, dd);
 
-            ggraph.merge_points(b, f, base_pred, ar);
-            ggraph.merge_points(d, h, base_pred, ar);
-            ggraph.merge_points(e, g, base_pred, ar);
+            ggraph.merge_points(b, f, base_pred, dd, ar);
+            ggraph.merge_points(d, h, base_pred, dd, ar);
+            ggraph.merge_points(e, g, base_pred, dd, ar);
 
             // At this point, we have four clusters of points (a#, c), (b#, f), (d#, h), (e#, g)
             // and three lines (ab#, cd), (ef#), (gh#)
 
             REQUIRE((ef->is_root() && gh->is_root()));
 
-            ggraph.merge_points(f, h, base_pred, ar);
+            ggraph.merge_points(f, h, base_pred, dd, ar);
             Line* r_ef = NodeUtils::get_root(ef);
             REQUIRE(NodeUtils::same_as(ef, gh));
 
@@ -97,7 +97,7 @@ TEST_SUITE("GeometricGraph: Node merging") {
 
             REQUIRE(ggraph.get_or_add_line(d, g, dd) == r_ef);
 
-            ggraph.merge_points(a, e, base_pred, ar);
+            ggraph.merge_points(a, e, base_pred, dd, ar);
             REQUIRE(NodeUtils::same_as(ab, ef));
             REQUIRE((ggraph.root_lines.size() == 1 && ggraph.root_lines.contains(NodeUtils::get_root(ab))));
             REQUIRE((ggraph.root_points.size() == 2 && ggraph.root_points.contains(a) && ggraph.root_points.contains(b)));
@@ -135,7 +135,7 @@ TEST_SUITE("GeometricGraph: Node merging") {
             ggraph.__make_coll(d, g, h, nullptr, dd, ar);   // l7 : d, g, h
             REQUIRE((NodeUtils::get_root(l7) == l7 && l7->contains(d)));
 
-            ggraph.merge_lines(l1, l2, base_pred, ar);
+            ggraph.merge_lines(l1, l2, base_pred, dd, ar);
             
             /* On first round, [ab, bc] generates (acd, (a, c)) for L1
             On second round, [bc, acd] generates (bde, (b, d))
@@ -176,7 +176,7 @@ TEST_SUITE("GeometricGraph: Node merging") {
             // l1 contains a, b, c, d, e, f, g
             // l7 contains d, g, h
 
-            ggraph.merge_points(a, h, base_pred, ar);
+            ggraph.merge_points(a, h, base_pred, dd, ar);
             REQUIRE(NodeUtils::same_as(l1, l7));
             REQUIRE((ggraph.root_lines.size() == 1));
         }
@@ -199,8 +199,8 @@ TEST_SUITE("GeometricGraph: Node merging") {
             ggraph.__make_cyclic(b, c, d, e, nullptr, dd, ar);
             // c->set_this_on(bde, base_pred);
 
-            ggraph.merge_points(a, b, base_pred, ar);
-            ggraph.merge_points(c, d, base_pred, ar);
+            ggraph.merge_points(a, b, base_pred, dd, ar);
+            ggraph.merge_points(c, d, base_pred, dd, ar);
 
             // At this point we have six clusters of points (a#, b), (c#, d), (e#), (f#), (g#), (h#)
             // and two circles (r_bcde#, ?_ace), (bdfg)
@@ -225,7 +225,7 @@ TEST_SUITE("GeometricGraph: Node merging") {
             auto &s2 = h->on_root_circle; // {aeh, f_h}
             REQUIRE((s2.size() == 2 && s2.contains(aeh) && s2.contains(f_h)));
 
-            ggraph.merge_points(g, h, base_pred, ar);
+            ggraph.merge_points(g, h, base_pred, dd, ar);
 
             // At this point we have five clusters of points (a#, b), (c#, d), (e#), (f#), (g#, h)
             // three circumcircles (r_bde#, ?_ace), (bdfg#), (aeh#)
@@ -241,7 +241,7 @@ TEST_SUITE("GeometricGraph: Node merging") {
 
             REQUIRE(ggraph.root_circles.size() == 7);
 
-            ggraph.merge_circles(e_g, f_h, base_pred, ar); // merges the centers e and f
+            ggraph.merge_circles(e_g, f_h, base_pred, dd, ar); // merges the centers e and f
             REQUIRE(NodeUtils::same_as(e, f));
 
             // After this final merge, we now have four clusters of points (a#, b), (c#, d), (e#, f), (g#, h)
@@ -280,11 +280,11 @@ TEST_SUITE("GeometricGraph: Node merging") {
             Segment* bc = ggraph.get_or_add_segment(b, c, dd);
             REQUIRE((bc->endpoints[0] == c && bc->endpoints[1] == b));
             
-            ggraph.merge_points(a, c, base_pred, ar);
+            ggraph.merge_points(a, c, base_pred, dd, ar);
             REQUIRE(NodeUtils::same_as(ab, bc));
             REQUIRE_FALSE(NodeUtils::same_as(ab, cd));
 
-            ggraph.merge_points(b, d, base_pred, ar);
+            ggraph.merge_points(b, d, base_pred, dd, ar);
             REQUIRE(NodeUtils::same_as(cd, ab));
             Segment* r_ab = NodeUtils::get_root(ab);
             REQUIRE(ggraph.get_or_add_segment(a, d, dd) == r_ab);
@@ -300,7 +300,7 @@ TEST_SUITE("GeometricGraph: Node merging") {
             Segment* gb = ggraph.get_or_add_segment(g, b, dd);
             Segment* cf = ggraph.get_or_add_segment(c, f, dd);
 
-            ggraph.merge_points(e, g, base_pred, ar);
+            ggraph.merge_points(e, g, base_pred, dd, ar);
 
             REQUIRE(NodeUtils::same_as(eh, gh));
             Segment* r_eh = NodeUtils::get_root(eh);
@@ -308,7 +308,7 @@ TEST_SUITE("GeometricGraph: Node merging") {
             auto &s1 = e->endpoint_of_root_segment; // {ef, r_eh, gb}
             REQUIRE((s1.size() == 3 && s1.contains(ef) && s1.contains(r_eh) && s1.contains(gb)));
 
-            ggraph.merge_points(b, f, base_pred, ar);
+            ggraph.merge_points(b, f, base_pred, dd, ar);
             REQUIRE((
                 NodeUtils::same_as(r_ab, cf) &&
                 NodeUtils::same_as(ef, gb)
@@ -321,7 +321,7 @@ TEST_SUITE("GeometricGraph: Node merging") {
             // At this point, we have four clusters of points (a#, c), (b#, d, f), (e#, g), (h#)
             // and three segments (r_ab#, ?_bc, ?_cd, ?_cf), (r_ef#, ?_gb), (r_eh#, ?_gh)
 
-            ggraph.merge_points(h, f, base_pred, ar);
+            ggraph.merge_points(h, f, base_pred, dd, ar);
             REQUIRE(NodeUtils::same_as(r_ef, r_eh));
             REQUIRE_FALSE(NodeUtils::same_as(r_ab, r_ef));
             auto &s3 = h->endpoint_of_root_segment; // {r_ab, r_ef}
@@ -404,7 +404,7 @@ TEST_SUITE("GeometricGraph: Node merging") {
             /* TOFIX: Calling __make_coll(c, f, h), __make_coll(b, e, h) does not help detect incidence of d, h 
             because, by our own definition, our object incidence detection algorithm ignores the case where points 
             are deduced to be identical. */
-            ggraph.merge_points(d, h, base_pred, ar);
+            ggraph.merge_points(d, h, base_pred, dd, ar);
             REQUIRE((cf->contains(h) && be->contains(h)));
             REQUIRE(NodeUtils::same_as(d, h));
             REQUIRE((NodeUtils::same_as(d, h) && NodeUtils::same_as(de, eh)
@@ -435,7 +435,7 @@ TEST_SUITE("GeometricGraph: Node merging") {
 
             ggraph.__make_cong(c, d, d, e, nullptr, dd, ar);
             REQUIRE((NodeUtils::same_as(cd_da, ed_dg) && Ratio::is_equal(cd_da, ed_dg)));
-            ggraph.merge_points(d, h, base_pred, ar);
+            ggraph.merge_points(d, h, base_pred, dd, ar);
             REQUIRE((NodeUtils::same_as(ed_dg, eh_hg) && Ratio::is_equal(ed_dg, eh_hg)));
         }
     }

@@ -64,13 +64,20 @@ TEST_SUITE("TracebackEngine: why_() functions") {
             NodeUtils::get_parent(l10) == l8
         ));
 
+        PredSet why_on_c_l1 = tr.why_on(c, l1);
+        REQUIRE((
+            why_on_c_l1.size() == 2 &&
+            why_on_c_l1.contains(base_pred) &&
+            why_on_c_l1.contains(preds[0])  // coll A B C
+        ));
+
         /* I = C */
         preds.emplace_back(dd.insert_predicate(
             std::make_unique<Predicate>(
                 pred_t::BASE, std::vector<Node*>{i, c}
             )
         ));
-        ggraph.merge_points(i, c, preds.back(), ar);
+        ggraph.merge_points(i, c, preds.back(), dd, ar);
 
         REQUIRE((
             NodeUtils::get_parent(l9) == l8 &&
@@ -79,13 +86,22 @@ TEST_SUITE("TracebackEngine: why_() functions") {
             NodeUtils::get_root(c) == i
         ));
 
+        PredSet why_eq_l8_l9 = TracebackUtils::why_ancestor(l9, l8);
+        REQUIRE((
+            why_eq_l8_l9.size() == 3 &&
+            why_eq_l8_l9.contains(base_pred) &&
+            why_eq_l8_l9.contains(preds[3]) &&  // coll I G D
+            why_eq_l8_l9.contains(preds[4])     // base I C
+        ));
+
+
         /* D = A */
         preds.emplace_back(dd.insert_predicate(
             std::make_unique<Predicate>(
                 pred_t::BASE, std::vector<Node*>{d, a}
             )
         ));
-        ggraph.merge_points(d, a, preds.back(), ar);
+        ggraph.merge_points(d, a, preds.back(), dd, ar);
 
         // The lines l3 = DBH and l1 = ABI are merged first, then the lines l8 = DGI and l1 = ABI
 
@@ -98,6 +114,44 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ));
         REQUIRE((
             NodeUtils::get_root(a) == d
+        ));
+
+        PredSet why_eq_l3_l1 = TracebackUtils::why_ancestor(l1, l3);
+        REQUIRE((
+            why_eq_l3_l1.size() == 2 &&
+            why_eq_l3_l1.contains(base_pred) &&
+            why_eq_l3_l1.contains(preds[5])  // base D A
+        ));
+
+        PredSet why_eq_l8_l3 = TracebackUtils::why_ancestor(l3, l8);
+        REQUIRE((
+            why_eq_l8_l3.size() == 5 &&
+            why_eq_l8_l3.contains(base_pred) &&
+            why_eq_l8_l3.contains(preds[0]) &&  // coll A B C
+            why_eq_l8_l3.contains(preds[3]) &&  // coll I G D
+            why_eq_l8_l3.contains(preds[4]) &&  // base I C
+            why_eq_l8_l3.contains(preds[5])     // base D A
+        ));
+
+        PredSet why_on_h_l8 = tr.why_on(h, l8);
+        REQUIRE((
+            why_on_h_l8.size() == 6 &&
+            why_on_h_l8.contains(base_pred) &&
+            why_on_h_l8.contains(preds[0]) &&  // coll A B C
+            why_on_h_l8.contains(preds[1]) &&  // coll H B D
+            why_on_h_l8.contains(preds[3]) &&  // coll I G D
+            why_on_h_l8.contains(preds[4]) &&  // base I C
+            why_on_h_l8.contains(preds[5])     // base D A
+        ));
+
+        PredSet why_on_b_l8 = tr.why_on(b, l8);
+         REQUIRE((
+            why_on_b_l8.size() == 5 &&
+            why_on_b_l8.contains(base_pred) &&
+            why_on_b_l8.contains(preds[0]) &&  // coll A B C
+            why_on_b_l8.contains(preds[3]) &&  // coll I G D
+            why_on_b_l8.contains(preds[4]) &&  // base I C
+            why_on_b_l8.contains(preds[5])     // base D A
         ));
 
         preds.emplace_back(dd.insert_new_predicate(
@@ -114,13 +168,21 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ));
         REQUIRE(l4->points.size() == 7);
 
+        PredSet why_eq_l4_l8 = TracebackUtils::why_ancestor(l8, l4);
+        REQUIRE((
+            why_eq_l4_l8.size() == 3 &&
+            why_eq_l4_l8.contains(base_pred) &&
+            why_eq_l4_l8.contains(preds[3]) &&  // coll I G D
+            why_eq_l4_l8.contains(preds[6])     // coll D E I
+        ));
+
         /* E = G */
         preds.emplace_back(dd.insert_predicate(
             std::make_unique<Predicate>(
                 pred_t::BASE, std::vector<Node*>{e, g}
             )
         ));
-        ggraph.merge_points(e, g, preds.back(), ar);
+        ggraph.merge_points(e, g, preds.back(), dd, ar);
 
         /* E = B */
         preds.emplace_back(dd.insert_predicate(
@@ -128,7 +190,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
                 pred_t::BASE, std::vector<Node*>{e, b}
             )
         ));
-        ggraph.merge_points(e, b, preds.back(), ar);
+        ggraph.merge_points(e, b, preds.back(), dd, ar);
 
         /* C = F */
         preds.emplace_back(dd.insert_predicate(
@@ -136,7 +198,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
                 pred_t::BASE, std::vector<Node*>{c, f}
             )
         ));
-        ggraph.merge_points(c, f, preds.back(), ar);
+        ggraph.merge_points(c, f, preds.back(), dd, ar);
 
         /* H = C */
         preds.emplace_back(dd.insert_predicate(
@@ -144,7 +206,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
                 pred_t::BASE, std::vector<Node*>{h, c}
             )
         ));
-        ggraph.merge_points(h, c, preds.back(), ar);
+        ggraph.merge_points(h, c, preds.back(), dd, ar);
 
         REQUIRE((
             NodeUtils::get_parent(l5) == l4 && NodeUtils::get_parent(l7) == l4 && NodeUtils::get_parent(l8) == l4 &&
@@ -165,34 +227,57 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ));
 
         /* preds = {
-            coll C B A,
-            coll H B D, 
-            coll F E D, 
-            coll I G D,
-            base I C,
-            base D A,
-            coll D E I,
-            base E G,
-            base E B,
-            base C F,
-            base H C
+            0: coll C B A,
+            1: coll H B D, 
+            2: coll F E D, 
+            3: coll I G D,
+            4: base I C,
+            5: base D A,
+            6: coll D E I,
+            7: base E G,
+            8: base E B,
+            9: base C F,
+            10: base H C
         } */
 
-        // PredSet why_abc = tr.why_coll(a, b, c);
+        // preds[0]: coll A B C
+        PredSet why_coll_abc = tr.why_coll(a, b, c);
+
+        std::cout << why_coll_abc.to_string() << std::endl;
         
-        // REQUIRE((
-        //     why_abc.contains(base_pred) &&
-        //     why_abc.contains(preds[0])
-        // ));
+        REQUIRE((
+            why_coll_abc.size() == 2 &&
+            why_coll_abc.contains(base_pred) &&
+            why_coll_abc.contains(preds[0])
+        ));
 
-        // PredSet why_acg = tr.why_coll(a, g, c);
+        /* tr.why_coll(d, g, c) is an invalid call. This is because 
+        a) coll D G I is first declared,
+        b) then I = C.
+        Before b) occurs, C is still a root point, but coll D G C is not true.
+        After b) occurs, C is no longer a root point. */
 
-        // REQUIRE((
-        //     why_acg.contains(base_pred) &&
-        //     why_acg.contains(preds[4]) &&
-        //     why_acg.contains(preds[5])
-        // ));
+        PredSet why_coll_dbi = tr.why_coll(d, b, i);
+        REQUIRE((
+            why_coll_dbi.size() == 4 &&
+            why_coll_dbi.contains(base_pred) &&
+            why_coll_dbi.contains(preds[0]) &&  // coll A B C
+            why_coll_dbi.contains(preds[4]) &&  // base I C
+            why_coll_dbi.contains(preds[5])     // base D A
+        ));
 
-        // PredSet why_dgh = tr.why_coll(d, g, h);
+        PredSet why_coll_bgh = tr.why_coll(b, g, h);
+        REQUIRE((
+            why_coll_bgh.size() == 6 &&
+            why_coll_bgh.contains(base_pred) &&
+            why_coll_bgh.contains(preds[0]) &&  // coll A B C
+            why_coll_bgh.contains(preds[1]) &&  // coll H B D
+            why_coll_bgh.contains(preds[3]) &&  // coll I G D
+            why_coll_bgh.contains(preds[4]) &&  // base I C
+            why_coll_bgh.contains(preds[5])     // base D A
+        ));
+
+        PredSet why_coll_egh = tr.why_coll(e, g, h);
+        std::cout << why_coll_egh.to_string() << std::endl;
     }
 }

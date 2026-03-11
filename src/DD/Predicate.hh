@@ -69,6 +69,7 @@ public:
 	std::set<Predicate*> preds;
 
 	PredSet() {}
+	PredSet(Predicate* pred) : preds{pred} {}
 	PredSet(std::initializer_list<Predicate*> init_list) : preds(init_list) {}
 	PredSet(std::set<Predicate*> &&vec) : preds(std::move(vec)) {}
 
@@ -84,6 +85,8 @@ public:
 
 	/* Make move-assignment the default for operator= */
 	void operator=(PredSet&& other);
+
+	PredSet operator+(const PredSet& other) const;
 
 	int size() const;
 	bool contains(Predicate* pred) const;

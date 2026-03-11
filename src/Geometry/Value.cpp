@@ -85,7 +85,7 @@ Generator<Angle*> Direction::on_angles_as_direction2() {
     co_return;
 }
 
-void Direction::merge(Direction* other, PredSet &&preds) {
+void Direction::merge(Direction* other, Predicate* pred) {
     
     if (this == other) return;
     if (other->has_perp()) {
@@ -95,7 +95,7 @@ void Direction::merge(Direction* other, PredSet &&preds) {
             this->__set_perp(other_perp);
         }
     }
-    this->Node::merge(other, std::move(preds));
+    this->Node::merge(other, pred);
 
     // std::set::merge has move semantics
     this->root_objs.merge(other->root_objs);
@@ -105,7 +105,7 @@ void Direction::merge(Direction* other, PredSet &&preds) {
     this->on_angles_2.merge(other->on_angles_2);
 }
 
-Generator<std::pair<Angle*, Angle*>> Direction::check_incident_angles(Direction* d, Direction* other_d, Predicate* pred) {
+Generator<std::pair<Angle*, Angle*>> Direction::check_incident_angles(Direction* d, Direction* other_d) {
     std::map<Direction*, Angle*> dir1_to_angle;
     std::map<Direction*, Angle*> dir2_to_angle;
     for (Angle* a : d->on_angles_1) {
@@ -195,11 +195,11 @@ Generator<Ratio*> Length::on_ratios_as_length2() {
     co_return;
 }
 
-void Length::merge(Length* other, PredSet &&preds) {
+void Length::merge(Length* other, Predicate* pred) {
     if (this == other) {
         return;
     }
-    this->Node::merge(other, std::move(preds));
+    this->Node::merge(other, pred);
 
     // std::set::merge has move semantics
     this->root_objs.merge(other->root_objs);

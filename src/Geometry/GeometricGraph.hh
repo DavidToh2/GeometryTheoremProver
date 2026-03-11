@@ -137,8 +137,7 @@ public:
     endpoints.
     
     These are done BEFORE the `Point::merge()` function is called, so that we may still make use of `src->on_root_`.*/
-    void merge_points(Point* dest, Point* src, Predicate* pred, AREngine& ar);
-
+    void merge_points(Point* dest, Point* src, PredSet preds, DDEngine& dd, AREngine& ar); 
 
     /* Adds a line connecting the (existing) points `p1` and `p2`.
     Populates the `points` of the new line with `p1` and `p2`, and adds the new line to their `on_line`. 
@@ -168,7 +167,7 @@ public:
     /* Merges `src` line into `dest` line. 
     This employs the detection algorithm described in the project notes.
     This also merges their `Direction`s. */
-    void merge_lines(Line* dest, Line* src, Predicate* pred, AREngine& ar);
+    void merge_lines(Line* dest, Line* src, PredSet preds, DDEngine& dd, AREngine& ar);
 
 
     /* Add a new direction to the line `l`.
@@ -191,10 +190,10 @@ public:
 
     /* Sets `dest` and `src` to be parallel by merging `root_src` into `root_dest`, as well as `root_src->perp` 
     into `root_dest->perp` (if both exist - see `Direction::merge()` for more info). */
-    void set_directions_para(Direction* dest, Direction* src, Predicate* pred);
+    void set_directions_para(Direction* dest, Direction* src, Predicate* pred, DDEngine& dd);
     /* Sets `d1` and `d2` to be perpendicular by merging `root_d1->perp` into `root_d2`, as well as `root_d2->perp`
     into `root_d1` (whenever exists - see `Direction::set_perp()` for more info). */
-    void set_directions_perp(Direction* d1, Direction* d2, Predicate* pred);
+    void set_directions_perp(Direction* d1, Direction* d2, Predicate* pred, DDEngine& dd);
 
 
     /* Adds the circumcircle of the triangle formed by the points `p1`, `p2`, `p3`. 
@@ -249,7 +248,7 @@ public:
     void set_circle_center(Point* cp, Circle* c, Predicate* pred);
     /* Merges the root of `src` circle into the root of `dest` circle.
     This also merges the circle centers. See `Circle::merge()` for more information.*/
-    void merge_circles(Circle* dest, Circle* src, Predicate* pred, AREngine &ar);
+    void merge_circles(Circle* dest, Circle* src, PredSet preds, DDEngine& dd, AREngine &ar);
 
     
     /* Adds the segment `p1p2`. Supply the line `l` that this segment lies on.
@@ -270,7 +269,7 @@ public:
 
     /* Merges the root of `src` segment into the root of `dest` segment.
     This should only ever be called by `merge_points()`, after an invocation of `check_segment_incidences()`. */
-    void merge_segments(Segment* dest, Segment* src, Predicate* pred);
+    void merge_segments(Segment* dest, Segment* src, PredSet preds, DDEngine& dd);
 
 
     /* Adds a new length to the segment `s`. 
@@ -287,9 +286,9 @@ public:
 
     /* Merges the lengths of the root of segment `s_other` into the root of segment `s`. 
     Warning: Assumes that both `s` and `s_other` already have lengths set. */
-    void set_lengths_cong(Segment* s, Segment* s_other, Predicate* pred);
+    void set_lengths_cong(Segment* s, Segment* s_other, Predicate* pred, DDEngine& dd);
     /* Merges the root of `l_other` length into the root of `l` length. */
-    void set_lengths_cong(Length* l, Length* l_other, Predicate* pred);
+    void set_lengths_cong(Length* l, Length* l_other, Predicate* pred, DDEngine& dd);
 
 
     /* Adds the angle with first direction `d1` and second direction `d2`.
@@ -374,7 +373,7 @@ public:
     }
 
     /* Merges the root of `src` angle into the root of `dest` angle. */
-    void merge_angles(Angle* dest, Angle* src, Predicate* pred);
+    void merge_angles(Angle* dest, Angle* src, Predicate* pred, DDEngine& dd);
 
 
     /* Add a new measure to the angle `a`.
@@ -392,14 +391,14 @@ public:
     }
 
     /* Sets measures `dest` and `src` equal by merging the root of `src` into the root of `dest`. */
-    void set_measures_equal(Measure* dest, Measure* src, Predicate* pred);
+    void set_measures_equal(Measure* dest, Measure* src, Predicate* pred, DDEngine& dd);
 
     /* Sets measure `m` to be equal to the constant `val`.
     Here, `val` should be given in degrees.
     Returns true if the set was successful, and false if `val` was already previously recorded.
     Note: If `m` already has a value that is different from `val`, the function throws.
     Note: `m` will be merged into `root_measure_vals[val]`. */
-    bool set_measure_val(Measure* m, Frac val, Predicate* pred);
+    bool set_measure_val(Measure* m, Frac val, Predicate* pred, DDEngine& dd);
 
 
     /* Adds the ratio with first length l1 and second length l2.
@@ -452,7 +451,7 @@ public:
     }
 
     /* Merges the root of `src` ratio into the root of `dest` ratio. */
-    void merge_ratios(Ratio* dest, Ratio* src, Predicate* pred);
+    void merge_ratios(Ratio* dest, Ratio* src, Predicate* pred, DDEngine& dd);
 
 
     /* Adds a new `Fraction` to the ratio `r`.
@@ -470,12 +469,12 @@ public:
     }
 
     /* Sets the root fractions `dest` and `src` to be equal. */
-    void set_fractions_equal(Fraction* dest, Fraction* src, Predicate* pred);
+    void set_fractions_equal(Fraction* dest, Fraction* src, Predicate* pred, DDEngine& dd);
     /* Sets the value of the fraction `f` to `val`. 
     Returns true if the set was successful, and false if `val` was already previously recorded.
     Note: If `f` already has a value different from `val`, this function throws.
     Note: `f` will be merged into `root_fraction_vals[val]`. */
-    bool set_fraction_val(Fraction* f, Frac val, Predicate* pred);
+    bool set_fraction_val(Fraction* f, Frac val, Predicate* pred, DDEngine& dd);
 
 
     Triangle* __add_new_triangle(Point* p1, Point* p2, Point* p3, Predicate* base_pred);
@@ -494,7 +493,7 @@ public:
 
     /* Records the two triangles `dest` and `src` as identical. Note that this implicitly assumes that
     their vertices are correctly permuted. */
-    void merge_triangles(Triangle* dest, Triangle* src, Predicate* pred);
+    void merge_triangles(Triangle* dest, Triangle* src, Predicate* pred, DDEngine& dd);
 
     /* Returns true if `p1p2p3` and `p4p5p6` are either both clockwise or both anticlockwise. */
     bool check_same_orientation(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6);
@@ -508,26 +507,26 @@ public:
     void set_triangle_isosceles(Point* p1, Point* p2, Point* p3, Predicate* pred);
 
     /* Records the two triangles `p1p2p3, p4p5p6` as congruent. */
-    void set_triangles_congruent(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Predicate* pred);
+    void set_triangles_congruent(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Predicate* pred, DDEngine& dd);
     /* Records the two triangles `t1, t2` as congruent.
     Note: For traceback purposes, assumes that `t1` and `t2` are root triangles. */
-    void set_triangles_congruent(Triangle* t1, Triangle* t2, std::array<int, 3> perm, Predicate* pred);
+    void set_triangles_congruent(Triangle* t1, Triangle* t2, std::array<int, 3> perm, Predicate* pred, DDEngine& dd);
     /* Records the two triangle dimensions `dim1` and `dim2` as congruent. 
     The triangles in dimension `dim2`, as well as all triangles in `dim2->shape`, will be permuted according
     to `perm`.
     Note: For traceback purposes, assumes that `dim1` and `dim2` are root dimensions. */
-    void set_triangles_congruent(Dimension* dim1, Dimension* dim2, std::array<int, 3> perm, Predicate* pred);
+    void set_triangles_congruent(Dimension* dim1, Dimension* dim2, std::array<int, 3> perm, Predicate* pred, DDEngine& dd);
 
     /* Records the two triangles `p1p2p3, p4p5p6` as similar. */
-    void set_triangles_similar(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Predicate* pred);
+    void set_triangles_similar(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Predicate* pred, DDEngine& dd);
     /* Records the two triangles `t1, t2` as similar. 
     Note: For traceback purposes, assumes that `t1` and `t2` are root triangles. */
-    void set_triangles_similar(Triangle* t1, Triangle* t2, std::array<int, 3> perm, Predicate* pred);
+    void set_triangles_similar(Triangle* t1, Triangle* t2, std::array<int, 3> perm, Predicate* pred, DDEngine& dd);
     /* Records the two triangle shapes `shp1` and `shp2` as similar.
     Note: This assumes that the triangle vertices in `shp2` have already been correctly permuted to align
     to those in `shp1` - in other words, that `shp2->perm_all_triangles()` has already been called. 
     Note: For traceback purposes, assumes that `shp1` and `shp2` are root shapes. */
-    void set_triangles_similar(Shape* shp1, Shape* shp2, Predicate* pred);
+    void set_triangles_similar(Shape* shp1, Shape* shp2, Predicate* pred, DDEngine& dd);
 
 
 
@@ -641,12 +640,12 @@ public:
     bool make_para(Predicate* pred, DDEngine &dd, AREngine &ar);
     bool __make_para(Point* p1, Point* p2, Point* p3, Point* p4, 
         Predicate* pred, DDEngine &dd, AREngine &ar);
-    bool make_ar_para(Predicate* pred);
+    bool make_ar_para(Predicate* pred, DDEngine& dd);
 
     bool make_perp(Predicate* pred, DDEngine &dd, AREngine &ar);
     bool __make_perp(Point* p1, Point* p2, Point* p3, Point* p4, 
         Predicate* pred, DDEngine &dd, AREngine &ar);
-    bool make_ar_perp(Predicate* pred);
+    bool make_ar_perp(Predicate* pred, DDEngine& dd);
 
     bool make_cong(Predicate* pred, DDEngine &dd, AREngine &ar);
     bool __make_cong(Point* p1, Point* p2, Point* p3, Point* p4, 
