@@ -67,8 +67,16 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         PredSet why_on_c_l1 = tr.why_on(c, l1);
         REQUIRE((
             why_on_c_l1.size() == 2 &&
-            why_on_c_l1.contains(base_pred) &&
-            why_on_c_l1.contains(preds[0])  // coll A B C
+            why_on_c_l1.contains(base_pred) &&  // because c belongs to l2 which was merged into l1
+            why_on_c_l1.contains(preds[0])      // coll A B C
+        ));
+
+        PredSet why_coll_abc_1 = tr.why_coll(a, b, c);
+        
+        REQUIRE((
+            why_coll_abc_1.size() == 2 &&
+            why_coll_abc_1.contains(base_pred) &&
+            why_coll_abc_1.contains(preds[0])
         ));
 
         /* I = C */
@@ -120,7 +128,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         REQUIRE((
             why_eq_l3_l1.size() == 2 &&
             why_eq_l3_l1.contains(base_pred) &&
-            why_eq_l3_l1.contains(preds[5])  // base D A
+            why_eq_l3_l1.contains(preds[5])     // base D A
         ));
 
         PredSet why_eq_l8_l3 = TracebackUtils::why_ancestor(l3, l8);
@@ -248,12 +256,12 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         } */
 
         // preds[0]: coll A B C
-        PredSet why_coll_abc = tr.why_coll(a, b, c);
+        PredSet why_coll_abc_2 = tr.why_coll(a, b, c);
         
         REQUIRE((
-            why_coll_abc.size() == 2 &&
-            why_coll_abc.contains(base_pred) &&
-            why_coll_abc.contains(preds[0])
+            why_coll_abc_2.size() == 2 &&
+            why_coll_abc_2.contains(base_pred) &&
+            why_coll_abc_2.contains(preds[0])
         ));
 
         /* tr.why_coll(d, g, c) is an invalid call. This is because 
@@ -298,7 +306,6 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ));
 
         PredSet why_coll_edi = tr.why_coll(e, d, i);
-        std::cout << why_coll_edi.to_string() << std::endl;
         REQUIRE((
             why_coll_edi.size() == 2 &&
             why_coll_edi.contains(base_pred) &&

@@ -149,9 +149,9 @@ $$ l_1 = \{A, B\}, l_2 = \{B, C\}, l_3 = \{A, C, D\}, l_4 = \{(A \text{ or } B),
 
 ## Proposed Detection Algorithm
 
-`def merge_lines(l1 : Line, l2 : Line)`:
+`def merge_lines(l1 : Line, l2s : std::set<Line>)`:
 
-- Initialise the set of lines to merge $L_m = \{l_1\}$, the sets of pending lines to analyse $L_1 = \{l_2\}, L_0 = \{\}$, and the list of sets of points to merge $P_m = \{\}$; 
+- Initialise the set of lines to merge $L_m = \{l_1\}$, the sets of pending lines to analyse $L_1 = \text{c2s}, L_0 = \{\}$, and the list of sets of points to merge $P_m = \{\}$; 
 - While $L_1$ is nonempty:
   - For every pair of lines $(l_1, l_2) \in L_m \times L_1$:
     - Identify all lines $l$ having disjoint sets $S_1, S_2$ of points in common with both $l_1$ and $l_2$ respectively (in particular, due to the invariant, it suffices to identify a single point from each of $S_1$ and $S_2$ for our relaxed variant - see below)
@@ -166,6 +166,17 @@ $$ l_1 = \{A, B\}, l_2 = \{B, C\}, l_3 = \{A, C, D\}, l_4 = \{(A \text{ or } B),
 - What do we do with all the sets of points in $P_m$ we now have to merge???????? **Let's relax the algorithm and ignore these for now.** Because having to deal with them would involve rewriting the `merge_points` function as well, which currently has its own general object incidence detection logic. 
 
 Our relaxed detection algorithm still maintains the invariant that any pair of numerically distinct points cannot simultaneously belong on two or more lines at once.
+
+## Node Detection for Circles
+
+The situation with circles becomes more complex. An analogous invariant would maintain that no triplet of numerically distinct points should belong on two or more circles.
+
+`def merge_circles(c1 : Circle, c2s : std::set<Circle>)`:
+
+- Initialise the set of lines to merge $C_m = \{c_1\}$, the sets of pending lines to analyse $C_1 = \text{c2s}, C_0 = \{\}$, and the list of sets of points to merge $P_m = \{\}$;
+- While $C_1$ is nonempty:
+  - For every pair of circles $(c_1, c_2) \in C_m \times C_1$:
+    - Identify all circles $c$ having disjoint sets 
 
 ## Potential (Global) Detection Algorithm
 

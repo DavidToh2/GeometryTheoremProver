@@ -278,6 +278,10 @@ public:
     incidence detection algorithm.
     Note: This function should be called *before* `l->merge(other_l)` occurs.
     Note: All generated lines and points are root nodes.
+    Note: It is possible for the same line to be returned multiple times. This may happen if there are multiple 
+    candidates for the point `p1` or for the point `p2`, which turn out to be numerically equivalent. In that case,
+    `l1` would be returned once for every valid pair of candidates. In `GeometricGraph::merge_lines()`, we only take
+    the first occurence of `l1`.
     */
     static Generator<std::pair<Line*, std::pair<Point*, Point*>>> 
     check_incident_lines(Line* l, Line* other_l);
@@ -360,6 +364,35 @@ public:
     Note: This function should be called before `p->merge(other_p)` occurs. */
     static Generator<std::pair<Point*, std::pair<Circle*, Circle*>>> 
     check_incident_circles_by_center(Point* p, Point* other_p);
+
+    /* Identify all circles `c1` which might possibly be identical to both `c` and `other_c`, which are about to
+    be merged. This may happen if `c1` has one common point with one of the circles, and two common points with
+    the other circle. 
+    The tuple is populated first by the common point(s) with `c`, then the common point(s) with `other_c` (it is
+    possible for `c1` to have up to two common points with both circles, in which case both will be populated).
+    Returns `{c1, p1, p2, p3, p4}` where `p1, p2` are the common points with `c` (if they exist), and `p3, p4` are 
+    the common points with `other_c` (if they exist). At least three common points are always returned.
+    Note: Among the four returned points, it is guaranteed that we cannot have `c` and `other_c` simultaneously 
+    contain both `p1` and `p2`, and analogously for `p3` and `p4`.
+    Note: It is possible for the same circle to be returned multiple times. This may occur when there are multiple
+    candidates for one or more of the common points, which happen to be numerically equivalent. In this case, `c1`
+    will be returned once for every tuple of valid candidates. In `GeometricGraph::merge_circles()`, we only take
+    the first occurence of `c1`. */
+    static Generator<std::tuple<Circle*, Point*, Point*, Point*, Point*>>
+    check_incident_circles_by_intersections(Circle* c, Circle* other_c);
+
+    /* Identify all circles `c1` which might possibly be identical to both `c` and `other_c`, which are about to
+    be merged. This may happen if `c1` shares a center with one of the circles, and one (or two) common point(s)
+    with the other circle.
+    The tuple is populated first by the common center, then the (one or two) common points. The `bool` indicates 
+    whether the common center is with `c`.
+    Note: The only guarantee provided by this function is that neither of `c` and `other_c` contain both points. 
+    Note: It is possible for the same circle to be returned multiple times. This may occur when there are multiple
+    candidates for one or more of the common points, which happen to be numerically equivalent. In this case, `c1`
+    will be returned once for every tuple of valid candidates. In `GeometricGraph::merge_circles()`, we only take
+    the first occurence of `c1`. */
+    static Generator<std::tuple<Circle*, bool, Point*, Point*, Point*>>
+    check_incident_circles_by_center(Circle* c, Circle* other_c);
 };
 
 

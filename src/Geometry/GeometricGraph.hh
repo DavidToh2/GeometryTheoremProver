@@ -248,7 +248,7 @@ public:
     void set_circle_center(Point* cp, Circle* c, Predicate* pred);
     /* Merges the root of `src` circle into the root of `dest` circle.
     This also merges the circle centers. See `Circle::merge()` for more information.*/
-    void merge_circles(Circle* dest, Circle* src, PredSet preds, DDEngine& dd, AREngine &ar);
+    void merge_circles(Circle* dest, std::vector<std::pair<Circle*, PredSet>> srcs, DDEngine& dd, AREngine &ar);
 
     
     /* Adds the segment `p1p2`. Supply the line `l` that this segment lies on.

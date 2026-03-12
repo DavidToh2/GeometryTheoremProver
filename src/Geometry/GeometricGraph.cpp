@@ -122,9 +122,10 @@ void GeometricGraph::merge_points(Point* dest, Point* src, PredSet preds, DDEngi
     preds += TracebackUtils::why_ancestor(dest, root_dest);
     preds += TracebackUtils::why_ancestor(src, root_src);
 
-    // Check for newly incident Objects
+    // Check for newly incident lines
+    std::map<std::string, Line*> line_merger_order;
+    std::map<Line*, std::vector<std::pair<Line*, PredSet>>> to_merge_lines;
     auto gen_to_merge_lines = Line::check_incident_lines(root_dest, root_src);
-    std::vector<std::tuple<Line*, Line*, PredSet>> to_merge_lines;
     while (gen_to_merge_lines) {
         auto [point, lines] = gen_to_merge_lines();
         auto [l1, l2] = lines;
@@ -137,11 +138,15 @@ void GeometricGraph::merge_points(Point* dest, Point* src, PredSet preds, DDEngi
         preds_mergelines += tr->why_on(point, l2);
         preds_mergelines += tr->why_on(root_src, l2);
 
-        to_merge_lines.emplace_back(l1, l2, preds_mergelines);
+        if (!to_merge_lines.contains(l1)) {
+            line_merger_order[l1->name] = l1;
+        }
+        to_merge_lines[l1].emplace_back(l2, preds_mergelines);
     }
-    for (const auto& [l1, l2, preds_mergelines] : to_merge_lines) {
-        merge_lines(l1, {{l2, preds_mergelines}}, dd, ar);
-    }
+
+    // And newly incident circles
+    std::map<std::string, Circle*> circle_merger_order;
+    std::map<Circle*, std::vector<std::pair<Circle*, PredSet>>> to_merge_circles;
     auto gen_to_merge_circles_1 = Circle::check_incident_circles_by_intersections(root_dest, root_src);
     while (gen_to_merge_circles_1) {
         auto [points, circles] = gen_to_merge_circles_1();
@@ -165,7 +170,10 @@ void GeometricGraph::merge_points(Point* dest, Point* src, PredSet preds, DDEngi
             preds_mergecircles += tr->why_on(p2, circles.first);
             preds_mergecircles += tr->why_on(p2, circles.second);
         }
-        merge_circles(circles.first, circles.second, preds_mergecircles, dd, ar);
+        if (!to_merge_circles.contains(circles.first)) {
+            circle_merger_order[circles.first->name] = circles.first;
+        }
+        to_merge_circles[circles.first].emplace_back(circles.second, preds_mergecircles);
     }
 
     auto gen_to_merge_circles_2 = Circle::check_incident_circles_by_center(root_dest, root_src);
@@ -175,24 +183,46 @@ void GeometricGraph::merge_points(Point* dest, Point* src, PredSet preds, DDEngi
         PredSet preds_mergecircles(preds);
         preds_mergecircles += tr->why_on(point, pair.first);
         preds_mergecircles += tr->why_on(point, pair.second);
-        merge_circles(pair.first, pair.second, preds_mergecircles, dd, ar);
+        if (!to_merge_circles.contains(pair.first)) {
+            circle_merger_order[pair.first->name] = pair.first;
+        }
+        to_merge_circles[pair.first].emplace_back(pair.second, preds_mergecircles);
     }
 
+
+    // And newly incident segments
+    std::map<Segment*, std::vector<std::pair<Segment*, PredSet>>> to_merge_segments;
     auto gen_to_merge_segments = Segment::check_incident_segments(root_dest, root_src);
     while (gen_to_merge_segments) {
         auto pair = gen_to_merge_segments();
-        merge_segments(pair.first, pair.second, preds, dd);
+        to_merge_segments.insert({pair.first, {{pair.second, preds}}});
     }
 
     // Invariant: After this stage, `root_src` should not belong to any object's `points` map.
+    tr->record_merge(root_dest, root_src);
 
+    // Actually merge all auxiliary incident objects
+    for (const auto& [_, l1] : line_merger_order) {
+        auto node = to_merge_lines.extract(l1);
+        merge_lines(node.key(), node.mapped(), dd, ar);
+    }
+    for (const auto& [_, c1] : circle_merger_order) {
+        auto node = to_merge_circles.extract(c1);
+        merge_circles(node.key(), node.mapped(), dd, ar);
+    }
+    for (const auto& [seg1, pair] : to_merge_segments) {
+        for (const auto& [seg2, preds] : pair) {
+            merge_segments(seg1, seg2, preds, dd);
+        }
+    }
+
+    // Finally, merge the points themselves
     Predicate* merger_pred = dd.insert_new_predicate(std::make_unique<Predicate>(
         pred_t::EQ, std::vector<Node*>{root_dest, root_src}, std::move(preds)
     ));
 
     ar.update_point_merger(root_dest, root_src, merger_pred);
     root_dest->merge(root_src, merger_pred);
-    tr->record_merge(root_dest, root_src);
 }
 
 
@@ -264,6 +294,7 @@ void GeometricGraph::merge_lines(
     for (auto& [src, preds] : srcs) {
         Line* root_src = NodeUtils::get_root(src);
         if (root_dest == root_src) continue;
+        root_lines.erase(root_src);
 
         preds += TracebackUtils::why_ancestor(dest, root_dest);
         preds += TracebackUtils::why_ancestor(src, root_src);
@@ -294,11 +325,10 @@ void GeometricGraph::merge_lines(
                     std::pair<Line*, std::pair<Point*, Point*>> res = gen();
                     Line* l = res.first;
                     Point* p1 = res.second.first, *p2 = res.second.second;
-                    if (!L.contains(l) && !L1.contains(l)) {
+                    if (!L.contains(l) && !L1.contains(l) && !L2.contains(l)) {
 
                         // Only deal with the case where the two points are numerically distinct
                         if (point_nums.at(p1) != point_nums.at(p2)) {
-
                             /* Add the following predicates:
                             - why_on(p1, l1)
                             - why_on(p2, l2)
@@ -330,8 +360,8 @@ void GeometricGraph::merge_lines(
     // Step 2: Merge all identified lines, which now reside in L
     for (auto it = L.begin(); it != L.end(); ++it) {
         Line* l = it->first; // root line
-        PredSet l_preds = it->second;
         if (l == root_dest) continue;
+        PredSet l_preds = it->second;
 
         root_lines.erase(l);
 
@@ -655,23 +685,128 @@ void GeometricGraph::set_circle_center(Point* cp, Circle* c, Predicate* pred) {
     NodeUtils::get_root(c)->set_center(NodeUtils::get_root(cp));
     tr->set_point_as_center(cp, c, pred);
 }
-void GeometricGraph::merge_circles(Circle* dest, Circle* src, PredSet preds, DDEngine& dd, AREngine& ar) {
+void GeometricGraph::merge_circles(Circle* dest, std::vector<std::pair<Circle*, PredSet>> srcs, DDEngine& dd, AREngine& ar) {
     Circle* root_dest = NodeUtils::get_root(dest);
-    Circle* root_src = NodeUtils::get_root(src);
-    if (root_dest == root_src) return;
 
-    preds += TracebackUtils::why_ancestor(dest, root_dest);
-    preds += TracebackUtils::why_ancestor(src, root_src);
+    std::map<Circle*, PredSet> C{{root_dest, {}}}, C1{}, C2{};
 
-    root_circles.erase(root_src);
+    for (auto& [src, preds] : srcs) {
+        Circle* root_src = NodeUtils::get_root(src);
+        if (root_dest == root_src) continue;
+        root_circles.erase(root_src);
 
-    Predicate* merger_pred = dd.insert_new_predicate(std::make_unique<Predicate>(
-        pred_t::EQ, std::vector<Node*>{root_dest, root_src}, std::move(preds)
-    ));
+        preds += TracebackUtils::why_ancestor(dest, root_dest);
+        preds += TracebackUtils::why_ancestor(src, root_src);
 
-    auto p2 = root_dest->merge(root_src, merger_pred);
-    if (p2) {
-        merge_points(p2->first, p2->second, merger_pred, dd, ar);
+        C1.insert({root_src, preds});
+    }
+
+    if (C1.empty()) return;
+
+    while (!C1.empty()) {
+        for (auto it = C.begin(); it != C.end(); ++it) {
+            for (auto it1 = C1.begin(); it1 != C1.end(); ++it1){
+                Circle* c1 = it->first, *c2 = it1->first;
+                PredSet c2_preds(it1->second);
+
+                auto gen1 = Circle::check_incident_circles_by_intersections(c1, c2);
+                while (gen1) {
+                    auto [c, p1, p2, p3, p4] = gen1();
+                    if (!C.contains(c) && !C1.contains(c) && !C2.contains(c)) {
+                        // We need at least three numerically verified common points to continue
+                        std::set<CartesianPoint> common_point_nums;
+                        if (p1) common_point_nums.insert(point_nums.at(p1));
+                        if (p2) common_point_nums.insert(point_nums.at(p2));
+                        if (p3) common_point_nums.insert(point_nums.at(p3));
+                        if (p4) common_point_nums.insert(point_nums.at(p4));
+                        if (common_point_nums.size() < 3) continue;
+                        /* Add the following predicates:
+                        - why_on(p1, c1) and why_on(p2, c1) (if p2 exists)
+                        - why_on(p3, c2) and why_on(p4, c2) (if p4 exists)
+                        - why_on(pi, c) for every single pi that exists
+                        - diff p1 p2 (provided p2 exists)
+                        - diff p3 p4 (provided p4 exists)
+                        */
+                        PredSet c_preds(c2_preds);
+                        c_preds += tr->why_on(p1, c1);
+                        c_preds += tr->why_on(p1, c);
+                        if (p2) {
+                            c_preds += tr->why_on(p2, c1);
+                            c_preds += tr->why_on(p2, c);
+                        }
+                        c_preds += tr->why_on(p3, c2);
+                        c_preds += tr->why_on(p3, c);
+                        if (p4) {
+                            c_preds += tr->why_on(p4, c2);
+                            c_preds += tr->why_on(p4, c);
+                        }
+                        if (p2) { 
+                            c_preds += dd.insert_predicate(std::make_unique<Predicate>(
+                            pred_t::DIFF, std::vector<Node*>{p1, p2}
+                            )); 
+                        }
+                        if (p4) {
+                            c_preds += dd.insert_predicate(std::make_unique<Predicate>(
+                                pred_t::DIFF, std::vector<Node*>{p3, p4}
+                            ));
+                        }
+                        C2.insert({c, c_preds});
+                    }
+                }
+
+                auto gen2 = Circle::check_incident_circles_by_center(c1, c2);
+                while (gen2) {
+                    auto [c, b, center, p1, p2] = gen2();
+                    if (!C.contains(c) && !C1.contains(c) && !C2.contains(c)) {
+                        /* Add the following predicates:
+                        if b:
+                        - why_center(center, c1)
+                        - why_on(p1, c2) and why_on(p2, c2) (if p2 exists)
+                        - why_center(center, c)
+                        - why_on(p1, c) and why_on(p2, c) (if p2 exists)
+                        else:
+                        - swap c1 and c2 */
+                        PredSet c_preds(c2_preds);
+                        Circle* c1_ = c1, *c2_ = c2;
+                        if (!b) std::swap(c1_, c2_);
+                        c_preds += tr->why_center(center, c1_);
+                        c_preds += tr->why_center(center, c);
+                        c_preds += tr->why_on(p1, c2_);
+                        c_preds += tr->why_on(p1, c);
+                        if (p2) {
+                            c_preds += tr->why_on(p2, c2_);
+                            c_preds += tr->why_on(p2, c);
+                        }
+                        C2.insert({c, c_preds});
+                    }
+                }
+            }
+        }
+
+        C.merge(C1);
+        C1.merge(C2);
+    }
+
+    std::vector<std::tuple<Point*, Point*, PredSet>> to_merge_centers;
+    for (auto it = C.begin(); it != C.end(); ++it) {
+        Circle* c = it->first; // root circle
+        if (c == root_dest) continue;
+        PredSet c_preds = it->second;
+
+        root_circles.erase(c);
+
+        Predicate* merger_pred = dd.insert_new_predicate(std::make_unique<Predicate>(
+            pred_t::EQ, std::vector<Node*>{root_dest, c}, std::move(c_preds)
+        ));
+        auto centers = root_dest->merge(c, merger_pred);
+        tr->record_merge(root_dest, c);
+
+        if (centers) {
+            to_merge_centers.emplace_back(centers->first, centers->second, merger_pred);
+        }
+    }
+    for (const auto& [cp1, cp2, preds] : to_merge_centers) {
+        merge_points(cp1, cp2, preds, dd, ar);
     }
 }
 
@@ -2002,23 +2137,32 @@ bool GeometricGraph::__make_cyclic(Point* rp1, Point* rp2, Point* rp3, Point* rp
     }
 
     if (c234) {
-        if (c341) merge_circles(c234, c341, pred, dd, ar);
-        if (c412) merge_circles(c234, c412, pred, dd, ar);
-        if (c123) merge_circles(c234, c123, pred, dd, ar);
-        if (!(c341) && !(c412) && !(c123)) {
+        std::vector<std::pair<Circle*, PredSet>> src_circles;
+        if (c341) src_circles.push_back({c341, pred});
+        if (c412) src_circles.push_back({c412, pred});
+        if (c123) src_circles.push_back({c123, pred});
+        if (src_circles.empty()) {
             tp->set_this_on(c);
             tr->set_point_on(tp, c, pred);
+        } else {
+            merge_circles(c234, std::move(src_circles), dd, ar);
         }
     } else if (c341) {
-        if (c412) merge_circles(c341, c412, pred, dd, ar);
-        if (c123) merge_circles(c341, c123, pred, dd, ar);
-        if (!c412 && !c123) {
+        std::vector<std::pair<Circle*, PredSet>> src_circles;
+        if (c412) src_circles.push_back({c412, pred});
+        if (c123) src_circles.push_back({c123, pred});
+        if (src_circles.empty()) {
             tp->set_this_on(c);
             tr->set_point_on(tp, c, pred);
+        } else {
+            merge_circles(c341, std::move(src_circles), dd, ar);
         }
     } else if (c412) {
-        if (c123) merge_circles(c412, c123, pred, dd, ar);
-        else {
+        std::vector<std::pair<Circle*, PredSet>> src_circles;
+        if (c123) {
+            src_circles.push_back({c123, pred});
+            merge_circles(c412, std::move(src_circles), dd, ar);
+        } else {
             tp->set_this_on(c);
             tr->set_point_on(tp, c, pred);
         }

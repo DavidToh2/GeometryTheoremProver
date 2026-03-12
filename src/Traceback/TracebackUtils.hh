@@ -8,28 +8,60 @@
 
 namespace TracebackUtils {
 
-    template<std::derived_from<Node> T>
-    std::pair<T*, int> lowest_common_ancestor(T* n1, T* n2, T* n3) {
-        std::array<std::vector<T*>, 3> parents;
-        std::array<T*, 3> ns{n1, n2, n3};
-        for (int i=0; i<3; i++) {
+    template <std::derived_from<Node> T, std::same_as<T*>... Args>
+    std::pair<T*, int> lowest_common_ancestor(T* first, Args... rest) {
+        constexpr std::size_t N = 1 + sizeof...(Args);
+        
+        std::array<std::vector<T*>, N> parents;
+        std::array<T*, N> ns{first, rest...};
+        
+        for (std::size_t i = 0; i < N; i++) {
             parents[i].emplace_back(ns[i]);
             while (!ns[i]->is_root()) {
                 ns[i] = NodeUtils::get_parent(ns[i]);
                 parents[i].emplace_back(ns[i]);
             }
         }
-        std::array<int, 3> sizes{
-            static_cast<int>(parents[0].size())-1, 
-            static_cast<int>(parents[1].size())-1, 
-            static_cast<int>(parents[2].size())-1
-        };
-        while ((parents[0][sizes[0]] == parents[1][sizes[1]]) && (parents[1][sizes[1]] == parents[2][sizes[2]])) {
-            sizes[0]--; sizes[1]--; sizes[2]--;
+        
+        std::array<int, N> sizes;
+        for (std::size_t i = 0; i < N; i++) {
+            sizes[i] = static_cast<int>(parents[i].size()) - 1;
         }
-        sizes[0]++; sizes[1]++; sizes[2]++;
+        
+        while (true) {
+            bool in_bounds = true;
+            for (std::size_t i = 0; i < N; i++) {
+                if (sizes[i] < 0) { 
+                    in_bounds = false; 
+                    break; 
+                }
+            }
+            if (!in_bounds) break;
+
+            T* current_ancestor = parents[0][sizes[0]];
+            bool all_match = true;
+            for (std::size_t i = 1; i < N; i++) {
+                if (parents[i][sizes[i]] != current_ancestor) {
+                    all_match = false;
+                    break;
+                }
+            }
+            
+            if (!all_match) break;
+            
+            for (std::size_t i = 0; i < N; i++) {
+                sizes[i]--;
+            }
+        }
+        
+        int total_distance = 0;
+        for (std::size_t i = 0; i < N; i++) {
+            sizes[i]++;
+            total_distance += sizes[i];
+        }
+        
         T* lcp = parents[0][sizes[0]];
-        return std::pair<T*, int>(lcp, sizes[0] + sizes[1] + sizes[2]);
+        return std::pair<T*, int>(lcp, total_distance);
     }
 
     template<std::derived_from<Node> T>
@@ -37,7 +69,7 @@ namespace TracebackUtils {
         PredSet res;
         while (child != ancestor) {
             if (child->is_root()) {
-                throw TracebackInternalError("TracebackUtils::why_ancestor(): child is not a descendant of ancestor");
+                return {};
             }
             std::deque<Predicate*> preds{child->parent_why};
             while (!preds.empty()) {

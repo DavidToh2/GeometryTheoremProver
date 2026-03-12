@@ -353,6 +353,7 @@ Line::check_incident_lines(Line* l, Line* other_l) {
 void Circle::__set_center(Point* p) {
     p = NodeUtils::get_root(p);
     center = p;
+    p->center_of_root_circle.insert(this);
 }
 void Circle::set_center(Point* p) {
     NodeUtils::get_root(this)->__set_center(p);
@@ -477,6 +478,116 @@ Circle::check_incident_circles_by_center(Point *p, Point *other_p) {
             }
         }
         if (!merge_happened) ++it;
+    }
+}
+
+Generator<std::tuple<Circle*, Point*, Point*, Point*, Point*>>
+Circle::check_incident_circles_by_intersections(Circle* c, Circle* other_c) {
+
+    std::set<Circle*> seen;
+    auto c_pp_gen = c->all_point_pairs();
+    while (c_pp_gen) {
+        auto [p1, p2] = c_pp_gen();
+        if (other_c->contains(p1) && other_c->contains(p2)) {
+            continue;
+        }
+        std::set<Circle*> circs = Utils::intersect_sets(
+            p1->on_root_circle, p2->on_root_circle
+        );
+        for (Circle* c1 : circs) {
+            if (c1 != c && c1 != other_c) {
+                seen.insert(c1);
+                std::set<Point*> other_pts = Utils::intersect_sets(
+                    c1->points, other_c->points
+                );
+                if (other_pts.empty()) continue;
+                else if (other_pts.size() == 1) {
+                    Point* p3 = *other_pts.begin();
+                    co_yield {c1, p1, p2, p3, nullptr};
+                } else {
+                    // other_pts SHOULD contain 2 numerically distinct point "groups"
+                    auto p34_gen = NodeUtils::all_pairs(other_pts);
+                    while (p34_gen) {
+                        auto [p3, p4] = p34_gen();
+                        co_yield {c1, p1, p2, p3, p4};
+                    }
+                }
+            }
+        }
+    }
+    auto other_c_pp_gen = other_c->all_point_pairs();
+    while (other_c_pp_gen) {
+        auto [p3, p4] = other_c_pp_gen();
+        if (c->contains(p3) && c->contains(p4)) {
+            continue;
+        }
+        std::set<Circle*> circs = Utils::intersect_sets(
+            p3->on_root_circle, p4->on_root_circle
+        );
+        for (Circle* c1 : circs) {
+            if (c1 != c && c1 != other_c && !seen.contains(c1)) {
+                std::set<Point*> other_pts = Utils::intersect_sets(
+                    c1->points, c->points
+                );
+                if (other_pts.empty()) continue;
+                else if (other_pts.size() == 1) {
+                    Point* p1 = *other_pts.begin();
+                    co_yield {c1, p1, nullptr, p3, p4};
+                } 
+                // other_pts should not have size 2, otherwise c1 would already be seen
+            }
+        }
+    }
+}
+
+Generator<std::tuple<Circle*, bool, Point*, Point*, Point*>>
+Circle::check_incident_circles_by_center(Circle* c, Circle* other_c) {
+    
+    Point* c_center = c->has_center() ? c->get_center() : nullptr;
+    Point* other_c_center = other_c->has_center() ? other_c->get_center() : nullptr;
+
+    if (c_center && other_c_center && NodeUtils::same_as(c_center, other_c_center)) co_return;
+
+    if (c_center) {
+        for (Circle* c1 : c_center->center_of_root_circle) {
+            if (c1 == c) continue;
+            std::set<Point*> other_pts = Utils::intersect_sets(
+                c1->points, other_c->points
+            );
+            if (other_pts.empty()) continue;
+            else if (other_pts.size() == 1) {
+                Point* p1 = *other_pts.begin();
+                co_yield {c1, true, c_center, p1, nullptr};
+            } else {
+                // other_pts SHOULD contain 2 numerically distinct point "groups"
+                auto pp_gen = NodeUtils::all_pairs(other_pts);
+                while (pp_gen) {
+                    auto [p1, p2] = pp_gen();
+                    co_yield {c1, true, c_center, p1, p2};
+                }
+            }
+        }
+    }
+
+    if (other_c_center) {
+        for (Circle* c1 : other_c_center->center_of_root_circle) {
+            if (c1 == other_c) continue;
+            std::set<Point*> other_pts = Utils::intersect_sets(
+                c1->points, c->points
+            );
+            if (other_pts.empty()) continue;
+            else if (other_pts.size() == 1) {
+                Point* p1 = *other_pts.begin();
+                co_yield {c1, false, other_c_center, p1, nullptr};
+            } else {
+                // other_pts SHOULD contain 2 numerically distinct point "groups"
+                auto pp_gen = NodeUtils::all_pairs(other_pts);
+                while (pp_gen) {
+                    auto [p1, p2] = pp_gen();
+                    co_yield {c1, false, other_c_center, p1, p2};
+                }
+            }
+        }
     }
 }
 

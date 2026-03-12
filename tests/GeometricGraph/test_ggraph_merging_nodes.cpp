@@ -241,7 +241,7 @@ TEST_SUITE("GeometricGraph: Node merging") {
 
             REQUIRE(ggraph.root_circles.size() == 7);
 
-            ggraph.merge_circles(e_g, f_h, base_pred, dd, ar); // merges the centers e and f
+            ggraph.merge_circles(e_g, {{f_h, base_pred}}, dd, ar); // merges the centers e and f
             REQUIRE(NodeUtils::same_as(e, f));
 
             // After this final merge, we now have four clusters of points (a#, b), (c#, d), (e#, f), (g#, h)
@@ -268,6 +268,142 @@ TEST_SUITE("GeometricGraph: Node merging") {
             REQUIRE((m3.size() == 2 && m3.contains(r) && m3.contains(e_g)));
             auto &m4 = e_g->points; // {g}
             REQUIRE((m4.size() == 1 && m4.contains(g)));
+        }
+        SUBCASE("Circle incidence from merging circles") {
+            ggraph.__set_point_numeric(a, {5, 0});
+            ggraph.__set_point_numeric(b, {4, 3});
+            ggraph.__set_point_numeric(c, {3, 4});
+            ggraph.__set_point_numeric(d, {0, 5});
+            ggraph.__set_point_numeric(e, {-3, 4});
+            ggraph.__set_point_numeric(f, {-4, 3});
+            ggraph.__set_point_numeric(g, {-5, 0});
+            ggraph.__set_point_numeric(h, {0, -5});
+            Point* i = ggraph.__add_new_point("i");
+            Point* j = ggraph.__add_new_point("j");
+            Point* k = ggraph.__add_new_point("k", {5, 0});
+            Point* l = ggraph.__add_new_point("l", {0, 5});
+            Point* m = ggraph.__add_new_point("m", {-5, 0});
+            Point* n = ggraph.__add_new_point("n", {0, -5});
+
+            // GROUP 1 of circles:
+            // circle ABCF 
+            Circle* abc = ggraph.get_or_add_circle(a, b, c, dd);
+            ggraph.__make_cyclic(a, b, c, f, nullptr, dd, ar);
+            // circle CDA
+            Circle* cda = ggraph.get_or_add_circle(c, d, a, dd);
+            // circle BCDEG
+            Circle* bcd = ggraph.get_or_add_circle(b, c, d, dd);
+            ggraph.__make_cyclic(b, c, d, e, nullptr, dd, ar);
+            ggraph.__make_cyclic(b, c, d, g, nullptr, dd, ar);
+            // circle EFG (center I)
+            Circle* efg = ggraph.get_or_add_circle(e, f, g, dd);
+            ggraph.__make_circle(i, e, f, g, nullptr, dd);
+
+            // GROUP 2 of circles:
+            // circle ADHN (center J)
+            Circle* adh = ggraph.get_or_add_circle(a, d, h, dd);
+            ggraph.__make_cyclic(n, a, d, h, nullptr, dd, ar);
+            ggraph.__make_circle(j, a, d, h, nullptr, dd);
+            // circle DKM
+            Circle* dkm = ggraph.get_or_add_circle(d, k, m, dd);
+            // circle DHM
+            Circle* dhm = ggraph.get_or_add_circle(d, h, m, dd);
+            // circle LMN (center I)
+            Circle* lmn = ggraph.get_or_add_circle(l, m, n, dd);
+            ggraph.__make_circle(i, l, m, n, nullptr, dd);
+
+            // PROCESS GROUP 1
+
+            ggraph.merge_circles(abc, {{cda, base_pred}}, dd, ar);
+            // We now have one big circle ABCDEFG
+
+            REQUIRE((
+                NodeUtils::get_root(cda) == abc &&
+                NodeUtils::get_root(bcd) == abc &&
+                NodeUtils::get_root(efg) == abc &&
+                NodeUtils::get_root(adh) == adh    // ADH shouldn't be merged
+            ));
+            REQUIRE((
+                ggraph.try_get_circle(a, d, e) == abc &&
+                ggraph.try_get_circle(a, d, h) == adh
+            ));
+            for (Point* p : {a, b, c, d, e, f, g}) {
+                REQUIRE((
+                    p->on_root_circle.contains(abc) &&
+                    abc->contains(p)
+                ));
+            }
+            REQUIRE((
+                ggraph.root_circles.size() == 5 &&
+                ggraph.root_circles.contains(abc) &&
+                ggraph.root_circles.contains(adh) &&
+                ggraph.root_circles.contains(dkm) &&
+                ggraph.root_circles.contains(dhm) &&
+                ggraph.root_circles.contains(lmn)
+            ));
+
+            // PROCESS GROUP 2
+
+            ggraph.merge_points(a, k, base_pred, dd, ar);
+            // No effect
+
+            REQUIRE((
+                ggraph.root_circles.size() == 5 &&
+                !NodeUtils::same_as(dkm, dhm) &&
+                !NodeUtils::same_as(adh, dkm)
+            ));
+
+            ggraph.__make_cyclic(h, a, d, m, nullptr, dd, ar);
+            // DKM and DHM are merged, forming ADHM
+            // then merged with ADHN(J) to form ADHMN(J)
+
+            Circle* adhmn = ggraph.get_or_add_circle(a, d, m, dd);
+            REQUIRE((
+                ggraph.root_circles.size() == 3 &&
+                NodeUtils::get_root(adh) == adhmn &&
+                NodeUtils::get_root(dkm) == adhmn &&
+                NodeUtils::get_root(dhm) == adhmn
+            ));
+            REQUIRE((
+                adhmn->get_center() == j &&
+                j->center_of_root_circle.contains(adhmn) &&
+                j->center_of_root_circle.size() == 1
+            ));
+
+            // We now have two circles ADHMN(J), LMN(I) in group 2
+            // and, of course, ABCDEFG(I) in group 1
+
+            REQUIRE((
+                ggraph.root_circles.size() == 3 &&
+                ggraph.root_circles.contains(adhmn) &&
+                ggraph.root_circles.contains(lmn) &&
+                ggraph.root_circles.contains(abc)
+            ));
+            REQUIRE((
+                i->center_of_root_circle.size() == 2 &&
+                i->center_of_root_circle.contains(abc) &&
+                i->center_of_root_circle.contains(lmn)
+            ));
+            
+            // TRIGGER THE FINAL MERGE
+            ggraph.merge_points(d, l, base_pred, dd, ar);
+            /* ADH, AHLMN and DMN become merged into the same circle 
+            This causes the centers J, I of ADH, DMN to be merged
+            This also triggers a center-incidence check between ADHMN and ABCDEFG, both
+            of which now have center I */
+            Circle* big_circle = ggraph.get_or_add_circle(a, b, c, dd);
+            REQUIRE((
+                NodeUtils::get_root(adhmn) == big_circle &&
+                NodeUtils::get_root(lmn) == big_circle &&
+                NodeUtils::get_root(abc) == big_circle &&
+                ggraph.root_circles.size() == 1
+            ));
+            REQUIRE((
+                NodeUtils::same_as(i, j) &&
+                NodeUtils::get_root(i)->center_of_root_circle.contains(big_circle) &&
+                NodeUtils::get_root(i)->center_of_root_circle.size() == 1 &&
+                big_circle->get_center() == NodeUtils::get_root(i)
+            ));
         }
         SUBCASE("Segment incidence from merging points") {
             ggraph.__set_point_numeric(b, {0, 1});

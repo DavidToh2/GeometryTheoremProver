@@ -263,10 +263,12 @@ PredSet TracebackEngine::why_coll(Point* p1, Point* p2, Point* p3) {
     }
 
     /* Step 5: Iterate over all triplets of lines in the `l2ps` of `p1, p2, p3`. 
-    Each line `li` will have a corresponding child point `pci` of `pi`. Identify
-    the lowest common parent of the `li`s, then calculate the cumulative distance
-    from the three line nodes to this common parent node. Add to that the distances
-    from each `pci` node to the `pi` node.
+    Each line `li` will have a corresponding child point `pci` of `pi`. Identify the lowest common 
+    ancestor `lca` of the `li`s.
+    The desired PredSet is the union of the following:
+    - `why_on(pci, li)` for each `i`
+    - `why_ancestor(li, lca)` for each `i`
+    - `why_ancestor(pci, pi)` for each `i`
     Pick the triplet with the lowest predicate count. */
     int min = 1e9; Line* lca = nullptr; 
     std::array<Point*, 3> pts; std::array<Line*, 3> lines;
@@ -302,13 +304,109 @@ PredSet TracebackEngine::why_coll(Point* p1, Point* p2, Point* p3) {
         }
     }
 
-    std::cout << "Analysing why_coll(" << p1->to_string() << ", " << p2->to_string() << ", " << p3->to_string() 
+    /* std::cout << "Analysing why_coll(" << p1->to_string() << ", " << p2->to_string() << ", " << p3->to_string() 
         << "):" << std::endl;
     std::cout << "Identified LCP " << lca->to_string() << " for lines "
         << lines[0]->to_string() << ", " << lines[1]->to_string() << ", " << lines[2]->to_string() << std::endl;
     std::cout << "The relevant points are " << pts[0]->to_string() << ", " << pts[1]->to_string() << ", "
-        << pts[2]->to_string() << std::endl;
+        << pts[2]->to_string() << std::endl; */
     
     return res;
 }
 
+
+PredSet TracebackEngine::why_cyclic(Point* p1, Point* p2, Point* p3, Point* p4) {
+    PredSet res;
+
+    const std::array<Point*, 4> ps{p1, p2, p3, p4};
+
+    /* Step 1: Extract all children of p1, p2, p3, p4 */ 
+    std::array<std::set<Point*>, 4> pcs;
+    int i = 0;
+    for (Point* p : ps) {
+        NodeUtils::all_children(p, pcs[i]);
+        i++;
+    }
+
+    /* Step 2: For each child point, extract all circles it was placed on */
+    std::array<std::map<Circle*, Point*>, 4> c2ps;
+    std::array<std::set<Circle*>, 4> rcs;
+    for (i = 0; i < 4; i++) {
+        for (Point* p : pcs[i]) {
+            for (auto [c, pred] : point_on_circles[p]) {
+                c2ps[i].emplace(c, p);
+                rcs[i].insert(NodeUtils::get_root(c));
+            }
+        }
+    }
+
+    /* Step 3: Identify a common root circle to all four `rcs` sets */
+    Circle* common_root = nullptr;
+    for (Circle* rc : rcs[0]) {
+        if (rcs[1].contains(rc) && rcs[2].contains(rc) && rcs[3].contains(rc)) {
+            common_root = rc;
+            break;
+        }
+    }
+    if (!(common_root)) {
+        throw TracebackInternalError("TracebackEngine::why_cyclic(): No common circle found");
+    }
+
+    /* Step 4: Keep those circles in `c2ps` with root `common_root` */
+    for (i = 0; i < 4; i++) {
+        for (auto it = c2ps[i].begin(); it != c2ps[i].end(); ) {
+            if (!NodeUtils::same_as(it->first, common_root)) {
+                it = c2ps[i].erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
+
+    /* Step 5: Iterate over all quadruplets of circles in the `l2ps` of `p1, p2, p3, p4`. 
+    Each circle `ci` will have a corresponding child point `pci` of `pi`. Identify the lowest common
+    ancestor `lca` of the `ci`s.
+    The desired PredSet is the union of the following:
+    - `why_on(pci, ci)` for each `i`
+    - `why_ancestor(ci, lca)` for each `i`
+    - `why_ancestor(pci, pi)` for each `i`
+    Pick the quadruplet with the lowest predicate count. */
+    int min = 1e9; Circle* lca = nullptr;
+    std::array<Point*, 4> pts; std::array<Circle*, 4> circles;
+    for (auto [c1, pc1] : c2ps[0]) {
+        for (auto [c2, pc2] : c2ps[1]) {
+            for (auto [c3, pc3] : c2ps[2]) {
+                for (auto [c4, pc4] : c2ps[3]) {
+                    PredSet res_{
+                        point_on_circles[pc1][c1], point_on_circles[pc2][c2], 
+                        point_on_circles[pc3][c3], point_on_circles[pc4][c4]
+                    };
+
+                    std::pair<Circle*, int> lca_p = TracebackUtils::lowest_common_ancestor(c1, c2, c3, c4);
+                    Circle* lca_ = lca_p.first;
+
+                    // Figure out the whys
+                    std::vector<std::pair<Point*, Point*>> pc2ps{{
+                        {pc1, p1}, {pc2, p2}, {pc3, p3}, {pc4, p4}
+                    }};
+                    for (auto [pci, pi] : pc2ps) {
+                        res_ += TracebackUtils::why_ancestor(pci, pi);
+                    }
+                    for (Circle* ci : {c1, c2, c3, c4}) {
+                        res_ += TracebackUtils::why_ancestor(ci, lca_);
+                    }
+
+                    int sz = res_.size();
+                    if (sz < min) {
+                        min = sz;
+                        lca = lca_;
+                        pts = {pc1, pc2, pc3, pc4};
+                        circles = {c1, c2, c3, c4};
+                        res = std::move(res_);
+                    }
+                }
+            }
+        }
+    }
+    return res;
+}
