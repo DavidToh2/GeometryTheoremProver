@@ -95,9 +95,9 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         /* 
         1 - cyclic A B C D,      0 - circle W B C D, 
         2 - cyclic A B H I,      5 - circle X F B I,
-        3 - cyclic B H D J,      6 - circle Y G C E,
+        3 - cyclic B H D J,      7 - circle Y G C E,
         4 - cyclic F B I E,      8 - circle Z F G I, 
-        7 - cyclic F M N E,      10 - circle X K L N
+        6 - cyclic F M N E,      10 - circle X K L N
         9 - cyclic K L N O */
         ggraph.synthesise_preds(dd, ar);
 
@@ -145,6 +145,14 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ));
         ggraph.synthesise_preds(dd, ar);
 
+        /* C, D belong to circle ABCD; H, I to circle ABHI; these two circles have least common ancestor BHDJ
+        ABHI -> BHDJ because 
+            [ cyclic BHIJ + why_on(ABHI, {B, H, I}) + why_on(BHDJ, {B, H, J}) ]
+        ABCD -> BHDJ because the circle merger algorithm identified that ABCD has A, B in common with ABHI and 
+        B, D in common with BHDJ, so we have 
+            [ cyclic BHIJ + why_on(ABCD, {A, B}) + why_on(ABHI, {A, B}) + why_on(ABCD, {B, D}) 
+            + why_on(BHDJ, {B, D}) + diff A B + diff B D ]*/
+
         Circle* abcdhij = NodeUtils::get_root(abc);
         REQUIRE((
             abcdhij == bhd &&
@@ -153,6 +161,198 @@ TEST_SUITE("TracebackEngine: why_() functions") {
             ggraph.get_or_add_circle(c, i, j, dd) == abcdhij &&
             abcdhij->get_center() == w
         ));
+
+        Predicate* diff_a_b = dd.predicates["diff a b"].get();
+        Predicate* diff_b_d = dd.predicates["diff b d"].get();
+
+        PredSet why_on_i_bhd = tr.why_on(i, bhd);
+        REQUIRE((
+            why_on_i_bhd.contains(preds[2]) &&    // cyclic A B H I
+            why_on_i_bhd.contains(preds[3]) &&    // cyclic B H D J
+            why_on_i_bhd.contains(preds[11]) &&   // cyclic B H I J
+            why_on_i_bhd.contains(base_pred) &&
+            why_on_i_bhd.size() == 4
+        ));
+
+        PredSet why_on_c_bhd = tr.why_on(c, bhd);
+        REQUIRE((
+            why_on_c_bhd.contains(preds[1]) &&    // cyclic A B C D
+            why_on_c_bhd.contains(preds[2]) &&    // cyclic A B H I
+            why_on_c_bhd.contains(preds[3]) &&    // cyclic B H D J
+            why_on_c_bhd.contains(preds[11]) &&   // cyclic B H I J
+            why_on_c_bhd.contains(diff_b_d) &&
+            why_on_c_bhd.contains(diff_a_b) &&    // diff predicates for the formation of ABCDHIJ
+            why_on_c_bhd.contains(base_pred) &&
+            why_on_c_bhd.size() == 7
+        ));
+
+        PredSet why_eq_bhd_abh = TracebackUtils::why_ancestor(abh, bhd);
+        REQUIRE((
+            why_eq_bhd_abh.size() == 4 &&
+            why_eq_bhd_abh.contains(preds[2]) &&    // cyclic A B H I
+            why_eq_bhd_abh.contains(preds[3]) &&    // cyclic B H D J
+            why_eq_bhd_abh.contains(preds[11]) &&   // cyclic B H I J
+            why_eq_bhd_abh.contains(base_pred)
+        ));
+
+        PredSet why_eq_bhd_abc = TracebackUtils::why_ancestor(abc, bhd);
+        REQUIRE((
+            why_eq_bhd_abc.size() == 7 &&
+            why_eq_bhd_abc.contains(preds[1]) &&    // cyclic A B C D
+            why_eq_bhd_abc.contains(preds[2]) &&    // cyclic A B H I
+            why_eq_bhd_abc.contains(preds[3]) &&    // cyclic B H D J
+            why_eq_bhd_abc.contains(preds[11]) &&   // cyclic B H I J
+            why_eq_bhd_abc.contains(diff_a_b) &&    // diff A B
+            why_eq_bhd_abc.contains(diff_b_d) &&    // diff B D
+            why_eq_bhd_abc.contains(base_pred)
+        ));
+
+        // 12 - cyclic L M N O
+        preds.emplace_back(dd.insert_new_predicate(
+            std::make_unique<Predicate>(
+                pred_t::CYCLIC, std::vector<Node*>{l, m, n, o})
+        ));
+        ggraph.synthesise_preds(dd, ar);
+
+        Circle* klmno = NodeUtils::get_root(kln);
+        REQUIRE((
+            klmno == kln &&
+            NodeUtils::get_root(lmo) == klmno &&
+            ggraph.get_or_add_circle(l, m, n, dd) == klmno &&
+            klmno->get_center() == x
+        ));
+
+        // 13 - eq I N
+        preds.emplace_back(dd.insert_new_predicate(
+            std::make_unique<Predicate>(
+                pred_t::BASE, std::vector<Node*>{i, n})
+        ));
+        ggraph.merge_points(i, n, preds.back(), dd, ar);
+
+        Circle* befiklmno = NodeUtils::get_root(fbi);
+        REQUIRE((
+            befiklmno == fbi &&
+            NodeUtils::get_root(fmn) == befiklmno &&
+            NodeUtils::get_root(kln) == befiklmno &&
+            NodeUtils::get_root(lmo) == befiklmno &&
+            befiklmno->get_center() == x
+        ));
+
+        PredSet why_on_b_fbi = tr.why_on(b, fbi);
+        REQUIRE((
+            why_on_b_fbi.size() == 1 &&
+            why_on_b_fbi.contains(base_pred)
+        ));
+
+        PredSet why_on_m_fbi = tr.why_on(m, fbi);
+        REQUIRE((
+            why_on_m_fbi.contains(preds[6]) &&    // cyclic F M N E
+            why_on_m_fbi.contains(preds[4]) &&    // cyclic F B I E
+            why_on_m_fbi.contains(preds[13]) &&   // eq I N
+            why_on_m_fbi.contains(base_pred) && 
+            why_on_m_fbi.size() == 4
+        ));
+
+        PredSet why_on_k_fbi = tr.why_on(k, fbi);
+        REQUIRE((
+            why_on_k_fbi.contains(preds[5]) &&    // circle X F B I
+            why_on_k_fbi.contains(preds[10]) &&   // circle X K L N
+            why_on_k_fbi.contains(preds[13]) &&   // eq I N
+            why_on_k_fbi.contains(base_pred) &&
+            why_on_k_fbi.size() == 4
+        ));
+
+        PredSet why_eq_fbi_fmn = TracebackUtils::why_ancestor(fmn, fbi);
+        REQUIRE((
+            why_eq_fbi_fmn.size() == 4 &&
+            why_eq_fbi_fmn.contains(base_pred) &&
+            why_eq_fbi_fmn.contains(preds[4]) &&   // cyclic F B I E
+            why_eq_fbi_fmn.contains(preds[6]) &&   // cyclic F M N E
+            why_eq_fbi_fmn.contains(preds[13])     // eq I N
+        ));
+
+        PredSet why_eq_fbi_kln = TracebackUtils::why_ancestor(kln, fbi);
+        REQUIRE((
+            why_eq_fbi_kln.size() == 3 &&
+            why_eq_fbi_kln.contains(preds[5]) &&   // circle X F B I
+            why_eq_fbi_kln.contains(preds[10]) &&  // circle X K L N
+            why_eq_fbi_kln.contains(preds[13])     // eq I N
+        ));     // no base_pred because base_pred only appears for why_on(circle, point)
+
+        /* At this point, we have four circles:
+        - ABCDHIJ (W)
+        - BEFIKLMO (X) 
+        - GCE (Y)
+        - FGI (Z) 
+        When Y and Z are merged,
+        1. GCE <- FGI are first merged due to their common point G, forming CEFGI (Y)
+        2. CEFGI <- BEFIKLMO are then merged by the circle merging algorithm due to the 
+        common points E in GCE; F, I in FGI. This forms BCEFGIKLMO. This also adds the 
+        predicate diff F I
+        3. BCEFGIKLMO <- ABCDHIJ are then merged by the circle merging algorithm due to 
+        the common points C in GCE; B, I in BEFIKLMO. This forms our final circle. 
+        This also adds the predicate diff B I
+        4. Step 2 also triggers the merge Y <- X, and step 4 the merge Y <- W.  */
+
+        // 14 - eq Y Z
+        preds.emplace_back(dd.insert_new_predicate(
+            std::make_unique<Predicate>(
+                pred_t::BASE, std::vector<Node*>{y, z})
+        ));
+        ggraph.merge_points(y, z, preds.back(), dd, ar);
+
+        Circle* final = NodeUtils::get_root(gce);
+        REQUIRE((
+            final == gce &&
+            NodeUtils::get_root(fgi) == final &&
+            NodeUtils::get_root(kln) == final &&
+            NodeUtils::get_root(lmo) == final &&
+            NodeUtils::get_root(abcdhij) == final &&
+            NodeUtils::get_root(befiklmno) == final
+        ));
+
+        Point* center = final->get_center();
+        REQUIRE((
+            y == center &&
+            NodeUtils::get_root(w) == center &&
+            NodeUtils::get_root(x) == center
+        ));
+
+        Predicate* diff_b_i = dd.predicates["diff b i"].get();
+        Predicate* diff_f_i = dd.predicates["diff f i"].get();
+
+        PredSet why_eq_y_x = TracebackUtils::why_ancestor(x, y);
+        REQUIRE((
+            why_eq_y_x.contains(preds[14]) &&   // eq Y Z
+            why_eq_y_x.contains(preds[7]) &&    // circle Y G C E
+            why_eq_y_x.contains(preds[8]) &&    // circle Z F G I - up to this point, we have explained CEFGI(Y)
+            why_eq_y_x.contains(preds[5]) &&    // circle X F B I
+            why_eq_y_x.contains(preds[4]) &&    // cyclic F B I E - explains why FBIE(X) was merged with CEFGI(Y) to get BCEFGI
+            why_eq_y_x.contains(diff_f_i) &&    // diff predicate for merging CEFGI(Y) <- FBIE(X)
+            why_eq_y_x.contains(base_pred) &&
+            why_eq_y_x.size() == 7
+        ));
+
+        PredSet why_eq_y_w = TracebackUtils::why_ancestor(w, y);
+        REQUIRE((
+            why_eq_y_w.contains(preds[14]) &&   // eq Y Z
+            why_eq_y_w.contains(preds[7]) &&    // circle Y G C E
+            why_eq_y_w.contains(preds[8]) &&    // circle Z F G I - up to this point, we have explained CEFGI(Y)
+            why_eq_y_w.contains(preds[4]) &&    // cyclic F B I E - explains why FBIE was merged with CEFGI(Y) to get BCEFGI
+            why_eq_y_w.contains(diff_f_i) &&    // diff predicate for merging CEFGI(Y) <- FBIE
+            why_eq_y_w.contains(preds[1]) &&    // cyclic A B C D
+            why_eq_y_w.contains(preds[2]) &&    // cyclic A B H I
+            why_eq_y_w.contains(preds[3]) &&    // cyclic B H D J
+            why_eq_y_w.contains(preds[11]) &&   // cyclic B H I J
+            why_eq_y_w.contains(preds[0]) &&    // circle W B C D - explains the formation of ABCDHIJ(W)
+            why_eq_y_w.contains(diff_b_d) &&
+            why_eq_y_w.contains(diff_a_b) &&    // diff predicates for the formation of ABCDHIJ(W)
+            why_eq_y_w.contains(diff_b_i) &&    // diff predicate for merging BCEFGI(Y) <- ABCDHIJ(W)
+            why_eq_y_w.contains(base_pred) &&
+            why_eq_y_w.size() == 14
+        ));
+
+        // ------------ after 11 - cyclic B H I J
 
         PredSet why_cyclic_abhj = tr.why_cyclic(a, b, h, j);
         REQUIRE((
@@ -173,20 +373,12 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ));
 
         PredSet why_cyclic_cdhi = tr.why_cyclic(c, d, h, i);
-        /* C, D belong to circle ABCD; H, I to circle ABHI; these two circles have least common ancestor BHDJ
-        ABHI -> BHDJ because 
-            [ cyclic BHIJ + why_on(ABHI, {B, H, I}) + why_on(BHDJ, {B, H, J}) ]
-        ABCD -> BHDJ because the circle merger algorithm identified that ABCD has A, B in common with ABHI and 
-        B, D in common with BHDJ, so we have 
-            [ cyclic BHIJ + why_on(ABCD, {A, B}) + why_on(ABHI, {A, B}) + why_on(ABCD, {B, D}) 
-            + why_on(BHDJ, {B, D}) + diff A B + diff B D ]*/
-        Predicate* diff_a_b = dd.predicates["diff a b"].get();
-        Predicate* diff_b_d = dd.predicates["diff b d"].get();
         REQUIRE((
-            why_cyclic_cdhi.size() == 6 &&
+            why_cyclic_cdhi.size() == 7 &&
             why_cyclic_cdhi.contains(base_pred) &&
             why_cyclic_cdhi.contains(preds[1]) &&     // cyclic A B C D
             why_cyclic_cdhi.contains(preds[2]) &&     // cyclic A B H I
+            why_cyclic_cdhi.contains(preds[3]) &&     // cyclic B H D J
             why_cyclic_cdhi.contains(preds[11]) &&    // cyclic B H I J
             why_cyclic_cdhi.contains(diff_a_b) &&
             why_cyclic_cdhi.contains(diff_b_d)
@@ -206,43 +398,140 @@ TEST_SUITE("TracebackEngine: why_() functions") {
             why_cyclic_bcij.contains(diff_b_d)
         ));
 
-        // 12 - cyclic L M N O
-        preds.emplace_back(dd.insert_new_predicate(
-            std::make_unique<Predicate>(
-                pred_t::CYCLIC, std::vector<Node*>{l, m, n, o})
-        ));
-        ggraph.synthesise_preds(dd, ar);
-
-        Circle* klmno = NodeUtils::get_root(kln);
-        REQUIRE((
-            klmno == kln &&
-            NodeUtils::get_root(lmo) == klmno &&
-            ggraph.get_or_add_circle(l, m, n, dd) == klmno &&
-            klmno->get_center() == x
-        ));
+        // ------------ after 12 - cyclic L M N O
 
         PredSet why_cyclic_lmno = tr.why_cyclic(l, m, n, o);
         REQUIRE((
-            why_cyclic_lmno.size() == 2 &&
+            why_cyclic_lmno.size() == 3 &&
             why_cyclic_lmno.contains(base_pred) &&
+            why_cyclic_lmno.contains(preds[9]) &&     // cyclic K L N O
             why_cyclic_lmno.contains(preds[12])       // cyclic L M N O
         ));
 
         PredSet why_circle_x_klm = tr.why_circle(x, k, l, m);
         REQUIRE((
-            why_circle_x_klm.size() == 3 &&
+            why_circle_x_klm.size() == 4 &&
             why_circle_x_klm.contains(base_pred) &&
-            why_circle_x_klm.contains(preds[10]) &&    // circle X K L N
-            why_circle_x_klm.contains(preds[12])       // cyclic L M N O
+            why_circle_x_klm.contains(preds[10]) &&   // circle X K L N
+            why_cyclic_lmno.contains(preds[9]) &&     // cyclic K L N O
+            why_circle_x_klm.contains(preds[12])      // cyclic L M N O
         ));
 
-        // 13 - eq I N
-        preds.emplace_back(dd.insert_new_predicate(
-            std::make_unique<Predicate>(
-                pred_t::BASE, std::vector<Node*>{i, n})
-        ));
-        ggraph.merge_points(i, n, preds.back(), dd, ar);
+        // ------------ after 13 - eq I N
 
+        PredSet why_cyclic_ilmo = tr.why_cyclic(i, l, m, o);
+        REQUIRE((
+            why_cyclic_ilmo.size() == 4 &&
+            why_cyclic_ilmo.contains(base_pred) &&
+            why_cyclic_lmno.contains(preds[9]) &&     // cyclic K L N O
+            why_cyclic_ilmo.contains(preds[12]) &&    // cyclic L M N O
+            why_cyclic_ilmo.contains(preds[13])       // eq I N
+        ));
         
+        PredSet why_cyclic_bfim = tr.why_cyclic(b, e, i, m);
+        REQUIRE((
+            why_cyclic_bfim.size() == 4 &&
+            why_cyclic_bfim.contains(base_pred) &&
+            why_cyclic_bfim.contains(preds[4]) &&     // cyclic F B I E
+            why_cyclic_bfim.contains(preds[6]) &&     // cyclic F M N E
+            why_cyclic_bfim.contains(preds[13])       // eq I N
+        ));
+
+        PredSet why_cyclic_efkm = tr.why_cyclic(e, f, k, m);
+        REQUIRE((
+            why_cyclic_efkm.size() == 6 &&
+            why_cyclic_efkm.contains(base_pred) &&
+            why_cyclic_efkm.contains(preds[4]) &&     // cyclic F B I E
+            why_cyclic_efkm.contains(preds[5]) &&     // circle X F B I
+            why_cyclic_efkm.contains(preds[6]) &&     // cyclic F M N E
+            why_cyclic_efkm.contains(preds[10]) &&    // circle X K L N
+            why_cyclic_efkm.contains(preds[13])       // eq I N
+        ));
+
+        // ------------ after 14 - eq Y Z
+
+        PredSet why_cyclic_cefi = tr.why_cyclic(c, e, f, i);
+        REQUIRE((
+            why_cyclic_cefi.size() == 4 &&
+            why_cyclic_cefi.contains(base_pred) &&
+            why_cyclic_cefi.contains(preds[7]) &&     // circle Y G C E
+            why_cyclic_cefi.contains(preds[8]) &&     // circle Z F G I
+            why_cyclic_cefi.contains(preds[14])       // eq Y Z
+        ));
+
+        PredSet why_cyclic_bcgk = tr.why_cyclic(b, c, g, k);
+        REQUIRE((
+            why_cyclic_bcgk.contains(preds[4]) &&     // cyclic F B I E
+            why_cyclic_bcgk.contains(preds[5]) &&     // circle X F B I - up to here, explains FBIE(X)
+            why_cyclic_bcgk.contains(preds[10]) &&    // circle X K L N - explains KLNO(X)
+            why_cyclic_bcgk.contains(preds[13]) &&    // eq I N - explains merger of FBIE(X) <- KLNO(X) to get BEFIKLO(X)
+            why_cyclic_bcgk.contains(preds[7]) &&     // circle Y G C E - explains CEG(Y)
+            why_cyclic_bcgk.contains(preds[8]) &&     // circle Z F G I - explains FGI(Z)
+            why_cyclic_bcgk.contains(preds[14]) &&    // eq Y Z - explains merger of CEG(Y) <- FGI(Z)
+            why_cyclic_bcgk.contains(diff_f_i) &&     // diff predicate for merging CEFGI(Y) <- FBIE(X)
+            why_cyclic_bcgk.contains(base_pred) &&
+            why_cyclic_bcgk.size() == 9
+        ));
+
+        PredSet why_cyclic_acfm = tr.why_cyclic(a, c, f, m);
+        REQUIRE((
+            why_cyclic_acfm.contains(preds[4]) &&     // cyclic F B I E
+            why_cyclic_acfm.contains(preds[6]) &&     // cyclic F M N E
+            why_cyclic_acfm.contains(preds[13]) &&    // eq I N - explains merger of FBIE <- FMNE to get BEFMI
+            why_cyclic_acfm.contains(preds[7]) &&     // circle Y G C E
+            why_cyclic_acfm.contains(preds[8]) &&     // circle Z F G I
+            why_cyclic_acfm.contains(preds[14]) &&    // eq Y Z - explains merger of CEG(Y) <- FGI(Z)
+            why_cyclic_acfm.contains(diff_f_i) &&     // diff predicate for merging CEFGI(Y) <- BEFMI to get BCEFGIM
+            why_cyclic_acfm.contains(preds[1]) &&     // cyclic A B C D
+            why_cyclic_acfm.contains(preds[2]) &&     // cyclic A B H I
+            why_cyclic_acfm.contains(preds[3]) &&     // cyclic B H D J
+            why_cyclic_acfm.contains(preds[11]) &&    // cyclic B H I J - explains ABCDHIJ
+            why_cyclic_acfm.contains(diff_a_b) &&
+            why_cyclic_acfm.contains(diff_b_d) &&     // diff predicates for forming ABCDHIJ
+            why_cyclic_acfm.contains(diff_b_i) &&     // diff predicate for merging BCEFGI(Y) <- ABCDHIJ(W)
+            why_cyclic_acfm.contains(base_pred) &&
+            why_cyclic_acfm.size() == 15
+        ));
+
+        PredSet why_circle_y_ceg = tr.why_circle(y, c, e, g);
+        REQUIRE((
+            why_circle_y_ceg.size() == 2 &&
+            why_circle_y_ceg.contains(base_pred) &&
+            why_circle_y_ceg.contains(preds[7])    // circle Y G C E
+        ));
+
+        PredSet why_circle_y_lmn = tr.why_circle(y, l, m, n);
+        REQUIRE((
+            why_circle_y_lmn.contains(preds[7]) &&    // circle Y G C E 
+            why_circle_y_lmn.contains(preds[8]) &&    // circle Z F G I
+            why_circle_y_lmn.contains(preds[14]) &&   // eq Y Z - explains merger of CEG(Y) <- FGI(Z)
+            why_circle_y_lmn.contains(preds[10]) &&   // circle X K L N
+            why_circle_y_lmn.contains(preds[5]) &&    // circle X F B I
+            why_circle_y_lmn.contains(preds[4]) &&    // cyclic F B I E - explains FBIE(X)
+            why_circle_y_lmn.contains(preds[6]) &&    // cyclic F M N E
+            why_circle_y_lmn.contains(preds[13]) &&   // eq I N - explains merger of FBIE(X) <- FMNE to form BEFMI(X)
+                                                            // and subsequent merger of BEFMI(X) <- KLN(X) to form BEFIKLM(X) 
+            why_circle_y_lmn.contains(preds[14]) &&   // eq Y Z - explains merger of CEG(Y) <- FGI(Z)
+            why_circle_y_lmn.contains(diff_f_i) &&    // diff predicate for merging CEFGI(Y) <- BEFMI to get BCEFGIM
+            why_circle_y_lmn.contains(base_pred)
+        ));
+
+        PredSet why_circle_y_abc = tr.why_circle(y, a, b, c);
+        REQUIRE((
+            why_circle_y_abc.contains(preds[7]) &&     // circle Y G C E 
+            why_circle_y_abc.contains(preds[8]) &&     // circle Z F G I
+            why_circle_y_abc.contains(preds[14]) &&    // eq Y Z - explains formation of CEFGI(Y)
+            why_circle_y_abc.contains(preds[4]) &&     // cyclic F B I E - explains why CEFGI(Y) <- FBIE to get BCEFGI(Y)
+            why_circle_y_abc.contains(diff_f_i) &&     // diff predicate for merging CEFGI(Y) <- FBIE
+            why_circle_y_abc.contains(preds[1]) &&     // cyclic A B C D
+            why_circle_y_abc.contains(preds[2]) &&     // cyclic A B H I
+            why_circle_y_abc.contains(preds[3]) &&     // cyclic B H D J
+            why_circle_y_abc.contains(preds[11]) &&    // cyclic B H I J - explains ABCDHIJ
+            why_circle_y_abc.contains(diff_a_b) &&
+            why_circle_y_abc.contains(diff_b_d) &&     // diff predicates for forming ABCDHIJ
+            why_circle_y_abc.contains(diff_b_i) &&     // diff predicate for merging BCEFGI(Y) <- ABCDHIJ(W)
+            why_circle_y_abc.contains(base_pred) &&
+            why_circle_y_abc.size() == 13
+        ));
     }
 }

@@ -474,7 +474,7 @@ Circle::check_incident_circles_by_center(Point *p, Point *other_p) {
             if (point_to_circle.contains(p1)) {
                 if (!merge_happened) it = other_p->center_of_root_circle.erase(it);
                 merge_happened = true;
-                co_yield {p, {point_to_circle[p1], c2}};
+                co_yield {p1, {point_to_circle[p1], c2}};
             }
         }
         if (!merge_happened) ++it;
