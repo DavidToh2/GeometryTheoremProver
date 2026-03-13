@@ -153,7 +153,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ));
 
         PredSet why_on_b_l8 = tr.why_on(b, l8);
-         REQUIRE((
+        REQUIRE((
             why_on_b_l8.size() == 5 &&
             why_on_b_l8.contains(base_pred) &&
             why_on_b_l8.contains(preds[0]) &&  // coll A B C

@@ -95,8 +95,8 @@ bool DDEngine::has_predicate_by_hash(const std::string hash) {
 
 Generator<Predicate*> DDEngine::get_recent_predicates() {
     while (!recent_predicates.empty()) {
-        Predicate* p = recent_predicates.back();
-        recent_predicates.pop_back();
+        Predicate* p = recent_predicates.front();
+        recent_predicates.pop_front();
         co_yield p;
     }
     co_return;

@@ -2,6 +2,7 @@
 
 #include <map>
 #include <vector>
+#include <deque>
 #include <memory>
 #include <ostream>
 #include <iostream>
@@ -32,7 +33,7 @@ public:
     uptrmap<Predicate> predicates;
     uptrmap<Predicate2> predicate2s;
 
-    std::vector<Predicate*> recent_predicates;
+    std::deque<Predicate*> recent_predicates;
     std::map<pred_t, std::set<Predicate*>> predicates_by_type;
 
     // Hacky way to implement the conclusion. Doing it as a PredicateTemplate lets us reuse the matching functions.

@@ -740,12 +740,12 @@ void GeometricGraph::merge_circles(Circle* dest, std::vector<std::pair<Circle*, 
                             c_preds += tr->why_on(p4, c2);
                             c_preds += tr->why_on(p4, c);
                         }
-                        if (p2) { 
+                        if (p2 && (point_nums.at(p1) != point_nums.at(p2))) { 
                             c_preds += dd.insert_predicate(std::make_unique<Predicate>(
                             pred_t::DIFF, std::vector<Node*>{p1, p2}
                             )); 
                         }
-                        if (p4) {
+                        if (p4 && (point_nums.at(p3) != point_nums.at(p4))) {
                             c_preds += dd.insert_predicate(std::make_unique<Predicate>(
                                 pred_t::DIFF, std::vector<Node*>{p3, p4}
                             ));
@@ -2138,9 +2138,18 @@ bool GeometricGraph::__make_cyclic(Point* rp1, Point* rp2, Point* rp3, Point* rp
 
     if (c234) {
         std::vector<std::pair<Circle*, PredSet>> src_circles;
-        if (c341) src_circles.push_back({c341, pred});
-        if (c412) src_circles.push_back({c412, pred});
-        if (c123) src_circles.push_back({c123, pred});
+        if (c341) {
+            PredSet c341_preds = tr->why_on(rp3, c341) + tr->why_on(rp4, c341) + tr->why_on(rp1, c341) + pred;
+            src_circles.push_back({c341, std::move(c341_preds)});
+        }
+        if (c412) {
+            PredSet c412_preds = tr->why_on(rp4, c412) + tr->why_on(rp1, c412) + tr->why_on(rp2, c412) + pred;
+            src_circles.push_back({c412, std::move(c412_preds)});
+        }
+        if (c123) {
+            PredSet c123_preds = tr->why_on(rp1, c123) + tr->why_on(rp2, c123) + tr->why_on(rp3, c123) + pred;
+            src_circles.push_back({c123, std::move(c123_preds)});
+        }
         if (src_circles.empty()) {
             tp->set_this_on(c);
             tr->set_point_on(tp, c, pred);
@@ -2149,8 +2158,14 @@ bool GeometricGraph::__make_cyclic(Point* rp1, Point* rp2, Point* rp3, Point* rp
         }
     } else if (c341) {
         std::vector<std::pair<Circle*, PredSet>> src_circles;
-        if (c412) src_circles.push_back({c412, pred});
-        if (c123) src_circles.push_back({c123, pred});
+        if (c412) {
+            PredSet c412_preds = tr->why_on(rp4, c412) + tr->why_on(rp1, c412) + tr->why_on(rp2, c412) + pred;
+            src_circles.push_back({c412, std::move(c412_preds)});
+        }
+        if (c123) {
+            PredSet c123_preds = tr->why_on(rp1, c123) + tr->why_on(rp2, c123) + tr->why_on(rp3, c123) + pred;
+            src_circles.push_back({c123, std::move(c123_preds)});
+        }
         if (src_circles.empty()) {
             tp->set_this_on(c);
             tr->set_point_on(tp, c, pred);
@@ -2160,7 +2175,8 @@ bool GeometricGraph::__make_cyclic(Point* rp1, Point* rp2, Point* rp3, Point* rp
     } else if (c412) {
         std::vector<std::pair<Circle*, PredSet>> src_circles;
         if (c123) {
-            src_circles.push_back({c123, pred});
+            PredSet c123_preds = tr->why_on(rp1, c123) + tr->why_on(rp2, c123) + tr->why_on(rp3, c123) + pred;
+            src_circles.push_back({c123, std::move(c123_preds)});
             merge_circles(c412, std::move(src_circles), dd, ar);
         } else {
             tp->set_this_on(c);
