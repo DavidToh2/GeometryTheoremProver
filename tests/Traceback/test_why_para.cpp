@@ -81,8 +81,8 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         Direction* dir1 = ab->get_direction();
 
         /* 
-        0 - para A B E F,
-        1 - coll A B C,
+        0 - para A B E F
+        1 - coll A B C
         2 - eq D F
         */
 
@@ -405,18 +405,32 @@ TEST_SUITE("TracebackEngine: why_() functions") {
             ));
         } else if (dir3_3_rt_map.second == qt) {
             REQUIRE((
-                why_dir3_3_of_rt.contains(preds[11]) &&   // para Q T O P 
-                why_dir3_3_of_rt.contains(preds[13]) &&   // para L O O P
+                why_dir3_3_of_rt.contains(preds[11]) &&   // para Q T O P - explains how d_op was assigned to QT
+                why_dir3_3_of_rt.contains(preds[13]) &&   // para L O O P - explains dir3_3 <- d_op
                 why_dir3_3_of_rt.contains(preds[18]) &&   // coll R S Q
-                why_dir3_3_of_rt.contains(preds[19]) &&   // coll S R T - explains line QRST
-                why_dir3_3_of_rt.contains(diff_t_q) &&
+                why_dir3_3_of_rt.contains(preds[19]) &&   // coll S R T
+                why_dir3_3_of_rt.contains(diff_t_q) &&    // diff T Q - these explain line QT and RT <- QT
                 why_dir3_3_of_rt.contains(base_pred) &&
                 why_dir3_3_of_rt.size() == 6
+            ));
+        } else if (dir3_3_rt_map.second == st) {
+            REQUIRE((
+                why_dir3_3_of_rt.contains(preds[9]) &&    // para M N S T - explains how d_mn was assigned to ST
+                why_dir3_3_of_rt.contains(preds[19]) &&   // coll S R T - explains RT <- ST
+                why_dir3_3_of_rt.contains(preds[12]) &&   // para L M M N
+                why_dir3_3_of_rt.contains(preds[16]) &&   // para M N O P - these explain dir3_3 <- d_mn
+                why_dir3_3_of_rt.contains(base_pred) &&
+                why_dir3_3_of_rt.size() == 5
             ));
         }
         std::cout << why_dir3_3_of_rt.to_string() << std::endl;
 
-        /* Inter-group interactions */
+        /* Inter-group interactions
+        
+        20 - para J K Q S
+        21 - coll D E G
+        22 - coll D E H
+        */
 
         preds.emplace_back(dd.insert_new_predicate(
             std::make_unique<Predicate>(
@@ -431,8 +445,29 @@ TEST_SUITE("TracebackEngine: why_() functions") {
 
         PredSet why_dir2_of_rt = tr.why_direction_of(dir2, rt);
         std::cout << "why_dir2_of_rt: " << why_dir2_of_rt.to_string() << std::endl;
-        // why_dir2_of_rt: base && para l o o p && para q t o p && para j k q s && coll s r t && coll r s q && diff t q
-
+        if (dir3_3_rt_map.second == st) {
+            // why_dir2_of_rt: base && para o p m n && para l m m n && coll s r t && para m n s t && para j k q s
+            REQUIRE((
+                why_dir2_of_rt.contains(preds[9]) &&    // para M N S T - explains how d_mn was assigned to ST
+                why_dir2_of_rt.contains(preds[19]) &&   // coll S R T - explains RT <- ST
+                why_dir2_of_rt.contains(preds[12]) &&   // para L M M N
+                why_dir2_of_rt.contains(preds[16]) &&   // para M N O P - these explain dir3_3 <- d_mn
+                why_dir2_of_rt.contains(preds[20]) &&   // para J K Q S - explains dir2 <- dir3_3
+                why_dir2_of_rt.contains(base_pred) &&
+                why_dir2_of_rt.size() == 6
+            ));
+        } else if (dir3_3_rt_map.second == qt) {
+            REQUIRE((
+                why_dir2_of_rt.contains(preds[11]) &&   // para Q T O P - explains how d_op was assigned to QT
+                why_dir2_of_rt.contains(preds[13]) &&   // para L O O P - explains dir3_3 <- d_op
+                why_dir2_of_rt.contains(preds[18]) &&   // coll R S Q
+                why_dir2_of_rt.contains(preds[19]) &&   // coll S R T
+                why_dir2_of_rt.contains(diff_t_q) &&    // diff T Q - these explain line QT and RT <- QT
+                why_dir2_of_rt.contains(preds[20]) &&   // para J K Q S - explains dir2 <- dir3_3
+                why_dir2_of_rt.contains(base_pred) &&
+                why_dir2_of_rt.size() == 7
+            ));
+        }
 
         preds.emplace_back(dd.insert_new_predicate(
             std::make_unique<Predicate>(
@@ -466,6 +501,18 @@ TEST_SUITE("TracebackEngine: why_() functions") {
             ggraph.root_lines.size() == 4
         ));
 
+        /* 
+        0 - para A B E F        10 - para R S L O       20 - para J K Q S
+        1 - coll A B C          11 - para Q T O P       21 - coll D E G
+        2 - eq D F              12 - para L M M N       22 - coll D E H
+        3 - para G H H K        13 - para L O O P
+        4 - para I J H K        14 - coll L M N
+        5 - coll H K G          15 - coll L O P
+        6 - eq I K              16 - para M N O P
+        7 - coll I J H          17 - coll L O N
+        8 - para L M Q R        18 - coll R S Q
+        9 - para M N S T        19 - coll S R T
+        */
 
         /* Group 1 */
 
@@ -551,8 +598,8 @@ TEST_SUITE("TracebackEngine: why_() functions") {
             why_para_np_rt.contains(preds[17]) &&   // coll L O N - explains line LMNOP
             why_para_np_rt.contains(preds[18]) &&   // coll R S Q
             why_para_np_rt.contains(preds[19]) &&   // coll S R T - explains line QRST
-            why_para_np_rt.contains(preds[10]) &&   // para R S L O - explains why RT has direction dir3_3 
-            why_para_np_rt.contains(preds[16]) &&   // para M N O P - explains why NP has direction dir3_3
+            why_para_np_rt.contains(preds[10]) &&   // para R S L O - explains why RT has direction d_lo 
+            why_para_np_rt.contains(preds[16]) &&   // para M N O P - explains why NP has direction d_lo
             why_para_np_rt.contains(base_pred) &&
             why_para_np_rt.size() == 8
         ));
@@ -560,12 +607,47 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         /* Inter-group interactions */
 
         PredSet why_para_gh_rt = tr.why_para(g, h, r, t);
-        std::cout << "why_para_gh_rt: " << why_para_gh_rt.to_string() << std::endl;
+        REQUIRE((
+            why_para_gh_rt.contains(preds[3]) &&    // para G H H K - explains why GH has direction d_hk
+            why_para_gh_rt.contains(preds[4]) &&    // para I J H K - explains d_ij <- d_hk
+            why_para_gh_rt.contains(preds[10]) &&   // para R S L O - explains why RS has direction d_lo
+            why_para_gh_rt.contains(preds[18]) &&   // coll R S Q - explains QS <- RS
+            why_para_gh_rt.contains(preds[19]) &&   // coll S R T - explains RT <- QS
+            why_para_gh_rt.contains(preds[20]) &&   // para J K Q S - explains d_ij <- d_lo
+            why_para_gh_rt.contains(base_pred) &&
+            why_para_gh_rt.size() == 7
+        ));
 
         PredSet why_para_dg_np = tr.why_para(d, g, n, p);
-        std::cout << "why_para_dg_np: " << why_para_dg_np.to_string() << std::endl;
+        REQUIRE((
+            why_para_dg_np.contains(preds[14]) &&   // coll L M N
+            why_para_dg_np.contains(preds[15]) &&   // coll L O P
+            why_para_dg_np.contains(preds[17]) &&   // coll L O N - these explain line LMNOP (specifically, why N, P lie on LM)
+            why_para_dg_np.contains(preds[16]) &&   // para M N O P - explains d_lo <- d_lm
+            why_para_dg_np.contains(preds[20]) &&   // para J K Q S - explains d_ij <- d_lo and thus d_ij <- d_lm
+            why_para_dg_np.contains(preds[3]) &&    // para G H H K - explains why GH has direction d_hk
+            why_para_dg_np.contains(preds[4]) &&    // para I J H K - explains d_ij <- d_hk
+            why_para_dg_np.contains(preds[2]) &&    // eq D F - explains how DE has direction d_ef
+            why_para_dg_np.contains(preds[21]) &&   // coll D E G
+            why_para_dg_np.contains(preds[22]) &&   // coll D E H - these explain why DE == GH, and so DG has direction d_ef, and also that d_ef <- d_ij
+            why_para_dg_np.contains(base_pred) &&
+            why_para_dg_np.size() == 11
+        ));
 
         PredSet why_para_rs_ac = tr.why_para(r, s, a, c);
         std::cout << "why_para_rs_ac: " << why_para_rs_ac.to_string() << std::endl;
+        // why_para_rs_ac: para a b e f && para g h h k && base && para i j h k && coll d e g && coll a b c && para r s l o && para j k q s && coll d e h
+        REQUIRE((
+            why_para_rs_ac.contains(preds[0]) &&    // para A B E F - explains why AB has direction d_ef
+            why_para_rs_ac.contains(preds[1]) &&    // coll A B C - explains why AC has direction d_ef
+            why_para_rs_ac.contains(preds[3]) &&    // para G H H K
+            why_para_rs_ac.contains(preds[4]) &&    // para I J H K - these explain why GH has direction d_ij
+            why_para_rs_ac.contains(preds[10]) &&   // para R S L O - explains why RS has direction d_lo
+            why_para_rs_ac.contains(preds[20]) &&   // para J K Q S - explains d_ij <- d_lo
+            why_para_rs_ac.contains(preds[21]) &&   // coll D E G
+            why_para_rs_ac.contains(preds[22]) &&   // coll D E H - these explain why DE == GH, and so d_ef <- d_ij
+            why_para_rs_ac.contains(base_pred) &&
+            why_para_rs_ac.size() == 9
+        ));
     }
 }

@@ -230,7 +230,6 @@ void TracebackEngine::set_direction_of(Direction* d, Line* l, Predicate* pred) {
 }
 PredSet TracebackEngine::why_direction_of(Direction* d, Line* l) {
     auto [dc, lc] = direction_line_root_map[d][l];
-    std::cout << d->to_string() << ", " << l->to_string() << " map to " << dc->to_string() << ", " << lc->to_string() << std::endl;
     PredSet res(direction_of_lines[dc][lc]);
     res += TracebackUtils::why_ancestor(dc, d);
     res += TracebackUtils::why_ancestor(lc, l);
