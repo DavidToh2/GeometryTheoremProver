@@ -236,6 +236,9 @@ void PredSet::insert(std::initializer_list<Predicate*> list) {
         preds.insert(pred);
     }
 }
+void PredSet::operator+=(PredSet&& other) {
+    preds.merge(other.preds);
+}
 
 void PredSet::operator=(PredSet&& other) {
     std::swap(preds, other.preds);

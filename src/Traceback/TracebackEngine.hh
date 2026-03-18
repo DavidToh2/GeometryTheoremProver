@@ -13,6 +13,29 @@
 
 /* TracebackEngine class.
 
+The TracebackEngine exposes three groups of functions:
+1. The `record_merge` and `set_x_on/of` functions record merges of nodes, and predicates, invoked during
+the proof process respectively;
+2. The `why_on` and `why_x_of` functions are invoked during the proof process to obtain the dependency predicates
+for the membership of a node in another node's attributes;
+3. The `why_pred` functions are invoked at the end of the proof process to derive a set of dependency predicates
+necessary for deriving the `pred` in question.
+
+The `x_on_y` and `x_of_y` maps, such as `point_on_lines` and `direction_of_lines`, record the exact instances at
+which each pair of nodes in our GeometricGraph were related via some predicate. The exact nodes that were
+related are recorded.
+
+As nodes are merged, the `root_maps` allow us to recover the exact nodes that were related from their root
+nodes at that instant. For example, if `point_on_lines` recorded some pair `(p, l)`, and at some later 
+instance their roots are `(rp, rl)` respectively, then we would expect to see an entry in `point_line_root_map`
+pointing `(rp, rl)` to `(p, l)`.
+
+The `root_maps` thus record all mappings, from root nodes to the original related nodes, that are valid at the
+current program point. They are updated by Group 1 functions and queried by Group 2 functions.
+
+The `x_on_y` and `x_of_y` maps are updated by Group 1 functions, and queried by both Group 2 and Group 3 
+functions.
+
 IMPORTANT INVARIANT: All nodes passed to any function must be root nodes at their time of invocation.
 The traceback will only search through predicates where these nodes were involved as root nodes. 
 
@@ -42,6 +65,9 @@ public:
     std::map<Length*, std::map<Segment*, std::pair<Length*, Segment*>>> length_segment_root_map;
     std::map<Dimension*, std::map<Triangle*, Predicate*>> dimension_of_triangles;
     std::map<Dimension*, std::map<Triangle*, std::pair<Dimension*, Triangle*>>> dimension_triangle_root_map;
+
+    std::map<Angle*, std::map<Direction*, std::pair<Angle*, Direction*>>> direction_angle_root_map;
+    std::map<Ratio*, std::map<Length*, std::pair<Ratio*, Length*>>> length_ratio_root_map;
 
     std::map<Measure*, std::map<Angle*, Predicate*>> measure_of_angles;
     std::map<Measure*, std::map<Angle*, std::pair<Measure*, Angle*>>> measure_angle_root_map;
@@ -82,11 +108,15 @@ public:
     PredSet why_vertex(Point* p, Triangle* t);
 
     void set_directions_perp(Direction* d1, Direction* d2, Predicate* pred);
-    PredSet why_perp(Direction* d1, Direction* d2);
+    PredSet why_directions_perp(Direction* d1, Direction* d2);
 
     void set_direction_of(Direction* d, Line* l, Predicate* pred);
+    PredSet why_direction_of(Direction* d, Line* l);
     void set_length_of(Length* len, Segment* s, Predicate* pred);
     void set_dimension_of(Dimension* dim, Triangle* t, Predicate* pred);
+
+    PredSet why_direction_of(Direction* d, Angle* a);
+    PredSet why_length_of(Length* len, Ratio* r);
 
     void set_measure_of(Measure* m, Angle* a, Predicate* pred);
     void set_fraction_of(Fraction* f, Ratio* r, Predicate* pred);
@@ -96,6 +126,11 @@ public:
     void set_fraction_val(Fraction* f, Frac val, Predicate* pred);
 
     void set_goal(Predicate* pred);
+
+
+
+    
+    Direction* __earliest_direction_of(Line* l);
 
 
 

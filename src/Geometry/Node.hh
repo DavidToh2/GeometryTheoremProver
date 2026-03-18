@@ -70,8 +70,21 @@ namespace NodeUtils {
 
     /* Checks if two objects are the same, by checking if they have the same root. */
     template <std::derived_from<Node> Key>
-    static bool same_as(Key* a, Key* b) {
+    constexpr bool same_as(Key* a, Key* b) {
         return (get_root(a) == get_root(b));
+    }
+
+    /* Checks if `ancestor` is an ancestor of, or equal to, `descendant` */
+    template <std::derived_from<Node> Key>
+    bool ancestor_of(Key* ancestor, Key* descendant) {
+        Key* current = descendant;
+        while (!(current->is_root())) {
+            if (current == ancestor) {
+                return true;
+            }
+            current = get_parent(current);
+        }
+        return (current == ancestor);
     }
 
     /* Takes in as input a map of the form `std::map<Key, T>`. Returns all keys in the map. 

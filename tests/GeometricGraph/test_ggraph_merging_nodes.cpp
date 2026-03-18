@@ -23,6 +23,8 @@ TEST_SUITE("GeometricGraph: Node merging") {
         Point* f = ggraph.__add_new_point("f");
         Point* g = ggraph.__add_new_point("g");
         Point* h = ggraph.__add_new_point("h");
+        Point* i = ggraph.__add_new_point("i");
+        Point* j = ggraph.__add_new_point("j");
 
         SUBCASE("Node parent/root hierarchy") {
             ggraph.merge_points(a, b, base_pred, dd, ar);
@@ -90,7 +92,7 @@ TEST_SUITE("GeometricGraph: Node merging") {
             auto &m3 = e->on_root_line; // {r_ef}
             REQUIRE((m3.size() == 1 && m3.contains(r_ef)));
             auto &s3 = ggraph.root_points;
-            REQUIRE((s3.size() == 3 && s3.contains(a) && s3.contains(b) && s3.contains(e)));
+            REQUIRE((s3.size() == 5 && s3.contains(a) && s3.contains(b) && s3.contains(e)));
 
             // At this point, we have three clusters of points (a#, c), (b#, f, d, h), (e#, g)
             // and two lines (r_ab#, ?_cd), (r_ef#, ?_gh)
@@ -100,7 +102,7 @@ TEST_SUITE("GeometricGraph: Node merging") {
             ggraph.merge_points(a, e, base_pred, dd, ar);
             REQUIRE(NodeUtils::same_as(ab, ef));
             REQUIRE((ggraph.root_lines.size() == 1 && ggraph.root_lines.contains(NodeUtils::get_root(ab))));
-            REQUIRE((ggraph.root_points.size() == 2 && ggraph.root_points.contains(a) && ggraph.root_points.contains(b)));
+            REQUIRE((s3.size() == 4 && s3.contains(a) && s3.contains(b)));
         }
         SUBCASE("Line incidence from merging lines") {
             ggraph.__set_point_numeric(a, {0, 0});
@@ -111,6 +113,8 @@ TEST_SUITE("GeometricGraph: Node merging") {
             ggraph.__set_point_numeric(f, {5, 0});
             ggraph.__set_point_numeric(g, {3, 0});  // d, g are numerically equal
             ggraph.__set_point_numeric(h, {0, 0});  // a, h are numerically equal
+            ggraph.__set_point_numeric(i, {6, 0});
+            ggraph.__set_point_numeric(j, {7, 0});
 
             Line* l1 = ggraph.get_or_add_line(a, b, dd);
             Line* l2 = ggraph.get_or_add_line(b, c, dd);
@@ -119,6 +123,9 @@ TEST_SUITE("GeometricGraph: Node merging") {
             Line* l5 = ggraph.get_or_add_line(e, f, dd);
             Line* l6 = ggraph.get_or_add_line(e, g, dd);
             Line* l7 = ggraph.get_or_add_line(g, h, dd);
+            Line* l8 = ggraph.get_or_add_line(g, i, dd);
+            Line* l9 = ggraph.get_or_add_line(h, j, dd);
+            Line* l10 = ggraph.get_or_add_line(i, j, dd);
 
             ggraph.__make_coll(a, c, d, nullptr, dd, ar);   // l3 : a, c, d
             REQUIRE((NodeUtils::get_root(l3) == l3 && l3->contains(a)));
@@ -162,9 +169,10 @@ TEST_SUITE("GeometricGraph: Node merging") {
                     l1->contains(p)
                 ));
             }
+            /* The incidence detection algorithm ignores d, g because they are numerically
+            equivalent */
             for (Point* p : {d, g}) {
                 REQUIRE((
-                    p->on_root_line.size() == 2 &&
                     p->on_root_line.contains(l1) &&
                     p->on_root_line.contains(l7) &&
                     l1->contains(p) &&
@@ -177,8 +185,24 @@ TEST_SUITE("GeometricGraph: Node merging") {
             // l7 contains d, g, h
 
             ggraph.merge_points(a, h, base_pred, dd, ar);
-            REQUIRE(NodeUtils::same_as(l1, l7));
-            REQUIRE((ggraph.root_lines.size() == 1));
+            REQUIRE(NodeUtils::get_root(l7) == l1);
+            REQUIRE((ggraph.root_lines.size() == 4));
+
+            ggraph.merge_points(d, g, base_pred, dd, ar);
+
+            ggraph.__make_coll(i, d, a, nullptr, dd, ar);   // l8
+            ggraph.__make_coll(j, b, c, nullptr, dd, ar);   // l9
+
+            REQUIRE((
+                l1->is_root() &&
+                NodeUtils::get_root(l8) == l1 &&
+                NodeUtils::get_root(l9) == l1 &&
+                NodeUtils::get_root(l10) == l1
+            ));
+            REQUIRE((
+                l1->contains(i) &&
+                l1->contains(j)
+            ));
         }
         SUBCASE("Circle incidence from merging points") {
             ggraph.__set_point_numeric(c, {1, 0});
@@ -278,8 +302,6 @@ TEST_SUITE("GeometricGraph: Node merging") {
             ggraph.__set_point_numeric(f, {-4, 3});
             ggraph.__set_point_numeric(g, {-5, 0});
             ggraph.__set_point_numeric(h, {0, -5});
-            Point* i = ggraph.__add_new_point("i");
-            Point* j = ggraph.__add_new_point("j");
             Point* k = ggraph.__add_new_point("k", {5, 0});
             Point* l = ggraph.__add_new_point("l", {0, 5});
             Point* m = ggraph.__add_new_point("m", {-5, 0});

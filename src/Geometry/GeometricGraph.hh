@@ -169,6 +169,14 @@ public:
     This also merges their `Direction`s. */
     void merge_lines(Line* dest, std::vector<std::pair<Line*, PredSet>> srcs, DDEngine& dd, AREngine& ar);
 
+    /* Adds the point `p` to the line `qr`. Called by `__make_coll()`. 
+    This function correctly handles situations where the line `qr` contains some other points `[s, t, ...]`
+    and the lines `ps, pt, ...` are defined (but not the lines `pq, pr`). These lines will need to be
+    merged into the line `qr`, but will not be caught by the `__make_coll()` function. Separate logic is
+    implemented here to identify the mergers that need to happen.
+    Returns `true` if mergers occured. */
+    bool add_point_to_line(Line* qr, Point* p, PredSet preds, DDEngine& dd, AREngine& ar);
+
 
     /* Add a new direction to the line `l`.
     Note: Assumes that `l` is a root node. 
@@ -189,11 +197,16 @@ public:
     }
 
     /* Sets `dest` and `src` to be parallel by merging `root_src` into `root_dest`, as well as `root_src->perp` 
-    into `root_dest->perp` (if both exist - see `Direction::merge()` for more info). */
-    void set_directions_para(Direction* dest, Direction* src, Predicate* pred, DDEngine& dd);
+    into `root_dest->perp` (if both exist - see `Direction::merge()` for more info).
+    For analysis purposes: This function is only called by
+    - `make_para()` and `make_ar_para()`
+    - `merge_lines()` */
+    void set_directions_para(Direction* dest, Direction* src, PredSet preds, DDEngine& dd);
     /* Sets `d1` and `d2` to be perpendicular by merging `root_d1->perp` into `root_d2`, as well as `root_d2->perp`
-    into `root_d1` (whenever exists - see `Direction::set_perp()` for more info). */
-    void set_directions_perp(Direction* d1, Direction* d2, Predicate* pred, DDEngine& dd);
+    into `root_d1` (whenever exists - see `Direction::set_perp()` for more info).
+    For analysis purposes: This function is only called by
+    - `make_perp()` and `make_ar_perp()` */
+    void set_directions_perp(Direction* d1, Direction* d2, PredSet preds, DDEngine& dd);
 
 
     /* Adds the circumcircle of the triangle formed by the points `p1`, `p2`, `p3`. 
@@ -373,7 +386,7 @@ public:
     }
 
     /* Merges the root of `src` angle into the root of `dest` angle. */
-    void merge_angles(Angle* dest, Angle* src, Predicate* pred, DDEngine& dd);
+    void merge_angles(Angle* dest, Angle* src, PredSet preds, DDEngine& dd);
 
 
     /* Add a new measure to the angle `a`.

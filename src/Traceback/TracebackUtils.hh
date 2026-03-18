@@ -89,5 +89,33 @@ namespace TracebackUtils {
         return res;
     }
 
+    template<std::derived_from<Node> T>
+    PredSet why_ancestor_with_cache(T* child, T* ancestor, std::map<std::pair<T*, T*>, PredSet> caches) {
+        if (caches.contains({child, ancestor})) {
+            return caches[{child, ancestor}];
+        }
+        PredSet res;
+        while (child != ancestor) {
+            if (child->is_root()) {
+                return {};
+            }
+            std::deque<Predicate*> preds{child->parent_why};
+            while (!preds.empty()) {
+                Predicate* pred = preds.front();
+                // Decompose all EQ predicates
+                if (pred->name == pred_t::EQ) {
+                    for (Predicate* p_why : pred->why.preds) {
+                        if (p_why) preds.emplace_back(p_why);
+                    }
+                } else {
+                    res += pred;
+                }
+                preds.pop_front();
+            }
+            child = NodeUtils::get_parent(child);
+        }
+        return res;
+    }
+
 
 } // namespace TracebackUtils

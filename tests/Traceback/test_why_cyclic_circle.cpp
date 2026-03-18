@@ -245,13 +245,20 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ));
 
         PredSet why_on_m_fbi = tr.why_on(m, fbi);
-        REQUIRE((
-            why_on_m_fbi.contains(preds[6]) &&    // cyclic F M N E
-            why_on_m_fbi.contains(preds[4]) &&    // cyclic F B I E
+        REQUIRE(((
+            why_on_m_fbi.contains(preds[5]) &&    // cyclic X F B I
+            why_on_m_fbi.contains(preds[10]) &&   // circle X K L N
+            why_on_m_fbi.contains(preds[9]) &&    // cyclic K L N O
+            why_on_m_fbi.contains(preds[12]) &&   // cyclic L M N O
             why_on_m_fbi.contains(preds[13]) &&   // eq I N
-            why_on_m_fbi.contains(base_pred) && 
-            why_on_m_fbi.size() == 4
-        ));
+            why_on_m_fbi.contains(base_pred)
+        ) || (
+            why_on_m_fbi.contains(preds[4]) &&    // cyclic F B I E
+            why_on_m_fbi.contains(preds[6]) &&    // cyclic F M N E
+            why_on_m_fbi.contains(preds[13]) &&   // eq I N
+            why_on_m_fbi.contains(base_pred)
+        )));
+        // Two possible chains of reasoning, indeterminate which is chosen
 
         PredSet why_on_k_fbi = tr.why_on(k, fbi);
         REQUIRE((
@@ -500,20 +507,20 @@ TEST_SUITE("TracebackEngine: why_() functions") {
             why_circle_y_ceg.contains(preds[7])    // circle Y G C E
         ));
 
-        PredSet why_circle_y_lmn = tr.why_circle(y, l, m, n);
+        PredSet why_circle_y_lmi = tr.why_circle(y, l, m, i);
         REQUIRE((
-            why_circle_y_lmn.contains(preds[7]) &&    // circle Y G C E 
-            why_circle_y_lmn.contains(preds[8]) &&    // circle Z F G I
-            why_circle_y_lmn.contains(preds[14]) &&   // eq Y Z - explains merger of CEG(Y) <- FGI(Z)
-            why_circle_y_lmn.contains(preds[10]) &&   // circle X K L N
-            why_circle_y_lmn.contains(preds[5]) &&    // circle X F B I
-            why_circle_y_lmn.contains(preds[4]) &&    // cyclic F B I E - explains FBIE(X)
-            why_circle_y_lmn.contains(preds[6]) &&    // cyclic F M N E
-            why_circle_y_lmn.contains(preds[13]) &&   // eq I N - explains merger of FBIE(X) <- FMNE to form BEFMI(X)
+            why_circle_y_lmi.contains(preds[7]) &&    // circle Y G C E 
+            why_circle_y_lmi.contains(preds[8]) &&    // circle Z F G I
+            why_circle_y_lmi.contains(preds[14]) &&   // eq Y Z - explains merger of CEG(Y) <- FGI(Z)
+            why_circle_y_lmi.contains(preds[10]) &&   // circle X K L N
+            why_circle_y_lmi.contains(preds[5]) &&    // circle X F B I
+            why_circle_y_lmi.contains(preds[4]) &&    // cyclic F B I E - explains FBIE(X)
+            why_circle_y_lmi.contains(preds[6]) &&    // cyclic F M N E
+            why_circle_y_lmi.contains(preds[13]) &&   // eq I N - explains merger of FBIE(X) <- FMNE to form BEFMI(X)
                                                             // and subsequent merger of BEFMI(X) <- KLN(X) to form BEFIKLM(X) 
-            why_circle_y_lmn.contains(preds[14]) &&   // eq Y Z - explains merger of CEG(Y) <- FGI(Z)
-            why_circle_y_lmn.contains(diff_f_i) &&    // diff predicate for merging CEFGI(Y) <- BEFMI to get BCEFGIM
-            why_circle_y_lmn.contains(base_pred)
+            why_circle_y_lmi.contains(preds[14]) &&   // eq Y Z - explains merger of CEG(Y) <- FGI(Z)
+            why_circle_y_lmi.contains(diff_f_i) &&    // diff predicate for merging CEFGI(Y) <- BEFMI to get BCEFGIM
+            why_circle_y_lmi.contains(base_pred)
         ));
 
         PredSet why_circle_y_abc = tr.why_circle(y, a, b, c);

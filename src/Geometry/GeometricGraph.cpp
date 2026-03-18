@@ -359,26 +359,70 @@ void GeometricGraph::merge_lines(
         L1.merge(L2);
     }
 
+    PredSet root_dest_dir_preds;
+    if (root_dest->has_direction()) {
+        root_dest_dir_preds = tr->why_direction_of(root_dest->get_direction(), root_dest);
+    }
+    std::vector<std::tuple<Direction*, Direction*, PredSet>> to_merge_dirs;
+
     // Step 2: Merge all identified lines, which now reside in L
     for (auto it = L.begin(); it != L.end(); ++it) {
         Line* l = it->first; // root line
         if (l == root_dest) continue;
-        PredSet l_preds = it->second;
-
         root_lines.erase(l);
 
+        // Predicate for merging the lines
+        PredSet l_preds = it->second;
         Predicate* merger_pred = dd.insert_new_predicate(std::make_unique<Predicate>(
             pred_t::EQ, std::vector<Node*>{root_dest, l}, std::move(l_preds)
         ));
+
+        // Predicate for merging their directions
+        PredSet l_dir_preds(merger_pred);
+        if (l->has_direction()) {
+            l_dir_preds += tr->why_direction_of(l->get_direction(), l);
+        }
+
         ar.update_line_merger(root_dest, l, merger_pred);
         auto dirs = root_dest->merge(l, merger_pred);
-        tr->record_merge(root_dest, l);
 
         // Check if the lines have directions that need to be merged
         if (dirs) {
-            set_directions_para(dirs->first, dirs->second, merger_pred, dd);
+            to_merge_dirs.emplace_back(dirs->first, dirs->second, root_dest_dir_preds + l_dir_preds);
         }
     }
+    for (const auto& [d1, d2, preds] : to_merge_dirs) {
+        set_directions_para(d1, d2, preds, dd);
+    }
+    for (auto it = L.begin(); it != L.end(); ++it) {
+        Line* l = it->first;
+        if (l != root_dest) {
+            tr->record_merge(root_dest, l);
+        }
+    }
+}
+
+bool GeometricGraph::add_point_to_line(Line* qr, Point* p, PredSet preds, DDEngine& dd, AREngine& ar) {
+    std::vector<std::pair<Line*, PredSet>> to_merge_lines;
+
+    auto gen_s = qr->all_points();
+    while (gen_s) {
+        Point* s = gen_s();
+        Line* ps = __try_get_line(p, s);
+        if (ps) {
+            PredSet merger_preds(preds);
+            merger_preds += tr->why_on(p, ps);
+            merger_preds += tr->why_on(s, ps);
+            merger_preds += tr->why_on(s, qr);
+            to_merge_lines.emplace_back(ps, merger_preds);
+        }
+    }
+    if (to_merge_lines.empty()) {
+        p->set_this_on(qr);
+        return false;
+    }
+    merge_lines(qr, std::move(to_merge_lines), dd, ar);
+    return true;
 }
 
 
@@ -414,12 +458,11 @@ Direction* GeometricGraph::get_or_add_direction(Line* l, DDEngine &dd) {
 }
 
 
-void GeometricGraph::set_directions_para(Direction* dest, Direction* src, Predicate* pred, DDEngine& dd) {
+void GeometricGraph::set_directions_para(Direction* dest, Direction* src, PredSet preds, DDEngine& dd) {
     Direction* root_dest = NodeUtils::get_root(dest);
     Direction* root_src = NodeUtils::get_root(src);
     if (root_dest == root_src) return;
 
-    PredSet preds{pred};
     preds += TracebackUtils::why_ancestor(dest, root_dest);
     preds += TracebackUtils::why_ancestor(src, root_src);
 
@@ -427,15 +470,12 @@ void GeometricGraph::set_directions_para(Direction* dest, Direction* src, Predic
     Direction* root_src_perp = root_src->has_perp() ? root_src->get_perp() : nullptr;
 
     root_directions.erase(root_src);
-    if (root_src_perp) {
-        root_directions.erase(root_src_perp);
-    }
 
     // Check for incident angles as a result of the direction merge
     auto gen_to_merge_angles = Direction::check_incident_angles(dest, src);
     while (gen_to_merge_angles) {
         auto pair = gen_to_merge_angles();
-        merge_angles(pair.first, pair.second, pred, dd);
+        merge_angles(pair.first, pair.second, preds, dd);
     }
 
     Predicate* merger_pred = dd.insert_new_predicate(std::make_unique<Predicate>(
@@ -443,23 +483,26 @@ void GeometricGraph::set_directions_para(Direction* dest, Direction* src, Predic
     ));
     
     root_dest->merge(root_src, merger_pred);
+    tr->record_merge(root_dest, root_src);
 
     // Check if the directions' perps also need to be merged
     if (root_dest_perp && root_src_perp) {
-        set_directions_para(root_dest_perp, root_src_perp, merger_pred, dd);
+        PredSet perp_preds(merger_pred);
+        perp_preds += tr->why_directions_perp(root_dest, root_dest_perp);
+        perp_preds += tr->why_directions_perp(root_src, root_src_perp);
+        set_directions_para(root_dest_perp, root_src_perp, perp_preds, dd);
     }
 
     // We do not check for incident lines as a result of the merge. This is
     // because we already have the rule para A B A C => coll A B C.
 }
 
-void GeometricGraph::set_directions_perp(Direction* d1, Direction* d2, Predicate* pred, DDEngine& dd) {
+void GeometricGraph::set_directions_perp(Direction* d1, Direction* d2, PredSet preds, DDEngine& dd) {
     Direction* rd1 = NodeUtils::get_root(d1);
     Direction* rd2 = NodeUtils::get_root(d2);
     if (rd1 == rd2) {
         throw GGraphInternalError("Error: Cannot set a direction perpendicular to itself.");
     }
-    PredSet preds{pred};
     preds += TracebackUtils::why_ancestor(d1, rd1);
     preds += TracebackUtils::why_ancestor(d2, rd2);
 
@@ -470,7 +513,7 @@ void GeometricGraph::set_directions_perp(Direction* d1, Direction* d2, Predicate
         auto gen_to_merge_angles_1 = Direction::check_incident_angles(rd2, dp1);
         while (gen_to_merge_angles_1) {
             auto pair = gen_to_merge_angles_1();
-            merge_angles(pair.first, pair.second, pred, dd);
+            merge_angles(pair.first, pair.second, preds, dd);
         }
     }
     if (rd2->has_perp()) {
@@ -479,7 +522,7 @@ void GeometricGraph::set_directions_perp(Direction* d1, Direction* d2, Predicate
         auto gen_to_merge_angles_2 = Direction::check_incident_angles(rd1, dp2);
         while (gen_to_merge_angles_2) {
             auto pair = gen_to_merge_angles_2();
-            merge_angles(pair.first, pair.second, pred, dd);
+            merge_angles(pair.first, pair.second, preds, dd);
         }
     }
 
@@ -810,7 +853,7 @@ void GeometricGraph::merge_circles(Circle* dest, std::vector<std::pair<Circle*, 
         ));
         
         // Predicates for merging circle centers
-        PredSet center_merge_preds = merger_pred;
+        PredSet center_merge_preds(merger_pred);
         if (c->has_center()) {
             center_merge_preds += tr->why_center(c->get_center(), c);
         }
@@ -1114,12 +1157,11 @@ Angle* GeometricGraph::get_or_add_angle(Point* p1, Point* p2, Point* p3, DDEngin
 }
 
 
-void GeometricGraph::merge_angles(Angle* dest, Angle* src, Predicate* pred, DDEngine& dd) {
+void GeometricGraph::merge_angles(Angle* dest, Angle* src, PredSet preds, DDEngine& dd) {
     Angle* root_dest = NodeUtils::get_root(dest);
     Angle* root_src = NodeUtils::get_root(src);
     if (root_dest == root_src) return;
 
-    PredSet preds{pred};
     preds += TracebackUtils::why_ancestor(dest, root_dest);
     preds += TracebackUtils::why_ancestor(src, root_src);
 
@@ -2095,8 +2137,9 @@ bool GeometricGraph::__make_coll(Point* rp1, Point* rp2, Point* rp3,
         if (p3p1) src_lines.push_back({p3p1, why_on_p2p3 + why_on_p3p1});
         if (p1p2) src_lines.push_back({p1p2, why_on_p2p3 + why_on_p1p2});
         if (!(p3p1) && !(p1p2)) {
-            tp->set_this_on(l);
-            tr->set_point_on(tp, l, pred);
+            if (!add_point_to_line(l, tp, pred, dd, ar)) {
+                tr->set_point_on(tp, l, pred);
+            }
         } else {
             merge_lines(p2p3, std::move(src_lines), dd, ar);
         }
@@ -2107,12 +2150,14 @@ bool GeometricGraph::__make_coll(Point* rp1, Point* rp2, Point* rp3,
             merge_lines(p3p1, std::move(src_lines), dd, ar);
         }
         else {
-            tp->set_this_on(l);
-            tr->set_point_on(tp, l, pred);
+            if (!add_point_to_line(l, tp, pred, dd, ar)) {
+                tr->set_point_on(tp, l, pred);
+            }
         }
     } else {
-        tp->set_this_on(l);
-        tr->set_point_on(tp, l, pred);
+        if (!add_point_to_line(l, tp, pred, dd, ar)) {
+            tr->set_point_on(tp, l, pred);
+        }
     }
     return true;
 }
@@ -2248,17 +2293,26 @@ bool GeometricGraph::__make_para(Point* p1, Point* p2, Point* p3, Point* p4,
     Line* p1p2 = get_or_add_line(p1, p2, dd);
     Line* p3p4 = get_or_add_line(p3, p4, dd);
 
-    Direction* d12 = get_or_add_direction(p1p2, dd);
+    if (p1p2->has_direction()) {
+        Direction* d12 = p1p2->get_direction();
 
-    if (p3p4->has_direction()) {
-        Direction* d34 = get_or_add_direction(p3p4, dd);
+        if (p3p4->has_direction()) {
+            Direction* d34 = p3p4->get_direction();
+            set_directions_para(d12, d34, pred, dd);
+            ar.add_para(d12, d34, pred);
+        } else {
+            d12->add_line(p3p4);
+            tr->set_direction_of(d12, p3p4, pred);
+        }
 
-        set_directions_para(d12, d34, pred, dd);
-        ar.add_para(d12, d34, pred);
     } else {
-        d12->add_line(p3p4);
-        tr->set_direction_of(d12, p3p4, pred);
+        Direction* d34 = get_or_add_direction(p3p4, dd);
+        d34->add_line(p1p2);
+
+        tr->set_direction_of(d34, p1p2, pred);
     }
+
+    
     return true;
 }
 

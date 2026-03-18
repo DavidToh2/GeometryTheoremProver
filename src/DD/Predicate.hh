@@ -82,6 +82,7 @@ public:
 	void insert(Predicate* pred);
 	void operator+=(const PredSet& other);
 	void insert(std::initializer_list<Predicate*> list);
+	void operator+=(PredSet&& other);
 
 	/* Make move-assignment the default for operator= */
 	void operator=(PredSet&& other);

@@ -1819,9 +1819,6 @@ Generator<bool> DDEngine::match(Theorem* theorem, int i, int n, GeometricGraph &
 void DDEngine::search(GeometricGraph &ggraph) {
 
     for (auto& thr : theorems) {
-        if (thr.first == "cong_eqangle_eqangle_ncoll_contri") {
-            int i = 1;
-        }
         int matches = 0;
         Theorem* theorem = thr.second.get();
         int n = theorem->preconditions.predicates.size();
