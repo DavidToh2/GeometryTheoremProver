@@ -2960,6 +2960,9 @@ int GeometricGraph::synthesise_preds(DDEngine &dd, AREngine &ar) {
         bool res = false;
         Predicate* pred = recent_preds_gen();
 
+        pred->level = level;
+        pred->why.set_level(level - 1);
+
         switch(pred->name) {
             case pred_t::COLL:
                 res = make_coll(pred, dd, ar);
@@ -3008,6 +3011,8 @@ int GeometricGraph::synthesise_preds(DDEngine &dd, AREngine &ar) {
             LOG("Synthesised predicate: " << pred->to_string());
         }
     }
+    level += 2;
+
     return num;
 }
 
@@ -3017,6 +3022,8 @@ int GeometricGraph::synthesise_ar_preds(DDEngine &dd) {
     while (recent_preds_gen) {
         bool res = false;
         Predicate* pred = recent_preds_gen();
+
+        pred->level = level;
 
         switch(pred->name) {
             case pred_t::PARA:
@@ -3049,6 +3056,8 @@ int GeometricGraph::synthesise_ar_preds(DDEngine &dd) {
             LOG("Synthesised AR predicate: " << pred->to_string());
         }
     }
+    level += 1;
+
     return num;
 }
 

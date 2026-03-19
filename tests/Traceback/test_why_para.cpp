@@ -372,7 +372,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         REQUIRE((
             why_on_q_rt.contains(preds[18]) &&   // coll R S Q
             why_on_q_rt.contains(preds[19]) &&   // coll S R T
-            why_on_q_rt.contains(diff_t_q) &&
+            why_on_q_rt.contains(diff_t_q) &&    // diff T Q
             why_on_q_rt.contains(base_pred) &&
             why_on_q_rt.size() == 4
         ));
@@ -423,7 +423,6 @@ TEST_SUITE("TracebackEngine: why_() functions") {
                 why_dir3_3_of_rt.size() == 5
             ));
         }
-        std::cout << why_dir3_3_of_rt.to_string() << std::endl;
 
         /* Inter-group interactions
         
@@ -444,7 +443,6 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ));
 
         PredSet why_dir2_of_rt = tr.why_direction_of(dir2, rt);
-        std::cout << "why_dir2_of_rt: " << why_dir2_of_rt.to_string() << std::endl;
         if (dir3_3_rt_map.second == st) {
             // why_dir2_of_rt: base && para o p m n && para l m m n && coll s r t && para m n s t && para j k q s
             REQUIRE((
@@ -635,7 +633,6 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ));
 
         PredSet why_para_rs_ac = tr.why_para(r, s, a, c);
-        std::cout << "why_para_rs_ac: " << why_para_rs_ac.to_string() << std::endl;
         // why_para_rs_ac: para a b e f && para g h h k && base && para i j h k && coll d e g && coll a b c && para r s l o && para j k q s && coll d e h
         REQUIRE((
             why_para_rs_ac.contains(preds[0]) &&    // para A B E F - explains why AB has direction d_ef

@@ -228,6 +228,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
                 pred_t::BASE, std::vector<Node*>{i, n})
         ));
         ggraph.merge_points(i, n, preds.back(), dd, ar);
+        REQUIRE((ggraph.synthesise_preds(dd, ar) == 0));
 
         Circle* befiklmno = NodeUtils::get_root(fbi);
         REQUIRE((
@@ -307,6 +308,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
                 pred_t::BASE, std::vector<Node*>{y, z})
         ));
         ggraph.merge_points(y, z, preds.back(), dd, ar);
+        REQUIRE((ggraph.synthesise_preds(dd, ar) == 0));
 
         Circle* final = NodeUtils::get_root(gce);
         REQUIRE((
@@ -407,12 +409,12 @@ TEST_SUITE("TracebackEngine: why_() functions") {
 
         // ------------ after 12 - cyclic L M N O
 
-        PredSet why_cyclic_lmno = tr.why_cyclic(l, m, n, o);
+        PredSet why_cyclic_klmo = tr.why_cyclic(k, l, m, o);
         REQUIRE((
-            why_cyclic_lmno.size() == 3 &&
-            why_cyclic_lmno.contains(base_pred) &&
-            why_cyclic_lmno.contains(preds[9]) &&     // cyclic K L N O
-            why_cyclic_lmno.contains(preds[12])       // cyclic L M N O
+            why_cyclic_klmo.size() == 3 &&
+            why_cyclic_klmo.contains(base_pred) &&
+            why_cyclic_klmo.contains(preds[9]) &&    // cyclic K L N O
+            why_cyclic_klmo.contains(preds[12])      // cyclic L M N O
         ));
 
         PredSet why_circle_x_klm = tr.why_circle(x, k, l, m);
@@ -420,7 +422,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
             why_circle_x_klm.size() == 4 &&
             why_circle_x_klm.contains(base_pred) &&
             why_circle_x_klm.contains(preds[10]) &&   // circle X K L N
-            why_cyclic_lmno.contains(preds[9]) &&     // cyclic K L N O
+            why_circle_x_klm.contains(preds[9]) &&    // cyclic K L N O
             why_circle_x_klm.contains(preds[12])      // cyclic L M N O
         ));
 
@@ -430,7 +432,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         REQUIRE((
             why_cyclic_ilmo.size() == 4 &&
             why_cyclic_ilmo.contains(base_pred) &&
-            why_cyclic_lmno.contains(preds[9]) &&     // cyclic K L N O
+            why_cyclic_ilmo.contains(preds[9]) &&    // cyclic K L N O
             why_cyclic_ilmo.contains(preds[12]) &&    // cyclic L M N O
             why_cyclic_ilmo.contains(preds[13])       // eq I N
         ));

@@ -80,12 +80,13 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ));
 
         /* I = C */
-        preds.emplace_back(dd.insert_predicate(
+        preds.emplace_back(dd.insert_new_predicate(
             std::make_unique<Predicate>(
                 pred_t::BASE, std::vector<Node*>{i, c}
             )
         ));
         ggraph.merge_points(i, c, preds.back(), dd, ar);
+        REQUIRE((ggraph.synthesise_preds(dd, ar) == 0));
 
         REQUIRE((
             NodeUtils::get_parent(l9) == l8 &&
@@ -104,12 +105,13 @@ TEST_SUITE("TracebackEngine: why_() functions") {
 
 
         /* D = A */
-        preds.emplace_back(dd.insert_predicate(
+        preds.emplace_back(dd.insert_new_predicate(
             std::make_unique<Predicate>(
                 pred_t::BASE, std::vector<Node*>{d, a}
             )
         ));
         ggraph.merge_points(d, a, preds.back(), dd, ar);
+        REQUIRE((ggraph.synthesise_preds(dd, ar) == 0));
 
         // The lines l3 = DBH and l1 = ABI are merged first, then the lines l8 = DGI and l1 = ABI
 
@@ -192,7 +194,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ));
 
         /* E = G */
-        preds.emplace_back(dd.insert_predicate(
+        preds.emplace_back(dd.insert_new_predicate(
             std::make_unique<Predicate>(
                 pred_t::BASE, std::vector<Node*>{e, g}
             )
@@ -200,7 +202,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ggraph.merge_points(e, g, preds.back(), dd, ar);
 
         /* E = B */
-        preds.emplace_back(dd.insert_predicate(
+        preds.emplace_back(dd.insert_new_predicate(
             std::make_unique<Predicate>(
                 pred_t::BASE, std::vector<Node*>{e, b}
             )
@@ -208,7 +210,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ggraph.merge_points(e, b, preds.back(), dd, ar);
 
         /* C = F */
-        preds.emplace_back(dd.insert_predicate(
+        preds.emplace_back(dd.insert_new_predicate(
             std::make_unique<Predicate>(
                 pred_t::BASE, std::vector<Node*>{c, f}
             )
@@ -216,12 +218,14 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ggraph.merge_points(c, f, preds.back(), dd, ar);
 
         /* H = C */
-        preds.emplace_back(dd.insert_predicate(
+        preds.emplace_back(dd.insert_new_predicate(
             std::make_unique<Predicate>(
                 pred_t::BASE, std::vector<Node*>{h, c}
             )
         ));
         ggraph.merge_points(h, c, preds.back(), dd, ar);
+
+        REQUIRE((ggraph.synthesise_preds(dd, ar) == 0));
 
         REQUIRE((
             NodeUtils::get_parent(l5) == l4 && NodeUtils::get_parent(l7) == l4 && NodeUtils::get_parent(l8) == l4 &&

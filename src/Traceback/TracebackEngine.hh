@@ -40,7 +40,10 @@ IMPORTANT INVARIANT: All nodes passed to any function must be root nodes at thei
 The traceback will only search through predicates where these nodes were involved as root nodes. 
 
 INVARIANT: The predicate traceback functions `why_pred()` can only take points which are distinct at the
-end of the solving process. */
+end of the solving process.
+
+Note: `tr->record_merge()` should be called for Directions before Lines, for `__earliest_direction_of()` to
+work as intended. */
 class TracebackEngine {
 
 public:
@@ -58,6 +61,7 @@ public:
     std::map<Point*, std::map<Triangle*, std::pair<Point*, Triangle*>>> point_triangle_vertex_root_map;
 
     std::map<std::pair<Direction*, Direction*>, Predicate*> perp_directions;
+    std::map<std::pair<Direction*, Direction*>, std::set<std::pair<Direction*, Direction*>>> perp_directions_root_map;
 
     std::map<Direction*, std::map<Line*, Predicate*>> direction_of_lines;
     std::map<Direction*, std::map<Line*, std::pair<Direction*, Line*>>> direction_line_root_map;
@@ -134,6 +138,15 @@ public:
 
 
 
+    
+    std::tuple<std::map<Line*, PredSet>, Line*> lca_lines_and_why(
+        Point* p1, Point* p2,
+        std::map<std::pair<Point*, Point*>, PredSet> why_point_ancestor_cache,
+        std::map<std::pair<Line*, Line*>, PredSet> why_line_ancestor_cache
+    );
+
+
+
 
     
 
@@ -142,31 +155,24 @@ public:
     PredSet why_cyclic(Point* p1, Point* p2, Point* p3, Point* p4);
 
     PredSet why_para(Point* p1, Point* p2, Point* p3, Point* p4);
-    PredSet why_para(Line* l1, Line* l2);
 
     PredSet why_perp(Point* p1, Point* p2, Point* p3, Point* p4);
-    PredSet why_perp(Line* l1, Line* l2);
 
     PredSet why_cong(Point* p1, Point* p2, Point* p3, Point* p4);
-    PredSet why_cong(Segment* s1, Segment* s2);
 
     PredSet why_eqangle(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Point* p7, Point* p8);
-    PredSet why_eqangle(Line* l1, Line* l2, Line* l3, Line* l4);
-    PredSet why_eqangle(Angle* a1, Angle* a2);
 
     PredSet why_eqratio(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Point* p7, Point* p8);
-    PredSet why_eqratio(Segment* s1, Segment* s2, Segment* s3, Segment* s4);
-    PredSet why_eqratio(Ratio* r1, Ratio* r2);
 
     PredSet why_contri(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6);
-    PredSet why_contri(Triangle* t1, Triangle* t2);
 
     PredSet why_simtri(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6);
-    PredSet why_simtri(Triangle* t1, Triangle* t2);
 
     PredSet why_midp(Point* m, Point* p1, Point* p2);
 
     PredSet why_circle(Point* c, Point* p1, Point* p2, Point* p3);
+
+    // These two are technically not necessary?:
 
     PredSet why_constangle(Angle* a, Frac f);
 

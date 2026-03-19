@@ -260,6 +260,47 @@ bool PredSet::contains(Predicate* pred) const {
 bool PredSet::empty() const {
     return preds.empty();
 }
+void PredSet::set_level(int level) {
+    for (Predicate* pred : preds) {
+        if (pred->level < 0) {
+            pred->level = level;
+        }
+    }
+}
+int PredSet::level() const {
+    int res = -1;
+    for (Predicate* pred : preds) {
+        if (pred->level > res) {
+            res = pred->level;
+        }
+    }
+    return res;
+}
+int PredSet::lsum() const {
+    int res = 0;
+    for (Predicate* pred : preds) {
+        res += pred->level;
+    }
+    return res;
+}
+std::pair<int, int> PredSet::__level_and_lsum() const {
+    int max_level = -1;
+    int lsum = 0;
+    for (Predicate* pred : preds) {
+        if (pred->level > max_level) {
+            max_level = pred->level;
+        }
+        lsum += pred->level;
+    }
+    return {max_level, lsum};
+}
+
+bool PredSet::operator<(const PredSet& other) const {
+    auto [level, lsum] = __level_and_lsum();
+    auto [other_level, other_lsum] = other.__level_and_lsum();
+    return (other.preds.empty()) || (level < other_level) || (level == other_level && lsum < other_lsum) 
+        || (level == other_level && lsum == other_lsum && preds.size() < other.preds.size());
+}
 std::string PredSet::to_string() const {
     if (preds.empty()) {
         return "EMPTY";

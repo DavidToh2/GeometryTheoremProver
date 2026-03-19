@@ -27,6 +27,7 @@ class GeometricGraph {
 
 public:
     int adhoc = 0;
+    int level = 1025;  // For traceback
 
     /* Flag storing whether the most recent invocation of `get_or_add_` created a new object, or fetched
     an existing one */

@@ -92,6 +92,12 @@ public:
 	int size() const;
 	bool contains(Predicate* pred) const;
 	bool empty() const;
+	void set_level(int level);
+	int level() const;
+	int lsum() const;
+	std::pair<int, int> __level_and_lsum() const;
+
+	bool operator<(const PredSet& other) const;
 
 	explicit operator std::set<Predicate*>() const { return preds; }
 
@@ -105,7 +111,9 @@ public:
 	pred_t name;
 	std::vector<Node*> args;
 	Frac frac_arg;
-	PredSet why; // keep
+	PredSet why;
+
+	int level = -1; // for traceback
 
 	Predicate() : name(pred_t::BASE), hash(Utils::to_pred_str(pred_t::BASE)) {}
 	Predicate(const pred_t name, Frac f);	// placeholder for debugging purposes
