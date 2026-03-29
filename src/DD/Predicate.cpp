@@ -240,6 +240,9 @@ void PredSet::operator+=(PredSet&& other) {
     preds.merge(other.preds);
 }
 
+void PredSet::operator=(const PredSet& other) {
+    preds = other.preds;
+}
 void PredSet::operator=(PredSet&& other) {
     std::swap(preds, other.preds);
 }

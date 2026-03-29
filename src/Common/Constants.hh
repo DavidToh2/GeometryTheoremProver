@@ -28,7 +28,7 @@ const std::string PREDICATE_NAMES[] = {
     "sameclock", "diffclock",
     "sameside_p", "diffside_p",
     "convex",
-    "eq",
+    "eq", "perp_d",
     "last"
 };
 
@@ -92,8 +92,9 @@ enum class pred_t {
     SAMESIDE_P,
     DIFFSIDE_P,
     CONVEX,     // not used
-    EQ,         // not used
-    LAST    // not used
+    EQ,         // used for traceback,
+    PERP_D,     // used for traceback,
+    LAST        // not used
 };
 
 enum class num_t {

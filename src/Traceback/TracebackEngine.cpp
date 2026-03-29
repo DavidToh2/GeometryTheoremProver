@@ -184,7 +184,7 @@ void TracebackEngine::record_merge(Ratio* dest, Ratio* src) {
 
 
 
-void TracebackEngine::set_point_on(Point* p, Line* l, Predicate* pred) {
+void TracebackEngine::set_point_on(Point* p, Line* l, PredSet pred) {
     point_on_lines[p][l] = pred;
     point_line_root_map[p][l] = {p, l};
 }
@@ -195,7 +195,7 @@ PredSet TracebackEngine::why_on(Point* p, Line* l) {
     res += TracebackUtils::why_ancestor(lc, l);
     return res;
 }
-void TracebackEngine::set_point_on(Point* p, Circle* c, Predicate* pred) {
+void TracebackEngine::set_point_on(Point* p, Circle* c, PredSet pred) {
     point_on_circles[p][c] = pred;
     point_circle_root_map[p][c] = {p, c};
 }
@@ -206,7 +206,7 @@ PredSet TracebackEngine::why_on(Point* p, Circle* c) {
     res += TracebackUtils::why_ancestor(cc, c);
     return res;
 }
-void TracebackEngine::set_point_as_center(Point* p, Circle* c, Predicate* pred) {
+void TracebackEngine::set_point_as_center(Point* p, Circle* c, PredSet pred) {
     point_as_circle_center[p][c] = pred;
     point_circle_center_root_map[p][c] = {p, c};
 }
@@ -217,7 +217,7 @@ PredSet TracebackEngine::why_center(Point* p, Circle* c) {
     res += TracebackUtils::why_ancestor(cc, c);
     return res;
 }
-void TracebackEngine::set_point_as_endpoint(Point* p, Segment* s, Predicate* pred) {
+void TracebackEngine::set_point_as_endpoint(Point* p, Segment* s, PredSet pred) {
     point_as_segment_endpoint[p][s] = pred;
     point_segment_endpoint_root_map[p][s] = {p, s};
 }
@@ -228,7 +228,7 @@ PredSet TracebackEngine::why_endpoint(Point* p, Segment* s) {
     res += TracebackUtils::why_ancestor(sc, s);
     return res;
 }
-void TracebackEngine::set_point_as_vertex(Point* p, Triangle* t, Predicate* pred) {
+void TracebackEngine::set_point_as_vertex(Point* p, Triangle* t, PredSet pred) {
     point_as_triangle_vertex[p][t] = pred;
     point_triangle_vertex_root_map[p][t] = {p, t};
 }
@@ -242,20 +242,21 @@ PredSet TracebackEngine::why_vertex(Point* p, Triangle* t) {
 
 
 
-void TracebackEngine::set_directions_perp(Direction* d1, Direction* d2, Predicate* pred) {
+void TracebackEngine::set_directions_perp(Direction* d1, Direction* d2, PredSet pred) {
     perp_directions[{d1, d2}] = pred;
     perp_directions[{d2, d1}] = pred;
     perp_directions_root_map[{d1, d2}].insert({d1, d2});
     perp_directions_root_map[{d2, d1}].insert({d2, d1});
 }
 PredSet TracebackEngine::why_directions_perp(Direction* d1, Direction* d2) {
-    auto [dc1, dc2] = *perp_directions_root_map[{d1, d2}].begin();
+    auto& s = perp_directions_root_map[{d1, d2}];
+    auto [dc1, dc2] = *(s.begin());
     PredSet res(perp_directions[{dc1, dc2}]);
     res += TracebackUtils::why_ancestor(dc1, d1);
     res += TracebackUtils::why_ancestor(dc2, d2);
     return res;
 }
-void TracebackEngine::set_direction_of(Direction* d, Line* l, Predicate* pred) {
+void TracebackEngine::set_direction_of(Direction* d, Line* l, PredSet pred) {
     direction_of_lines[d][l] = pred;
     direction_line_root_map[d][l] = {d, l};
 }
@@ -266,11 +267,11 @@ PredSet TracebackEngine::why_direction_of(Direction* d, Line* l) {
     res += TracebackUtils::why_ancestor(lc, l);
     return res;
 }
-void TracebackEngine::set_length_of(Length* len, Segment* s, Predicate* pred) {
+void TracebackEngine::set_length_of(Length* len, Segment* s, PredSet pred) {
     length_of_segments[len][s] = pred;
     length_segment_root_map[len][s] = {len, s};
 }
-void TracebackEngine::set_dimension_of(Dimension* dim, Triangle* t, Predicate* pred) {
+void TracebackEngine::set_dimension_of(Dimension* dim, Triangle* t, PredSet pred) {
     dimension_of_triangles[dim][t] = pred;
     dimension_triangle_root_map[dim][t] = {dim, t};
 }
@@ -288,25 +289,25 @@ PredSet TracebackEngine::why_length_of(Length* len, Ratio* r) {
 
 
 
-void TracebackEngine::set_measure_of(Measure* m, Angle* a, Predicate* pred) {
+void TracebackEngine::set_measure_of(Measure* m, Angle* a, PredSet pred) {
     measure_of_angles[m][a] = pred;
     measure_angle_root_map[m][a] = {m, a};
 }
-void TracebackEngine::set_fraction_of(Fraction* f, Ratio* r, Predicate* pred) {
+void TracebackEngine::set_fraction_of(Fraction* f, Ratio* r, PredSet pred) {
     fraction_of_ratios[f][r] = pred;
     fraction_ratio_root_map[f][r] = {f, r};
 }
-void TracebackEngine::set_shape_of(Shape* s, Dimension* d, Predicate* pred) {
+void TracebackEngine::set_shape_of(Shape* s, Dimension* d, PredSet pred) {
     shape_of_dimensions[s][d] = pred;
     shape_dimension_root_map[s][d] = {s, d};
 }
 
 
 
-void TracebackEngine::set_measure_val(Measure* m, Frac val, Predicate* pred) {
+void TracebackEngine::set_measure_val(Measure* m, Frac val, PredSet pred) {
     measure_vals[m] = {val, pred};
 }
-void TracebackEngine::set_fraction_val(Fraction* f, Frac val, Predicate* pred) {
+void TracebackEngine::set_fraction_val(Fraction* f, Frac val, PredSet pred) {
     fraction_vals[f] = {val, pred};
 }
 
@@ -415,6 +416,49 @@ std::tuple<std::map<Line*, PredSet>, Line*> TracebackEngine::lca_lines_and_why(
     return {lcas, common_root};
 }
 
+std::pair<std::pair<Direction*, Line*>, PredSet> TracebackEngine::most_explainable_direction_of_line(
+    Line* l, Direction* d,
+    std::map<std::pair<Direction*, Direction*>, PredSet> why_direction_ancestor_cache,
+    std::map<std::pair<Line*, Line*>, PredSet> why_line_ancestor_cache
+) {
+    /* Extract all children of `l` which were assigned directions */
+    std::set<Line*> l_cs;
+    std::vector<std::pair<Direction*, Line*>> d2ls;
+
+    NodeUtils::all_children(l, l_cs);
+    for (const auto& [dir, line_map] : direction_of_lines) {
+        for (Line* l_c : l_cs) {
+            if (line_map.contains(l_c)) {
+                d2ls.emplace_back(dir, l_c);
+            }
+        }
+    }
+
+    /* Each child `l_c` will have been assigned some Direction `d_c`.
+    The desired PredSet is the union of the following:
+    - direction_of_lines[d_1][lca_1]
+    - why_ancestor(lca_1, lca1)
+    - why_ancestor(d_1, d1)
+    Pick the `lca_1` with the lowest predicate count. Do the same thing for `lca_2`. 
+    Generate the union of these two PredSets. */
+    PredSet res;
+    Direction* best_d = nullptr;
+    Line* best_l = nullptr;
+    for (auto [d_c, l_c] : d2ls) {
+        PredSet res_ = (
+            TracebackUtils::why_ancestor_with_cache(l_c, l, why_line_ancestor_cache)
+            + TracebackUtils::why_ancestor_with_cache(d_c, d, why_direction_ancestor_cache)
+            + direction_of_lines[d_c][l_c]
+        );
+        if (res_ < res) {
+            res = std::move(res_);
+            best_d = d_c;
+            best_l = l_c;
+        }
+    }
+    return {{best_d, best_l}, res};
+}
+
 
 
 
@@ -482,7 +526,7 @@ PredSet TracebackEngine::why_coll(Point* p1, Point* p2, Point* p3) {
     for (auto [l1, pc1] : l2ps[0]) {
         for (auto [l2, pc2] : l2ps[1]) {
             for (auto [l3, pc3] : l2ps[2]) {
-                PredSet res_{point_on_lines[pc1][l1], point_on_lines[pc2][l2], point_on_lines[pc3][l3]};
+                PredSet res_ = point_on_lines[pc1][l1] + point_on_lines[pc2][l2] + point_on_lines[pc3][l3];
 
                 std::pair<Line*, int> lca_p = TracebackUtils::lowest_common_ancestor<Line>(l1, l2, l3);
                 Line* lca_ = lca_p.first;
@@ -583,10 +627,10 @@ PredSet TracebackEngine::why_cyclic(Point* p1, Point* p2, Point* p3, Point* p4) 
         for (auto [c2, pc2] : c2ps[1]) {
             for (auto [c3, pc3] : c2ps[2]) {
                 for (auto [c4, pc4] : c2ps[3]) {
-                    PredSet res_{
-                        point_on_circles[pc1][c1], point_on_circles[pc2][c2], 
-                        point_on_circles[pc3][c3], point_on_circles[pc4][c4]
-                    };
+                    PredSet res_ =
+                        point_on_circles[pc1][c1] + point_on_circles[pc2][c2] + 
+                        point_on_circles[pc3][c3] + point_on_circles[pc4][c4]
+                    ;
 
                     std::pair<Circle*, int> lca_p = TracebackUtils::lowest_common_ancestor(c1, c2, c3, c4);
                     Circle* lca_ = lca_p.first;
@@ -688,15 +732,14 @@ PredSet TracebackEngine::why_circle(Point* c, Point* p1, Point* p2, Point* p3) {
     - `why_ancestor(pci, pi)` for each `i`
     - `why_ancestor(cc, c)`
     Pick the triplet with the lowest predicate count. */
-    int min_level = 1e9, min_sz = 1e9;
     for (auto [c0, cc] : circ2c) {
         for (auto [c1, pc1] : p2cs[0]) {
             for (auto [c2, pc2] : p2cs[1]) {
                 for (auto [c3, pc3] : p2cs[2]) {
-                    PredSet res_{
-                        point_on_circles[pc1][c1], point_on_circles[pc2][c2], point_on_circles[pc3][c3],
-                        point_as_circle_center[cc][c0]
-                    };
+                    PredSet res_ =
+                        point_on_circles[pc1][c1] + point_on_circles[pc2][c2] + point_on_circles[pc3][c3]
+                        + point_as_circle_center[cc][c0]
+                    ;
 
                     std::pair<Circle*, int> lca_p = TracebackUtils::lowest_common_ancestor(c0, c1, c2, c3);
                     Circle* lca_ = lca_p.first;
@@ -759,37 +802,13 @@ PredSet TracebackEngine::why_para(Point* p1, Point* p2, Point* p3, Point* p4) {
 
                 // std::cout << d->to_string() << std::endl;
 
-                /* Step 6: Extract all children of `lca` that were assigned directions */
-                std::set<Line*> lca_cs;
-                std::vector<std::pair<Direction*, Line*>> d2ls;
-                NodeUtils::all_children(lca1, lca_cs);
-                for (const auto& [dir, line_map] : direction_of_lines) {
-                    for (Line* lca_c : lca_cs) {
-                        if (line_map.contains(lca_c)) {
-                            d2ls.emplace_back(dir, lca_c);
-                        }
-                    }
-                }
+                /* Steps 6-7: extract the shortest explanation for why `lca` was assigned direction `d` */
+                auto [best_pair, res_0] = most_explainable_direction_of_line(
+                    lca1, d, why_direction_ancestor_cache, why_line_ancestor_cache
+                );
 
-                /* Step 7: Each child `lca_c` will have some direction `d_c` 
-                The desired PredSet is the union of the following:
-                - direction_of_lines[d_c][lca_c]
-                - why_ancestor(lca_c, lca) 
-                - why_ancestor(d_c, d)
-                Pick the `lca_c` with the lowest predicate count */
-                int min_level_ = 1e9, min_sz_ = 1e9;
-                PredSet res_1;
-                for (auto [d_c, lca_c] : d2ls) {
-                    PredSet res_1_ = (
-                        TracebackUtils::why_ancestor_with_cache(lca_c, lca1, why_line_ancestor_cache)
-                        + TracebackUtils::why_ancestor_with_cache(d_c, d, why_direction_ancestor_cache)
-                        + direction_of_lines[d_c][lca_c]
-                    );
-                    if (res_1_ < res_1) {
-                        res_1 = std::move(res_1_);
-                    }
-                }
-                res_ += std::move(res_1);
+                // std::cout << "res_: " << res_.to_string() << ", res_0: " << res_0.to_string() << std::endl;
+                res_ += std::move(res_0);
             }
             
             /* Branch 2: If `lca1` and `lca2` have Directions `d1, d2` (these may be the same) */
@@ -825,65 +844,31 @@ PredSet TracebackEngine::why_para(Point* p1, Point* p2, Point* p3, Point* p4) {
                     }
                 }
 
-                /* Step 7: Extract all children of `lca1` and `lca2` which were assigned directions */
-                std::array<Line*, 2> lcas{lca1, lca2};
-                std::array<std::set<Line*>, 2> lca_cs;
-                std::array<std::vector<std::pair<Direction*, Line*>>, 2> d2ls;
+                // std::cout << "(" << d->to_string() << ": " << d1->to_string() << ", " << lca1_a->to_string() << " and " 
+                //         << d2->to_string() << ", " << lca2_a->to_string() << ")" << std::endl;
 
-                for (int i=0; i<2; i++) {
-                    NodeUtils::all_children(lcas[i], lca_cs[i]);
-                    for (const auto& [dir, line_map] : direction_of_lines) {
-                        for (Line* lca_c : lca_cs[i]) {
-                            if (line_map.contains(lca_c)) {
-                                d2ls[i].emplace_back(dir, lca_c);
-                            }
-                        }
-                    }
-                }
+                /* Steps 7-8: extract the shortest explanations for why `lcai` was assigned direction `di` */
+                auto [best_pair_1, res_1] = most_explainable_direction_of_line(
+                    lca1, d1, why_direction_ancestor_cache, why_line_ancestor_cache
+                );
+                auto [best_pair_2, res_2] = most_explainable_direction_of_line(
+                    lca2, d2, why_direction_ancestor_cache, why_line_ancestor_cache
+                );
 
-                // std::cout << "lca1_a: " << lca1_a->to_string() << ", lca2_a: " << lca2_a->to_string() << ", d: " << d->to_string() << std::endl;
-
-                /* Step 8: Each child `lca_1` will have been assigned some Direction `d_1`.
-                The desired PredSet is the union of the following:
-                - direction_of_lines[d_1][lca_1]
-                - why_ancestor(lca_1, lca1)
-                - why_ancestor(d_1, d1)
-                Pick the `lca_1` with the lowest predicate count. Do the same thing for `lca_2`. 
-                Generate the union of these two PredSets. */
-                int min_level_1 = 1e9, min_sz_1 = 1e9; 
-                int min_level_2 = 1e9, min_sz_2 = 1e9;
-                PredSet res_1, res_2;
-                for (auto [d_1, lca_1] : d2ls[0]) {
-                    PredSet res_1_ = (
-                        TracebackUtils::why_ancestor_with_cache(lca_1, lca1, why_line_ancestor_cache)
-                        + TracebackUtils::why_ancestor_with_cache(d_1, d1, why_direction_ancestor_cache)
-                        + direction_of_lines[d_1][lca_1]
-                    );
-                    if (res_1_ < res_1) {
-                        res_1 = std::move(res_1_);
-                    }
-                }
-                for (auto [d_2, lca_2] : d2ls[1]) {
-                    PredSet res_2_ = (
-                        TracebackUtils::why_ancestor_with_cache(lca_2, lca2, why_line_ancestor_cache)
-                        + TracebackUtils::why_ancestor_with_cache(d_2, d2, why_direction_ancestor_cache)
-                        + direction_of_lines[d_2][lca_2]
-                    );
-                    if (res_2_ < res_2) {
-                        res_2 = std::move(res_2_);
-                    }
-                }
+                // std::cout << "res_: " << res_.to_string() << ", res_1: " << res_1.to_string() << ", res_2: " << res_2.to_string() << std::endl;
 
                 /* Step 9: Add to these PredSets the following:
                 - why_ancestor(lcai, lcai_a) for each i
                 - why_ancestor(di, d) for each i */
-                res_ += (res_1 + res_2);
-                res_ += (
+                res_ += (std::move(res_1) + std::move(res_2));
+                PredSet res_a = (
                     TracebackUtils::why_ancestor_with_cache(lca1, lca1_a, why_line_ancestor_cache)
                     + TracebackUtils::why_ancestor_with_cache(lca2, lca2_a, why_line_ancestor_cache)
                     + TracebackUtils::why_ancestor_with_cache(d1, d, why_direction_ancestor_cache)
                     + TracebackUtils::why_ancestor_with_cache(d2, d, why_direction_ancestor_cache)
                 );
+                // std::cout << "res_a: " << res_a.to_string() << std::endl;
+                res_ += std::move(res_a);
             }
 
             if (res_ < res) {
@@ -912,12 +897,14 @@ PredSet TracebackEngine::why_perp(Point* p1, Point* p2, Point* p3, Point* p4) {
 
     Direction* rd1 = common_root_12->get_direction(), *rd2 = common_root_34->get_direction();
 
+    /* Step 6: Identify all instances at which children `(pd1, pd2)` of `(rd1, rd2)` were set to
+    be perpendicular */
     std::set<std::pair<Direction*, Direction*>> dir_pairs = perp_directions_root_map[{rd1, rd2}];
     for (const auto& [pd2, pd1] : perp_directions_root_map[{rd2, rd1}]) {
         dir_pairs.insert({pd1, pd2});
     }
 
-    int min = 1e9;
+    /* Now, we check every possible pair (lca1, lca2) and (pd1, pd2) */
     for (const auto& [lca1, why_ancestor_lines_points_12] : lca1s) {
         for (const auto& [lca2, why_ancestor_lines_points_34] : lca2s) {
             PredSet res_ = why_ancestor_lines_points_12 + why_ancestor_lines_points_34;
@@ -930,6 +917,25 @@ PredSet TracebackEngine::why_perp(Point* p1, Point* p2, Point* p3, Point* p4) {
 
                 auto [ad1, x1] = TracebackUtils::lowest_common_ancestor(d1, pd1);
                 auto [ad2, x2] = TracebackUtils::lowest_common_ancestor(d2, pd2);
+
+                /* Steps 7-8: extract the shortest explanations for why `lcai` was assigned direction `di` */
+                auto [best_pair_1, res_1] = most_explainable_direction_of_line(
+                    lca1, d1, why_direction_ancestor_cache, why_line_ancestor_cache
+                );
+                auto [best_pair_2, res_2] = most_explainable_direction_of_line(
+                    lca2, d2, why_direction_ancestor_cache, why_line_ancestor_cache
+                );
+
+                // std::cout << "lca1: " << lca1->to_string() << ", lca2: " << lca2->to_string()
+                //     << ", d1: " << d1->to_string() << ", d2: " << d2->to_string() 
+                //     << ", pd1: " << pd1->to_string() << ", pd2: " << pd2->to_string() 
+                //     << ", ad1: " << ad1->to_string() << ", ad2: " << ad2->to_string() << std::endl;
+
+                // std::cout << "res0_: " << res0_.to_string()
+                //     << ", res_1: " << res_1.to_string()
+                //     << ", res_2: " << res_2.to_string() << std::endl;
+                    
+                res0_ += (std::move(res_1) + std::move(res_2));
 
                 res0_ += (
                     TracebackUtils::why_ancestor_with_cache(d1, ad1, why_direction_ancestor_cache)

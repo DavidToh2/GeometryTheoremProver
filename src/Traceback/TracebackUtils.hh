@@ -75,7 +75,7 @@ namespace TracebackUtils {
             while (!preds.empty()) {
                 Predicate* pred = preds.front();
                 // Decompose all EQ predicates
-                if (pred->name == pred_t::EQ) {
+                if ((pred->name >= pred_t::EQ) && (pred->name < pred_t::LAST)) {
                     for (Predicate* p_why : pred->why.preds) {
                         if (p_why) preds.emplace_back(p_why);
                     }
@@ -103,7 +103,7 @@ namespace TracebackUtils {
             while (!preds.empty()) {
                 Predicate* pred = preds.front();
                 // Decompose all EQ predicates
-                if (pred->name == pred_t::EQ) {
+                if (pred->name >= pred_t::EQ && pred->name < pred_t::LAST) {
                     for (Predicate* p_why : pred->why.preds) {
                         if (p_why) preds.emplace_back(p_why);
                     }

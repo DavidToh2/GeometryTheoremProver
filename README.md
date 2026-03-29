@@ -18,7 +18,7 @@ CMakeLists.txt
 
 Read [Outline.md](notes/Outline.md) for technical specifications, as well as [the other project notes](notes/).
 
-Current code length: 17860 lines
+Current code length: 18267 lines
 
 ## Milestone contri-simtri
 
