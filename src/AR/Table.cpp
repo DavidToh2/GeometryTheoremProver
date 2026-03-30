@@ -389,16 +389,17 @@ std::set<Predicate*> Table::why(const Expr::Expr& expr) {
 
     // Solve the linear program min c^T * x subject to A * x = b, x >= 0
     std::vector<double> solution;
-    if (!lp_solver.solve(solution)) {
-        return result;
-    }
-    assert(solution.size() == 2*num_eqs);
+    if (lp_solver.solve(solution, true)) {
+        assert(solution.size() == 2*num_eqs);
 
-    for (int i = 0; i < num_eqs; i++) {
-        if (!(NumUtils::is_close(solution[2*i], 0.0) && NumUtils::is_close(solution[2*i + 1], 0.0))) {
-            result.insert(deps[i]);
+        for (int i = 0; i < num_eqs; i++) {
+            if (!(NumUtils::is_close(solution[2*i], 0.0) && NumUtils::is_close(solution[2*i + 1], 0.0))) {
+                result.insert(deps[i]);
+            }
         }
     }
+
+    std::cout << "--- The expression " << Expr::to_string(expr) << " has result size " << result.size() << " ---\n";
     return result;
 }
 

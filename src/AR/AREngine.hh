@@ -107,7 +107,8 @@ public:
     void update_point_merger(Point* dest, Point* src, Predicate* pred);
     void update_line_merger(Line* dest, Line* src, Predicate* pred);
     /* Sets segments `s1, s2` to be congruent. */
-    void add_cong(Segment* s1, Segment* s2, Length* l1, Length* l2, Predicate* pred);
+    void add_cong_ratio(Length* l1, Length* l2, Predicate* pred);
+    void add_cong_disp(Segment* s1, Segment* s2, Predicate* pred);
     /* Sets segments `s1, s2` to be congruent. 
     Note: The points `s1, s2` are such that `s1 = p1-m, s2 = m-p2`. In other words, `s1`
     should appear to the left of `s2`. 

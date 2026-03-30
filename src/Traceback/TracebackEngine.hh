@@ -117,6 +117,7 @@ public:
     void set_direction_of(Direction* d, Line* l, PredSet pred);
     PredSet why_direction_of(Direction* d, Line* l);
     void set_length_of(Length* len, Segment* s, PredSet pred);
+    PredSet why_length_of(Length* len, Segment* s);
     void set_dimension_of(Dimension* dim, Triangle* t, PredSet pred);
 
     PredSet why_direction_of(Direction* d, Angle* a);
@@ -133,28 +134,62 @@ public:
 
 
 
+
+
     /* Identifies the earliest known instance at which the line `l`, or an ancestor of
     it, was assigned some direction `d`. Returns this direction `d`. (Thus, `d` is also
     the "earliest" direction assigned to `l` or an ancestor if itself, and is recorded 
     in `direction_line_root_map`.) */
     Direction* __earliest_direction_of(Line* l);
 
+    /* Identifies the earliest known instance at which the segment `s`, or an ancestor of
+    it, was assigned some length `len`. Returns this length `len`. (Thus, `len` is also
+    the "earliest" length assigned to `s` or an ancestor of itself, and is recorded in
+    `length_segment_root_map`.) */
+    Length* __earliest_length_of(Segment* s);
+
+
+
+
 
 
     /* Given a pair of points `p1, p2`, identifies all LCA lines `l` of `l1, l2` containing 
     some child points `cp1, cp2` of both `p1, p2`; for each LCA line, constructs the 
-    PredSet explaining why they contain the two points, defined as the addition of
+    PredSet explaining why it contains the two points, defined as the addition of
     - point_on_lines[cp1][l1]
     - point_on_lines[cp2][l2]
     - why_ancestor(cp1, p1)
     - why_ancestor(cp2, p2)
     - why_ancestor(l1, l)
-    - why_ancestor(l2, l) */
+    - why_ancestor(l2, l) 
+    Only extracts Lines with Directions. */
     std::tuple<std::map<Line*, PredSet>, Line*> lca_lines_and_why(
         Point* p1, Point* p2,
-        std::map<std::pair<Point*, Point*>, PredSet> why_point_ancestor_cache,
-        std::map<std::pair<Line*, Line*>, PredSet> why_line_ancestor_cache
+        std::map<std::pair<Point*, Point*>, PredSet>& why_point_ancestor_cache,
+        std::map<std::pair<Line*, Line*>, PredSet>& why_line_ancestor_cache
     );
+
+    /* Given a pair of points `p1, p2`, identifies all LCA segments `s` containing a child 
+    point `cp1` of `p1` as an endpoint, and `cp2` of `p2` as another; for each LCA segment,
+    constructs the PredSet explaining why it contains the two points, defined as the
+    addition of
+    - point_as_segment_endpoint[cp1][s1]
+    - point_as_segment_endpoint[cp2][s2]
+    - why_ancestor(cp1, p1)
+    - why_ancestor(cp2, p2)
+    - why_ancestor(s1, s)
+    - why_ancestor(s2, s) 
+    Only extracts Segments with Lengths. */
+    std::tuple<std::map<Segment*, PredSet>, Segment*> lca_segments_and_why(
+        Point* p1, Point* p2,
+        std::map<std::pair<Point*, Point*>, PredSet>& why_point_ancestor_cache,
+        std::map<std::pair<Segment*, Segment*>, PredSet>& why_segment_ancestor_cache
+    );
+
+
+
+
+
     
     /* Given a line `l` and a direction `d`, identifies the children `cl` and `cd` such
     that `cl` was assigned direction `cd` (as recorded in `direction_of_lines`), and
@@ -165,12 +200,26 @@ public:
     is the smallest possible. */
     std::pair<std::pair<Direction*, Line*>, PredSet> most_explainable_direction_of_line(
         Line* l, Direction* d,
-        std::map<std::pair<Direction*, Direction*>, PredSet> why_direction_ancestor_cache,
-        std::map<std::pair<Line*, Line*>, PredSet> why_line_ancestor_cache
+        std::map<std::pair<Direction*, Direction*>, PredSet>& why_direction_ancestor_cache,
+        std::map<std::pair<Line*, Line*>, PredSet>& why_line_ancestor_cache
     );
 
+    /* Given a segment `s` and a length `len`, identifies the children `cs` and `clen` such
+    that `cs` was assigned length `clen` (as recorded in `length_of_segments`), and the
+    PredSet constructed from the addition of
+    - length_of_segments[clen][cs]
+    - why_ancestor(clen, len)
+    - why_ancestor(cs, s)
+    is the smallest possible. */
+    std::pair<std::pair<Length*, Segment*>, PredSet> most_explainable_length_of_segment(
+        Segment* s, Length* len,
+        std::map<std::pair<Length*, Length*>, PredSet>& why_length_ancestor_cache,
+        std::map<std::pair<Segment*, Segment*>, PredSet>& why_segment_ancestor_cache
+    );
 
     
+
+
 
     PredSet why_coll(Point* p1, Point* p2, Point* p3);
 

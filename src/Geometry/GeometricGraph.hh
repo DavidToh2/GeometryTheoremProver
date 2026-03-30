@@ -300,9 +300,9 @@ public:
 
     /* Merges the lengths of the root of segment `s_other` into the root of segment `s`. 
     Warning: Assumes that both `s` and `s_other` already have lengths set. */
-    void set_lengths_cong(Segment* s, Segment* s_other, Predicate* pred, DDEngine& dd);
+    void set_lengths_cong(Segment* s, Segment* s_other, PredSet preds, DDEngine& dd);
     /* Merges the root of `l_other` length into the root of `l` length. */
-    void set_lengths_cong(Length* l, Length* l_other, Predicate* pred, DDEngine& dd);
+    void set_lengths_cong(Length* l, Length* l_other, PredSet preds, DDEngine& dd);
 
 
     /* Adds the angle with first direction `d1` and second direction `d2`.
@@ -465,7 +465,7 @@ public:
     }
 
     /* Merges the root of `src` ratio into the root of `dest` ratio. */
-    void merge_ratios(Ratio* dest, Ratio* src, Predicate* pred, DDEngine& dd);
+    void merge_ratios(Ratio* dest, Ratio* src, PredSet preds, DDEngine& dd);
 
 
     /* Adds a new `Fraction` to the ratio `r`.
@@ -507,7 +507,7 @@ public:
 
     /* Records the two triangles `dest` and `src` as identical. Note that this implicitly assumes that
     their vertices are correctly permuted. */
-    void merge_triangles(Triangle* dest, Triangle* src, Predicate* pred, DDEngine& dd);
+    void merge_triangles(Triangle* dest, Triangle* src, PredSet preds, DDEngine& dd);
 
     /* Returns true if `p1p2p3` and `p4p5p6` are either both clockwise or both anticlockwise. */
     bool check_same_orientation(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6);
@@ -518,7 +518,7 @@ public:
     By using `p1p2p3->get_perm({p1, p2, p3})` we get the indices of the three points. We then set the first
     and third indices of the `isosceles_mask` to true. 
     Note: The above steps are performed only if `p1p2p3` exists and has a Dimension. */
-    void set_triangle_isosceles(Point* p1, Point* p2, Point* p3, Predicate* pred);
+    void set_triangle_isosceles(Point* p1, Point* p2, Point* p3, PredSet preds);
 
     /* Records the two triangles `p1p2p3, p4p5p6` as congruent. */
     void set_triangles_congruent(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Predicate* pred, DDEngine& dd);

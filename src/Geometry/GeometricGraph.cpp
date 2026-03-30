@@ -197,7 +197,10 @@ void GeometricGraph::merge_points(Point* dest, Point* src, PredSet preds, DDEngi
     auto gen_to_merge_segments = Segment::check_incident_segments(root_dest, root_src);
     while (gen_to_merge_segments) {
         auto pair = gen_to_merge_segments();
-        to_merge_segments.insert({pair.first, {{pair.second, preds}}});
+        PredSet preds_mergesegments(preds);
+        preds_mergesegments += tr->why_endpoint(root_dest, pair.first);
+        preds_mergesegments += tr->why_endpoint(root_src, pair.second);
+        to_merge_segments.insert({pair.first, {{pair.second, preds_mergesegments}}});
     }
 
     // Invariant: After this stage, `root_src` should not belong to any object's `points` map.
@@ -954,7 +957,7 @@ void GeometricGraph::merge_segments(Segment* dest, Segment* src, PredSet preds, 
 
 
 Length* GeometricGraph::__add_new_length(Segment* s, Predicate* base_pred) {
-    std::string length_id = "l_" + s->name;
+    std::string length_id = "len_" + s->name;
     if (Utils::isinmap(length_id, lengths)) {
         throw GGraphInternalError("Error: Length with id " + length_id + " already exists in GeometricGraph.");
     }
@@ -978,34 +981,33 @@ Length* GeometricGraph::get_or_add_length(Segment* s, DDEngine &dd) {
     return __add_new_length(root_s, dd.base_pred.get());
 }
 
-void GeometricGraph::set_lengths_cong(Segment* s, Segment* s_other, Predicate* pred, DDEngine& dd) {
+void GeometricGraph::set_lengths_cong(Segment* s, Segment* s_other, PredSet preds, DDEngine& dd) {
     Length* l = s->get_length();
     Length* l_other = s_other->get_length();
-    set_lengths_cong(l, l_other, pred, dd);
+    set_lengths_cong(l, l_other, preds, dd);
 }
-void GeometricGraph::set_lengths_cong(Length* l1, Length* l2, Predicate* pred, DDEngine& dd) {
+void GeometricGraph::set_lengths_cong(Length* l1, Length* l2, PredSet preds, DDEngine& dd) {
     Length* root_l1 = NodeUtils::get_root(l1);
     Length* root_l2 = NodeUtils::get_root(l2);
     if (root_l1 == root_l2) return;
 
-    PredSet preds{pred};
     preds += TracebackUtils::why_ancestor(l1, root_l1);
     preds += TracebackUtils::why_ancestor(l2, root_l2);
 
     root_lengths.erase(root_l2);
 
     // Check for newly incident ratios as a result of the length merge
-    auto gen_to_merge_ratios = Length::check_incident_ratios(root_l1, root_l2, pred);
+    auto gen_to_merge_ratios = Length::check_incident_ratios(root_l1, root_l2);
     while (gen_to_merge_ratios) {
         auto pair = gen_to_merge_ratios();
-        merge_ratios(pair.first, pair.second, pred, dd);
+        merge_ratios(pair.first, pair.second, preds, dd);
     }
 
     // Check for newly isosceles triangles as a result of the length merge
-    auto gen_newly_isosceles = Length::check_incident_isosceles_triangles(root_l1, root_l2, pred);
+    auto gen_newly_isosceles = Length::check_incident_isosceles_triangles(root_l1, root_l2);
     while (gen_newly_isosceles) {
         auto [p1, p2, p3] = gen_newly_isosceles();
-        set_triangle_isosceles(p1, p2, p3, pred);
+        set_triangle_isosceles(p1, p2, p3, preds);
     }
 
     Predicate* merger_pred = dd.insert_new_predicate(std::make_unique<Predicate>(
@@ -1013,6 +1015,8 @@ void GeometricGraph::set_lengths_cong(Length* l1, Length* l2, Predicate* pred, D
     ));
 
     root_l1->merge(root_l2, merger_pred);
+    
+    tr->record_merge(root_l1, root_l2);
 }
 
 
@@ -1355,12 +1359,11 @@ Ratio* GeometricGraph::get_or_add_ratio(Point* p1, Point* p2, Point* p3, Point* 
     return r;
 }
 
-void GeometricGraph::merge_ratios(Ratio* dest, Ratio* src, Predicate* pred, DDEngine& dd) {
+void GeometricGraph::merge_ratios(Ratio* dest, Ratio* src, PredSet preds, DDEngine& dd) {
     Ratio* root_dest = NodeUtils::get_root(dest);
     Ratio* root_src = NodeUtils::get_root(src);
     if (root_dest == root_src) return;
 
-    PredSet preds{pred};
     preds += TracebackUtils::why_ancestor(dest, root_dest);
     preds += TracebackUtils::why_ancestor(src, root_src);
 
@@ -1578,12 +1581,11 @@ Triangle* GeometricGraph::get_or_add_triangle(Point* p1, Point* p2, Point* p3, P
     return t;
 }
 
-void GeometricGraph::merge_triangles(Triangle* dest, Triangle* src, Predicate* pred, DDEngine& dd) {
+void GeometricGraph::merge_triangles(Triangle* dest, Triangle* src, PredSet preds, DDEngine& dd) {
     Triangle* root_dest = NodeUtils::get_root(dest);
     Triangle* root_src = NodeUtils::get_root(src);
     if (root_dest == root_src) return;
 
-    PredSet preds{pred};
     preds += TracebackUtils::why_ancestor(dest, root_dest);
     preds += TracebackUtils::why_ancestor(src, root_src);
 
@@ -1603,7 +1605,7 @@ bool GeometricGraph::check_same_orientation(Point* p1, Point* p2, Point* p3, Poi
     );
 }
 
-void GeometricGraph::set_triangle_isosceles(Point* p1, Point* p2, Point* p3, Predicate* pred) {
+void GeometricGraph::set_triangle_isosceles(Point* p1, Point* p2, Point* p3, PredSet preds) {
     Triangle* t = try_get_triangle(p1, p2, p3);
     if (!t) return;
     if (!t->has_dimension()) return;
@@ -2356,6 +2358,7 @@ bool GeometricGraph::make_ar_para(Predicate* pred, DDEngine& dd) {
     pred->args.emplace_back(p4);
 
     set_directions_para(d1, d2, pred, dd);
+    tr->record_merge(d1, d2);
     return true;
 }
 
@@ -2412,6 +2415,7 @@ bool GeometricGraph::make_ar_perp(Predicate* pred, DDEngine& dd) {
     pred->args.emplace_back(p4);
 
     set_directions_perp(d1, d2, pred, dd);
+    tr->set_directions_perp(d1, d2, pred);
     return true;
 }
 
@@ -2431,19 +2435,24 @@ bool GeometricGraph::__make_cong(Point* p1, Point* p2, Point* p3, Point* p4,
 
     if (check_cong(s1, s2)) return false;
 
+    PredSet preds(pred);
+
     Length* l1 = get_or_add_length(s1, dd);
+    preds += tr->why_length_of(l1, s1);
 
     if (s2->has_length()) {
         Length* l2 = s2->get_length();
-        set_lengths_cong(l1, l2, pred, dd);
+        preds += tr->why_length_of(l2, s2);
+        set_lengths_cong(l1, l2, preds, dd);
 
         // Invariant: point_nums[p1] < point_nums[p2] and point_nums[p3] < point_nums[p4]
         // by definition of how GeometricGraph::__add_new_segment works.
-        ar.add_cong(s1, s2, l1, l2, pred);
+        ar.add_cong_ratio(l1, l2, pred);
     } else {
         s2->set_length(l1);
-        tr->set_length_of(l1, s2, pred);
-    } 
+        tr->set_length_of(l1, s2, preds);
+    }
+    ar.add_cong_disp(s1, s2, pred);
     return true;
 }
 
@@ -2467,6 +2476,7 @@ bool GeometricGraph::make_ar_cong(Predicate* pred, DDEngine &dd) {
             pred->args.emplace_back(p4);
 
             set_lengths_cong(l1, l2, pred, dd);
+            tr->record_merge(l1, l2);
             return true;
         } break;
 
@@ -2485,6 +2495,7 @@ bool GeometricGraph::make_ar_cong(Predicate* pred, DDEngine &dd) {
             if (check_cong(l1, l2)) return false;
 
             set_lengths_cong(l1, l2, pred, dd);
+            tr->record_merge(l1, l2);
             return true;
         } break;
     }
@@ -2847,7 +2858,11 @@ bool GeometricGraph::__make_midp(Point* m, Point* p1, Point* p2,
 
     if (l1 == l2) return false;
 
-    set_lengths_cong(l1, l2, pred, dd);
+    PredSet preds(pred);
+    preds += tr->why_length_of(l1, s1);
+    preds += tr->why_length_of(l2, s2);
+
+    set_lengths_cong(l1, l2, preds, dd);
 
     if (point_nums[s1->endpoints[0]] > point_nums[s2->endpoints[0]]) {
         std::swap(s1, s2);

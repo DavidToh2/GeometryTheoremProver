@@ -122,12 +122,17 @@ void AREngine::update_line_merger(Line* dest, Line* src, Predicate* pred) {
         displacement_table.add_eq_2(var, new_var, 1, 1, pred);
     }
 }
-void AREngine::add_cong(
-    Segment* s1, Segment* s2, Length* l1, Length* l2, Predicate* pred
+void AREngine::add_cong_ratio(
+    Length* l1, Length* l2, Predicate* pred
 ) {
     Expr::Var var1 = __get_var(l1);
     Expr::Var var2 = __get_var(l2);
 
+    ratio_table.add_eq_2(var1, var2, 1, 1, pred);
+}
+void AREngine::add_cong_disp(
+    Segment* s1, Segment* s2, Predicate* pred
+) {
     auto [p1, p2] = s1->endpoints;
     auto [p3, p4] = s2->endpoints;
     Expr::Var disp_var1 = __get_var(Displacement{s1->get_line(), p1});
@@ -135,7 +140,6 @@ void AREngine::add_cong(
     Expr::Var disp_var3 = __get_var(Displacement{s2->get_line(), p3});
     Expr::Var disp_var4 = __get_var(Displacement{s2->get_line(), p4});
 
-    ratio_table.add_eq_2(var1, var2, 1, 1, pred);
     displacement_table.add_eq_4(disp_var1, disp_var2, disp_var3, disp_var4, pred);
 }
 void AREngine::add_midp(
@@ -260,12 +264,12 @@ AREngine::get_all_congs_and_why_2() {
         Displacement disp4 = __get_displacement(var4);
         if (NodeUtils::same_as(disp1.l, disp2.l) && NodeUtils::same_as(disp3.l, disp4.l)
             && !NodeUtils::same_as(disp1.p, disp2.p) && !NodeUtils::same_as(disp3.p, disp4.p)
-            && !(NodeUtils::same_as(disp1.l, disp3.l) && NodeUtils::same_as(disp2.l, disp4.l))) {
+            && !(NodeUtils::same_as(disp1.l, disp3.l) && NodeUtils::same_as(disp1.p, disp3.p))) {
             co_yield {disp1.p, disp2.p, disp3.p, disp4.p, _why};
         } 
         if (NodeUtils::same_as(disp1.l, disp3.l) && NodeUtils::same_as(disp2.l, disp4.l)
             && !NodeUtils::same_as(disp1.p, disp3.p) && !NodeUtils::same_as(disp2.p, disp4.p)
-            && !(NodeUtils::same_as(disp1.l, disp2.l) && NodeUtils::same_as(disp3.l, disp4.l))) {
+            && !(NodeUtils::same_as(disp1.l, disp2.l) && NodeUtils::same_as(disp1.p, disp2.p))) {
             co_yield {disp1.p, disp3.p, disp2.p, disp4.p, _why};
         }
     }

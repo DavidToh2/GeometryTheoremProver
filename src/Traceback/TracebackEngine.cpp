@@ -271,6 +271,13 @@ void TracebackEngine::set_length_of(Length* len, Segment* s, PredSet pred) {
     length_of_segments[len][s] = pred;
     length_segment_root_map[len][s] = {len, s};
 }
+PredSet TracebackEngine::why_length_of(Length* len, Segment* s) {
+    auto [lc, sc] = length_segment_root_map[len][s];
+    PredSet res(length_of_segments[lc][sc]);
+    res += TracebackUtils::why_ancestor(lc, len);
+    res += TracebackUtils::why_ancestor(sc, s);
+    return res;
+}
 void TracebackEngine::set_dimension_of(Dimension* dim, Triangle* t, PredSet pred) {
     dimension_of_triangles[dim][t] = pred;
     dimension_triangle_root_map[dim][t] = {dim, t};
@@ -332,6 +339,18 @@ Direction* TracebackEngine::__earliest_direction_of(Line* l) {
     if (!earliest) return __earliest_direction_of(NodeUtils::get_parent(l));
     return earliest;
 }
+Length* TracebackEngine::__earliest_length_of(Segment* s) {
+    Length* earliest = nullptr;
+    for (auto [l, _] : length_segment_root_map) {
+        if (length_segment_root_map[l].contains(s)) {
+            if (!earliest || NodeUtils::ancestor_of(earliest, l)) {
+                earliest = l;
+            }
+        }
+    }
+    if (!earliest) return __earliest_length_of(NodeUtils::get_parent(s));
+    return earliest;
+}
 
 
 
@@ -340,8 +359,8 @@ Direction* TracebackEngine::__earliest_direction_of(Line* l) {
 
 std::tuple<std::map<Line*, PredSet>, Line*> TracebackEngine::lca_lines_and_why(
     Point* p1, Point* p2,
-    std::map<std::pair<Point*, Point*>, PredSet> why_point_ancestor_cache,
-    std::map<std::pair<Line*, Line*>, PredSet> why_line_ancestor_cache
+    std::map<std::pair<Point*, Point*>, PredSet>& why_point_ancestor_cache,
+    std::map<std::pair<Line*, Line*>, PredSet>& why_line_ancestor_cache
 ) {    
     /* Step 1: Extract all children of p1 and p2 */
     std::array<std::set<Point*>, 2> pcs;
@@ -387,7 +406,7 @@ std::tuple<std::map<Line*, PredSet>, Line*> TracebackEngine::lca_lines_and_why(
         }
     }
 
-    /* Step 5: Iterate over all pairs of lines in `l2ps` of `p1, p2`, identifying the `lca`
+    /* Step 5: Iterate over all pairs of lines in `l2ps` of `l1, l2`, identifying the `lca`
     of each pair and its associated why's. These `lca`s are the "earliest possible" candidates
     for the line `p1p2`.
     Note: There may be multiple candidates for `lca` because, if there were formerly points 
@@ -406,8 +425,7 @@ std::tuple<std::map<Line*, PredSet>, Line*> TracebackEngine::lca_lines_and_why(
                 + TracebackUtils::why_ancestor_with_cache(l_p2, lca, why_line_ancestor_cache)
                 + point_on_lines[cp1][l_p1] + point_on_lines[cp2][l_p2]
             );
-            if (!lcas.contains(lca) || preds_.level() < lcas[lca].level() 
-                || (preds_.level() == lcas[lca].level() && preds_.size() < lcas[lca].size())) {
+            if (!lcas.contains(lca) || preds_ < lcas[lca]) {
                 lcas[lca] = std::move(preds_);
             }
         }
@@ -416,10 +434,86 @@ std::tuple<std::map<Line*, PredSet>, Line*> TracebackEngine::lca_lines_and_why(
     return {lcas, common_root};
 }
 
+std::tuple<std::map<Segment*, PredSet>, Segment*> TracebackEngine::lca_segments_and_why(
+    Point* p1, Point* p2,
+    std::map<std::pair<Point*, Point*>, PredSet>& why_point_ancestor_cache,
+    std::map<std::pair<Segment*, Segment*>, PredSet>& why_segment_ancestor_cache
+) {
+    /* Step 1: Extract all children of p1 and p2 */
+    std::array<std::set<Point*>, 2> pcs;
+    int i = 0;
+    for (Point* p : std::array<Point*, 2>{p1, p2}) {
+        NodeUtils::all_children(p, pcs[i]);
+        i++;
+    }
+
+    /* Step 2: For each child point, extract all segments it was placed on.
+    It suffices to consider segments whose roots have Lengths */
+    std::array<std::vector<std::pair<Segment*, Point*>>, 2> s2ps;
+    std::array<std::set<Segment*>, 2> rss;
+    for (i = 0; i < 2; i++) {
+        for (Point* p : pcs[i]) {
+            for (auto [l, pred] : point_as_segment_endpoint[p]) {
+                Segment* rl = NodeUtils::get_root(l);
+                if (rl->has_length()) {
+                    s2ps[i].emplace_back(l, p);
+                    rss[i].insert(rl);
+                }
+            }
+        }
+    }
+
+    /* Step 3: Identify a common root segment to all two `rss` sets. */
+    Segment* common_root = nullptr;
+    for (Segment* rl : rss[0]) {
+        if (rss[1].contains(rl)) {
+            common_root = rl;
+            break;
+        }
+    }
+
+    /* Step 4: Keep those segments in `s2ps` with root `common_root`. */
+    for (i=0; i<2; i++) {
+        for (auto it = s2ps[i].begin(); it != s2ps[i].end(); ) {
+            if (!NodeUtils::same_as(it->first, common_root)) {
+                it = s2ps[i].erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
+
+    /* Step 5: Iterate over all pairs of segments in `s2ps` of `s1, s2`, identifying the
+    LCAs of each pair and its associated why's. */
+    std::map<Segment*, PredSet> lcas;
+    for (auto [s_p1, cp1] : s2ps[0]) {
+        for (auto [s_p2, cp2] : s2ps[1]) {
+            auto lca_ = TracebackUtils::lowest_common_ancestor(s_p1, s_p2);
+            Segment* lca = lca_.first;
+            PredSet preds_ = (
+                TracebackUtils::why_ancestor_with_cache(cp1, p1, why_point_ancestor_cache)
+                + TracebackUtils::why_ancestor_with_cache(cp2, p2, why_point_ancestor_cache)
+                + TracebackUtils::why_ancestor_with_cache(s_p1, lca, why_segment_ancestor_cache)
+                + TracebackUtils::why_ancestor_with_cache(s_p2, lca, why_segment_ancestor_cache)
+                + point_as_segment_endpoint[cp1][s_p1] + point_as_segment_endpoint[cp2][s_p2]
+            );
+            if (!lcas.contains(lca) || preds_ < lcas[lca]) {
+                lcas[lca] = std::move(preds_);
+            }
+        }
+    }
+
+    return {lcas, common_root};
+}
+
+
+
+
+
 std::pair<std::pair<Direction*, Line*>, PredSet> TracebackEngine::most_explainable_direction_of_line(
     Line* l, Direction* d,
-    std::map<std::pair<Direction*, Direction*>, PredSet> why_direction_ancestor_cache,
-    std::map<std::pair<Line*, Line*>, PredSet> why_line_ancestor_cache
+    std::map<std::pair<Direction*, Direction*>, PredSet>& why_direction_ancestor_cache,
+    std::map<std::pair<Line*, Line*>, PredSet>& why_line_ancestor_cache
 ) {
     /* Extract all children of `l` which were assigned directions */
     std::set<Line*> l_cs;
@@ -457,6 +551,47 @@ std::pair<std::pair<Direction*, Line*>, PredSet> TracebackEngine::most_explainab
         }
     }
     return {{best_d, best_l}, res};
+}
+std::pair<std::pair<Length*, Segment*>, PredSet> TracebackEngine::most_explainable_length_of_segment(
+    Segment* s, Length* len,
+    std::map<std::pair<Length*, Length*>, PredSet>& why_length_ancestor_cache,
+    std::map<std::pair<Segment*, Segment*>, PredSet>& why_segment_ancestor_cache
+) {
+    /* Extract all children of `s` which were assigned lengths */
+    std::set<Segment*> s_cs;
+    std::vector<std::pair<Length*, Segment*>> l2ss;
+
+    NodeUtils::all_children(s, s_cs);
+    for (const auto& [length, segment_map] : length_of_segments) {
+        for (Segment* s_c : s_cs) {
+            if (segment_map.contains(s_c)) {
+                l2ss.emplace_back(length, s_c);
+            }
+        }
+    }
+
+    /* Each child `s_c` will have been assigned some Length `len_c`.
+    The desired PredSet is the union of the following:
+    - length_of_segments[len_c][s_c]
+    - why_ancestor(s_c, s)
+    - why_ancestor(len_c, len)
+    Pick the `s_c` with the lowest predicate count. */
+    PredSet res;
+    Length* best_len = nullptr;
+    Segment* best_s = nullptr;
+    for (auto [len_c, s_c] : l2ss) {
+        PredSet res_ = (
+            TracebackUtils::why_ancestor_with_cache(s_c, s, why_segment_ancestor_cache)
+            + TracebackUtils::why_ancestor_with_cache(len_c, len, why_length_ancestor_cache)
+            + length_of_segments[len_c][s_c]
+        );
+        if (res_ < res) {
+            res = std::move(res_);
+            best_len = len_c;
+            best_s = s_c;
+        }
+    }
+    return {{best_len, best_s}, res};
 }
 
 
@@ -958,4 +1093,86 @@ PredSet TracebackEngine::why_perp(Point* p1, Point* p2, Point* p3, Point* p4) {
     }
 
     return res;
+}
+
+
+
+
+
+PredSet TracebackEngine::why_cong(Point* p1, Point* p2, Point* p3, Point* p4) {
+    PredSet res;
+    std::map<std::pair<Point*, Point*>, PredSet> why_point_ancestor_cache;
+    std::map<std::pair<Segment*, Segment*>, PredSet> why_segment_ancestor_cache;
+    std::map<std::pair<Length*, Length*>, PredSet> why_length_ancestor_cache;
+
+    /* Steps 1-5: Fetch the lca_segments of `p1p2` and `p3p4` */
+    Segment* common_root_12 = nullptr, *common_root_34 = nullptr;
+    std::map<Segment*, PredSet> lca1s, lca2s;
+    std::tie(lca1s, common_root_12) = lca_segments_and_why(p1, p2, why_point_ancestor_cache, why_segment_ancestor_cache);
+    std::tie(lca2s, common_root_34) = lca_segments_and_why(p3, p4, why_point_ancestor_cache, why_segment_ancestor_cache);
+
+    Length* common_root_length = common_root_12->get_length();
+    assert(NodeUtils::same_as(common_root_length, common_root_34->get_length()));
+    
+    for (const auto& [lca1, why_ancestor_segments_points_12] : lca1s) {
+        for (const auto& [lca2, why_ancestor_segments_points_34] : lca2s) {
+            PredSet res_ = why_ancestor_segments_points_12 + why_ancestor_segments_points_34;
+
+            Length* len1 = __earliest_length_of(lca1), *len2 = __earliest_length_of(lca2);
+
+            /* Step 6: Find ancestors `lca1_a` and `lca2_a` which were the same length `len` at
+            some point in time */
+            Segment* lca1_a = lca1, *lca2_a = lca2;
+            auto [len, _] = TracebackUtils::lowest_common_ancestor(len1, len2);
+            assert(NodeUtils::same_as(len, common_root_length));
+            
+            if (!NodeUtils::ancestor_of(lca1->__get_length(), len)) {
+                while (!(lca1_a->is_root())) {
+                    lca1_a = NodeUtils::get_parent(lca1_a);
+                    if (NodeUtils::ancestor_of(lca1_a->__get_length(), len)) {
+                        break;
+                    }
+                }
+            }
+            if (!NodeUtils::ancestor_of(lca2->__get_length(), len)) {
+                while (!(lca2_a->is_root())) {
+                    lca2_a = NodeUtils::get_parent(lca2_a);
+                    if (NodeUtils::ancestor_of(lca2_a->__get_length(), len)) {
+                        break;
+                    }
+                }
+            }
+
+            /* Steps 7-8: extract the shortest explanations for why `lcai` was assigned length `len_i` */
+            auto [best_pair_1, res_1] = most_explainable_length_of_segment(
+                lca1, len1, why_length_ancestor_cache, why_segment_ancestor_cache
+            );
+            auto [best_pair_2, res_2] = most_explainable_length_of_segment(
+                lca2, len2, why_length_ancestor_cache, why_segment_ancestor_cache
+            );
+
+            res_ += std::move(res_1);
+            res_ += std::move(res_2);
+
+            res_ += (
+                TracebackUtils::why_ancestor_with_cache(lca1, lca1_a, why_segment_ancestor_cache)
+                + TracebackUtils::why_ancestor_with_cache(lca2, lca2_a, why_segment_ancestor_cache)
+                + TracebackUtils::why_ancestor_with_cache(len1, len, why_length_ancestor_cache)
+                + TracebackUtils::why_ancestor_with_cache(len2, len, why_length_ancestor_cache)
+            );
+
+            if (res_ < res) {
+                res = std::move(res_);
+            }
+        }
+    }
+
+    return res;
+}
+
+PredSet TracebackEngine::why_midp(Point* m, Point* p1, Point* p2) {
+    return (
+        why_cong(m, p1, m, p2)
+        + why_coll(m, p1, p2)
+    );
 }

@@ -73,8 +73,12 @@ bool LinProg::solve(
         return false;
     }
     HighsInfo info = highs.getInfo();
+    std::cout << "The matrix was\n" << __print_matrix_A() << "\n";
+    std::cout << "The target was\n" << __print_target() << "\n";
     if (!info.primal_solution_status) {
-        if (verbose) std::cout << "LinProg::solve: no primal solution\n";
+        if (verbose) {
+            std::cout << "LinProg::solve: no primal solution\n";
+        }
         return false;
     }
     HighsSolution sol = highs.getSolution();
@@ -83,14 +87,23 @@ bool LinProg::solve(
 }
 
 std::string LinProg::__print_matrix_A() const {
-    std::string s;
-    for (int k=0; k<model.lp_.a_matrix_.num_col_; k++) {
+    std::string s = "-";
+    for (int k=0; k<model.lp_.num_col_; k++) {
         int i = model.lp_.a_matrix_.start_[k], j = model.lp_.a_matrix_.start_[k+1];
         while (i < j) {
             s += "A[" + std::to_string(model.lp_.a_matrix_.index_[i]) + "," + std::to_string(k) + "] = " + std::to_string(model.lp_.a_matrix_.value_[i]) + "; ";
             i++;
         }
         s += "\n";
+    }
+    return s;
+}
+std::string LinProg::__print_target() const {
+    std::string s;
+    for (size_t i = 0; i < model.lp_.row_lower_.size(); i++) {
+        if (model.lp_.row_lower_[i] > 0.05 || model.lp_.row_lower_[i] < -0.05) {
+            s += "b[" + std::to_string(i) + "] = " + std::to_string(model.lp_.row_lower_[i]) + "; ";
+        }
     }
     return s;
 }
@@ -111,5 +124,4 @@ std::string LinProg::__print_result(
 
 void LinProg::reset() {
     model.lp_.a_matrix_.start_ = {0};
-    
 }

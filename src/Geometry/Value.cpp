@@ -209,7 +209,7 @@ void Length::merge(Length* other, Predicate* pred) {
     this->on_ratio_2.merge(other->on_ratio_2);
 }
 
-Generator<std::pair<Ratio*, Ratio*>> Length::check_incident_ratios(Length* l, Length* other_l, Predicate* pred) {
+Generator<std::pair<Ratio*, Ratio*>> Length::check_incident_ratios(Length* l, Length* other_l) {
     std::map<Length*, Ratio*> len1_to_ratio;
     std::map<Length*, Ratio*> len2_to_ratio;
     for (Ratio* r : l->on_ratio_1) {
@@ -254,7 +254,7 @@ Generator<std::pair<Ratio*, Ratio*>> Length::check_incident_ratios(Length* l, Le
     }
     co_return;
 }
-Generator<std::array<Point*, 3>> Length::check_incident_isosceles_triangles(Length* l, Length* other_l, Predicate* pred) {
+Generator<std::array<Point*, 3>> Length::check_incident_isosceles_triangles(Length* l, Length* other_l) {
     std::map<Point*, std::set<Point*>> point_to_cong_endpoints;
     for (Segment* s : l->root_objs) {
         Point* p1 = s->endpoints[0];

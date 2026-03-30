@@ -387,7 +387,6 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ));
 
         PredSet why_para_gl_gm = tr.why_para(g, l, g, m);
-        std::cout << why_para_gl_gm.size() << std::endl;
         REQUIRE((
             why_para_gl_gm.contains(preds[10]) &&  // para D K G M
             why_para_gl_gm.contains(preds[8]) &&   // perp G H D K 

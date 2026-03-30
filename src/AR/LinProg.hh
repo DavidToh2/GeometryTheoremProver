@@ -48,6 +48,7 @@ public:
     );
 
     std::string __print_matrix_A() const;
+    std::string __print_target() const;
 
     static std::string __print_result(
         const std::vector<double>& result
