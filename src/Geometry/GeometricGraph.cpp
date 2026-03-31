@@ -1234,6 +1234,7 @@ void GeometricGraph::set_measures_equal(Measure* m1, Measure* m2, Predicate* pre
     ));
 
     root_m1->merge(root_m2, merger_pred);
+    tr->record_merge(root_m1, root_m2);
 }
 
 bool GeometricGraph::set_measure_val(Measure* m, Frac f, Predicate* pred, DDEngine& dd) {

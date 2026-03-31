@@ -4,6 +4,7 @@
 
 #include "TracebackEngine.hh"
 #include "Common/Exceptions.hh"
+#include "Geometry/Object2.hh"
 #include "Geometry/Value.hh"
 
 
@@ -107,12 +108,6 @@ void TracebackEngine::record_merge(Direction* dest, Direction* src) {
             direction_line_root_map[dest][l] = direction_line_root_map[src][l];
         }
     }
-    
-    for (auto [a, _] : direction_angle_root_map) {
-        if (direction_angle_root_map[a].contains(src) && !direction_angle_root_map[a].contains(dest)) {
-            direction_angle_root_map[a][dest] = direction_angle_root_map[a][src];
-        }
-    }
 
     // Record perp info:
 
@@ -142,17 +137,40 @@ void TracebackEngine::record_merge(Direction* dest, Direction* src) {
             dest_set.merge(src_set);
         }
     }
+
+    // Record angle direction info:
+
+    using MapNodeType = decltype(angle_directions_root_map)::node_type;
+    std::vector<MapNodeType> extracted_angle_nodes;
+
+    for (auto it = angle_directions_root_map.begin(); it != angle_directions_root_map.end(); ) {
+        if (it->first.first == src || it->first.second == src) {
+            auto current_it = it++;
+            auto node = angle_directions_root_map.extract(current_it);
+            if (node.key().first == src) {
+                node.key().first = dest;
+            } else {
+                node.key().second = dest;
+            }
+            extracted_angle_nodes.emplace_back(std::move(node));
+        } else {
+            it++;
+        }
+    }
+
+    for (auto& node : extracted_angle_nodes) {
+        auto __res = angle_directions_root_map.insert(std::move(node));
+        if (!__res.inserted) {
+            auto& dest_set = __res.position->second;
+            auto& src_set = __res.node.mapped();
+            dest_set.merge(src_set);
+        }
+    }
 }
 void TracebackEngine::record_merge(Length* dest, Length* src) {
     for (auto [s, _] : length_segment_root_map[src]) {
         if (s->is_root() && !length_segment_root_map[dest].contains(s)) {
             length_segment_root_map[dest][s] = length_segment_root_map[src][s];
-        }
-    }
-
-    for (auto [r, _] : length_ratio_root_map) {
-        if (length_ratio_root_map[r].contains(src) && !length_ratio_root_map[r].contains(dest)) {
-            length_ratio_root_map[r][dest] = length_ratio_root_map[r][src];
         }
     }
 }
@@ -167,16 +185,37 @@ void TracebackEngine::record_merge(Dimension* dest, Dimension* src) {
 
 
 void TracebackEngine::record_merge(Angle* dest, Angle* src) {
-    for (auto [d, _] : direction_angle_root_map[src]) {
-        if (d->is_root() && !direction_angle_root_map[dest].contains(d)) {
-            direction_angle_root_map[dest][d] = direction_angle_root_map[src][d];
+    for (auto [m, _] : measure_angle_root_map) {
+        if (m->is_root()) {
+            if (measure_angle_root_map[m].contains(src) && !measure_angle_root_map[m].contains(dest)) {
+                measure_angle_root_map[m][dest] = measure_angle_root_map[m][src];
+            }
         }
     }
 }
 void TracebackEngine::record_merge(Ratio* dest, Ratio* src) {
-    for (auto [l, _] : length_ratio_root_map[src]) {
-        if (l->is_root() && !length_ratio_root_map[dest].contains(l)) {
-            length_ratio_root_map[dest][l] = length_ratio_root_map[src][l];
+    for (auto [f, _] : fraction_ratio_root_map) {
+        if (f->is_root()) {
+            if (fraction_ratio_root_map[f].contains(src) && !fraction_ratio_root_map[f].contains(dest)) {
+                fraction_ratio_root_map[f][dest] = fraction_ratio_root_map[f][src];
+            }
+        }
+    }
+}
+
+
+
+void TracebackEngine::record_merge(Measure* dest, Measure* src) {
+    for (auto [a, _] : measure_angle_root_map[src]) {
+        if (a->is_root() && !measure_angle_root_map[dest].contains(a)) {
+            measure_angle_root_map[dest][a] = measure_angle_root_map[src][a];
+        }
+    }
+}
+void TracebackEngine::record_merge(Fraction* dest, Fraction* src) {
+    for (auto [r, _] : fraction_ratio_root_map[src]) {
+        if (r->is_root() && !fraction_ratio_root_map[dest].contains(r)) {
+            fraction_ratio_root_map[dest][r] = fraction_ratio_root_map[src][r];
         }
     }
 }
@@ -285,24 +324,28 @@ void TracebackEngine::set_dimension_of(Dimension* dim, Triangle* t, PredSet pred
 
 
 
-PredSet TracebackEngine::why_direction_of(Direction* d, Angle* a) {
-    auto [ac, dc] = direction_angle_root_map[a][d];
-    return TracebackUtils::why_ancestor(dc, d) + TracebackUtils::why_ancestor(ac, a);
-}
-PredSet TracebackEngine::why_length_of(Length* len, Ratio* r) {
-    auto [rc, lc] = length_ratio_root_map[r][len];
-    return TracebackUtils::why_ancestor(lc, len) + TracebackUtils::why_ancestor(rc, r);
-}
-
-
 
 void TracebackEngine::set_measure_of(Measure* m, Angle* a, PredSet pred) {
     measure_of_angles[m][a] = pred;
     measure_angle_root_map[m][a] = {m, a};
 }
+PredSet TracebackEngine::why_measure_of(Measure* m, Angle* a) {
+    auto [mc, ac] = measure_angle_root_map[m][a];
+    PredSet res(measure_of_angles[mc][ac]);
+    res += TracebackUtils::why_ancestor(mc, m);
+    res += TracebackUtils::why_ancestor(ac, a);
+    return res;
+}
 void TracebackEngine::set_fraction_of(Fraction* f, Ratio* r, PredSet pred) {
     fraction_of_ratios[f][r] = pred;
     fraction_ratio_root_map[f][r] = {f, r};
+}
+PredSet TracebackEngine::why_fraction_of(Fraction* f, Ratio* r) {
+    auto [fc, rc] = fraction_ratio_root_map[f][r];
+    PredSet res(fraction_of_ratios[fc][rc]);
+    res += TracebackUtils::why_ancestor(fc, f);
+    res += TracebackUtils::why_ancestor(rc, r);
+    return res;
 }
 void TracebackEngine::set_shape_of(Shape* s, Dimension* d, PredSet pred) {
     shape_of_dimensions[s][d] = pred;
@@ -327,7 +370,13 @@ void TracebackEngine::set_goal(Predicate* pred) {
 
 
 
-Direction* TracebackEngine::__earliest_direction_of(Line* l) {
+Direction* TracebackEngine::__earliest_direction_of(
+    Line* l, 
+    std::map<Line*, Direction*>& earliest_direction_cache
+) {
+    if (earliest_direction_cache.contains(l)) {
+        return earliest_direction_cache[l];
+    }
     Direction* earliest = nullptr;
     for (auto [d, _] : direction_line_root_map) {
         if (direction_line_root_map[d].contains(l)) {
@@ -336,10 +385,17 @@ Direction* TracebackEngine::__earliest_direction_of(Line* l) {
             }
         }
     }
-    if (!earliest) return __earliest_direction_of(NodeUtils::get_parent(l));
+    if (!earliest) return __earliest_direction_of(NodeUtils::get_parent(l), earliest_direction_cache);
+    earliest_direction_cache[l] = earliest;
     return earliest;
 }
-Length* TracebackEngine::__earliest_length_of(Segment* s) {
+Length* TracebackEngine::__earliest_length_of(
+    Segment* s,
+    std::map<Segment*, Length*>& earliest_length_cache
+) {
+    if (earliest_length_cache.contains(s)) {
+        return earliest_length_cache[s];
+    }
     Length* earliest = nullptr;
     for (auto [l, _] : length_segment_root_map) {
         if (length_segment_root_map[l].contains(s)) {
@@ -348,10 +404,49 @@ Length* TracebackEngine::__earliest_length_of(Segment* s) {
             }
         }
     }
-    if (!earliest) return __earliest_length_of(NodeUtils::get_parent(s));
+    if (!earliest) return __earliest_length_of(NodeUtils::get_parent(s), earliest_length_cache);
+    earliest_length_cache[s] = earliest;
     return earliest;
 }
 
+Measure* TracebackEngine::__earliest_measure_of(
+    Angle* a,
+    std::map<Angle*, Measure*>& earliest_measure_cache
+) {
+    if (earliest_measure_cache.contains(a)) {
+        return earliest_measure_cache[a];
+    }
+    Measure* earliest = nullptr;
+    for (auto [m, _] : measure_angle_root_map) {
+        if (measure_angle_root_map[m].contains(a)) {
+            if (!earliest || NodeUtils::ancestor_of(earliest, m)) {
+                earliest = m;
+            }
+        }
+    }
+    if (!earliest) return __earliest_measure_of(NodeUtils::get_parent(a), earliest_measure_cache);
+    earliest_measure_cache[a] = earliest;
+    return earliest;
+}
+Fraction* TracebackEngine::__earliest_fraction_of(
+    Ratio* r,
+    std::map<Ratio*, Fraction*>& earliest_fraction_cache
+) {
+    if (earliest_fraction_cache.contains(r)) {
+        return earliest_fraction_cache[r];
+    }
+    Fraction* earliest = nullptr;
+    for (auto [f, _] : fraction_ratio_root_map) {
+        if (fraction_ratio_root_map[f].contains(r)) {
+            if (!earliest || NodeUtils::ancestor_of(earliest, f)) {
+                earliest = f;
+            }
+        }
+    }
+    if (!earliest) return __earliest_fraction_of(NodeUtils::get_parent(r), earliest_fraction_cache);
+    earliest_fraction_cache[r] = earliest;
+    return earliest;
+}
 
 
 
@@ -592,6 +687,47 @@ std::pair<std::pair<Length*, Segment*>, PredSet> TracebackEngine::most_explainab
         }
     }
     return {{best_len, best_s}, res};
+}
+std::pair<std::pair<Measure*, Angle*>, PredSet> TracebackEngine::most_explainable_measure_of_angle(
+    Angle* a, Measure* m,
+    std::map<std::pair<Measure*, Measure*>, PredSet>& why_measure_ancestor_cache,
+    std::map<std::pair<Angle*, Angle*>, PredSet>& why_angle_ancestor_cache
+) {
+    /* Extract all children of `a` which were assigned measures */
+    std::set<Angle*> a_cs;
+    std::vector<std::pair<Measure*, Angle*>> m2as;
+
+    NodeUtils::all_children(a, a_cs);
+    for (const auto& [measure, angle_map] : measure_of_angles) {
+        for (Angle* a_c : a_cs) {
+            if (angle_map.contains(a_c)) {
+                m2as.emplace_back(measure, a_c);
+            }
+        }
+    }
+
+    /* Each child `a_c` will have been assigned some Measure `m_c`.
+    The desired PredSet is the union of the following:
+    - measure_of_angles[m_c][a_c]
+    - why_ancestor(a_c, a)
+    - why_ancestor(m_c, m)
+    Pick the `a_c` with the lowest predicate count. */
+    PredSet res;
+    Measure* best_m = nullptr;
+    Angle* best_a = nullptr;
+    for (auto [m_c, a_c] : m2as) {
+        PredSet res_ = (
+            TracebackUtils::why_ancestor_with_cache(a_c, a, why_angle_ancestor_cache)
+            + TracebackUtils::why_ancestor_with_cache(m_c, m, why_measure_ancestor_cache)
+            + measure_of_angles[m_c][a_c]
+        );
+        if (res_ < res) {
+            res = std::move(res_);
+            best_m = m_c;
+            best_a = a_c;
+        }
+    }
+    return {{best_m, best_a}, res};
 }
 
 
@@ -909,6 +1045,7 @@ PredSet TracebackEngine::why_para(Point* p1, Point* p2, Point* p3, Point* p4) {
     std::map<std::pair<Point*, Point*>, PredSet> why_point_ancestor_cache;
     std::map<std::pair<Line*, Line*>, PredSet> why_line_ancestor_cache;
     std::map<std::pair<Direction*, Direction*>, PredSet> why_direction_ancestor_cache;
+    std::map<Line*, Direction*> earliest_direction_cache;
 
     // std::cout << "---- why_para " << p1->to_string() << " " << p2->to_string() << " " << p3->to_string() << " " << p4->to_string() << std::endl;
 
@@ -932,7 +1069,7 @@ PredSet TracebackEngine::why_para(Point* p1, Point* p2, Point* p3, Point* p4) {
 
             /* Branch 1: If `lca1` and `lca2` are the same (call it `lca`) */
             if (lca1 == lca2) {
-                Direction* d = __earliest_direction_of(lca1);
+                Direction* d = __earliest_direction_of(lca1, earliest_direction_cache);
                 assert(NodeUtils::same_as(d, common_root_direction));
 
                 // std::cout << d->to_string() << std::endl;
@@ -948,7 +1085,8 @@ PredSet TracebackEngine::why_para(Point* p1, Point* p2, Point* p3, Point* p4) {
             
             /* Branch 2: If `lca1` and `lca2` have Directions `d1, d2` (these may be the same) */
             else {
-                Direction* d1 = __earliest_direction_of(lca1), *d2 = __earliest_direction_of(lca2);
+                Direction* d1 = __earliest_direction_of(lca1, earliest_direction_cache), 
+                    *d2 = __earliest_direction_of(lca2, earliest_direction_cache);
                 assert(NodeUtils::same_as(d1, common_root_direction));
                 assert(NodeUtils::same_as(d2, common_root_direction));
 
@@ -959,21 +1097,21 @@ PredSet TracebackEngine::why_para(Point* p1, Point* p2, Point* p3, Point* p4) {
                 We should choose `d` to be the "least possible", i.e. the LCA of `d1` and `d2`
                 (It could be the case that `lca1 == lca1_a` and `lca2 == lca2_a` and `d == d1 == d2`) */
                 Line* lca1_a = lca1, *lca2_a = lca2;
-                auto [d, _] = TracebackUtils::lowest_common_ancestor(d1, d2);
+                Direction* d = TracebackUtils::lowest_common_ancestor(d1, d2).first;
                 assert(NodeUtils::same_as(d, common_root_direction));
                 
-                if (!NodeUtils::ancestor_of(lca1->__get_direction(), d)) {
+                if (!NodeUtils::ancestor_of(lca1->direction, d)) {
                     while (!(lca1_a->is_root())) {
                         lca1_a = NodeUtils::get_parent(lca1_a);
-                        if (NodeUtils::ancestor_of(lca1_a->__get_direction(), d)) {
+                        if (NodeUtils::ancestor_of(lca1_a->direction, d)) {
                             break;
                         }
                     }
                 }
-                if (!NodeUtils::ancestor_of(lca2->__get_direction(), d)) {
+                if (!NodeUtils::ancestor_of(lca2->direction, d)) {
                     while (!(lca2_a->is_root())) {
                         lca2_a = NodeUtils::get_parent(lca2_a);
-                        if (NodeUtils::ancestor_of(lca2_a->__get_direction(), d)) {
+                        if (NodeUtils::ancestor_of(lca2_a->direction, d)) {
                             break;
                         }
                     }
@@ -1021,6 +1159,7 @@ PredSet TracebackEngine::why_perp(Point* p1, Point* p2, Point* p3, Point* p4) {
     std::map<std::pair<Point*, Point*>, PredSet> why_point_ancestor_cache;
     std::map<std::pair<Line*, Line*>, PredSet> why_line_ancestor_cache;
     std::map<std::pair<Direction*, Direction*>, PredSet> why_direction_ancestor_cache;
+    std::map<Line*, Direction*> earliest_direction_cache;
 
     /* Steps 1-5: Fetch the lca_lines of `p1p2` and `p3p4` */
     Line* common_root_12 = nullptr, *common_root_34 = nullptr;
@@ -1039,27 +1178,32 @@ PredSet TracebackEngine::why_perp(Point* p1, Point* p2, Point* p3, Point* p4) {
         dir_pairs.insert({pd1, pd2});
     }
 
-    /* Now, we check every possible pair (lca1, lca2) and (pd1, pd2) */
+    /* Now, we check every possible pair (lca1, lca2) */
     for (const auto& [lca1, why_ancestor_lines_points_12] : lca1s) {
         for (const auto& [lca2, why_ancestor_lines_points_34] : lca2s) {
             PredSet res_ = why_ancestor_lines_points_12 + why_ancestor_lines_points_34;
 
-            Direction* d1 = __earliest_direction_of(lca1), *d2 = __earliest_direction_of(lca2);
+            Direction* d1 = __earliest_direction_of(lca1, earliest_direction_cache), 
+                *d2 = __earliest_direction_of(lca2, earliest_direction_cache);
+
+            /* Steps 7-8: extract the shortest explanations for why `lcai` was assigned direction `di` */
+            auto [best_pair_1, res1] = most_explainable_direction_of_line(
+                lca1, d1, why_direction_ancestor_cache, why_line_ancestor_cache
+            );
+            auto [best_pair_2, res2] = most_explainable_direction_of_line(
+                lca2, d2, why_direction_ancestor_cache, why_line_ancestor_cache
+            );
+
+            res_ += (std::move(res1) + std::move(res2));
             
-            PredSet res0;
+            /* Step 9: check every possible pair (pd1, pd2) and extract the pair for which the explanations
+            for pd1 <-> d1, pd2 <-> d2 and perp_directions[pd1, pd2] sum to be the shortest */
+            PredSet res_0;
             for (auto [pd1, pd2] : dir_pairs) {
-                PredSet res0_ = perp_directions[{pd1, pd2}];
+                PredSet res_0_ = perp_directions[{pd1, pd2}];
 
                 auto [ad1, x1] = TracebackUtils::lowest_common_ancestor(d1, pd1);
                 auto [ad2, x2] = TracebackUtils::lowest_common_ancestor(d2, pd2);
-
-                /* Steps 7-8: extract the shortest explanations for why `lcai` was assigned direction `di` */
-                auto [best_pair_1, res_1] = most_explainable_direction_of_line(
-                    lca1, d1, why_direction_ancestor_cache, why_line_ancestor_cache
-                );
-                auto [best_pair_2, res_2] = most_explainable_direction_of_line(
-                    lca2, d2, why_direction_ancestor_cache, why_line_ancestor_cache
-                );
 
                 // std::cout << "lca1: " << lca1->to_string() << ", lca2: " << lca2->to_string()
                 //     << ", d1: " << d1->to_string() << ", d2: " << d2->to_string() 
@@ -1069,22 +1213,20 @@ PredSet TracebackEngine::why_perp(Point* p1, Point* p2, Point* p3, Point* p4) {
                 // std::cout << "res0_: " << res0_.to_string()
                 //     << ", res_1: " << res_1.to_string()
                 //     << ", res_2: " << res_2.to_string() << std::endl;
-                    
-                res0_ += (std::move(res_1) + std::move(res_2));
 
-                res0_ += (
+                res_0_ += (
                     TracebackUtils::why_ancestor_with_cache(d1, ad1, why_direction_ancestor_cache)
                     + TracebackUtils::why_ancestor_with_cache(pd1, ad1, why_direction_ancestor_cache)
                     + TracebackUtils::why_ancestor_with_cache(d2, ad2, why_direction_ancestor_cache)
                     + TracebackUtils::why_ancestor_with_cache(pd2, ad2, why_direction_ancestor_cache)
                 );
 
-                if (res0_ < res0) {
-                    res0 = std::move(res0_);
+                if (res_0_ < res_0) {
+                    res_0 = std::move(res_0_);
                 }
             }
 
-            res_ += res0;
+            res_ += res_0;
             
             if (res_ < res) {
                 res = std::move(res_);
@@ -1104,6 +1246,7 @@ PredSet TracebackEngine::why_cong(Point* p1, Point* p2, Point* p3, Point* p4) {
     std::map<std::pair<Point*, Point*>, PredSet> why_point_ancestor_cache;
     std::map<std::pair<Segment*, Segment*>, PredSet> why_segment_ancestor_cache;
     std::map<std::pair<Length*, Length*>, PredSet> why_length_ancestor_cache;
+    std::map<Segment*, Length*> earliest_length_cache;
 
     /* Steps 1-5: Fetch the lca_segments of `p1p2` and `p3p4` */
     Segment* common_root_12 = nullptr, *common_root_34 = nullptr;
@@ -1118,7 +1261,8 @@ PredSet TracebackEngine::why_cong(Point* p1, Point* p2, Point* p3, Point* p4) {
         for (const auto& [lca2, why_ancestor_segments_points_34] : lca2s) {
             PredSet res_ = why_ancestor_segments_points_12 + why_ancestor_segments_points_34;
 
-            Length* len1 = __earliest_length_of(lca1), *len2 = __earliest_length_of(lca2);
+            Length* len1 = __earliest_length_of(lca1, earliest_length_cache), 
+                *len2 = __earliest_length_of(lca2, earliest_length_cache);
 
             /* Step 6: Find ancestors `lca1_a` and `lca2_a` which were the same length `len` at
             some point in time */
@@ -1126,18 +1270,18 @@ PredSet TracebackEngine::why_cong(Point* p1, Point* p2, Point* p3, Point* p4) {
             auto [len, _] = TracebackUtils::lowest_common_ancestor(len1, len2);
             assert(NodeUtils::same_as(len, common_root_length));
             
-            if (!NodeUtils::ancestor_of(lca1->__get_length(), len)) {
+            if (!NodeUtils::ancestor_of(lca1->length, len)) {
                 while (!(lca1_a->is_root())) {
                     lca1_a = NodeUtils::get_parent(lca1_a);
-                    if (NodeUtils::ancestor_of(lca1_a->__get_length(), len)) {
+                    if (NodeUtils::ancestor_of(lca1_a->length, len)) {
                         break;
                     }
                 }
             }
-            if (!NodeUtils::ancestor_of(lca2->__get_length(), len)) {
+            if (!NodeUtils::ancestor_of(lca2->length, len)) {
                 while (!(lca2_a->is_root())) {
                     lca2_a = NodeUtils::get_parent(lca2_a);
-                    if (NodeUtils::ancestor_of(lca2_a->__get_length(), len)) {
+                    if (NodeUtils::ancestor_of(lca2_a->length, len)) {
                         break;
                     }
                 }
@@ -1175,4 +1319,148 @@ PredSet TracebackEngine::why_midp(Point* m, Point* p1, Point* p2) {
         why_cong(m, p1, m, p2)
         + why_coll(m, p1, p2)
     );
+}
+
+
+
+
+
+
+PredSet TracebackEngine::why_eqangle(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Point* p7, Point* p8) {
+    PredSet res;
+    std::map<std::pair<Point*, Point*>, PredSet> why_point_ancestor_cache;
+    std::map<std::pair<Line*, Line*>, PredSet> why_line_ancestor_cache;
+    std::map<std::pair<Direction*, Direction*>, PredSet> why_direction_ancestor_cache;
+    std::map<std::pair<Angle*, Angle*>, PredSet> why_angle_ancestor_cache;
+    std::map<std::pair<Measure*, Measure*>, PredSet> why_measure_ancestor_cache;
+
+    std::map<Line*, Direction*> earliest_direction_cache;
+    std::map<Angle*, Measure*> earliest_measure_cache;
+
+    /* Steps 1-5: Fetch the lca_lines of `p1p2`, `p3p4`, `p5p6` and `p7p8` */
+    Line* common_root_12 = nullptr, *common_root_34 = nullptr, *common_root_56 = nullptr, *common_root_78 = nullptr;
+    std::map<Line*, PredSet> lca1s, lca2s, lca3s, lca4s;
+    std::tie(lca1s, common_root_12) = lca_lines_and_why(p1, p2, why_point_ancestor_cache, why_line_ancestor_cache);
+    std::tie(lca2s, common_root_34) = lca_lines_and_why(p3, p4, why_point_ancestor_cache, why_line_ancestor_cache);
+    std::tie(lca3s, common_root_56) = lca_lines_and_why(p5, p6, why_point_ancestor_cache, why_line_ancestor_cache);
+    std::tie(lca4s, common_root_78) = lca_lines_and_why(p7, p8, why_point_ancestor_cache, why_line_ancestor_cache);
+
+    Direction* rd1 = common_root_12->get_direction(), *rd2 = common_root_34->get_direction(),
+        *rd3 = common_root_56->get_direction(), *rd4 = common_root_78->get_direction();
+
+    std::set<std::pair<Direction*, Direction*>> dir_pairs_12 = angle_directions_root_map[{rd1, rd2}];
+    std::set<std::pair<Direction*, Direction*>> dir_pairs_34 = angle_directions_root_map[{rd3, rd4}];
+
+    /* Now we check every possible pair of LCAs `(lca1, lca2)` */
+    for (const auto& [lca1, why_ancestor_lines_points_12] : lca1s) {
+        for (const auto& [lca2, why_ancestor_lines_points_34] : lca2s) {
+            for (const auto& [lca3, why_ancestor_lines_points_56] : lca3s) {
+                for (const auto& [lca4, why_ancestor_lines_points_78] : lca4s) {
+
+                    PredSet res_ = (
+                        why_ancestor_lines_points_12 + why_ancestor_lines_points_34
+                        + why_ancestor_lines_points_56 + why_ancestor_lines_points_78
+                    );
+                    Direction* d1 = __earliest_direction_of(lca1, earliest_direction_cache), 
+                        *d2 = __earliest_direction_of(lca2, earliest_direction_cache),
+                        *d3 = __earliest_direction_of(lca3, earliest_direction_cache), 
+                        *d4 = __earliest_direction_of(lca4, earliest_direction_cache);
+
+                    /* Steps 6-7: extract the shortest explanations for why each lcai was assigned direction di */
+                    auto [best_pair_1, res1] = most_explainable_direction_of_line(
+                        lca1, d1, why_direction_ancestor_cache, why_line_ancestor_cache
+                    );
+                    auto [best_pair_2, res2] = most_explainable_direction_of_line(
+                        lca2, d2, why_direction_ancestor_cache, why_line_ancestor_cache
+                    );
+                    auto [best_pair_3, res3] = most_explainable_direction_of_line(
+                        lca3, d3, why_direction_ancestor_cache, why_line_ancestor_cache
+                    );
+                    auto [best_pair_4, res4] = most_explainable_direction_of_line(
+                        lca4, d4, why_direction_ancestor_cache, why_line_ancestor_cache
+                    );
+
+                    res_ += (std::move(res1) + std::move(res2) + std::move(res3) + std::move(res4));
+
+                    /* Now, we iterate over pairs `(cd1, cd2)` and `(cd3, cd4)` of directions used to define angles */
+                    PredSet res_0;
+                    for (const auto& [cd1, cd2] : dir_pairs_12) {
+                        for (const auto& [cd3, cd4] : dir_pairs_34) {
+
+                            /* Step 9-10: For each pair `(cd1, cd2)` and `(cd3, cd4)`, we identify the defined angles
+                            `a1, a2` as well as their earliest measures `m1, m2`, then extract the shortest explanations
+                            for why each angle was assigned its corresponding measure */
+                            Angle* a1 = directions_of_angles[{cd1, cd2}], *a2 = directions_of_angles[{cd3, cd4}];
+                            Measure* m1 = __earliest_measure_of(a1, earliest_measure_cache), 
+                                *m2 = __earliest_measure_of(a2, earliest_measure_cache);
+
+                            auto [best_pair_a1, res_a1] = most_explainable_measure_of_angle(
+                                a1, m1, why_measure_ancestor_cache, why_angle_ancestor_cache
+                            );
+                            auto [best_pair_a2, res_a2] = most_explainable_measure_of_angle(
+                                a2, m2, why_measure_ancestor_cache, why_angle_ancestor_cache
+                            );
+
+                            PredSet res_0_ = (std::move(res_a1) + std::move(res_a2));
+
+                            /* Step 11: Find ancestors `a1_a` and `a2_a` which had the same measure `m` at some point
+                            in time
+                            We should choose `m` to be the "least possible", i.e. the LCA of `m1` and `m2` */
+                            Angle* a1_a = a1, *a2_a = a2;
+                            Measure* m = TracebackUtils::lowest_common_ancestor(m1, m2).first;
+                            
+                            if (!NodeUtils::ancestor_of(a1_a->measure, m)) {
+                                while (!(a1_a->is_root())) {
+                                    a1_a = NodeUtils::get_parent(a1_a);
+                                    if (NodeUtils::ancestor_of(a1_a->measure, m)) {
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!NodeUtils::ancestor_of(a2_a->measure, m)) {
+                                while (!(a2_a->is_root())) {
+                                    a2_a = NodeUtils::get_parent(a2_a);
+                                    if (NodeUtils::ancestor_of(a2_a->measure, m)) {
+                                        break;
+                                    }
+                                }
+                            }
+
+                            auto [ad1, x1] = TracebackUtils::lowest_common_ancestor(d1, cd1);
+                            auto [ad2, x2] = TracebackUtils::lowest_common_ancestor(d2, cd2);
+                            auto [ad3, x3] = TracebackUtils::lowest_common_ancestor(d3, cd3);
+                            auto [ad4, x4] = TracebackUtils::lowest_common_ancestor(d4, cd4);
+
+                            res_0_ += (
+                                TracebackUtils::why_ancestor_with_cache(d1, ad1, why_direction_ancestor_cache)
+                                + TracebackUtils::why_ancestor_with_cache(cd1, ad1, why_direction_ancestor_cache)
+                                + TracebackUtils::why_ancestor_with_cache(d2, ad2, why_direction_ancestor_cache)
+                                + TracebackUtils::why_ancestor_with_cache(cd2, ad2, why_direction_ancestor_cache)
+                                + TracebackUtils::why_ancestor_with_cache(d3, ad3, why_direction_ancestor_cache)
+                                + TracebackUtils::why_ancestor_with_cache(cd3, ad3, why_direction_ancestor_cache)
+                                + TracebackUtils::why_ancestor_with_cache(d4, ad4, why_direction_ancestor_cache)
+                                + TracebackUtils::why_ancestor_with_cache(cd4, ad4, why_direction_ancestor_cache)
+                                + TracebackUtils::why_ancestor_with_cache(a1, a1_a, why_angle_ancestor_cache)
+                                + TracebackUtils::why_ancestor_with_cache(a2, a2_a, why_angle_ancestor_cache)
+                                + TracebackUtils::why_ancestor_with_cache(m1, m, why_measure_ancestor_cache)
+                                + TracebackUtils::why_ancestor_with_cache(m2, m, why_measure_ancestor_cache)
+                            );
+
+                            if (res_0_ < res_0) {
+                                res_0 = std::move(res_0_);
+                            }
+                        }
+                    }
+
+                    res_ += std::move(res_0);
+
+                    if (res_ < res) {
+                        res = std::move(res_);
+                    }
+                }
+            }
+        }
+    }
+
+    return res;
 }

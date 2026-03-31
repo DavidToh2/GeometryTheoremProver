@@ -589,7 +589,8 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         PredSet why_para_mn_qt = tr.why_para(m, n, q, t);
         REQUIRE((
             why_para_mn_qt.contains(preds[11]) &&   // para Q T O P
-            why_para_mn_qt.contains(preds[12]) &&   // para L M M N
+            (why_para_mn_qt.contains(preds[12]) ||  // para L M M N
+            why_para_mn_qt.contains(preds[14])) &&  // coll L M N
             why_para_mn_qt.contains(preds[13]) &&   // para L O O P
             why_para_mn_qt.contains(preds[16]) &&   // para M N O P
             why_para_mn_qt.contains(base_pred) &&

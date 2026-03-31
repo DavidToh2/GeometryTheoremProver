@@ -265,7 +265,6 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ));
 
         PredSet why_cong_e_f_f_g = tr.why_cong(e, f, f, g);
-        std::cout << "why_cong_e_f_f_g: " << why_cong_e_f_f_g.to_string() << std::endl;
         REQUIRE((
             why_cong_e_f_f_g.contains(preds[11]) &&   // cong C D H I
             why_cong_e_f_f_g.contains(preds[2]) &&    // midp D C E
@@ -276,7 +275,6 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ));
 
         PredSet why_midp_f_e_g = tr.why_midp(f, e, g);
-        std::cout << "why_midp_f_e_g: " << why_midp_f_e_g.to_string() << std::endl;
         REQUIRE((
             why_midp_f_e_g.contains(preds[11]) &&   // cong C D H I
             why_midp_f_e_g.contains(preds[2]) &&    // midp D C E

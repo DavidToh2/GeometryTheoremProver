@@ -25,6 +25,11 @@ The `x_on_y` and `x_of_y` maps, such as `point_on_lines` and `direction_of_lines
 which each pair of nodes in our GeometricGraph were related via some predicate. The exact nodes that were
 related are recorded.
 
+Note: The `directions_of_angles` and `lengths_of_ratios` maps do not store any corresponding PredSets, as these
+relationships are intrinsic to the definition of the angles and ratios rather than being an "ownership". Theoretically
+the same could be said for `point_as_segment_endpoint` and `point_as_triangle_vertex`, but we store the PredSets
+for now to maintain consistency across the Object class.
+
 As nodes are merged, the `root_maps` allow us to recover the exact nodes that were related from their root
 nodes at that instant. For example, if `point_on_lines` recorded some pair `(p, l)`, and at some later 
 instance their roots are `(rp, rl)` respectively, then we would expect to see an entry in `point_line_root_map`
@@ -32,6 +37,9 @@ pointing `(rp, rl)` to `(p, l)`.
 
 The `root_maps` thus record all mappings, from root nodes to the original related nodes, that are valid at the
 current program point. They are updated by Group 1 functions and queried by Group 2 functions.
+
+Note: The `perp_directions_root_map`, `angle_directions_root_map` and `ratio_lengths_root_map` are special as
+they only store as keys the final root nodes of the related objects.
 
 The `x_on_y` and `x_of_y` maps are updated by Group 1 functions, and queried by both Group 2 and Group 3 
 functions.
@@ -70,8 +78,10 @@ public:
     std::map<Dimension*, std::map<Triangle*, PredSet>> dimension_of_triangles;
     std::map<Dimension*, std::map<Triangle*, std::pair<Dimension*, Triangle*>>> dimension_triangle_root_map;
 
-    std::map<Angle*, std::map<Direction*, std::pair<Angle*, Direction*>>> direction_angle_root_map;
-    std::map<Ratio*, std::map<Length*, std::pair<Ratio*, Length*>>> length_ratio_root_map;
+    std::map<std::pair<Direction*, Direction*>, Angle*> directions_of_angles;
+    std::map<std::pair<Direction*, Direction*>, std::set<std::pair<Direction*, Direction*>>> angle_directions_root_map;
+    std::map<std::pair<Length*, Length*>, Ratio*> lengths_of_ratios;
+    std::map<std::pair<Length*, Length*>, std::set<std::pair<Length*, Length*>>> ratio_lengths_root_map;
 
     std::map<Measure*, std::map<Angle*, PredSet>> measure_of_angles;
     std::map<Measure*, std::map<Angle*, std::pair<Measure*, Angle*>>> measure_angle_root_map;
@@ -120,11 +130,10 @@ public:
     PredSet why_length_of(Length* len, Segment* s);
     void set_dimension_of(Dimension* dim, Triangle* t, PredSet pred);
 
-    PredSet why_direction_of(Direction* d, Angle* a);
-    PredSet why_length_of(Length* len, Ratio* r);
-
     void set_measure_of(Measure* m, Angle* a, PredSet pred);
+    PredSet why_measure_of(Measure* m, Angle* a);
     void set_fraction_of(Fraction* f, Ratio* r, PredSet pred);
+    PredSet why_fraction_of(Fraction* f, Ratio* r);
     void set_shape_of(Shape* s, Dimension* d, PredSet pred);
 
     void set_measure_val(Measure* m, Frac val, PredSet pred);
@@ -140,17 +149,35 @@ public:
     it, was assigned some direction `d`. Returns this direction `d`. (Thus, `d` is also
     the "earliest" direction assigned to `l` or an ancestor if itself, and is recorded 
     in `direction_line_root_map`.) */
-    Direction* __earliest_direction_of(Line* l);
-
+    Direction* __earliest_direction_of(
+        Line* l,
+        std::map<Line*, Direction*>& earliest_direction_cache
+    );
     /* Identifies the earliest known instance at which the segment `s`, or an ancestor of
     it, was assigned some length `len`. Returns this length `len`. (Thus, `len` is also
     the "earliest" length assigned to `s` or an ancestor of itself, and is recorded in
     `length_segment_root_map`.) */
-    Length* __earliest_length_of(Segment* s);
-
-
-
-
+    Length* __earliest_length_of(
+        Segment* s,
+        std::map<Segment*, Length*>& earliest_length_cache
+    );
+    
+    /* Identifies the earliest known instance at which the angle `a`, or an ancestor of
+    it, was assigned some measure `m`. Returns this measure `m`. (Thus, `m` is also
+    the "earliest" measure assigned to `a` or an ancestor of itself, and is recorded in
+    `measure_angle_root_map`.) */
+    Measure* __earliest_measure_of(
+        Angle* a,
+        std::map<Angle*, Measure*>& earliest_measure_cache
+    );
+    /* Identifies the earliest known instance at which the ratio `r`, or an ancestor of
+    it, was assigned some fraction `f`. Returns this fraction `f`. (Thus, `f` is also
+    the "earliest" fraction assigned to `r` or an ancestor of itself, and is recorded in
+    `fraction_ratio_root_map`.) */
+    Fraction* __earliest_fraction_of(
+        Ratio* r,
+        std::map<Ratio*, Fraction*>& earliest_fraction_cache
+    );
 
 
     /* Given a pair of points `p1, p2`, identifies all LCA lines `l` of `l1, l2` containing 
@@ -168,7 +195,6 @@ public:
         std::map<std::pair<Point*, Point*>, PredSet>& why_point_ancestor_cache,
         std::map<std::pair<Line*, Line*>, PredSet>& why_line_ancestor_cache
     );
-
     /* Given a pair of points `p1, p2`, identifies all LCA segments `s` containing a child 
     point `cp1` of `p1` as an endpoint, and `cp2` of `p2` as another; for each LCA segment,
     constructs the PredSet explaining why it contains the two points, defined as the
@@ -186,10 +212,6 @@ public:
         std::map<std::pair<Segment*, Segment*>, PredSet>& why_segment_ancestor_cache
     );
 
-
-
-
-
     
     /* Given a line `l` and a direction `d`, identifies the children `cl` and `cd` such
     that `cl` was assigned direction `cd` (as recorded in `direction_of_lines`), and
@@ -203,7 +225,6 @@ public:
         std::map<std::pair<Direction*, Direction*>, PredSet>& why_direction_ancestor_cache,
         std::map<std::pair<Line*, Line*>, PredSet>& why_line_ancestor_cache
     );
-
     /* Given a segment `s` and a length `len`, identifies the children `cs` and `clen` such
     that `cs` was assigned length `clen` (as recorded in `length_of_segments`), and the
     PredSet constructed from the addition of
@@ -216,8 +237,18 @@ public:
         std::map<std::pair<Length*, Length*>, PredSet>& why_length_ancestor_cache,
         std::map<std::pair<Segment*, Segment*>, PredSet>& why_segment_ancestor_cache
     );
-
-    
+    /* Given an angle `a` and a measure `m`, identifies the children `ca` and `cm` such
+    that `ca` was assigned measure `cm` (as recorded in `measure_of_angles`), and the
+    PredSet constructed from the addition of
+    - measure_of_angles[cm][ca]
+    - why_ancestor(cm, m)
+    - why_ancestor(ca, a)
+    is the smallest possible. */
+    std::pair<std::pair<Measure*, Angle*>, PredSet> most_explainable_measure_of_angle(
+        Angle* a, Measure* m,
+        std::map<std::pair<Measure*, Measure*>, PredSet>& why_measure_ancestor_cache,
+        std::map<std::pair<Angle*, Angle*>, PredSet>& why_angle_ancestor_cache
+    );
 
 
 
