@@ -389,7 +389,7 @@ std::set<Predicate*> Table::why(const Expr::Expr& expr) {
 
     // Solve the linear program min c^T * x subject to A * x = b, x >= 0
     std::vector<double> solution;
-    if (lp_solver.solve(solution, true)) {
+    if (lp_solver.solve(solution)) {
         assert(solution.size() == 2*num_eqs);
 
         for (int i = 0; i < num_eqs; i++) {
@@ -399,7 +399,7 @@ std::set<Predicate*> Table::why(const Expr::Expr& expr) {
         }
     }
 
-    std::cout << "--- The expression " << Expr::to_string(expr) << " has result size " << result.size() << " ---\n";
+    // std::cout << "--- The expression " << Expr::to_string(expr) << " has result size " << result.size() << " ---\n";
     return result;
 }
 
@@ -452,11 +452,11 @@ Generator<std::tuple<Expr::Var, Expr::Var, std::set<Predicate*>>> Table::get_all
             if (is_eq_2_seen(v1, v2)) continue;
             record_eq_2_as_seen(v1, v2);
             
-            Expr::Expr em = Expr::minus(M_var_to_expr[v1], M_var_to_expr[v2]);   // should be the same as eh
-            Expr::strip(em);
-            Expr::fix(em);
+            Expr::Expr e = Expr::Expr{{v1, 1}, {v2, -1}};
+            Expr::strip(e);
+            Expr::fix(e);
 
-            std::set<Predicate*> _why = why(em); 
+            std::set<Predicate*> _why = why(e); 
             co_yield {v1, v2, _why};
         }
     }
@@ -469,11 +469,11 @@ Generator<std::tuple<Expr::Var, Expr::Var, Frac, std::set<Predicate*>>> Table::g
             if (is_eq_3_seen(v1, v2, f)) continue;
             record_eq_3_as_seen(v1, v2, f);
 
-            Expr::Expr em = Expr::minus(M_var_to_expr[v1], M_var_to_expr[v2]);   // should be the same as eh
-            Expr::strip(em);
-            Expr::fix(em);
+            Expr::Expr e = Expr::add_fold(Expr::Expr{{v1, 1}}, Expr::Expr{{v2, -1}}, Expr::Expr{{one, -f.to_double()}});
+            Expr::strip(e);
+            Expr::fix(e);
 
-            std::set<Predicate*> _why = why(em);
+            std::set<Predicate*> _why = why(e);
             co_yield {v1, v2, f, _why};
         }
     }
@@ -497,10 +497,11 @@ Generator<std::tuple<Expr::Var, Expr::Var, Expr::Var, Expr::Var, std::set<Predic
         Expr::Expr e12 = Expr::minus(M_var_to_expr[v1], M_var_to_expr[v2]);
         Expr::Expr e34 = Expr::minus(M_var_to_expr[v3], M_var_to_expr[v4]);
         Expr::Expr em = Expr::minus(e12, e34);  // should be zero
+
         Expr::strip(em);
         Expr::fix(em);
 
-        Expr::Expr e{{v1, 1}, {v2, -1}, {v3, -1}, {v4, 1}};
+        Expr::Expr e = Expr::add_fold(Expr::Expr{{v1, 1}}, Expr::Expr{{v2, -1}}, Expr::Expr{{v3, -1}}, Expr::Expr{{v4, 1}});
         Expr::__minus(e, em);
         std::set<Predicate*> _why = why(e);
         co_yield {v1, v2, v3, v4, _why};

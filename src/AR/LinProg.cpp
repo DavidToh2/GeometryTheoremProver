@@ -73,10 +73,10 @@ bool LinProg::solve(
         return false;
     }
     HighsInfo info = highs.getInfo();
-    std::cout << "The matrix was\n" << __print_matrix_A() << "\n";
-    std::cout << "The target was\n" << __print_target() << "\n";
     if (!info.primal_solution_status) {
         if (verbose) {
+            // std::cout << "The matrix was\n" << __print_matrix_A() << "\n";
+            // std::cout << "The target was\n" << __print_target() << "\n";
             std::cout << "LinProg::solve: no primal solution\n";
         }
         return false;

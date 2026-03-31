@@ -136,15 +136,10 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ));
 
         ar.derive(ggraph, dd);
-        for (Predicate* pred : dd.recent_predicates) {
-            std::cout << pred->to_string() << " because " << pred->why.to_string() << "\n";
-        }
         dd.recent_predicates.emplace_front(dd.predicates["cong f g g h"].get());
         ggraph.synthesise_ar_preds(dd);
         // 8 predicates get synthesised, including some eqratios and constratios
         preds.emplace_back(dd.predicates["cong f g g h"].get());
-
-        std::cout << preds.back()->why.to_string() << std::endl;
 
         /*
         4 - cong F H G I
@@ -191,6 +186,19 @@ TEST_SUITE("TracebackEngine: why_() functions") {
                     pred_t::CONG, std::vector<Node*>{c, d, h, i})
         ));
         ggraph.synthesise_preds(dd, ar);
+
+        
+        Length* len_1 = ab->get_length();
+        Length* len_2 = fh->get_length();
+        Segment* ce = ggraph.get_or_add_segment(c, e, dd);
+        REQUIRE((
+            NodeUtils::same_as(cd->get_length(), len_1) &&
+            NodeUtils::same_as(ef->get_length(), len_1) &&
+            NodeUtils::same_as(fg->get_length(), len_1) &&
+            NodeUtils::same_as(gh->get_length(), len_1) &&
+            NodeUtils::same_as(gi->get_length(), len_2)
+        ));
+        REQUIRE(!NodeUtils::same_as(len_1, len_2));
 
         /*
         9 - midp C B D
@@ -261,9 +269,9 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         REQUIRE((
             why_cong_e_f_f_g.contains(preds[11]) &&   // cong C D H I
             why_cong_e_f_f_g.contains(preds[2]) &&    // midp D C E
-            why_cong_e_f_f_g.contains(preds[3]) &&    // midp E D F
-            why_cong_e_f_f_g.contains(preds[5]) &&    // midp H G J
-            why_cong_e_f_f_g.contains(preds[8]) &&    // cong F G G H
+            why_cong_e_f_f_g.contains(preds[3]) &&    // midp E D F - explains CD = DE = EF
+            why_cong_e_f_f_g.contains(preds[5]) &&    // midp H G J - explains HI = GH
+            why_cong_e_f_f_g.contains(preds[8]) &&    // cong F G G H (contains eq I J as a prerequisite)
             why_cong_e_f_f_g.contains(base_pred)
         ));
 
@@ -272,9 +280,9 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         REQUIRE((
             why_midp_f_e_g.contains(preds[11]) &&   // cong C D H I
             why_midp_f_e_g.contains(preds[2]) &&    // midp D C E
-            why_midp_f_e_g.contains(preds[3]) &&    // midp E D F
-            why_midp_f_e_g.contains(preds[5]) &&    // midp H G J
-            why_midp_f_e_g.contains(preds[8]) &&    // cong F G G H
+            why_midp_f_e_g.contains(preds[3]) &&    // midp E D F - explains CD = DE = EF
+            why_midp_f_e_g.contains(preds[5]) &&    // midp H G J - explains HI = GH
+            why_midp_f_e_g.contains(preds[8]) &&    // cong F G G H (contains eq I J as a prerequisite)
             why_midp_f_e_g.contains(preds[10]) &&   // coll D F H
             why_midp_f_e_g.contains(base_pred)
         ));
