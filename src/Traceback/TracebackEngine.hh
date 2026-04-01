@@ -130,6 +130,10 @@ public:
     PredSet why_length_of(Length* len, Segment* s);
     void set_dimension_of(Dimension* dim, Triangle* t, PredSet pred);
 
+    void make_angle_with_directions(Angle* a, Direction* d1, Direction* d2);
+    void make_ratio_with_lengths(Ratio* r, Length* len1, Length* len2);
+    PredSet most_explainable_lengths_of_ratio(Ratio* r, Length* len1, Length* len2);
+
     void set_measure_of(Measure* m, Angle* a, PredSet pred);
     PredSet why_measure_of(Measure* m, Angle* a);
     void set_fraction_of(Fraction* f, Ratio* r, PredSet pred);
@@ -237,6 +241,14 @@ public:
         std::map<std::pair<Length*, Length*>, PredSet>& why_length_ancestor_cache,
         std::map<std::pair<Segment*, Segment*>, PredSet>& why_segment_ancestor_cache
     );
+
+
+    std::pair<
+        std::pair<std::pair<Direction*, Direction*>, Angle*>, 
+        PredSet> 
+        most_explainable_directions_of_angle(Angle* a, Direction* d1, Direction* d2);
+
+
     /* Given an angle `a` and a measure `m`, identifies the children `ca` and `cm` such
     that `ca` was assigned measure `cm` (as recorded in `measure_of_angles`), and the
     PredSet constructed from the addition of

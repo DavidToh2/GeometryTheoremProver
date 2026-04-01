@@ -325,6 +325,19 @@ void TracebackEngine::set_dimension_of(Dimension* dim, Triangle* t, PredSet pred
 
 
 
+void TracebackEngine::make_angle_with_directions(Angle* a, Direction* d1, Direction* d2) {
+    directions_of_angles[{d1, d2}] = a;
+    angle_directions_root_map[{d1, d2}].insert({d1, d2});
+}
+
+void TracebackEngine::make_ratio_with_lengths(Ratio* r, Length* len1, Length* len2) {
+    lengths_of_ratios[{len1, len2}] = r;
+    ratio_lengths_root_map[{len1, len2}].insert({len1, len2});
+}
+
+
+
+
 void TracebackEngine::set_measure_of(Measure* m, Angle* a, PredSet pred) {
     measure_of_angles[m][a] = pred;
     measure_angle_root_map[m][a] = {m, a};
@@ -1445,6 +1458,18 @@ PredSet TracebackEngine::why_eqangle(Point* p1, Point* p2, Point* p3, Point* p4,
                                 + TracebackUtils::why_ancestor_with_cache(m1, m, why_measure_ancestor_cache)
                                 + TracebackUtils::why_ancestor_with_cache(m2, m, why_measure_ancestor_cache)
                             );
+
+                            std::cout << "For lines " << lca1->to_string() << ", " << lca2->to_string() << ", " 
+                                << lca3->to_string() << ", " << lca4->to_string() 
+                                << " with directions " << d1->to_string() << ", " << d2->to_string() << ", " 
+                                << d3->to_string() << ", " << d4->to_string() 
+                                << " and angle directions " << cd1->to_string() << ", " << cd2->to_string() << ", " 
+                                << cd3->to_string() << ", " << cd4->to_string() 
+                                << " and angles (" << a1->to_string() << ", " << a1_a->to_string() 
+                                    << "), (" << a2->to_string() << ", " << a2_a->to_string() << ")"
+                                << " and measures " << m1->to_string() << ", " << m2->to_string() << " | " << m->to_string()
+                                << " | res_0_: " << res_0_.to_string()
+                                << " | res_: " << res_.to_string() << std::endl;
 
                             if (res_0_ < res_0) {
                                 res_0 = std::move(res_0_);

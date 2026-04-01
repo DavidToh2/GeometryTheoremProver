@@ -218,7 +218,11 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         dd.search(ggraph);  // apply para M L M N => coll M N L and para O L O P => coll O L P
         REQUIRE((
             (dd.recent_predicates[0]->to_string() == "coll m n l" || dd.recent_predicates[1]->to_string() == "coll m n l") ||
-            (dd.recent_predicates[2]->to_string() == "coll o p l" || dd.recent_predicates[3]->to_string() == "coll o l p")
+            (dd.recent_predicates[2]->to_string() == "coll m n l" || dd.recent_predicates[3]->to_string() == "coll m n l")
+        ));
+        REQUIRE((
+            (dd.recent_predicates[0]->to_string() == "coll o p l" || dd.recent_predicates[1]->to_string() == "coll o p l") ||
+            (dd.recent_predicates[2]->to_string() == "coll o p l" || dd.recent_predicates[3]->to_string() == "coll o p l")
         ));
         // We "hack" the system to force coll M N L and coll O P L to be synthesised in this order
         dd.recent_predicates.emplace_front(dd.predicates["coll o p l"].get());

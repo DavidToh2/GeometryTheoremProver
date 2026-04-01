@@ -105,7 +105,7 @@ void Direction::merge(Direction* other, Predicate* pred) {
     this->on_angles_2.merge(other->on_angles_2);
 }
 
-Generator<std::pair<Angle*, Angle*>> Direction::check_incident_angles(Direction* d, Direction* other_d) {
+Generator<std::pair<std::pair<Angle*, Angle*>, bool>> Direction::check_incident_angles(Direction* d, Direction* other_d) {
     std::map<Direction*, Angle*> dir1_to_angle;
     std::map<Direction*, Angle*> dir2_to_angle;
     for (Angle* a : d->on_angles_1) {
@@ -124,7 +124,7 @@ Generator<std::pair<Angle*, Angle*>> Direction::check_incident_angles(Direction*
             Angle* a1 = dir2_to_angle[d2];
             if (!merge_happened) it = other_d->on_angles_1.erase(it);
             merge_happened = true;
-            co_yield {a1, a};
+            co_yield {{a1, a}, true};
         }
         if (!merge_happened) ++it;
     }
@@ -144,7 +144,7 @@ Generator<std::pair<Angle*, Angle*>> Direction::check_incident_angles(Direction*
             Angle* a1 = dir1_to_angle[d1];
             if (!merge_happened) it = other_d->on_angles_2.erase(it);
             merge_happened = true;
-            co_yield {a1, a};
+            co_yield {{a1, a}, false};
         } 
         if (!merge_happened) ++it;
     }

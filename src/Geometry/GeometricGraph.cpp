@@ -478,7 +478,8 @@ void GeometricGraph::set_directions_para(Direction* dest, Direction* src, PredSe
     auto gen_to_merge_angles = Direction::check_incident_angles(dest, src);
     while (gen_to_merge_angles) {
         auto pair = gen_to_merge_angles();
-        merge_angles(pair.first, pair.second, preds, dd);
+        PredSet angle_merge_preds = preds;
+        merge_angles(pair.first.first, pair.first.second, preds, dd);
     }
 
     Predicate* merger_pred = dd.insert_new_predicate(std::make_unique<Predicate>(
@@ -517,7 +518,7 @@ void GeometricGraph::set_directions_perp(Direction* d1, Direction* d2, PredSet p
         auto gen_to_merge_angles_1 = Direction::check_incident_angles(rd2, dp1);
         while (gen_to_merge_angles_1) {
             auto pair = gen_to_merge_angles_1();
-            merge_angles(pair.first, pair.second, preds, dd);
+            merge_angles(pair.first.first, pair.first.second, preds, dd);
         }
     }
     if (rd2->has_perp()) {
@@ -526,7 +527,7 @@ void GeometricGraph::set_directions_perp(Direction* d1, Direction* d2, PredSet p
         auto gen_to_merge_angles_2 = Direction::check_incident_angles(rd1, dp2);
         while (gen_to_merge_angles_2) {
             auto pair = gen_to_merge_angles_2();
-            merge_angles(pair.first, pair.second, preds, dd);
+            merge_angles(pair.first.first, pair.first.second, preds, dd);
         }
     }
 
@@ -1032,6 +1033,8 @@ Angle* GeometricGraph::__add_new_angle(Direction* d1, Direction* d2, Predicate* 
     Angle* a = angles[angle_id].get();
     root_angles.insert(a);
 
+    tr->make_angle_with_directions(a, d1, d2);
+
     return a;
 }
 
@@ -1184,9 +1187,14 @@ void GeometricGraph::merge_angles(Angle* dest, Angle* src, PredSet preds, DDEngi
     ));
 
     auto ms = root_dest->merge(root_src, merger_pred);
+
     if (ms) {
-        set_measures_equal(ms->first, ms->second, merger_pred, dd);
+        PredSet measure_merge_preds(merger_pred);
+        measure_merge_preds += tr->why_measure_of(ms->first, root_dest);
+        measure_merge_preds += tr->why_measure_of(ms->second, root_src);
+        set_measures_equal(ms->first, ms->second, measure_merge_preds, dd);
     }
+    tr->record_merge(root_dest, root_src);
 }
 
 
@@ -1218,12 +1226,11 @@ Measure* GeometricGraph::get_or_add_measure(Angle* a, DDEngine& dd) {
 }
 
 
-void GeometricGraph::set_measures_equal(Measure* m1, Measure* m2, Predicate* pred, DDEngine& dd) {
+void GeometricGraph::set_measures_equal(Measure* m1, Measure* m2, PredSet preds, DDEngine& dd) {
     Measure* root_m1 = NodeUtils::get_root(m1);
     Measure* root_m2 = NodeUtils::get_root(m2);
     if (root_m1 == root_m2) return;
 
-    PredSet preds{pred};
     preds += TracebackUtils::why_ancestor(m1, root_m1);
     preds += TracebackUtils::why_ancestor(m2, root_m2);
 
@@ -1268,6 +1275,9 @@ Ratio* GeometricGraph::__add_new_ratio(Length* l1, Length* l2, Predicate* base_p
     ratios[ratio_id] = std::make_unique<Ratio>(ratio_id, l1, l2);
     Ratio* r = ratios[ratio_id].get();
     root_ratios.insert(r);
+
+    tr->make_ratio_with_lengths(r, l1, l2);
+
     return r;
 }
 Ratio* GeometricGraph::__add_new_ratio(Segment* s1, Segment* s2, Predicate* base_pred) {
@@ -1375,8 +1385,13 @@ void GeometricGraph::merge_ratios(Ratio* dest, Ratio* src, PredSet preds, DDEngi
     ));
 
     auto fracs = root_dest->merge(root_src, merger_pred);
+    tr->record_merge(root_dest, root_src);
+
     if (fracs) {
-        set_fractions_equal(fracs->first, fracs->second, merger_pred, dd);
+        PredSet fraction_merge_preds(merger_pred);
+        fraction_merge_preds += tr->why_fraction_of(fracs->first, root_dest);
+        fraction_merge_preds += tr->why_fraction_of(fracs->second, root_src);
+        set_fractions_equal(fracs->first, fracs->second, fraction_merge_preds, dd);
     }
 }
 
@@ -1409,12 +1424,11 @@ Fraction* GeometricGraph::get_or_add_fraction(Ratio* r, DDEngine& dd) {
     return __add_new_fraction(rr, dd.base_pred.get());
 }
 
-void GeometricGraph::set_fractions_equal(Fraction* f1, Fraction* f2, Predicate* pred, DDEngine& dd) {
+void GeometricGraph::set_fractions_equal(Fraction* f1, Fraction* f2, PredSet preds, DDEngine& dd) {
     Fraction* root_f1 = NodeUtils::get_root(f1);
     Fraction* root_f2 = NodeUtils::get_root(f2);
     if (root_f1 == root_f2) return;
 
-    PredSet preds{pred};
     preds += TracebackUtils::why_ancestor(f1, root_f1);
     preds += TracebackUtils::why_ancestor(f2, root_f2);
 
@@ -2139,8 +2153,7 @@ bool GeometricGraph::__make_coll(Point* rp1, Point* rp2, Point* rp3,
         l = p3p1;
     } else if (p1p2 == nullptr) {
         tp = rp3;
-        Predicate* base_pred = dd.base_pred.get();
-        l = __add_new_line(rp1, rp2, base_pred);
+        l = get_or_add_line(rp1, rp2, dd);
     }
 
     if (p2p3) {
@@ -2205,8 +2218,7 @@ bool GeometricGraph::__make_cyclic(Point* rp1, Point* rp2, Point* rp3, Point* rp
         c = c412;
     } else if (c123 == nullptr) {
         tp = rp4;
-        Predicate* base_pred = dd.base_pred.get();
-        c = __add_new_circle(rp1, rp2, rp3, base_pred);
+        c = get_or_add_circle(rp1, rp2, rp3, dd);
     }
 
     PredSet c234_preds{pred}, c341_preds{pred}, c412_preds{pred}, c123_preds{pred};
@@ -2525,23 +2537,35 @@ bool GeometricGraph::__make_eqangle(Point* p1, Point* p2, Point* p3, Point* p4,
     new_objects |= new_object;
 
     if (check_eqangle(a1, a2)) return new_objects;
+
+    PredSet preds(pred);
     
     if (a1->has_measure()) {
         if (a2->has_measure()) {
             Measure* m1 = a1->get_measure();
             Measure* m2 = a2->get_measure();
-            set_measures_equal(m1, m2, pred, dd);
+
+            preds += tr->why_measure_of(m1, a1);
+            preds += tr->why_measure_of(m2, a2);
+
+            set_measures_equal(m1, m2, preds, dd);
         } else {
             Measure* m1 = a1->get_measure();
+
+            preds += tr->why_measure_of(m1, a1);
+
             a2->set_measure(m1);
-            tr->set_measure_of(m1, a2, pred);
+            tr->set_measure_of(m1, a2, preds);
         }
     } else if (a2->has_measure()) {
         Measure* m2 = a2->get_measure();
+
+        preds += tr->why_measure_of(m2, a2);
+
         a1->set_measure(m2);
-        tr->set_measure_of(m2, a1, pred);
+        tr->set_measure_of(m2, a1, preds);
     } else {
-        Measure* m = __add_new_measure(a1, pred);
+        Measure* m = get_or_add_measure(a1, dd);
         a2->set_measure(m);
         tr->set_measure_of(m, a2, pred);
     }
@@ -2601,24 +2625,36 @@ bool GeometricGraph::make_ar_eqangle(Predicate* pred, DDEngine& dd) {
     pred->args.emplace_back(p7);
     pred->args.emplace_back(p8);
 
+    PredSet preds(pred);
+
     if (a1->has_measure()) {
         if (a2->has_measure()) {
             Measure* m1 = a1->get_measure();
             Measure* m2 = a2->get_measure();
-            set_measures_equal(m1, m2, pred, dd);
+
+            preds += tr->why_measure_of(m1, a1);
+            preds += tr->why_measure_of(m2, a2);
+
+            set_measures_equal(m1, m2, preds, dd);
         } else {
             Measure* m1 = a1->get_measure();
+
+            preds += tr->why_measure_of(m1, a1);
+
             a2->set_measure(m1);
-            tr->set_measure_of(m1, a2, pred);
+            tr->set_measure_of(m1, a2, preds);
         }
     } else if (a2->has_measure()) {
         Measure* m2 = a2->get_measure();
+
+        preds += tr->why_measure_of(m2, a2);
+
         a1->set_measure(m2);
-        tr->set_measure_of(m2, a1, pred);
+        tr->set_measure_of(m2, a1, preds);
     } else {
-        Measure* m = __add_new_measure(a1, pred);
+        Measure* m = get_or_add_measure(a1, dd);
         a2->set_measure(m);
-        tr->set_measure_of(m, a2, pred);
+        tr->set_measure_of(m, a2, preds);
     }
     return true;
 }
@@ -2647,22 +2683,34 @@ bool GeometricGraph::__make_eqratio(Point* p1, Point* p2, Point* p3, Point* p4,
 
     if (check_eqratio(r1, r2)) return new_objects;
 
+    PredSet preds(pred);
+
     if (r1->has_fraction()) {
         if (r2->has_fraction()) {
             Fraction* f1 = r1->get_fraction();
             Fraction* f2 = r2->get_fraction();
-            set_fractions_equal(f1, f2, pred, dd);
+
+            preds += tr->why_fraction_of(f1, r1);
+            preds += tr->why_fraction_of(f2, r2);
+
+            set_fractions_equal(f1, f2, preds, dd);
         } else {
             Fraction* f1 = r1->get_fraction();
+
+            preds += tr->why_fraction_of(f1, r1);
+
             r2->set_fraction(f1);
-            tr->set_fraction_of(f1, r2, pred);
+            tr->set_fraction_of(f1, r2, preds);
         }
     } else if (r2->has_fraction()) {
         Fraction* f2 = r2->get_fraction();
+
+        preds += tr->why_fraction_of(f2, r2);
+
         r1->set_fraction(f2);
-        tr->set_fraction_of(f2, r1, pred);
+        tr->set_fraction_of(f2, r1, preds);
     } else {
-        Fraction* f = __add_new_fraction(r1, pred);
+        Fraction* f = get_or_add_fraction(r1, dd);
         r2->set_fraction(f);
         tr->set_fraction_of(f, r2, pred);
     }
@@ -2714,22 +2762,34 @@ bool GeometricGraph::make_ar_eqratio(Predicate* pred, DDEngine &dd) {
     pred->args.emplace_back(p7);
     pred->args.emplace_back(p8);
 
+    PredSet preds(pred);
+
     if (r1->has_fraction()) {
         if (r2->has_fraction()) {
             Fraction* f1 = r1->get_fraction();
             Fraction* f2 = r2->get_fraction();
-            set_fractions_equal(f1, f2, pred, dd);
+
+            preds += tr->why_fraction_of(f1, r1);
+            preds += tr->why_fraction_of(f2, r2);
+
+            set_fractions_equal(f1, f2, preds, dd);
         } else {
             Fraction* f1 = r1->get_fraction();
+
+            preds += tr->why_fraction_of(f1, r1);
+
             r2->set_fraction(f1);
-            tr->set_fraction_of(f1, r2, pred);
+            tr->set_fraction_of(f1, r2, preds);
         }
     } else if (r2->has_fraction()) {
         Fraction* f2 = r2->get_fraction();
+
+        preds += tr->why_fraction_of(f2, r2);
+
         r1->set_fraction(f2);
-        tr->set_fraction_of(f2, r1, pred);
+        tr->set_fraction_of(f2, r1, preds);
     } else {
-        Fraction* f = __add_new_fraction(r1, pred);
+        Fraction* f = get_or_add_fraction(r1, dd);
         r2->set_fraction(f);
         tr->set_fraction_of(f, r2, pred);
     }

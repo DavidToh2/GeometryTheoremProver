@@ -405,7 +405,7 @@ public:
     }
 
     /* Sets measures `dest` and `src` equal by merging the root of `src` into the root of `dest`. */
-    void set_measures_equal(Measure* dest, Measure* src, Predicate* pred, DDEngine& dd);
+    void set_measures_equal(Measure* dest, Measure* src, PredSet preds, DDEngine& dd);
 
     /* Sets measure `m` to be equal to the constant `val`.
     Here, `val` should be given in degrees.
@@ -483,7 +483,7 @@ public:
     }
 
     /* Sets the root fractions `dest` and `src` to be equal. */
-    void set_fractions_equal(Fraction* dest, Fraction* src, Predicate* pred, DDEngine& dd);
+    void set_fractions_equal(Fraction* dest, Fraction* src, PredSet preds, DDEngine& dd);
     /* Sets the value of the fraction `f` to `val`. 
     Returns true if the set was successful, and false if `val` was already previously recorded.
     Note: If `f` already has a value different from `val`, this function throws.

@@ -92,9 +92,11 @@ public:
     void merge(Direction* other, Predicate* pred);
 
     /* Identify pairs of angles `(a1, a2)` that need to be merged as a result of the directions `d` and 
-    `other_d` being deduced as parallel. 
+    `other_d` being deduced as parallel. Additionally returns a `bool` which is true iff direction1
+    is the one being coincident, and false if direction2 is the one being coincident.
     Also removes `a2` from `other_d->on_angles_1` and `other_d->on_angles_2`. */
-    static Generator<std::pair<Angle*, Angle*>> check_incident_angles(Direction* d, Direction* other_d);
+    static Generator<std::pair<std::pair<Angle*, Angle*>, bool>> 
+    check_incident_angles(Direction* d, Direction* other_d);
 
     static bool is_para(Direction* d1, Direction* d2);
     static bool is_perp(Direction* d1, Direction* d2);
