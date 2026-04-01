@@ -477,9 +477,16 @@ void GeometricGraph::set_directions_para(Direction* dest, Direction* src, PredSe
     // Check for incident angles as a result of the direction merge
     auto gen_to_merge_angles = Direction::check_incident_angles(dest, src);
     while (gen_to_merge_angles) {
-        auto pair = gen_to_merge_angles();
+        auto [pair, b] = gen_to_merge_angles();
         PredSet angle_merge_preds = preds;
-        merge_angles(pair.first.first, pair.first.second, preds, dd);
+        if (b) {
+            angle_merge_preds += tr->why_directions_of_angle(pair.first, root_dest, pair.first->direction2);
+            angle_merge_preds += tr->why_directions_of_angle(pair.second, root_src, pair.second->direction2);
+        } else {
+            angle_merge_preds += tr->why_directions_of_angle(pair.first, pair.first->direction1, root_dest);
+            angle_merge_preds += tr->why_directions_of_angle(pair.second, pair.second->direction1, root_src);
+        }
+        merge_angles(pair.first, pair.second, angle_merge_preds, dd);
     }
 
     Predicate* merger_pred = dd.insert_new_predicate(std::make_unique<Predicate>(
@@ -517,8 +524,16 @@ void GeometricGraph::set_directions_perp(Direction* d1, Direction* d2, PredSet p
         // dp1 will be merged into rd2. Check for newly incident angles
         auto gen_to_merge_angles_1 = Direction::check_incident_angles(rd2, dp1);
         while (gen_to_merge_angles_1) {
-            auto pair = gen_to_merge_angles_1();
-            merge_angles(pair.first.first, pair.first.second, preds, dd);
+            auto [pair, b] = gen_to_merge_angles_1();
+            PredSet angle_merge_preds = preds;
+            if (b) {
+                angle_merge_preds += tr->why_directions_of_angle(pair.first, rd2, pair.first->direction2);
+                angle_merge_preds += tr->why_directions_of_angle(pair.second, dp1, pair.second->direction2);
+            } else {
+                angle_merge_preds += tr->why_directions_of_angle(pair.first, pair.first->direction1, rd2);
+                angle_merge_preds += tr->why_directions_of_angle(pair.second, pair.second->direction1, dp1);
+            }
+            merge_angles(pair.first, pair.second, angle_merge_preds, dd);
         }
     }
     if (rd2->has_perp()) {
@@ -526,8 +541,16 @@ void GeometricGraph::set_directions_perp(Direction* d1, Direction* d2, PredSet p
         // dp2 will be merged into rd1. Check for newly incident angles
         auto gen_to_merge_angles_2 = Direction::check_incident_angles(rd1, dp2);
         while (gen_to_merge_angles_2) {
-            auto pair = gen_to_merge_angles_2();
-            merge_angles(pair.first.first, pair.first.second, preds, dd);
+            auto [pair, b] = gen_to_merge_angles_2();
+            PredSet angle_merge_preds = preds;
+            if (b) {
+                angle_merge_preds += tr->why_directions_of_angle(pair.first, rd1, pair.first->direction2);
+                angle_merge_preds += tr->why_directions_of_angle(pair.second, dp2, pair.second->direction2);
+            } else {
+                angle_merge_preds += tr->why_directions_of_angle(pair.first, pair.first->direction1, rd1);
+                angle_merge_preds += tr->why_directions_of_angle(pair.second, pair.second->direction1, dp2);
+            }
+            merge_angles(pair.first, pair.second, angle_merge_preds, dd);
         }
     }
 

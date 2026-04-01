@@ -329,10 +329,43 @@ void TracebackEngine::make_angle_with_directions(Angle* a, Direction* d1, Direct
     directions_of_angles[{d1, d2}] = a;
     angle_directions_root_map[{d1, d2}].insert({d1, d2});
 }
+PredSet TracebackEngine::why_directions_of_angle(Angle* a, Direction* d1, Direction* d2) {
+    auto& s = angle_directions_root_map[{d1, d2}];
+    PredSet res;
 
+    for (auto& [dc1, dc2] : s) {
+        Angle* ac = directions_of_angles[{dc1, dc2}];
+        PredSet res_ = (
+            TracebackUtils::why_ancestor(dc1, d1) +
+            TracebackUtils::why_ancestor(dc2, d2) +
+            TracebackUtils::why_ancestor(ac, a)
+        );
+        if (res_ < res) {
+            res = std::move(res_);
+        }
+    }
+    return res;
+}
 void TracebackEngine::make_ratio_with_lengths(Ratio* r, Length* len1, Length* len2) {
     lengths_of_ratios[{len1, len2}] = r;
     ratio_lengths_root_map[{len1, len2}].insert({len1, len2});
+}
+PredSet TracebackEngine::why_lengths_of_ratio(Ratio* r, Length* len1, Length* len2) {
+    auto& s = ratio_lengths_root_map[{len1, len2}];
+    PredSet res;
+
+    for (auto& [lc1, lc2] : s) {
+        Ratio* rc = lengths_of_ratios[{lc1, lc2}];
+        PredSet res_ = (
+            TracebackUtils::why_ancestor(lc1, len1) +
+            TracebackUtils::why_ancestor(lc2, len2) +
+            TracebackUtils::why_ancestor(rc, r)
+        );
+        if (res_ < res) {
+            res = std::move(res_);
+        }
+    }
+    return res;
 }
 
 
@@ -422,12 +455,12 @@ Length* TracebackEngine::__earliest_length_of(
     return earliest;
 }
 
-Measure* TracebackEngine::__earliest_measure_of(
+std::pair<Angle*, Measure*> TracebackEngine::__earliest_measure_of(
     Angle* a,
     std::map<Angle*, Measure*>& earliest_measure_cache
 ) {
     if (earliest_measure_cache.contains(a)) {
-        return earliest_measure_cache[a];
+        return {a, earliest_measure_cache[a]};
     }
     Measure* earliest = nullptr;
     for (auto [m, _] : measure_angle_root_map) {
@@ -439,14 +472,14 @@ Measure* TracebackEngine::__earliest_measure_of(
     }
     if (!earliest) return __earliest_measure_of(NodeUtils::get_parent(a), earliest_measure_cache);
     earliest_measure_cache[a] = earliest;
-    return earliest;
+    return {a, earliest};
 }
-Fraction* TracebackEngine::__earliest_fraction_of(
+std::pair<Ratio*, Fraction*> TracebackEngine::__earliest_fraction_of(
     Ratio* r,
     std::map<Ratio*, Fraction*>& earliest_fraction_cache
 ) {
     if (earliest_fraction_cache.contains(r)) {
-        return earliest_fraction_cache[r];
+        return {r, earliest_fraction_cache[r]};
     }
     Fraction* earliest = nullptr;
     for (auto [f, _] : fraction_ratio_root_map) {
@@ -458,7 +491,7 @@ Fraction* TracebackEngine::__earliest_fraction_of(
     }
     if (!earliest) return __earliest_fraction_of(NodeUtils::get_parent(r), earliest_fraction_cache);
     earliest_fraction_cache[r] = earliest;
-    return earliest;
+    return {r, earliest};
 }
 
 
@@ -1395,23 +1428,23 @@ PredSet TracebackEngine::why_eqangle(Point* p1, Point* p2, Point* p3, Point* p4,
 
                     res_ += (std::move(res1) + std::move(res2) + std::move(res3) + std::move(res4));
 
-                    /* Now, we iterate over pairs `(cd1, cd2)` and `(cd3, cd4)` of directions used to define angles */
+                    /* Now, we iterate over pairs `(cd1, cd2)` and `(cd3, cd4)` of directions used to define the angles
+                    `a1, a2`. */
                     PredSet res_0;
                     for (const auto& [cd1, cd2] : dir_pairs_12) {
                         for (const auto& [cd3, cd4] : dir_pairs_34) {
 
-                            /* Step 9-10: For each pair `(cd1, cd2)` and `(cd3, cd4)`, we identify the defined angles
-                            `a1, a2` as well as their earliest measures `m1, m2`, then extract the shortest explanations
-                            for why each angle was assigned its corresponding measure */
+                            /* Step 9-10: For each defined angle `ai`, extract its earliest measure `mi` as well as the
+                            ancestor angle `aai` for which it was defined */
                             Angle* a1 = directions_of_angles[{cd1, cd2}], *a2 = directions_of_angles[{cd3, cd4}];
-                            Measure* m1 = __earliest_measure_of(a1, earliest_measure_cache), 
-                                *m2 = __earliest_measure_of(a2, earliest_measure_cache);
+                            auto [aa1, m1] = __earliest_measure_of(a1, earliest_measure_cache);
+                            auto [aa2, m2] = __earliest_measure_of(a2, earliest_measure_cache);
 
                             auto [best_pair_a1, res_a1] = most_explainable_measure_of_angle(
-                                a1, m1, why_measure_ancestor_cache, why_angle_ancestor_cache
+                                aa1, m1, why_measure_ancestor_cache, why_angle_ancestor_cache
                             );
                             auto [best_pair_a2, res_a2] = most_explainable_measure_of_angle(
-                                a2, m2, why_measure_ancestor_cache, why_angle_ancestor_cache
+                                aa2, m2, why_measure_ancestor_cache, why_angle_ancestor_cache
                             );
 
                             PredSet res_0_ = (std::move(res_a1) + std::move(res_a2));
@@ -1419,7 +1452,7 @@ PredSet TracebackEngine::why_eqangle(Point* p1, Point* p2, Point* p3, Point* p4,
                             /* Step 11: Find ancestors `a1_a` and `a2_a` which had the same measure `m` at some point
                             in time
                             We should choose `m` to be the "least possible", i.e. the LCA of `m1` and `m2` */
-                            Angle* a1_a = a1, *a2_a = a2;
+                            Angle* a1_a = aa1, *a2_a = aa2;
                             Measure* m = TracebackUtils::lowest_common_ancestor(m1, m2).first;
                             
                             if (!NodeUtils::ancestor_of(a1_a->measure, m)) {
@@ -1459,17 +1492,17 @@ PredSet TracebackEngine::why_eqangle(Point* p1, Point* p2, Point* p3, Point* p4,
                                 + TracebackUtils::why_ancestor_with_cache(m2, m, why_measure_ancestor_cache)
                             );
 
-                            std::cout << "For lines " << lca1->to_string() << ", " << lca2->to_string() << ", " 
-                                << lca3->to_string() << ", " << lca4->to_string() 
-                                << " with directions " << d1->to_string() << ", " << d2->to_string() << ", " 
-                                << d3->to_string() << ", " << d4->to_string() 
-                                << " and angle directions " << cd1->to_string() << ", " << cd2->to_string() << ", " 
-                                << cd3->to_string() << ", " << cd4->to_string() 
-                                << " and angles (" << a1->to_string() << ", " << a1_a->to_string() 
-                                    << "), (" << a2->to_string() << ", " << a2_a->to_string() << ")"
-                                << " and measures " << m1->to_string() << ", " << m2->to_string() << " | " << m->to_string()
-                                << " | res_0_: " << res_0_.to_string()
-                                << " | res_: " << res_.to_string() << std::endl;
+                            // std::cout << "For lines " << lca1->to_string() << ", " << lca2->to_string() << ", " 
+                            //     << lca3->to_string() << ", " << lca4->to_string() 
+                            //     << " with directions " << d1->to_string() << ", " << d2->to_string() << ", " 
+                            //     << d3->to_string() << ", " << d4->to_string() 
+                            //     << " and angle directions " << cd1->to_string() << ", " << cd2->to_string() << ", " 
+                            //     << cd3->to_string() << ", " << cd4->to_string() 
+                            //     << " and angles (" << a1->to_string() << ", " << a1_a->to_string() 
+                            //         << "), (" << a2->to_string() << ", " << a2_a->to_string() << ")"
+                            //     << " and measures " << m1->to_string() << ", " << m2->to_string() << " | " << m->to_string()
+                            //     << " | res_0_: " << res_0_.to_string()
+                            //     << " | res_: " << res_.to_string() << std::endl;
 
                             if (res_0_ < res_0) {
                                 res_0 = std::move(res_0_);

@@ -131,8 +131,13 @@ public:
     void set_dimension_of(Dimension* dim, Triangle* t, PredSet pred);
 
     void make_angle_with_directions(Angle* a, Direction* d1, Direction* d2);
+    /* Extracts the shortest explanation for why directions d1, d2 are currently the
+    direction1 and direction2's of angle a respectively. */
+    PredSet why_directions_of_angle(Angle* a, Direction* d1, Direction* d2);
     void make_ratio_with_lengths(Ratio* r, Length* len1, Length* len2);
-    PredSet most_explainable_lengths_of_ratio(Ratio* r, Length* len1, Length* len2);
+    /* Extracts the shortest explanation for why lengths len1, len2 are currently the
+    length1 and length2's of ratio r respectively. */
+    PredSet why_lengths_of_ratio(Ratio* r, Length* len1, Length* len2);
 
     void set_measure_of(Measure* m, Angle* a, PredSet pred);
     PredSet why_measure_of(Measure* m, Angle* a);
@@ -170,7 +175,7 @@ public:
     it, was assigned some measure `m`. Returns this measure `m`. (Thus, `m` is also
     the "earliest" measure assigned to `a` or an ancestor of itself, and is recorded in
     `measure_angle_root_map`.) */
-    Measure* __earliest_measure_of(
+    std::pair<Angle*, Measure*> __earliest_measure_of(
         Angle* a,
         std::map<Angle*, Measure*>& earliest_measure_cache
     );
@@ -178,7 +183,7 @@ public:
     it, was assigned some fraction `f`. Returns this fraction `f`. (Thus, `f` is also
     the "earliest" fraction assigned to `r` or an ancestor of itself, and is recorded in
     `fraction_ratio_root_map`.) */
-    Fraction* __earliest_fraction_of(
+    std::pair<Ratio*, Fraction*> __earliest_fraction_of(
         Ratio* r,
         std::map<Ratio*, Fraction*>& earliest_fraction_cache
     );
@@ -241,12 +246,6 @@ public:
         std::map<std::pair<Length*, Length*>, PredSet>& why_length_ancestor_cache,
         std::map<std::pair<Segment*, Segment*>, PredSet>& why_segment_ancestor_cache
     );
-
-
-    std::pair<
-        std::pair<std::pair<Direction*, Direction*>, Angle*>, 
-        PredSet> 
-        most_explainable_directions_of_angle(Angle* a, Direction* d1, Direction* d2);
 
 
     /* Given an angle `a` and a measure `m`, identifies the children `ca` and `cm` such

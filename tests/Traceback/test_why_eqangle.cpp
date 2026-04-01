@@ -166,7 +166,16 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ));
 
         PredSet why_eq_hdc_eab = TracebackUtils::why_ancestor(hdc, eab);
-        std::cout << why_eq_hdc_eab.to_string() << std::endl;
+        REQUIRE((
+            why_eq_hdc_eab.contains(preds[3]) &&    // para A B C D
+            why_eq_hdc_eab.contains(preds[15])      // para A E D H
+        ));
+
+        PredSet why_eq_cfg_cde = TracebackUtils::why_ancestor(cfg, cde);
+        REQUIRE((
+            why_eq_cfg_cde.contains(preds[7]) &&    // midp F C D
+            why_eq_cfg_cde.contains(preds[14])      // para D E F G
+        ));
 
         /* Round 2 */
 
@@ -222,7 +231,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ggraph.synthesise_preds(dd, ar);
 
         REQUIRE((
-            Angle::is_equal(cjf, bci) &&
+            NodeUtils::get_root(cjf) == bci &&
             Angle::is_equal(bci, cde) &
             Angle::is_equal(cjf, fag)
         ));
@@ -231,23 +240,88 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         19 - para A F C I
         */
 
+        PredSet why_eq_cjf_bci = TracebackUtils::why_ancestor(cjf, bci);
+        REQUIRE((
+            why_eq_cjf_bci.contains(preds[8]) &&    // midp C B J
+            why_eq_cjf_bci.contains(preds[19])      // para A F C I
+        ));
+
+        /*
+        0 - cong A B B C        10 - midp H C J
+        1 - cong B C C D        11 - midp I A B
+        2 - cong C D D A        12 - coll A F J
+        3 - para A B C D        13 - para B C F I
+        4 - para B C D A        14 - para D E F G
+        5 - perp A B B C        15 - para A E D H
+        6 - midp E B C          16 - eqangle F A A G E A A B
+        7 - midp F C D          17 - eqangle C F F G I F F A
+        8 - midp C B J          18 - eqangle F A A G B C C I
+        9 - midp G E C          19 - para A F C I
+        */
+
         /* After round 1 */
 
         PredSet why_eqangle_fag_eab = tr.why_eqangle(f, a, a, g, e, a, a, b);
-        std::cout << "---- why_eqangle_fag_eab: " << why_eqangle_fag_eab.to_string() << std::endl;
+        REQUIRE((
+            why_eqangle_fag_eab.contains(preds[16]) &&      // eqangle F A A G E A A B
+            why_eqangle_fag_eab.contains(base_pred) &&
+            why_eqangle_fag_eab.size() == 2
+        ));
 
         PredSet why_eqangle_fag_hdc = tr.why_eqangle(f, a, a, g, h, d, d, c);
-        std::cout << "---- why_eqangle_fag_hdc: " << why_eqangle_fag_hdc.to_string() << std::endl;
+        REQUIRE((
+            why_eqangle_fag_hdc.contains(preds[3]) &&       // para A B C D
+            why_eqangle_fag_hdc.contains(preds[15]) &&      // para A E D H - these explain EAB = HDC
+            why_eqangle_fag_hdc.contains(preds[16]) &&      // eqangle F A A G E A A B
+            why_eqangle_fag_hdc.contains(base_pred) &&
+            why_eqangle_fag_hdc.size() == 4
+        ));
 
         /* After round 2 */
 
         PredSet why_eqangle_fic_hdc = tr.why_eqangle(f, i, i, c, h, d, d, c);
-        std::cout << "---- why_eqangle_fic_hdc: " << why_eqangle_fic_hdc.to_string() << std::endl;
+        REQUIRE((
+            why_eqangle_fic_hdc.contains(preds[3]) &&       // para A B C D
+            why_eqangle_fic_hdc.contains(preds[15]) &&      // para A E D H - these explain EAB = HDC
+            why_eqangle_fic_hdc.contains(preds[13]) &&      // para B C F I - explains BCI = FIC
+            why_eqangle_fic_hdc.contains(preds[16]) &&      // eqangle F A A G E A A B
+            why_eqangle_fic_hdc.contains(preds[18]) &&      // eqangle F A A G B C C I
+            why_eqangle_fic_hdc.contains(base_pred)
+        ));
 
         /* After round 3 */
 
         PredSet why_eqangle_cjf_bci = tr.why_eqangle(c, j, j, f, b, c, c, i);
-        std::cout << "---- why_eqangle_cjf_bci: " << why_eqangle_cjf_bci.to_string() << std::endl;
+        REQUIRE((
+            why_eqangle_cjf_bci.contains(preds[8]) &&       // midp C B J
+            why_eqangle_cjf_bci.contains(preds[19]) &&      // para A F C I
+            why_eqangle_cjf_bci.contains(base_pred)
+        ));
+
+        PredSet why_eqangle_dfg_fag = tr.why_eqangle(d, f, f, g, f, a, a, g);
+        REQUIRE((
+            why_eqangle_dfg_fag.contains(preds[7]) &&       // midp F C D
+            why_eqangle_dfg_fag.contains(preds[14]) &&      // para D E F G - these explain CDE = CFG
+            why_eqangle_dfg_fag.contains(preds[8]) &&       // midp C B J
+            why_eqangle_dfg_fag.contains(preds[17]) &&      // eqangle C F F G I F F A - these explain CJF = CDE
+            why_eqangle_dfg_fag.contains(preds[18]) &&      // eqangle F A A G B C C I
+            why_eqangle_dfg_fag.contains(preds[19]) &&      // para A F C I - explains BCI = CJF
+            why_eqangle_dfg_fag.contains(base_pred)
+        ));
+
+        PredSet why_eqangle_hdc_cfg = tr.why_eqangle(h, d, d, c, c, f, f, g);
+        REQUIRE((
+            why_eqangle_hdc_cfg.contains(preds[7]) &&       // midp F C D
+            why_eqangle_hdc_cfg.contains(preds[14]) &&      // para D E F G - these explain CDE = CFG
+            why_eqangle_hdc_cfg.contains(preds[8]) &&       // midp C B J
+            why_eqangle_hdc_cfg.contains(preds[17]) &&      // eqangle C F F G I F F A - these explain CJF = CDE
+            why_eqangle_hdc_cfg.contains(preds[18]) &&      // eqangle F A A G B C C I
+            why_eqangle_hdc_cfg.contains(preds[3]) &&       // para A B C D
+            why_eqangle_hdc_cfg.contains(preds[15]) &&      // para A E D H - these explain EAB = HDC
+            why_eqangle_hdc_cfg.contains(preds[16]) &&      // eqangle F A A G E A A B - at this point we have HDC = EAB = FAG = BCI
+            why_eqangle_hdc_cfg.contains(preds[19]) &&      // para A F C I - explains BCI = CJF
+            why_eqangle_hdc_cfg.contains(base_pred)
+        ));
 
     }
 }
