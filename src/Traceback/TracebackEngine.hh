@@ -172,17 +172,15 @@ public:
     );
     
     /* Identifies the earliest known instance at which the angle `a`, or an ancestor of
-    it, was assigned some measure `m`. Returns this measure `m`. (Thus, `m` is also
-    the "earliest" measure assigned to `a` or an ancestor of itself, and is recorded in
-    `measure_angle_root_map`.) */
+    it, was assigned some measure `m`. Returns this measure `m` as well as the ancestor
+    angle `aa` at which `m` was assigned (as recorded in `measure_angle_root_map`). */
     std::pair<Angle*, Measure*> __earliest_measure_of(
         Angle* a,
         std::map<Angle*, Measure*>& earliest_measure_cache
     );
     /* Identifies the earliest known instance at which the ratio `r`, or an ancestor of
-    it, was assigned some fraction `f`. Returns this fraction `f`. (Thus, `f` is also
-    the "earliest" fraction assigned to `r` or an ancestor of itself, and is recorded in
-    `fraction_ratio_root_map`.) */
+    it, was assigned some fraction `f`. Returns this fraction `f` as well as the ancestor
+    ratio `ra` at which `f` was assigned (as recorded in `fraction_ratio_root_map`). */
     std::pair<Ratio*, Fraction*> __earliest_fraction_of(
         Ratio* r,
         std::map<Ratio*, Fraction*>& earliest_fraction_cache
@@ -261,6 +259,18 @@ public:
         std::map<std::pair<Angle*, Angle*>, PredSet>& why_angle_ancestor_cache
     );
 
+    /* Given a ratio `r` and a fraction `f`, identifies the children `cr` and `cf` such
+    that `cr` was assigned fraction `cf` (as recorded in `fraction_of_ratios`), and the
+    PredSet constructed from the addition of
+    - fraction_of_ratios[cf][cr]
+    - why_ancestor(cf, f)
+    - why_ancestor(cr, r)
+    is the smallest possible. */
+    std::pair<std::pair<Fraction*, Ratio*>, PredSet> most_explainable_fraction_of_ratio(
+        Ratio* r, Fraction* f,
+        std::map<std::pair<Fraction*, Fraction*>, PredSet>& why_fraction_ancestor_cache,
+        std::map<std::pair<Ratio*, Ratio*>, PredSet>& why_ratio_ancestor_cache
+    );
 
 
     PredSet why_coll(Point* p1, Point* p2, Point* p3);

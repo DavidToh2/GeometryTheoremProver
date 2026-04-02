@@ -134,9 +134,11 @@ public:
     void merge(Length* other, Predicate* pred);
 
     /* Identify pairs of ratios `(r1, r2)` that need to be merged as a result of the lengths `l` and `other_l`
-    being deduced as equal.
+    being deduced as equal. Additionally returns a `bool` which is true iff length1 is the one being coincident, 
+    and false if length2 is the one being coincident.
     Also removes `r2` from `other_l->on_ratio_1` and `other_l->on_ratio_2`. */
-    static Generator<std::pair<Ratio*, Ratio*>> check_incident_ratios(Length* l, Length* other_l);
+    static Generator<std::pair<std::pair<Ratio*, Ratio*>, bool>>
+    check_incident_ratios(Length* l, Length* other_l);
 
     /* Identify triples of points `(p1, p2, p3)`, where `p1p2` has length `l` and `p2p3` has length `other_l`. */
     static Generator<std::array<Point*, 3>> check_incident_isosceles_triangles(Length* l, Length* other_l);

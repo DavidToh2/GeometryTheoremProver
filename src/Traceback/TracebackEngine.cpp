@@ -775,6 +775,47 @@ std::pair<std::pair<Measure*, Angle*>, PredSet> TracebackEngine::most_explainabl
     }
     return {{best_m, best_a}, res};
 }
+std::pair<std::pair<Fraction*, Ratio*>, PredSet> TracebackEngine::most_explainable_fraction_of_ratio(
+    Ratio* r, Fraction* f,
+    std::map<std::pair<Fraction*, Fraction*>, PredSet>& why_fraction_ancestor_cache,
+    std::map<std::pair<Ratio*, Ratio*>, PredSet>& why_ratio_ancestor_cache
+) {
+    /* Extract all children of `r` which were assigned fractions */
+    std::set<Ratio*> r_cs;
+    std::vector<std::pair<Fraction*, Ratio*>> f2rs;
+
+    NodeUtils::all_children(r, r_cs);
+    for (const auto& [fraction, ratio_map] : fraction_of_ratios) {
+        for (Ratio* r_c : r_cs) {
+            if (ratio_map.contains(r_c)) {
+                f2rs.emplace_back(fraction, r_c);
+            }
+        }
+    }
+
+    /* Each child `r_c` will have been assigned some Fraction `f_c`.
+    The desired PredSet is the union of the following:
+    - fraction_of_ratios[f_c][r_c]
+    - why_ancestor(r_c, r)
+    - why_ancestor(f_c, f)
+    Pick the `r_c` with the lowest predicate count. */
+    PredSet res;
+    Fraction* best_f = nullptr;
+    Ratio* best_r = nullptr;
+    for (auto [f_c, r_c] : f2rs) {
+        PredSet res_ = (
+            TracebackUtils::why_ancestor_with_cache(r_c, r, why_ratio_ancestor_cache)
+            + TracebackUtils::why_ancestor_with_cache(f_c, f, why_fraction_ancestor_cache)
+            + fraction_of_ratios[f_c][r_c]
+        );
+        if (res_ < res) {
+            res = std::move(res_);
+            best_f = f_c;
+            best_r = r_c;
+        }
+    }
+    return {{best_f, best_r}, res};
+}
 
 
 
@@ -1397,7 +1438,7 @@ PredSet TracebackEngine::why_eqangle(Point* p1, Point* p2, Point* p3, Point* p4,
     std::set<std::pair<Direction*, Direction*>> dir_pairs_12 = angle_directions_root_map[{rd1, rd2}];
     std::set<std::pair<Direction*, Direction*>> dir_pairs_34 = angle_directions_root_map[{rd3, rd4}];
 
-    /* Now we check every possible pair of LCAs `(lca1, lca2)` */
+    /* Now we check every possible quadruplet of `lca`s */
     for (const auto& [lca1, why_ancestor_lines_points_12] : lca1s) {
         for (const auto& [lca2, why_ancestor_lines_points_34] : lca2s) {
             for (const auto& [lca3, why_ancestor_lines_points_56] : lca3s) {
@@ -1515,6 +1556,160 @@ PredSet TracebackEngine::why_eqangle(Point* p1, Point* p2, Point* p3, Point* p4,
                     if (res_ < res) {
                         res = std::move(res_);
                     }
+
+                }
+            }
+        }
+    }
+
+    return res;
+}
+
+
+
+
+PredSet TracebackEngine::why_eqratio(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Point* p7, Point* p8) {
+    PredSet res;
+    std::map<std::pair<Point*, Point*>, PredSet> why_point_ancestor_cache;
+    std::map<std::pair<Segment*, Segment*>, PredSet> why_segment_ancestor_cache;
+    std::map<std::pair<Length*, Length*>, PredSet> why_length_ancestor_cache;
+    std::map<std::pair<Ratio*, Ratio*>, PredSet> why_ratio_ancestor_cache;
+    std::map<std::pair<Fraction*, Fraction*>, PredSet> why_fraction_ancestor_cache;
+
+    std::map<Segment*, Length*> earliest_length_cache;
+    std::map<Ratio*, Fraction*> earliest_fraction_cache;
+
+    /* Steps 1-5: Fetch the lca_segments of `p1p2`, `p3p4`, `p5p6` and `p7p8` */
+    Segment* common_root_12 = nullptr, *common_root_34 = nullptr, *common_root_56 = nullptr, *common_root_78 = nullptr;
+    std::map<Segment*, PredSet> lca1s, lca2s, lca3s, lca4s;
+    std::tie(lca1s, common_root_12) = lca_segments_and_why(p1, p2, why_point_ancestor_cache, why_segment_ancestor_cache);
+    std::tie(lca2s, common_root_34) = lca_segments_and_why(p3, p4, why_point_ancestor_cache, why_segment_ancestor_cache);
+    std::tie(lca3s, common_root_56) = lca_segments_and_why(p5, p6, why_point_ancestor_cache, why_segment_ancestor_cache);
+    std::tie(lca4s, common_root_78) = lca_segments_and_why(p7, p8, why_point_ancestor_cache, why_segment_ancestor_cache);
+
+    Length* rl1 = common_root_12->get_length(), *rl2 = common_root_34->get_length(),
+        *rl3 = common_root_56->get_length(), *rl4 = common_root_78->get_length();
+
+    std::set<std::pair<Length*, Length*>> length_pairs_12 = ratio_lengths_root_map[{rl1, rl2}];
+    std::set<std::pair<Length*, Length*>> length_pairs_34 = ratio_lengths_root_map[{rl3, rl4}];
+
+    /* Now we check every possible quadruplet of `lca`s */
+    for (const auto& [lca1, why_ancestor_segments_points_12] : lca1s) {
+        for (const auto& [lca2, why_ancestor_segments_points_34] : lca2s) {
+            for (const auto& [lca3, why_ancestor_segments_points_56] : lca3s) {
+                for (const auto& [lca4, why_ancestor_segments_points_78] : lca4s) {
+
+                    PredSet res_ = (
+                        why_ancestor_segments_points_12 + why_ancestor_segments_points_34
+                        + why_ancestor_segments_points_56 + why_ancestor_segments_points_78
+                    );
+                    Length* len1 = __earliest_length_of(lca1, earliest_length_cache), 
+                        *len2 = __earliest_length_of(lca2, earliest_length_cache),
+                        *len3 = __earliest_length_of(lca3, earliest_length_cache), 
+                        *len4 = __earliest_length_of(lca4, earliest_length_cache);
+
+                    /* Steps 6-7: extract the shortest explanations for why each lcai was assigned length di */
+                    auto [best_pair_1, res1] = most_explainable_length_of_segment(
+                        lca1, len1, why_length_ancestor_cache, why_segment_ancestor_cache
+                    );
+                    auto [best_pair_2, res2] = most_explainable_length_of_segment(
+                        lca2, len2, why_length_ancestor_cache, why_segment_ancestor_cache
+                    );
+                    auto [best_pair_3, res3] = most_explainable_length_of_segment(
+                        lca3, len3, why_length_ancestor_cache, why_segment_ancestor_cache
+                    );
+                    auto [best_pair_4, res4] = most_explainable_length_of_segment(
+                        lca4, len4, why_length_ancestor_cache, why_segment_ancestor_cache
+                    );
+
+                    res_ += (std::move(res1) + std::move(res2) + std::move(res3) + std::move(res4));
+
+                    /* Now we iterate over pairs of lengths `(len1, len2), (len3, len4)` used to define the ratios
+                    `r1, r2`. */
+                    PredSet res_0;
+                    for (const auto& [clen1, clen2] : length_pairs_12) {
+                        for (const auto& [clen3, clen4] : length_pairs_34) {
+                            /* Step 9-10: For each defined ratio `ri`, extract its earliest fraction `fi` as well as the
+                            ancestor ratio `rai` for which it was defined */
+                            Ratio* r1 = lengths_of_ratios[{clen1, clen2}], *r2 = lengths_of_ratios[{clen3, clen4}];
+                            auto [ra1, f1] = __earliest_fraction_of(r1, earliest_fraction_cache);
+                            auto [ra2, f2] = __earliest_fraction_of(r2, earliest_fraction_cache);
+
+                            auto [best_pair_r1, res_r1] = most_explainable_fraction_of_ratio(
+                                ra1, f1, why_fraction_ancestor_cache, why_ratio_ancestor_cache
+                            );
+                            auto [best_pair_r2, res_r2] = most_explainable_fraction_of_ratio(
+                                ra2, f2, why_fraction_ancestor_cache, why_ratio_ancestor_cache
+                            );
+
+                            PredSet res_0_ = (std::move(res_r1) + std::move(res_r2));
+
+                            /* Step 11: Find ancestors `r1_a` and `r2_a` which had the same fraction `f` at some point
+                            in time
+                            We should choose `f` to be the "least possible", i.e. the LCA of `f1` and `f2` */
+                            Ratio* r1_a = ra1, *r2_a = ra2;
+                            Fraction* f = TracebackUtils::lowest_common_ancestor(f1, f2).first;
+                            
+                            if (!NodeUtils::ancestor_of(r1_a->fraction, f)) {
+                                while (!(r1_a->is_root())) {
+                                    r1_a = NodeUtils::get_parent(r1_a);
+                                    if (NodeUtils::ancestor_of(r1_a->fraction, f)) {
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!NodeUtils::ancestor_of(r2_a->fraction, f)) {
+                                while (!(r2_a->is_root())) {
+                                    r2_a = NodeUtils::get_parent(r2_a);
+                                    if (NodeUtils::ancestor_of(r2_a->fraction, f)) {
+                                        break;
+                                    }
+                                }
+                            }
+
+                            auto [alen1, x1] = TracebackUtils::lowest_common_ancestor(len1, clen1);
+                            auto [alen2, x2] = TracebackUtils::lowest_common_ancestor(len2, clen2);
+                            auto [alen3, x3] = TracebackUtils::lowest_common_ancestor(len3, clen3);
+                            auto [alen4, x4] = TracebackUtils::lowest_common_ancestor(len4, clen4);
+                            
+                            res_0_ += (
+                                TracebackUtils::why_ancestor_with_cache(len1, alen1, why_length_ancestor_cache)
+                                + TracebackUtils::why_ancestor_with_cache(clen1, alen1, why_length_ancestor_cache)
+                                + TracebackUtils::why_ancestor_with_cache(len2, alen2, why_length_ancestor_cache)
+                                + TracebackUtils::why_ancestor_with_cache(clen2, alen2, why_length_ancestor_cache)
+                                + TracebackUtils::why_ancestor_with_cache(len3, alen3, why_length_ancestor_cache)
+                                + TracebackUtils::why_ancestor_with_cache(clen3, alen3, why_length_ancestor_cache)
+                                + TracebackUtils::why_ancestor_with_cache(len4, alen4, why_length_ancestor_cache)
+                                + TracebackUtils::why_ancestor_with_cache(clen4, alen4, why_length_ancestor_cache)
+                                + TracebackUtils::why_ancestor_with_cache(r1, r1_a, why_ratio_ancestor_cache)
+                                + TracebackUtils::why_ancestor_with_cache(r2, r2_a, why_ratio_ancestor_cache)
+                                + TracebackUtils::why_ancestor_with_cache(f1, f, why_fraction_ancestor_cache)
+                                + TracebackUtils::why_ancestor_with_cache(f2, f, why_fraction_ancestor_cache)
+                            );
+
+                            // std::cout << "For lines " << lca1->to_string() << ", " << lca2->to_string() << ", " 
+                            //     << lca3->to_string() << ", " << lca4->to_string() 
+                            //     << " with lengths " << len1->to_string() << ", " << len2->to_string() << ", " 
+                            //     << len3->to_string() << ", " << len4->to_string() 
+                            //     << " and ratio lengths " << clen1->to_string() << ", " << clen2->to_string() << ", " 
+                            //     << clen3->to_string() << ", " << clen4->to_string() 
+                            //     << " and ratios (" << r1->to_string() << ", " << r1_a->to_string() 
+                            //         << "), (" << r2->to_string() << ", " << r2_a->to_string() << ")"
+                            //     << " and fractions " << f1->to_string() << ", " << f2->to_string() << " | " << f->to_string()
+                            //     << " | res_0_: " << res_0_.to_string()
+                            //     << " | res_: " << res_.to_string() << std::endl;
+
+                            if (res_0_ < res_0) {
+                                res_0 = std::move(res_0_);
+                            }
+                        }
+                    }
+
+                    res_ += res_0;
+                    if (res_ < res) {
+                        res = std::move(res_);
+                    }
+
                 }
             }
         }

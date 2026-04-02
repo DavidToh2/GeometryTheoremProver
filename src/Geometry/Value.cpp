@@ -209,7 +209,7 @@ void Length::merge(Length* other, Predicate* pred) {
     this->on_ratio_2.merge(other->on_ratio_2);
 }
 
-Generator<std::pair<Ratio*, Ratio*>> Length::check_incident_ratios(Length* l, Length* other_l) {
+Generator<std::pair<std::pair<Ratio*, Ratio*>, bool>> Length::check_incident_ratios(Length* l, Length* other_l) {
     std::map<Length*, Ratio*> len1_to_ratio;
     std::map<Length*, Ratio*> len2_to_ratio;
     for (Ratio* r : l->on_ratio_1) {
@@ -228,7 +228,7 @@ Generator<std::pair<Ratio*, Ratio*>> Length::check_incident_ratios(Length* l, Le
             Ratio* r1 = len2_to_ratio[l2];
             if (!merge_happened) it = other_l->on_ratio_1.erase(it);
             merge_happened = true;
-            co_yield {r1, r};
+            co_yield {{r1, r}, true};
         }
         if (!merge_happened) ++it;
     }
@@ -248,7 +248,7 @@ Generator<std::pair<Ratio*, Ratio*>> Length::check_incident_ratios(Length* l, Le
             Ratio* r1 = len1_to_ratio[l1];
             if (!merge_happened) it = other_l->on_ratio_2.erase(it);
             merge_happened = true;
-            co_yield {r1, r};
+            co_yield {{r1, r}, false};
         } 
         if (!merge_happened) ++it;
     }

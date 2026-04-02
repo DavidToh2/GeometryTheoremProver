@@ -1023,7 +1023,15 @@ void GeometricGraph::set_lengths_cong(Length* l1, Length* l2, PredSet preds, DDE
     // Check for newly incident ratios as a result of the length merge
     auto gen_to_merge_ratios = Length::check_incident_ratios(root_l1, root_l2);
     while (gen_to_merge_ratios) {
-        auto pair = gen_to_merge_ratios();
+        auto [pair, b] = gen_to_merge_ratios();
+        PredSet ratio_merge_preds = preds;
+        if (b) {
+            ratio_merge_preds += tr->why_lengths_of_ratio(pair.first, root_l1, pair.first->length1);
+            ratio_merge_preds += tr->why_lengths_of_ratio(pair.second, root_l2, pair.second->length1);
+        } else {
+            ratio_merge_preds += tr->why_lengths_of_ratio(pair.first, pair.first->length1, root_l1);
+            ratio_merge_preds += tr->why_lengths_of_ratio(pair.second, pair.second->length1, root_l2);
+        }
         merge_ratios(pair.first, pair.second, preds, dd);
     }
 
