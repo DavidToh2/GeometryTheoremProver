@@ -196,20 +196,35 @@ Shape* Dimension::get_shape() {
     return NodeUtils::get_root(this)->__get_shape();
 }
 
-void Dimension::set_isosceles(int i1, int i2) {
+bool Dimension::set_isosceles(int i1, int i2) {
+    bool ret = !isosceles_mask[i1] || !isosceles_mask[i2];
     isosceles_mask[i1] = true;
     isosceles_mask[i2] = true;
+    return ret;
 }
-void Dimension::set_isosceles_mask(std::array<bool, 3> mask) {
+bool Dimension::set_isosceles_mask(std::array<bool, 3> mask) {
+    bool ret = (isosceles_mask != mask);
     isosceles_mask = mask;
+    return ret;
 }
-void Dimension::setor_isosceles_mask(std::array<bool, 3> mask) {
+bool Dimension::setor_isosceles_mask(std::array<bool, 3> mask) {
+    bool ret = (
+        (!isosceles_mask[0] && mask[0]) || 
+        (!isosceles_mask[1] && mask[1]) || 
+        (!isosceles_mask[2] && mask[2])
+    );
     for (int i = 0; i < 3; ++i) {
         isosceles_mask[i] = (isosceles_mask[i] || mask[i]);
     }
+    return ret;
 }
-std::array<bool, 3> Dimension::or_isosceles_masks(std::array<bool, 3> mask1, std::array<bool, 3> mask2) {
-    return { (mask1[0] || mask2[0]), (mask1[1] || mask2[1]), (mask1[2] || mask2[2]) };
+std::pair<std::array<bool, 3>, std::pair<bool, bool>> Dimension::or_isosceles_masks(std::array<bool, 3> mask1, std::array<bool, 3> mask2) {
+    std::array<bool, 3> res = { (mask1[0] || mask2[0]), (mask1[1] || mask2[1]), (mask1[2] || mask2[2]) };
+    std::pair<bool, bool> updated = {
+        (mask1[0] != res[0]) || (mask1[1] != res[1]) || (mask1[2] != res[2]), 
+        (mask2[0] != res[0]) || (mask2[1] != res[1]) || (mask2[2] != res[2]) 
+    };
+    return { res, updated };
 }
 
 bool Dimension::is_congruent(Dimension* d1, Dimension* d2) {

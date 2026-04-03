@@ -90,6 +90,9 @@ public:
     std::map<Shape*, std::map<Dimension*, PredSet>> shape_of_dimensions;
     std::map<Shape*, std::map<Dimension*, std::pair<Shape*, Dimension*>>> shape_dimension_root_map;
 
+    std::map<Dimension*, PredSet> dimension_isosceles_map_preds;
+    std::map<Shape*, PredSet> shape_isosceles_map_preds;
+
     std::map<Measure*, std::pair<Frac, PredSet>> measure_vals;
     std::map<Fraction*, std::pair<Frac, PredSet>> fraction_vals;
 
@@ -129,6 +132,7 @@ public:
     void set_length_of(Length* len, Segment* s, PredSet pred);
     PredSet why_length_of(Length* len, Segment* s);
     void set_dimension_of(Dimension* dim, Triangle* t, PredSet pred);
+    PredSet why_dimension_of(Dimension* dim, Triangle* t);
 
     void make_angle_with_directions(Angle* a, Direction* d1, Direction* d2);
     /* Extracts the shortest explanation for why directions d1, d2 are currently the
@@ -144,6 +148,12 @@ public:
     void set_fraction_of(Fraction* f, Ratio* r, PredSet pred);
     PredSet why_fraction_of(Fraction* f, Ratio* r);
     void set_shape_of(Shape* s, Dimension* d, PredSet pred);
+    PredSet why_shape_of(Shape* s, Dimension* d);
+    
+    void add_isosceles_mask_predicates(Dimension* dim, PredSet pred);
+    PredSet why_isosceles_mask(Dimension* dim);
+    void add_isosceles_mask_predicates(Shape* shp, PredSet pred);
+    PredSet why_isosceles_mask(Shape* shp);
 
     void set_measure_val(Measure* m, Frac val, PredSet pred);
     void set_fraction_val(Fraction* f, Frac val, PredSet pred);

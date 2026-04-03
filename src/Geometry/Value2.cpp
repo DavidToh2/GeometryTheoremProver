@@ -80,35 +80,45 @@ bool Shape::is_similar(Shape* s1, Shape* s2) {
     return NodeUtils::same_as(s1, s2);
 }
 
-void Shape::set_isosceles_masks(int i1, int i2) {
+bool Shape::set_isosceles(int i1, int i2) {
     Shape* root_this = NodeUtils::get_root(this);
-    if (this != root_this) return;
+    if (this != root_this) return false;
 
     Dimension* dim = *(root_this->root_obj2s.begin());
-    if (dim->isosceles_mask[i1] && dim->isosceles_mask[i2]) return;
+    if (dim->isosceles_mask[i1] && dim->isosceles_mask[i2]) return false;
 
     for (Dimension* dim : root_this->root_obj2s) {
         dim->set_isosceles(i1, i2);
     }
+    return true;
 }
-void Shape::set_isosceles_masks(std::array<bool, 3> mask) {
+bool Shape::set_isosceles_masks(std::array<bool, 3> mask) {
     Shape* root_this = NodeUtils::get_root(this);
-    if (this != root_this) return;
+    if (this != root_this) return false;
 
     Dimension* dim = *(root_this->root_obj2s.begin());
-    if (dim->isosceles_mask == mask) return;
+    if (dim->isosceles_mask == mask) return false;
     
     for (Dimension* dim : root_this->root_obj2s) {
         dim->set_isosceles_mask(mask);
     }
+    return true;
 }
-void Shape::setor_isosceles_masks(std::array<bool, 3> mask) {
+bool Shape::setor_isosceles_masks(std::array<bool, 3> mask) {
     Shape* root_this = NodeUtils::get_root(this);
-    if (this != root_this) return;
+    if (this != root_this) return false;
+
+    Dimension* dim = *(root_this->root_obj2s.begin());
+    if (!(        
+        (!dim->isosceles_mask[0] && mask[0]) || 
+        (!dim->isosceles_mask[1] && mask[1]) || 
+        (!dim->isosceles_mask[2] && mask[2])
+    )) return false;
 
     for (Dimension* dim : root_this->root_obj2s) {
         dim->setor_isosceles_mask(mask);
     }
+    return true;
 }
 
 void Shape::merge(Shape* other, Predicate* pred) {

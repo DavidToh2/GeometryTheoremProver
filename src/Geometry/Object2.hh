@@ -179,14 +179,19 @@ public:
     Shape* __get_shape();
     Shape* get_shape();
 
-    /* Sets `isosceles_mask[i1]` and `isosceles_mask[i2]` to true. */
-    void set_isosceles(int i1, int i2);
-    /* Replaces the isosceles mask with the one supplied. */
-    void set_isosceles_mask(std::array<bool, 3> mask);
-    /* Applies a per-bool OR operation with the given mask. */
-    void setor_isosceles_mask(std::array<bool, 3> mask);
-    /* Combines two isosceles masks using a per-bool OR operation. */
-    static std::array<bool, 3> or_isosceles_masks(std::array<bool, 3> mask1, std::array<bool, 3> mask2);
+    /* Sets `isosceles_mask[i1]` and `isosceles_mask[i2]` to true.
+    Returns `true` if either mask was updated, `false` otherwise. */
+    bool set_isosceles(int i1, int i2);
+    /* Replaces the isosceles mask with the one supplied.
+    Returns `true` if the mask was updated, `false` otherwise. */
+    bool set_isosceles_mask(std::array<bool, 3> mask);
+    /* Applies a per-bool OR operation with the given mask.
+    Returns `true` if any mask was updated, `false` otherwise. */
+    bool setor_isosceles_mask(std::array<bool, 3> mask);
+    /* Combines two isosceles masks using a per-bool OR operation.
+    Returns the combined mask and a pair indicating whether any mask was updated in each of the 
+    source masks. */
+    static std::pair<std::array<bool, 3>, std::pair<bool, bool>> or_isosceles_masks(std::array<bool, 3> mask1, std::array<bool, 3> mask2);
 
     template<typename... T>
     requires (std::same_as<T, int> && ...)

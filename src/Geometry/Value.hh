@@ -140,8 +140,9 @@ public:
     static Generator<std::pair<std::pair<Ratio*, Ratio*>, bool>>
     check_incident_ratios(Length* l, Length* other_l);
 
-    /* Identify triples of points `(p1, p2, p3)`, where `p1p2` has length `l` and `p2p3` has length `other_l`. */
-    static Generator<std::array<Point*, 3>> check_incident_isosceles_triangles(Length* l, Length* other_l);
+    /* Identifies pairs of segments where `s1 = p1p2` has length `l` and `s2 = p2p3` has length `other_l`. */
+    static Generator<std::pair<std::array<Point*, 3>, std::pair<Segment*, Segment*>>> 
+    check_incident_isosceles_triangles(Length* l, Length* other_l);
 
     static bool is_cong(Length* l1, Length* l2);
 };

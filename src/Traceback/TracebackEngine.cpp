@@ -180,6 +180,8 @@ void TracebackEngine::record_merge(Dimension* dest, Dimension* src) {
             dimension_triangle_root_map[dest][t] = dimension_triangle_root_map[src][t];
         }
     }
+    
+    dimension_isosceles_map_preds[dest] += dimension_isosceles_map_preds[src];
 }
 
 
@@ -201,6 +203,15 @@ void TracebackEngine::record_merge(Ratio* dest, Ratio* src) {
             }
         }
     }
+}
+void TracebackEngine::record_merge(Shape* dest, Shape* src) {
+    for (auto [d, _] : shape_dimension_root_map[src]) {
+        if (d->is_root() && !shape_dimension_root_map[dest].contains(d)) {
+            shape_dimension_root_map[dest][d] = shape_dimension_root_map[src][d];
+        }
+    }
+
+    shape_isosceles_map_preds[dest] += shape_isosceles_map_preds[src];
 }
 
 
@@ -321,6 +332,13 @@ void TracebackEngine::set_dimension_of(Dimension* dim, Triangle* t, PredSet pred
     dimension_of_triangles[dim][t] = pred;
     dimension_triangle_root_map[dim][t] = {dim, t};
 }
+PredSet TracebackEngine::why_dimension_of(Dimension* dim, Triangle* t) {
+    auto [dc, tc] = dimension_triangle_root_map[dim][t];
+    PredSet res(dimension_of_triangles[dc][tc]);
+    res += TracebackUtils::why_ancestor(dc, dim);
+    res += TracebackUtils::why_ancestor(tc, t);
+    return res;
+}
 
 
 
@@ -396,6 +414,31 @@ PredSet TracebackEngine::why_fraction_of(Fraction* f, Ratio* r) {
 void TracebackEngine::set_shape_of(Shape* s, Dimension* d, PredSet pred) {
     shape_of_dimensions[s][d] = pred;
     shape_dimension_root_map[s][d] = {s, d};
+}
+PredSet TracebackEngine::why_shape_of(Shape* s, Dimension* d) {
+    auto [sc, dc] = shape_dimension_root_map[s][d];
+    PredSet res(shape_of_dimensions[sc][dc]);
+    res += TracebackUtils::why_ancestor(sc, s);
+    res += TracebackUtils::why_ancestor(dc, d);
+    return res;
+}
+
+
+
+void TracebackEngine::add_isosceles_mask_predicates(Dimension* dim, PredSet pred) {
+    dimension_isosceles_map_preds[dim] += pred;
+}
+PredSet TracebackEngine::why_isosceles_mask(Dimension* dim) {
+    return dimension_isosceles_map_preds[dim];
+}
+void TracebackEngine::add_isosceles_mask_predicates(Shape* s, PredSet pred) {
+    shape_isosceles_map_preds[s] += pred;
+    for (auto [d, _] : shape_dimension_root_map[s]) {
+        dimension_isosceles_map_preds[d] += pred;
+    }
+}
+PredSet TracebackEngine::why_isosceles_mask(Shape* s) {
+    return shape_isosceles_map_preds[s];
 }
 
 
@@ -1716,4 +1759,12 @@ PredSet TracebackEngine::why_eqratio(Point* p1, Point* p2, Point* p3, Point* p4,
     }
 
     return res;
+}
+
+
+
+
+
+PredSet why_contri(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6) {
+    PredSet res;
 }

@@ -495,11 +495,11 @@ public:
     Triangle* __try_get_triangle(Point* p1, Point* p2, Point* p3);
 
     Dimension* __add_new_dimension(Triangle* s, Predicate* base_pred);
-    Dimension* get_or_add_dimension(Triangle* s, Predicate* base_pred);
+    Dimension* get_or_add_dimension(Triangle* s, DDEngine& dd);
 
     Shape* __add_new_shape(Dimension* dim, Predicate* base_pred);
     Shape* try_get_shape(Triangle* t);
-    Shape* get_or_add_shape(Dimension* dim, Predicate* base_pred);
+    Shape* get_or_add_shape(Dimension* dim, DDEngine& dd);
 
     Triangle* add_new_triangle(Point* p1, Point* p2, Point* p3, Predicate* base_pred);
     Triangle* try_get_triangle(Point* p1, Point* p2, Point* p3);
@@ -524,7 +524,7 @@ public:
     void set_triangles_congruent(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Predicate* pred, DDEngine& dd);
     /* Records the two triangles `t1, t2` as congruent.
     Note: For traceback purposes, assumes that `t1` and `t2` are root triangles. */
-    void set_triangles_congruent(Triangle* t1, Triangle* t2, std::array<int, 3> perm, Predicate* pred, DDEngine& dd);
+    void set_triangles_congruent(Triangle* t1, Triangle* t2, std::array<int, 3> perm, PredSet all_preds, DDEngine& dd);
     /* Records the two triangle dimensions `dim1` and `dim2` as congruent. 
     The triangles in dimension `dim2`, as well as all triangles in `dim2->shape`, will be permuted according
     to `perm`.
@@ -535,7 +535,7 @@ public:
     void set_triangles_similar(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Predicate* pred, DDEngine& dd);
     /* Records the two triangles `t1, t2` as similar. 
     Note: For traceback purposes, assumes that `t1` and `t2` are root triangles. */
-    void set_triangles_similar(Triangle* t1, Triangle* t2, std::array<int, 3> perm, Predicate* pred, DDEngine& dd);
+    void set_triangles_similar(Triangle* t1, Triangle* t2, std::array<int, 3> perm, PredSet all_preds, DDEngine& dd);
     /* Records the two triangle shapes `shp1` and `shp2` as similar.
     Note: This assumes that the triangle vertices in `shp2` have already been correctly permuted to align
     to those in `shp1` - in other words, that `shp2->perm_all_triangles()` has already been called. 
