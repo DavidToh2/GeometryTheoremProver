@@ -5,6 +5,7 @@
 #include "Numerics/NumEngine.hh"
 #include "Geometry/GeometricGraph.hh"
 #include "Parsers/InputParser.hh"
+#include "Parsers/OutputParser.hh"
 #include "Traceback/TracebackEngine.hh"
 
 class GTPEngine {
@@ -16,11 +17,17 @@ public:
     TracebackEngine tr;
     GeometricGraph ggraph;
     InputParser inputParser;
+    OutputParser outputParser;
     
     std::string rule_filepath;
     std::string construction_filepath;
     std::string input_filepath;
+    std::string output_filepath;
     std::string problem_name;
+
+    std::ofstream fbuf;
+
+    bool solved = false;
 
     GTPEngine(
         std::string rule_filepath,
@@ -29,16 +36,15 @@ public:
 
     void load_problem(
         std::string input_filepath,
-        std::string problem_name
+        std::string problem_name,
+        std::string output_filepath
     );
 
     bool solve(
         int max_steps
     );
 
-    void output(
-        std::string output_filepath
-    );
+    void output_problem_solution();
 
     void clear_problem();
 

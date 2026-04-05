@@ -66,6 +66,7 @@ namespace TracebackUtils {
 
     template<std::derived_from<Node> T>
     PredSet why_ancestor(T* child, T* ancestor) {
+        if (!child || !ancestor) return {};
         PredSet res;
         while (child != ancestor) {
             if (child->is_root()) {

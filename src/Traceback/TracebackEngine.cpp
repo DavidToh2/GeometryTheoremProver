@@ -1,9 +1,12 @@
 
 #include <cassert>
 #include <iostream>
+#include <sstream>
 
 #include "TracebackEngine.hh"
+#include "DD/DDEngine.hh"
 #include "Common/Exceptions.hh"
+#include "Geometry/Object.hh"
 #include "Geometry/Object2.hh"
 #include "Geometry/Value.hh"
 
@@ -91,13 +94,6 @@ void TracebackEngine::record_merge(Triangle* dest, Triangle* src) {
             }
         }
     }
-    for (auto [d, _] : dimension_triangle_root_map) {
-        if (d->is_root()) {
-            if (dimension_triangle_root_map[d].contains(src) && !dimension_triangle_root_map[d].contains(dest)) {
-                dimension_triangle_root_map[d][dest] = dimension_triangle_root_map[d][src];
-            }
-        }
-    }
 }
 
 
@@ -174,16 +170,6 @@ void TracebackEngine::record_merge(Length* dest, Length* src) {
         }
     }
 }
-void TracebackEngine::record_merge(Dimension* dest, Dimension* src) {
-    for (auto [t, _] : dimension_triangle_root_map[src]) {
-        if (t->is_root() && !dimension_triangle_root_map[dest].contains(t)) {
-            dimension_triangle_root_map[dest][t] = dimension_triangle_root_map[src][t];
-        }
-    }
-    
-    dimension_isosceles_map_preds[dest] += dimension_isosceles_map_preds[src];
-}
-
 
 
 void TracebackEngine::record_merge(Angle* dest, Angle* src) {
@@ -203,15 +189,6 @@ void TracebackEngine::record_merge(Ratio* dest, Ratio* src) {
             }
         }
     }
-}
-void TracebackEngine::record_merge(Shape* dest, Shape* src) {
-    for (auto [d, _] : shape_dimension_root_map[src]) {
-        if (d->is_root() && !shape_dimension_root_map[dest].contains(d)) {
-            shape_dimension_root_map[dest][d] = shape_dimension_root_map[src][d];
-        }
-    }
-
-    shape_isosceles_map_preds[dest] += shape_isosceles_map_preds[src];
 }
 
 
@@ -328,17 +305,6 @@ PredSet TracebackEngine::why_length_of(Length* len, Segment* s) {
     res += TracebackUtils::why_ancestor(sc, s);
     return res;
 }
-void TracebackEngine::set_dimension_of(Dimension* dim, Triangle* t, PredSet pred) {
-    dimension_of_triangles[dim][t] = pred;
-    dimension_triangle_root_map[dim][t] = {dim, t};
-}
-PredSet TracebackEngine::why_dimension_of(Dimension* dim, Triangle* t) {
-    auto [dc, tc] = dimension_triangle_root_map[dim][t];
-    PredSet res(dimension_of_triangles[dc][tc]);
-    res += TracebackUtils::why_ancestor(dc, dim);
-    res += TracebackUtils::why_ancestor(tc, t);
-    return res;
-}
 
 
 
@@ -411,35 +377,6 @@ PredSet TracebackEngine::why_fraction_of(Fraction* f, Ratio* r) {
     res += TracebackUtils::why_ancestor(rc, r);
     return res;
 }
-void TracebackEngine::set_shape_of(Shape* s, Dimension* d, PredSet pred) {
-    shape_of_dimensions[s][d] = pred;
-    shape_dimension_root_map[s][d] = {s, d};
-}
-PredSet TracebackEngine::why_shape_of(Shape* s, Dimension* d) {
-    auto [sc, dc] = shape_dimension_root_map[s][d];
-    PredSet res(shape_of_dimensions[sc][dc]);
-    res += TracebackUtils::why_ancestor(sc, s);
-    res += TracebackUtils::why_ancestor(dc, d);
-    return res;
-}
-
-
-
-void TracebackEngine::add_isosceles_mask_predicates(Dimension* dim, PredSet pred) {
-    dimension_isosceles_map_preds[dim] += pred;
-}
-PredSet TracebackEngine::why_isosceles_mask(Dimension* dim) {
-    return dimension_isosceles_map_preds[dim];
-}
-void TracebackEngine::add_isosceles_mask_predicates(Shape* s, PredSet pred) {
-    shape_isosceles_map_preds[s] += pred;
-    for (auto [d, _] : shape_dimension_root_map[s]) {
-        dimension_isosceles_map_preds[d] += pred;
-    }
-}
-PredSet TracebackEngine::why_isosceles_mask(Shape* s) {
-    return shape_isosceles_map_preds[s];
-}
 
 
 
@@ -448,10 +385,6 @@ void TracebackEngine::set_measure_val(Measure* m, Frac val, PredSet pred) {
 }
 void TracebackEngine::set_fraction_val(Fraction* f, Frac val, PredSet pred) {
     fraction_vals[f] = {val, pred};
-}
-
-void TracebackEngine::set_goal(Predicate* pred) {
-    goal = pred;
 }
 
 
@@ -647,7 +580,7 @@ std::tuple<std::map<Segment*, PredSet>, Segment*> TracebackEngine::lca_segments_
         }
     }
 
-    /* Step 3: Identify a common root segment to all two `rss` sets. */
+    /* Step 3: Identify a common root segment to both `rss` sets. */
     Segment* common_root = nullptr;
     for (Segment* rl : rss[0]) {
         if (rss[1].contains(rl)) {
@@ -689,6 +622,8 @@ std::tuple<std::map<Segment*, PredSet>, Segment*> TracebackEngine::lca_segments_
 
     return {lcas, common_root};
 }
+
+
 
 
 
@@ -1765,6 +1700,159 @@ PredSet TracebackEngine::why_eqratio(Point* p1, Point* p2, Point* p3, Point* p4,
 
 
 
-PredSet why_contri(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6) {
-    PredSet res;
+
+void TracebackEngine::populate_why(Predicate* pred) {
+    switch(pred->name) {
+        case pred_t::COLL:
+            pred->why = why_coll(
+                static_cast<Point*>(pred->args[0]),
+                static_cast<Point*>(pred->args[1]),
+                static_cast<Point*>(pred->args[2])
+            );
+            break;
+        case pred_t::CYCLIC:
+            pred->why = why_cyclic(
+                static_cast<Point*>(pred->args[0]),
+                static_cast<Point*>(pred->args[1]),
+                static_cast<Point*>(pred->args[2]),
+                static_cast<Point*>(pred->args[3])
+            );
+            break;
+        case pred_t::CIRCLE:
+            pred->why = why_circle(
+                static_cast<Point*>(pred->args[0]),
+                static_cast<Point*>(pred->args[1]),
+                static_cast<Point*>(pred->args[2]),
+                static_cast<Point*>(pred->args[3])
+            );
+            break;
+        case pred_t::PARA:
+            pred->why = why_para(
+                static_cast<Point*>(pred->args[0]),
+                static_cast<Point*>(pred->args[1]),
+                static_cast<Point*>(pred->args[2]),
+                static_cast<Point*>(pred->args[3])
+            );
+            break;
+        case pred_t::PERP:
+            pred->why = why_perp(
+                static_cast<Point*>(pred->args[0]),
+                static_cast<Point*>(pred->args[1]),
+                static_cast<Point*>(pred->args[2]),
+                static_cast<Point*>(pred->args[3])
+            );
+            break;
+        case pred_t::CONG:
+            pred->why = why_cong(
+                static_cast<Point*>(pred->args[0]),
+                static_cast<Point*>(pred->args[1]),
+                static_cast<Point*>(pred->args[2]),
+                static_cast<Point*>(pred->args[3])
+            );
+            break;
+        case pred_t::MIDP:
+            pred->why = why_midp(
+                static_cast<Point*>(pred->args[0]),
+                static_cast<Point*>(pred->args[1]),
+                static_cast<Point*>(pred->args[2])
+            );
+            break;
+        case pred_t::EQANGLE:
+            pred->why = why_eqangle(
+                static_cast<Point*>(pred->args[0]),
+                static_cast<Point*>(pred->args[1]),
+                static_cast<Point*>(pred->args[2]),
+                static_cast<Point*>(pred->args[3]),
+                static_cast<Point*>(pred->args[4]),
+                static_cast<Point*>(pred->args[5]),
+                static_cast<Point*>(pred->args[6]),
+                static_cast<Point*>(pred->args[7])
+            );
+            break;
+        case pred_t::EQRATIO:
+            pred->why = why_eqratio(
+                static_cast<Point*>(pred->args[0]),
+                static_cast<Point*>(pred->args[1]),
+                static_cast<Point*>(pred->args[2]),
+                static_cast<Point*>(pred->args[3]),
+                static_cast<Point*>(pred->args[4]),
+                static_cast<Point*>(pred->args[5]),
+                static_cast<Point*>(pred->args[6]),
+                static_cast<Point*>(pred->args[7])
+            );
+            break;
+        case pred_t::BASE:
+            break;
+        default:
+            // reached by DIFF, NCOLL, NPARA, SAMECLOCK, DIFFCLOCK, SAMESIDE_P, DIFFSIDE_P, CONVEX
+            break;
+    }
+}
+
+
+std::map<int, std::set<Predicate*>> TracebackEngine::get_minimal_predset(DDEngine& dd) {
+    Predicate* conc = dd.conclusion.get();
+    Predicate* base_pred = dd.base_pred.get();
+
+    std::deque<Predicate*> to_visit{conc};
+    std::map<int, std::set<Predicate*>> all_preds{{conc->level, {conc}}};
+
+    while (true) {
+        Predicate* curr = to_visit.front();
+        to_visit.pop_front();
+
+        if (curr->why.empty()) {
+            populate_why(curr);
+        }
+
+        for (Predicate* p : curr->why.preds) {
+            int i = p->level;
+            if (!all_preds[i].contains(p)) {
+                all_preds[i].insert(p);
+                to_visit.push_back(p);
+            }
+        }
+
+        if (to_visit.size() == 0) {
+            break;
+        }
+    }
+    return all_preds;
+}
+
+
+
+
+void TracebackEngine::reset_problem() {
+    point_on_lines.clear();
+    point_line_root_map.clear();
+    point_on_circles.clear();
+    point_circle_root_map.clear();
+    point_as_circle_center.clear();
+    point_circle_center_root_map.clear();
+    point_as_segment_endpoint.clear();
+    point_segment_endpoint_root_map.clear();
+    point_as_triangle_vertex.clear();
+    point_triangle_vertex_root_map.clear();
+
+    perp_directions.clear();
+    perp_directions_root_map.clear();
+
+    direction_of_lines.clear();
+    direction_line_root_map.clear();
+    length_of_segments.clear();
+    length_segment_root_map.clear();
+
+    directions_of_angles.clear();
+    angle_directions_root_map.clear();
+    lengths_of_ratios.clear();
+    ratio_lengths_root_map.clear();
+
+    measure_of_angles.clear();
+    measure_angle_root_map.clear();
+    fraction_of_ratios.clear();
+    fraction_ratio_root_map.clear();
+
+    measure_vals.clear();
+    fraction_vals.clear();
 }

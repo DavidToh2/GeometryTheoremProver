@@ -1041,13 +1041,9 @@ void GeometricGraph::set_lengths_cong(Length* l1, Length* l2, PredSet preds, DDE
         auto [pts, segs] = gen_newly_isosceles();
         auto [p1, p2, p3] = pts;
         auto [s1, s2] = segs;
-        PredSet isosceles_preds = preds;
-        isosceles_preds += (
-            tr->why_endpoint(p1, s1) + tr->why_endpoint(p2, s1) 
-            + tr->why_endpoint(p2, s2) + tr->why_endpoint(p3, s2)
-            + tr->why_length_of(root_l1, s1) + tr->why_length_of(root_l2, s2)
-        );
-        set_triangle_isosceles(p1, p2, p3, isosceles_preds);
+        
+        set_triangle_isosceles(p1, p2, p3);
+        // No traceback necessary
     }
 
     Predicate* merger_pred = dd.insert_new_predicate(std::make_unique<Predicate>(
@@ -1565,8 +1561,7 @@ Dimension* GeometricGraph::__add_new_dimension(Triangle* t, Predicate* base_pred
     };
     dim->isosceles_mask = {_b[1] || _b[2], _b[0] || _b[2], _b[0] || _b[1]};
 
-    // For traceback
-    tr->set_dimension_of(dim, t, base_pred);
+    // No traceback necessary
 
     return dim;
 }
@@ -1591,8 +1586,7 @@ Shape* GeometricGraph::__add_new_shape(Dimension* dim, Predicate* base_pred) {
 
     dim->set_shape(shape);
 
-    // For traceback
-    tr->set_shape_of(shape, dim, base_pred);
+    // No traceback necessary
 
     return shape;
 }
@@ -1659,25 +1653,18 @@ bool GeometricGraph::check_same_orientation(Point* p1, Point* p2, Point* p3, Poi
     );
 }
 
-void GeometricGraph::set_triangle_isosceles(Point* p1, Point* p2, Point* p3, PredSet preds) {
+void GeometricGraph::set_triangle_isosceles(Point* p1, Point* p2, Point* p3) {
     Triangle* t = try_get_triangle(p1, p2, p3);
     if (!t) return;
     if (!t->has_dimension()) return;
     Dimension* dim = t->get_dimension();
     std::array<int, 3> mask = t->get_perm({p1, p2, p3});
-    preds += (
-        tr->why_vertex(p1, t) + tr->why_vertex(p2, t) + tr->why_vertex(p3, t)
-    );
 
     if (dim->has_shape()) {
         Shape* shp = dim->get_shape();
-
-        if (shp->set_isosceles(mask[0], mask[2])) {
-            tr->add_isosceles_mask_predicates(shp, preds);
-        }
+        shp->set_isosceles(mask[0], mask[2]);
     } else {
         dim->set_isosceles(mask[0], mask[2]);
-        tr->add_isosceles_mask_predicates(dim, preds);
     }
 }
 
@@ -1686,12 +1673,6 @@ void GeometricGraph::set_triangles_congruent(Point* p1, Point* p2, Point* p3, Po
     Triangle* t2 = get_or_add_triangle(p4, p5, p6, pred);
     std::array<int, 3> perm1 = t1->get_perm({p1, p2, p3});
     std::array<int, 3> perm2 = t2->get_perm({p4, p5, p6});
-
-    PredSet merger_preds(pred);
-    merger_preds += (
-        tr->why_vertex(p1, t1) + tr->why_vertex(p2, t1) + tr->why_vertex(p3, t1) +
-        tr->why_vertex(p4, t2) + tr->why_vertex(p5, t2) + tr->why_vertex(p6, t2)
-    );
 
     if (NodeUtils::same_as(t1, t2)) {
         if (perm1 == perm2) return;
@@ -1707,13 +1688,17 @@ void GeometricGraph::set_triangles_congruent(Point* p1, Point* p2, Point* p3, Po
         if (dim->has_shape()) {
             Shape* shp = dim->get_shape();
             shp->set_isosceles_masks(new_isosceles_mask);
-            tr->add_isosceles_mask_predicates(shp, merger_preds);
         } else {
             dim->set_isosceles_mask(new_isosceles_mask);
-            tr->add_isosceles_mask_predicates(dim, merger_preds);
         }
         return;
     }
+
+    PredSet merger_preds(pred);
+    merger_preds += (
+        tr->why_vertex(p1, t1) + tr->why_vertex(p2, t1) + tr->why_vertex(p3, t1) +
+        tr->why_vertex(p4, t2) + tr->why_vertex(p5, t2) + tr->why_vertex(p6, t2)
+    );
 
     // perm takes t2 to t1
     std::array<int, 3> perm = Triangle::compose_perm(perm1, perm2);
@@ -1723,10 +1708,6 @@ void GeometricGraph::set_triangles_congruent(Point* p1, Point* p2, Point* p3, Po
 void GeometricGraph::set_triangles_congruent(Triangle* t1, Triangle* t2, std::array<int, 3> perm, PredSet all_preds, DDEngine& dd) {
     Dimension* dim1 = get_or_add_dimension(t1, dd);
     Dimension* dim2 = get_or_add_dimension(t2, dd);
-
-    all_preds += (
-        tr->why_dimension_of(dim1, t1) + tr->why_dimension_of(dim2, t2)
-    );
 
     Predicate* pred = dd.insert_new_predicate(std::make_unique<Predicate>(
         pred_t::EQ, std::vector<Node*>{t1, t2}, std::move(all_preds)
@@ -1741,31 +1722,19 @@ void GeometricGraph::set_triangles_congruent(Dimension* dim1, Dimension* dim2, s
         shp2->perm_all_triangles(perm);
 
         auto [isosceles_mask, updated] = Dimension::or_isosceles_masks(dim1->isosceles_mask, dim2->isosceles_mask);
-        PredSet isosceles_preds_1(pred);
-        PredSet isosceles_preds_2(pred);
-        if (updated.first) isosceles_preds_1 += tr->why_isosceles_mask(dim2);
-        if (updated.second) isosceles_preds_2 += tr->why_isosceles_mask(dim1) + tr->why_shape_of(shp2, dim2);;
-
-        if (shp2->set_isosceles_masks(isosceles_mask)) {
-            tr->add_isosceles_mask_predicates(shp2, isosceles_preds_2);
-        }
+        shp2->set_isosceles_masks(isosceles_mask);
 
         if (dim1->has_shape()) {
             Shape* shp1 = dim1->get_shape();
-            isosceles_preds_1 += tr->why_shape_of(shp1, dim1);
 
-            if (shp1->set_isosceles_masks(isosceles_mask)) {
-                tr->add_isosceles_mask_predicates(shp1, isosceles_preds_1);
-            }
+            shp1->set_isosceles_masks(isosceles_mask);
 
             shp1->merge(shp2, pred);
-            tr->record_merge(shp1, shp2);
+            // No traceback necessary
 
             root_shapes.erase(shp2);
         } else {
-            if (dim1->set_isosceles_mask(isosceles_mask)) {
-                tr->add_isosceles_mask_predicates(dim1, isosceles_preds_1);
-            }
+            dim1->set_isosceles_mask(isosceles_mask);
         }
 
         shp2->root_obj2s.erase(dim2);
@@ -1775,28 +1744,20 @@ void GeometricGraph::set_triangles_congruent(Dimension* dim1, Dimension* dim2, s
         auto [isosceles_mask, updated] = Dimension::or_isosceles_masks(dim1->isosceles_mask, dim2->isosceles_mask);
         PredSet isosceles_preds_1(pred);
         PredSet isosceles_preds_2(pred);
-        if (updated.first) isosceles_preds_1 += tr->why_isosceles_mask(dim2);
-        if (updated.second) isosceles_preds_2 += tr->why_isosceles_mask(dim1);
 
         dim2->set_isosceles_mask(isosceles_mask);
-        tr->add_isosceles_mask_predicates(dim2, isosceles_preds_2);
 
         if (dim1->has_shape()) {
             Shape* shp1 = dim1->get_shape();
-            isosceles_preds_1 += tr->why_shape_of(shp1, dim1);
 
-            if (shp1->set_isosceles_masks(isosceles_mask)) {
-                tr->add_isosceles_mask_predicates(shp1, isosceles_preds_1);
-            }
+            shp1->set_isosceles_masks(isosceles_mask);
         } else {
-            if (dim1->set_isosceles_mask(isosceles_mask)) {
-                tr->add_isosceles_mask_predicates(dim1, isosceles_preds_1);
-            }
+            dim1->set_isosceles_mask(isosceles_mask);
         }
     }
 
     dim1->merge(dim2, pred);
-    tr->record_merge(dim1, dim2);
+    // No traceback necessary
 }
 
 void GeometricGraph::set_triangles_similar(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Predicate* pred, DDEngine& dd) {
@@ -1804,12 +1765,6 @@ void GeometricGraph::set_triangles_similar(Point* p1, Point* p2, Point* p3, Poin
     Triangle* t2 = get_or_add_triangle(p4, p5, p6, pred);
     std::array<int, 3> perm1 = t1->get_perm({p1, p2, p3});
     std::array<int, 3> perm2 = t2->get_perm({p4, p5, p6});
-
-    PredSet merger_preds(pred);
-    merger_preds += (
-        tr->why_vertex(p1, t1) + tr->why_vertex(p2, t1) + tr->why_vertex(p3, t1) +
-        tr->why_vertex(p4, t2) + tr->why_vertex(p5, t2) + tr->why_vertex(p6, t2)
-    );
 
     if (NodeUtils::same_as(t1, t2)) {
         if (perm1 == perm2) return;
@@ -1831,6 +1786,12 @@ void GeometricGraph::set_triangles_similar(Point* p1, Point* p2, Point* p3, Poin
         return;
     }
 
+    PredSet merger_preds(pred);
+    merger_preds += (
+        tr->why_vertex(p1, t1) + tr->why_vertex(p2, t1) + tr->why_vertex(p3, t1) +
+        tr->why_vertex(p4, t2) + tr->why_vertex(p5, t2) + tr->why_vertex(p6, t2)
+    );
+
     // perm takes t2 to t1
     std::array<int, 3> perm = Triangle::compose_perm(perm1, perm2);
     
@@ -1840,17 +1801,11 @@ void GeometricGraph::set_triangles_similar(Triangle* t1, Triangle* t2, std::arra
     Dimension* dim1 = get_or_add_dimension(t1, dd);
     Dimension* dim2 = get_or_add_dimension(t2, dd);
 
-    all_preds += (
-        tr->why_dimension_of(dim1, t1) + tr->why_dimension_of(dim2, t2)
-    );
-
     if (dim1->has_shape()) {
         Shape* shp1 = dim1->get_shape();
-        all_preds += tr->why_shape_of(shp1, dim1);
 
         if (dim2->has_shape()) {
             Shape* shp2 = dim2->get_shape();
-            all_preds += tr->why_shape_of(shp2, dim2);
 
             shp2->perm_all_triangles(perm);
 
@@ -1861,15 +1816,9 @@ void GeometricGraph::set_triangles_similar(Triangle* t1, Triangle* t2, std::arra
             auto [isosceles_mask, updated] = Dimension::or_isosceles_masks(dim1->isosceles_mask, dim2->isosceles_mask);
             PredSet isosceles_preds_1(pred);
             PredSet isosceles_preds_2(pred);
-            if (updated.first) isosceles_preds_1 += tr->why_isosceles_mask(dim2);
-            if (updated.second) isosceles_preds_2 += tr->why_isosceles_mask(dim1);
 
-            if (shp1->set_isosceles_masks(isosceles_mask)) {
-                tr->add_isosceles_mask_predicates(shp1, isosceles_preds_1);
-            }
-            if (shp2->set_isosceles_masks(isosceles_mask)) {
-                tr->add_isosceles_mask_predicates(shp2, isosceles_preds_2);
-            }
+            shp1->set_isosceles_masks(isosceles_mask);
+            shp2->set_isosceles_masks(isosceles_mask);
 
             set_triangles_similar(shp1, shp2, pred, dd);
 
@@ -1879,48 +1828,33 @@ void GeometricGraph::set_triangles_similar(Triangle* t1, Triangle* t2, std::arra
             auto [isosceles_mask, updated] = Dimension::or_isosceles_masks(dim1->isosceles_mask, dim2->isosceles_mask);
             PredSet isosceles_preds_1 = all_preds;
             PredSet isosceles_preds_2 = all_preds;
-            if (updated.first) isosceles_preds_1 += tr->why_isosceles_mask(dim2);
-            if (updated.second) isosceles_preds_2 += tr->why_isosceles_mask(dim1);
 
-            if (shp1->set_isosceles_masks(isosceles_mask)) {
-                tr->add_isosceles_mask_predicates(shp1, isosceles_preds_1);
-            }
-            if (dim2->set_isosceles_mask(isosceles_mask)) {
-                tr->add_isosceles_mask_predicates(dim2, isosceles_preds_2);
-            }
+            shp1->set_isosceles_masks(isosceles_mask);
+            dim2->set_isosceles_mask(isosceles_mask);
 
             dim2->set_shape(shp1);
-            tr->set_shape_of(shp1, dim2, all_preds);
         }
     } else {
 
         Shape* shp2 = get_or_add_shape(dim2, dd);
-        all_preds += tr->why_shape_of(shp2, dim2);
 
         shp2->perm_all_triangles(perm);
 
         auto [isosceles_mask, updated] = Dimension::or_isosceles_masks(dim1->isosceles_mask, dim2->isosceles_mask);
         PredSet isosceles_preds_1(all_preds);
         PredSet isosceles_preds_2(all_preds);
-        if (updated.first) isosceles_preds_1 += tr->why_isosceles_mask(dim2);
-        if (updated.second) isosceles_preds_2 += tr->why_isosceles_mask(dim1);
 
-        if (dim1->set_isosceles_mask(isosceles_mask)) {
-            tr->add_isosceles_mask_predicates(dim1, isosceles_preds_1);
-        }
-        if (shp2->set_isosceles_masks(isosceles_mask)) {
-            tr->add_isosceles_mask_predicates(shp2, isosceles_preds_2);
-        }
+        dim1->set_isosceles_mask(isosceles_mask);
+        shp2->set_isosceles_masks(isosceles_mask);
 
         dim1->set_shape(shp2);
-        tr->set_shape_of(shp2, dim1, all_preds);
     }
 }
 void GeometricGraph::set_triangles_similar(Shape* shp1, Shape* shp2, Predicate* pred, DDEngine& dd) {
     if (NodeUtils::same_as(shp1, shp2)) return;
 
     shp1->merge(shp2, pred);
-    tr->record_merge(shp1, shp2);
+    // No traceback necessary
 
     root_shapes.erase(shp2);
 }
@@ -3434,6 +3368,7 @@ void GeometricGraph::reset_problem() {
     point_to_num_eq_set.clear();
 
     adhoc = 0;
+    level = Constants::MIN_LEVEL;
 
     new_object = false;
 }

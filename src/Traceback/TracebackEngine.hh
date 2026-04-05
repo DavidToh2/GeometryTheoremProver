@@ -51,12 +51,16 @@ INVARIANT: The predicate traceback functions `why_pred()` can only take points w
 end of the solving process.
 
 Note: `tr->record_merge()` should be called for Directions before Lines, for `__earliest_direction_of()` to
-work as intended. */
+work as intended.
+
+Note: It suffices for our TracebackEngine to work on intermediate predicates synthesised by the DDEngine. The
+constangle, constratio, contri and simtri predicate classes are never synthesised as intermediate predicates.
+Thus, they do not need to be included in the engine's functionality. */
+class DDEngine;
+
 class TracebackEngine {
 
 public:
-    Predicate* goal;
-
     std::map<Point*, std::map<Line*, PredSet>> point_on_lines;
     std::map<Point*, std::map<Line*, std::pair<Point*, Line*>>> point_line_root_map;
     std::map<Point*, std::map<Circle*, PredSet>> point_on_circles;
@@ -75,8 +79,6 @@ public:
     std::map<Direction*, std::map<Line*, std::pair<Direction*, Line*>>> direction_line_root_map;
     std::map<Length*, std::map<Segment*, PredSet>> length_of_segments;
     std::map<Length*, std::map<Segment*, std::pair<Length*, Segment*>>> length_segment_root_map;
-    std::map<Dimension*, std::map<Triangle*, PredSet>> dimension_of_triangles;
-    std::map<Dimension*, std::map<Triangle*, std::pair<Dimension*, Triangle*>>> dimension_triangle_root_map;
 
     std::map<std::pair<Direction*, Direction*>, Angle*> directions_of_angles;
     std::map<std::pair<Direction*, Direction*>, std::set<std::pair<Direction*, Direction*>>> angle_directions_root_map;
@@ -87,11 +89,6 @@ public:
     std::map<Measure*, std::map<Angle*, std::pair<Measure*, Angle*>>> measure_angle_root_map;
     std::map<Fraction*, std::map<Ratio*, PredSet>> fraction_of_ratios;
     std::map<Fraction*, std::map<Ratio*, std::pair<Fraction*, Ratio*>>> fraction_ratio_root_map;
-    std::map<Shape*, std::map<Dimension*, PredSet>> shape_of_dimensions;
-    std::map<Shape*, std::map<Dimension*, std::pair<Shape*, Dimension*>>> shape_dimension_root_map;
-
-    std::map<Dimension*, PredSet> dimension_isosceles_map_preds;
-    std::map<Shape*, PredSet> shape_isosceles_map_preds;
 
     std::map<Measure*, std::pair<Frac, PredSet>> measure_vals;
     std::map<Fraction*, std::pair<Frac, PredSet>> fraction_vals;
@@ -104,11 +101,9 @@ public:
 
     void record_merge(Direction* dest, Direction* src);
     void record_merge(Length* dest, Length* src);
-    void record_merge(Dimension* dest, Dimension* src);
 
     void record_merge(Angle* dest, Angle* src);
     void record_merge(Ratio* dest, Ratio* src);
-    void record_merge(Shape* dest, Shape* src);
 
     void record_merge(Measure* dest, Measure* src);
     void record_merge(Fraction* dest, Fraction* src);
@@ -131,8 +126,6 @@ public:
     PredSet why_direction_of(Direction* d, Line* l);
     void set_length_of(Length* len, Segment* s, PredSet pred);
     PredSet why_length_of(Length* len, Segment* s);
-    void set_dimension_of(Dimension* dim, Triangle* t, PredSet pred);
-    PredSet why_dimension_of(Dimension* dim, Triangle* t);
 
     void make_angle_with_directions(Angle* a, Direction* d1, Direction* d2);
     /* Extracts the shortest explanation for why directions d1, d2 are currently the
@@ -147,18 +140,9 @@ public:
     PredSet why_measure_of(Measure* m, Angle* a);
     void set_fraction_of(Fraction* f, Ratio* r, PredSet pred);
     PredSet why_fraction_of(Fraction* f, Ratio* r);
-    void set_shape_of(Shape* s, Dimension* d, PredSet pred);
-    PredSet why_shape_of(Shape* s, Dimension* d);
-    
-    void add_isosceles_mask_predicates(Dimension* dim, PredSet pred);
-    PredSet why_isosceles_mask(Dimension* dim);
-    void add_isosceles_mask_predicates(Shape* shp, PredSet pred);
-    PredSet why_isosceles_mask(Shape* shp);
 
     void set_measure_val(Measure* m, Frac val, PredSet pred);
     void set_fraction_val(Fraction* f, Frac val, PredSet pred);
-
-    void set_goal(Predicate* pred);
 
 
 
@@ -297,21 +281,14 @@ public:
 
     PredSet why_eqratio(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Point* p7, Point* p8);
 
-    PredSet why_contri(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6);
-
-    PredSet why_simtri(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6);
-
     PredSet why_midp(Point* m, Point* p1, Point* p2);
 
     PredSet why_circle(Point* c, Point* p1, Point* p2, Point* p3);
 
-    // These two are technically not necessary?:
+    void populate_why(Predicate* pred);
 
-    PredSet why_constangle(Angle* a, Frac f);
+    std::map<int, std::set<Predicate*>> get_minimal_predset(DDEngine& dd);
 
-    PredSet why_constratio(Ratio* r, Frac f);
 
-    void populate_why(PredSet pred);
-
-    void get_solution(std::stringstream &ss);
+    void reset_problem();
 };

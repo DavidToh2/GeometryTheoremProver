@@ -27,7 +27,7 @@ class GeometricGraph {
 
 public:
     int adhoc = 0;
-    int level = 1025;  // For traceback
+    int level = Constants::MIN_LEVEL;  // For traceback
 
     /* Flag storing whether the most recent invocation of `get_or_add_` created a new object, or fetched
     an existing one */
@@ -518,7 +518,7 @@ public:
     By using `p1p2p3->get_perm({p1, p2, p3})` we get the indices of the three points. We then set the first
     and third indices of the `isosceles_mask` to true. 
     Note: The above steps are performed only if `p1p2p3` exists and has a Dimension. */
-    void set_triangle_isosceles(Point* p1, Point* p2, Point* p3, PredSet preds);
+    void set_triangle_isosceles(Point* p1, Point* p2, Point* p3);
 
     /* Records the two triangles `p1p2p3, p4p5p6` as congruent. */
     void set_triangles_congruent(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Predicate* pred, DDEngine& dd);
@@ -637,6 +637,7 @@ public:
     side of `a`. */
     bool check_sameside(Point* a, Point* x, Point* y);
 
+    /* Used to check the validity of theorem postconditions, as well as the conclusion. */
     bool check(PredicateTemplate* pred);
 
 
@@ -712,11 +713,8 @@ public:
     Note: All `make_` functions should be idempotent. */
     int synthesise_preds(DDEngine &dd, AREngine &ar);
     int synthesise_ar_preds(DDEngine &dd);
-    void synthesise_pred2s(DDEngine &dd);
 
 
-
-    Predicate* why(Predicate* pred, DDEngine &dd);
 
     
     void __print_points(std::ostream &os);

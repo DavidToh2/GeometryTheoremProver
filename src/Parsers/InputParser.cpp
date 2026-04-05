@@ -116,7 +116,7 @@ std::string InputParser::extract_problem_from_file(std::string input_filepath, s
         if (line.find('}') != std::string::npos) {
             problem_found = false;
         }
-        problem += " " + line;
+        problem += "\n" + line;
     }
     size_t i = problem.find('{'), j = problem.find('}');
     return problem.substr(i+1, j-i-1);

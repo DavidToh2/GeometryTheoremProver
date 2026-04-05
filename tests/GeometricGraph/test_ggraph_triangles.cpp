@@ -337,7 +337,7 @@ TEST_SUITE("GeometricGraph: Triangle congruence and similarity") {
         ));
 
         Triangle* bad = ggraph.get_or_add_triangle(b, a, d, base_pred);
-        Dimension* dim_bad = ggraph.get_or_add_dimension(bad, base_pred);
+        Dimension* dim_bad = ggraph.get_or_add_dimension(bad, dd);
         std::array<int, 3> perm_bad = bad->get_perm({b, a, d});
         std::array<bool, 3> expected_mask_2 = Dimension::make_isosceles_mask(perm_bad[0], perm_bad[2]);
         REQUIRE((dim_bad->isosceles_mask == expected_mask_2));

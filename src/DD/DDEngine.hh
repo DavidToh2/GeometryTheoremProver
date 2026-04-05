@@ -37,7 +37,8 @@ public:
     std::map<pred_t, std::set<Predicate*>> predicates_by_type;
 
     // Hacky way to implement the conclusion. Doing it as a PredicateTemplate lets us reuse the matching functions.
-    std::unique_ptr<PredicateTemplate> conclusion;
+    std::unique_ptr<PredicateTemplate> conclusion_;
+    std::unique_ptr<Predicate> conclusion;
     std::vector<std::unique_ptr<Arg>> conclusion_args;
 
     uptrmap<Theorem> theorems;
@@ -112,6 +113,7 @@ public:
 
     bool check_postcondition_exact(PredicateTemplate* pred_template);
     bool check_conclusion(GeometricGraph &ggraph);
+
 
     void __print_theorems(std::ostream& os = std::cout);
     void __print_constructions(std::ostream& os = std::cout);

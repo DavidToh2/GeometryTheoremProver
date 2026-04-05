@@ -28,7 +28,7 @@ const std::string PREDICATE_NAMES[] = {
     "sameclock", "diffclock",
     "sameside_p", "diffside_p",
     "convex",
-    "eq", "perp_d",
+    "eq", 
     "last"
 };
 
@@ -52,6 +52,9 @@ const std::string NUMERIC_NAMES[] = {
 
 const std::string ONE = "1";
 const std::string PI = "pi";
+
+const int MIN_LEVEL = 1025;
+const int MAX_LEVEL = 8192;
 
 template <typename T>
 inline constexpr bool is_std_map_v = false;
@@ -93,7 +96,6 @@ enum class pred_t {
     DIFFSIDE_P,
     CONVEX,     // not used
     EQ,         // used for traceback,
-    PERP_D,     // used for traceback,
     LAST        // not used
 };
 

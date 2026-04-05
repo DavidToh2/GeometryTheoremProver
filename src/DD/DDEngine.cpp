@@ -60,7 +60,10 @@ void DDEngine::set_conclusion(std::unique_ptr<Predicate> predicate) {
     for (Node* node : predicate->args) {
         conclusion_args.emplace_back(std::make_unique<Arg>(node));
     }
-    conclusion = std::make_unique<PredicateTemplate>(predicate.get(), conclusion_args);
+    conclusion_ = std::make_unique<PredicateTemplate>(predicate.get(), conclusion_args);
+
+    conclusion = std::move(conclusion_.get()->instantiate());
+    conclusion.get()->level = Constants::MAX_LEVEL;
 }
 
 
@@ -1844,7 +1847,7 @@ bool DDEngine::check_postcondition_exact(PredicateTemplate* postcondition) {
 }
 
 bool DDEngine::check_conclusion(GeometricGraph &ggraph) {
-    PredicateTemplate* conc = conclusion.get();
+    PredicateTemplate* conc = conclusion_.get();
     return ggraph.check(conc);
 }
 
@@ -1872,7 +1875,7 @@ void DDEngine::__print_predicates(std::ostream& os) {
 }
 
 void DDEngine::__print_conclusion(std::ostream& os) {
-    os << "Conclusion: " << conclusion->to_string() << std::endl;
+    os << "Conclusion: " << conclusion_->to_string() << std::endl;
 }
 
 
@@ -1886,6 +1889,7 @@ void DDEngine::reset_problem() {
         pt_set.clear();
     }
 
-    conclusion.reset();
+    conclusion_.reset();
     conclusion_args.clear();
+    conclusion.reset();
 }

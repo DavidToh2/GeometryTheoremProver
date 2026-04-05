@@ -1,3 +1,4 @@
+#include <ios>
 #include <string>
 #include <vector>
 #include <chrono>
@@ -38,15 +39,22 @@ GTPEngine::GTPEngine(
 
 void GTPEngine::load_problem(
     std::string input_filepath,
-    std::string problem_name
+    std::string problem_name,
+    std::string output_filepath
 ) {
+
     std::cout << "Loading problem " << problem_name << std::endl;
     
     this->input_filepath = input_filepath;
     this->problem_name = problem_name;
+    this->output_filepath = output_filepath;
+
+    fbuf.open(output_filepath, std::ios_base::app);
 
     // Read in the problem.
     std::string problem_string = inputParser.extract_problem_from_file(input_filepath, problem_name);
+
+    outputParser.format_problem_description(problem_name, problem_string, fbuf);
     
     auto [_construction_steps, _goal] = StrUtils::split_first(problem_string, "?");
     std::vector<std::string> _construction_stages = StrUtils::split(_construction_steps, ";");
@@ -72,7 +80,6 @@ bool GTPEngine::solve(
 ) {
     std::cout << "Solving problem " << problem_name << std::endl;
     auto start_time = std::chrono::high_resolution_clock::now();
-    bool solved = false;
 
     // Add numeric values from the NumEngine
     ggraph.initialise_point_numerics(nm);
@@ -113,25 +120,38 @@ bool GTPEngine::solve(
 
     auto end_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
-    std::cout << "Total time: " << duration << " us" << std::endl << std::endl;
+    std::cout << "Time to solve problem: " << duration << " us" << std::endl;
+
+    
     return solved;
 }
 
-void GTPEngine::output(std::string output_filepath) {
-    std::ofstream fbuf;
-    fbuf.open(output_filepath);
+void GTPEngine::output_problem_solution() {
+    if (solved) {
+        std::cout << "Outputting solution for problem " << problem_name << std::endl;
+        auto start_time = std::chrono::high_resolution_clock::now();
 
-    fbuf << "Problem: " << problem_name << std::endl;
-    dd.__print_predicates(fbuf);
-    ggraph.print(fbuf);
-    fbuf << std::endl;
+        auto minimal_predset = tr.get_minimal_predset(dd);
 
-    fbuf.close();
+        auto end_time = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
+        std::cout << "Time to extract solution: " << duration << " us" << std::endl;
+
+        outputParser.format_solution_from_predset(minimal_predset, fbuf);
+    }
 }
 
 void GTPEngine::clear_problem() {
+
     dd.reset_problem();
     ggraph.reset_problem();
     ar.reset_problem();
     nm.reset_problem();
+    tr.reset_problem();
+
+    std::cout << std::endl;
+
+    fbuf.close();
+
+    solved = false;
 }

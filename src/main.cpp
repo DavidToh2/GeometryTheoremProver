@@ -73,12 +73,9 @@ int main(int argc, char** argv) {
         for (std::string problem_name : problem_names) {
             gtp.load_problem(
                 input_filepath,
-                problem_name
+                problem_name,
+                output_filepath
             );
-
-            if (problem_name == "p9") {
-                int debug = 1;
-            }
 
             total_problems += 1;
             if (gtp.solve(10)) {
@@ -87,9 +84,7 @@ int main(int argc, char** argv) {
                 unsolved_problems.insert(problem_name);
             }
 
-            gtp.output(
-                output_filepath
-            );
+            gtp.output_problem_solution();
 
             gtp.clear_problem();
         }
@@ -107,13 +102,12 @@ int main(int argc, char** argv) {
         // Solve the specified problem
         gtp.load_problem(
             input_filepath,
-            problem_name
+            problem_name,
+            output_filepath
         );
 
         gtp.solve(10);
 
-        gtp.output(
-            output_filepath
-        );
+        gtp.output_problem_solution();
     }
 }
