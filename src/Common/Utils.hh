@@ -89,6 +89,9 @@ namespace Utils {
     num_t to_num_t(const std::string s);
     std::string to_num_str(num_t n);
 
+    pred_src to_pred_src(const std::string s);
+    std::string to_pred_src_str(pred_src src);
+
 } // namespace Utils
 
 // For std::visit with multiple lambdas

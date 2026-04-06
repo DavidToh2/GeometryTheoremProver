@@ -109,21 +109,22 @@ public:
 	std::string hash;
 
 	pred_t name;
+	pred_src source;
 	std::vector<Node*> args;
 	Frac frac_arg;
 	PredSet why;
 
 	int level = -1; // for traceback
 
-	Predicate() : name(pred_t::BASE), hash(Utils::to_pred_str(pred_t::BASE)) {}
-	Predicate(const pred_t name, Frac f);	// placeholder for debugging purposes
-	Predicate(const pred_t name, std::vector<Node*> &&nodes);
-	Predicate(const pred_t name, std::vector<Node*> &&nodes, Frac f);
-	Predicate(const pred_t name, std::vector<Node*> &&nodes, PredSet &&why);
-	Predicate(const pred_t name, std::vector<Node*> &&nodes, Frac f, PredSet &&why);
-	Predicate(const pred_t name, std::vector<Node*> &&nodes, std::set<Predicate*> &&why);
-	Predicate(const pred_t name, std::vector<Node*> &&nodes, Frac f, std::set<Predicate*> &&why);
-	Predicate(PredicateTemplate &pred_template);
+	Predicate() : name(pred_t::BASE), hash(Utils::to_pred_str(pred_t::BASE)), source(pred_src::BASE) {}
+	Predicate(const pred_t name, Frac f, pred_src src = pred_src::BASE);	// placeholder for debugging purposes
+	Predicate(const pred_t name, std::vector<Node*> &&nodes, pred_src src = pred_src::BASE);
+	Predicate(const pred_t name, std::vector<Node*> &&nodes, Frac f, pred_src src = pred_src::BASE);
+	Predicate(const pred_t name, std::vector<Node*> &&nodes, PredSet &&why, pred_src src = pred_src::BASE);
+	Predicate(const pred_t name, std::vector<Node*> &&nodes, Frac f, PredSet &&why, pred_src src = pred_src::BASE);
+	Predicate(const pred_t name, std::vector<Node*> &&nodes, std::set<Predicate*> &&why, pred_src src = pred_src::BASE);
+	Predicate(const pred_t name, std::vector<Node*> &&nodes, Frac f, std::set<Predicate*> &&why, pred_src src = pred_src::BASE);
+	Predicate(PredicateTemplate &pred_template, pred_src src = pred_src::BASE);
 
 	static std::unique_ptr<Predicate> 
 	from_global_point_map(const std::string pred_string, std::map<std::string, std::unique_ptr<Point>> &global_point_map);

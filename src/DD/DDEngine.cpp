@@ -1777,10 +1777,12 @@ Generator<bool> DDEngine::match(Theorem* theorem, int i, int n, GeometricGraph &
 
             std::unique_ptr<Predicate> pred_ = theorem->instantiate_postcondition();
             Predicate* pred = pred_.get();
+            pred->source = pred_src::DD;
 
             auto whys_ = theorem->instantiate_preconditions();
             while (whys_) {
                 Predicate* why = insert_predicate(std::move(whys_()));
+                why->source = pred_src::GGRAPH;
                 pred->why += why;
             }
 

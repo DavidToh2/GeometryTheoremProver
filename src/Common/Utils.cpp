@@ -37,3 +37,18 @@ num_t Utils::to_num_t(const std::string s) {
 std::string Utils::to_num_str(num_t n) {
     return Constants::NUMERIC_NAMES[static_cast<size_t>(n)];
 }
+
+pred_src Utils::to_pred_src(const std::string s) {
+    return static_cast<pred_src>(std::distance(
+        Constants::PRED_SRC_NAMES,
+        std::find(
+            std::begin(Constants::PRED_SRC_NAMES),
+            std::end(Constants::PRED_SRC_NAMES),
+            s
+        )
+    ));
+}
+
+std::string Utils::to_pred_src_str(pred_src src) {
+    return Constants::PRED_SRC_NAMES[static_cast<size_t>(src)];
+}

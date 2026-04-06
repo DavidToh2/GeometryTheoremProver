@@ -1,4 +1,6 @@
 
+#include <iomanip>
+
 #include "OutputParser.hh"
 #include "Common/Constants.hh"
 #include "Geometry/Node.hh"
@@ -95,9 +97,14 @@ std::string OutputParser::format_predicate_with_why(Predicate* pred) {
 void OutputParser::format_solution_from_predset(std::map<int, std::set<Predicate*>>& predset, std::ostream &os) {
     os << "==========================================" << std::endl;
     for (const auto& [level, preds] : predset) {
-        os << "Level " << level << ":\n";
         for (Predicate* p : preds) {
-            os << "  " << format_predicate_with_why(p) << "\n";
+            std::string pred_str = format_predicate_with_why(p);
+            if (!pred_str.empty()) {
+                os << "[ "
+                    << std::right << std::setw(3) << level << " | "
+                    << std::left << std::setw(6) << Utils::to_pred_src_str(p->source) << " ] "
+                    << pred_str << "\n";
+            }
         }
     }
 }

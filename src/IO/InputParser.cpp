@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "Parsers/InputParser.hh"
+#include "IO/InputParser.hh"
 #include "Common/Exceptions.hh"
 #include "Common/StrUtils.hh"
 

@@ -9,7 +9,7 @@
 #include "DD/Predicate.hh"
 #include "AR/AREngine.hh"
 #include "Geometry/GeometricGraph.hh"
-#include "Parsers/InputParser.hh"
+#include "IO/InputParser.hh"
 #include "Common/StrUtils.hh"
 
 std::random_device rd = std::random_device();

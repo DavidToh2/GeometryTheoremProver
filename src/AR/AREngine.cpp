@@ -292,17 +292,20 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
         if (NumUtils::is_close(f, 90)) {
             dd.insert_new_predicate(
                 std::make_unique<Predicate>(
-                    pred_t::PERP, std::vector<Node*>{d1, d2}, std::move(why))
+                    pred_t::PERP, std::vector<Node*>{d1, d2}, 
+                    std::move(why), pred_src::AR)
             );
         } else if (NumUtils::is_close(f, 0) || NumUtils::is_close(f, 180)) {
             dd.insert_new_predicate(
                 std::make_unique<Predicate>(
-                    pred_t::PARA, std::vector<Node*>{d1, d2}, std::move(why))
+                    pred_t::PARA, std::vector<Node*>{d1, d2}, 
+                    std::move(why), pred_src::AR)
             );
         } else {
             dd.insert_new_predicate(
                 std::make_unique<Predicate>(
-                    pred_t::CONSTANGLE, std::vector<Node*>{d1, d2}, f, std::move(why))
+                    pred_t::CONSTANGLE, std::vector<Node*>{d1, d2}, f, 
+                    std::move(why), pred_src::AR)
             );
         }
     }
@@ -312,7 +315,8 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
         auto [d1, d2, d3, d4, why] = gen_eqangle();
         dd.insert_new_predicate(
             std::make_unique<Predicate>(
-                pred_t::EQANGLE, std::vector<Node*>{d1, d2, d3, d4}, std::move(why))
+                pred_t::EQANGLE, std::vector<Node*>{d1, d2, d3, d4}, 
+                std::move(why), pred_src::AR)
         );
     }
 
@@ -321,7 +325,8 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
         auto [d1, d2, why] = gen_para();
         dd.insert_new_predicate(
             std::make_unique<Predicate>(
-                pred_t::PARA, std::vector<Node*>{d1, d2}, std::move(why))
+                pred_t::PARA, std::vector<Node*>{d1, d2}, 
+                std::move(why), pred_src::AR)
         );
     }
 
@@ -337,7 +342,8 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
         auto [l1, l2, why] = gen_cong_1();
         dd.insert_new_predicate(
             std::make_unique<Predicate>(
-                pred_t::CONG, std::vector<Node*>{l1, l2}, std::move(why))
+                pred_t::CONG, std::vector<Node*>{l1, l2}, 
+                std::move(why), pred_src::AR)
         );
     }
 
@@ -346,7 +352,8 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
         auto [l1, l2, f, why] = gen_const_ratio();
         dd.insert_new_predicate(
             std::make_unique<Predicate>(
-                pred_t::CONSTRATIO, std::vector<Node*>{l1, l2}, f, std::move(why))
+                pred_t::CONSTRATIO, std::vector<Node*>{l1, l2}, f, 
+                std::move(why), pred_src::AR)
         );
     }
 
@@ -355,7 +362,8 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
         auto [l1, l2, l3, l4, why] = gen_eqratio();
         dd.insert_new_predicate(
             std::make_unique<Predicate>(
-                pred_t::EQRATIO, std::vector<Node*>{l1, l2, l3, l4}, std::move(why))
+                pred_t::EQRATIO, std::vector<Node*>{l1, l2, l3, l4}, 
+                std::move(why), pred_src::AR)
         );
     }
 
@@ -371,7 +379,8 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
         auto [p1, p2, p3, p4, why] = gen_cong_2();
         dd.insert_new_predicate(
             std::make_unique<Predicate>(
-                pred_t::CONG, std::vector<Node*>{p1, p2, p3, p4}, std::move(why))
+                pred_t::CONG, std::vector<Node*>{p1, p2, p3, p4}, 
+                std::move(why), pred_src::AR)
         );
     }
 }

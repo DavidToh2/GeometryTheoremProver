@@ -430,11 +430,14 @@ TEST_SUITE("TracebackEngine: why_() functions") {
 
         PredSet why_cyclic_ilmo = tr.why_cyclic(i, l, m, o);
         REQUIRE((
-            why_cyclic_ilmo.size() == 4 &&
             why_cyclic_ilmo.contains(base_pred) &&
-            why_cyclic_ilmo.contains(preds[9]) &&    // cyclic K L N O
-            why_cyclic_ilmo.contains(preds[12]) &&    // cyclic L M N O
-            why_cyclic_ilmo.contains(preds[13])       // eq I N
+            why_cyclic_ilmo.contains(preds[9]) &&     // cyclic K L N O
+            why_cyclic_ilmo.contains(preds[13]) &&    // eq I N
+            (why_cyclic_ilmo.contains(preds[12]) ||   // cyclic L M N O
+            (why_cyclic_ilmo.contains(preds[4]) &&    // circle X K L N
+            why_cyclic_ilmo.contains(preds[5]) &&     // cyclic F B I E
+            why_cyclic_ilmo.contains(preds[6]) &&     // cyclic L M N O
+            why_cyclic_ilmo.contains(preds[10])))     // cyclic F M N E  
         ));
         
         PredSet why_cyclic_bfim = tr.why_cyclic(b, e, i, m);

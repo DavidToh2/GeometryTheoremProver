@@ -4,8 +4,8 @@
 #include "AR/AREngine.hh"
 #include "Numerics/NumEngine.hh"
 #include "Geometry/GeometricGraph.hh"
-#include "Parsers/InputParser.hh"
-#include "Parsers/OutputParser.hh"
+#include "IO/InputParser.hh"
+#include "IO/OutputParser.hh"
 #include "Traceback/TracebackEngine.hh"
 
 class GTPEngine {

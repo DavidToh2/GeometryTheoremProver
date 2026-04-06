@@ -48,13 +48,20 @@ const std::string NUMERIC_NAMES[] = {
     "last"
 };
 
+const std::string PRED_SRC_NAMES[] = {
+    "base",
+    "ggraph",
+    "dd",
+    "ar"
+};
+
 // For AREngine::Table
 
 const std::string ONE = "1";
 const std::string PI = "pi";
 
-const int MIN_LEVEL = 1025;
-const int MAX_LEVEL = 8192;
+const int MIN_LEVEL = 1;
+const int MAX_LEVEL = 1024;
 
 template <typename T>
 inline constexpr bool is_std_map_v = false;
@@ -142,4 +149,12 @@ enum class num_t {
     COMMON_TANGENT,
     COMMON_TANGENT2,
     LAST    // not used
+};
+
+
+enum class pred_src {
+    BASE,
+    GGRAPH,
+    DD,
+    AR
 };

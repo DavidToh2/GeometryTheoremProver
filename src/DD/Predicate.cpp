@@ -136,43 +136,43 @@ bool PredicateTemplate::validate_degeneracy_args(GeometricGraph &ggraph) {
 
 
 
-Predicate::Predicate(const pred_t pred_name, Frac f) 
-: name(pred_name), frac_arg(f) {
+Predicate::Predicate(const pred_t pred_name, Frac f, pred_src src) 
+: name(pred_name), frac_arg(f), source(src) {
     hash = Utils::to_pred_str(pred_name) + " " + f.to_string();
 }
-Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes)
-: args(std::move(nodes)), name(pred_name) {
+Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, pred_src src)
+: args(std::move(nodes)), name(pred_name), source(src) {
     hash = Utils::to_pred_str(pred_name);
     for (Node* node : args) {
         hash = hash + " " + node->name;
     }
 }
-Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, Frac f)
-: Predicate(pred_name, std::move(nodes)) {
+Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, Frac f, pred_src src)
+: Predicate(pred_name, std::move(nodes), src) {
     frac_arg = f;
     hash = hash + " " + f.to_string();
 }
-Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, PredSet &&why)
-: args(std::move(nodes)), name(pred_name), why(std::move(why)) {
+Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, PredSet &&why, pred_src src)
+: args(std::move(nodes)), name(pred_name), why(std::move(why)), source(src) {
     hash = Utils::to_pred_str(pred_name);
     for (Node* node : args) {
         hash = hash + " " + node->name;
     }
 }
-Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, Frac f, PredSet &&why)
-: Predicate(pred_name, std::move(nodes), std::move(why)) {
+Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, Frac f, PredSet &&why, pred_src src)
+: Predicate(pred_name, std::move(nodes), src) {
     frac_arg = f;
     hash = hash + " " + f.to_string();
 }
-Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, std::set<Predicate*> &&why)
-: args(std::move(nodes)), name(pred_name), why(std::move(why)) {
+Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, std::set<Predicate*> &&why, pred_src src)
+: args(std::move(nodes)), name(pred_name), why(std::move(why)), source(src) {
     hash = Utils::to_pred_str(pred_name);
     for (Node* node : args) {
         hash = hash + " " + node->name;
     }
 }
-Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, Frac f, std::set<Predicate*> &&why)
-: Predicate(pred_name, std::move(nodes), std::move(why)) {
+Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, Frac f, std::set<Predicate*> &&why, pred_src src)
+: Predicate(pred_name, std::move(nodes), src) {
     frac_arg = f;
     hash = hash + " " + f.to_string();
 }
@@ -201,9 +201,8 @@ std::unique_ptr<Predicate> Predicate::from_global_point_map(
     return std::make_unique<Predicate>(Utils::to_pred_t(pred_name), std::move(nodes));
 }
 
-Predicate::Predicate(PredicateTemplate &pt) {
+Predicate::Predicate(PredicateTemplate &pt, pred_src src) : name(pt.name), source(src) {
     hash = pt.to_hash_with_args();
-    name = pt.name;
 
     for (int i=0; i<pt.args.size(); i++) {
         std::visit( overloaded {

@@ -223,7 +223,8 @@ void GeometricGraph::merge_points(Point* dest, Point* src, PredSet preds, DDEngi
 
     // Finally, merge the points themselves
     Predicate* merger_pred = dd.insert_new_predicate(std::make_unique<Predicate>(
-        pred_t::EQ, std::vector<Node*>{root_dest, root_src}, std::move(preds)
+        pred_t::EQ, std::vector<Node*>{root_dest, root_src},
+         std::move(preds), pred_src::GGRAPH
     ));
 
     ar.update_point_merger(root_dest, root_src, merger_pred);
@@ -346,7 +347,7 @@ void GeometricGraph::merge_lines(
                             l_preds += tr->why_on(p1, l);
                             l_preds += tr->why_on(p2, l);
                             l_preds += dd.insert_predicate(std::make_unique<Predicate>(
-                                pred_t::DIFF, std::vector<Node*>{p1, p2}
+                                pred_t::DIFF, std::vector<Node*>{p1, p2}, pred_src::GGRAPH
                             ));
                             L2.insert({l, l_preds});
 
@@ -377,7 +378,8 @@ void GeometricGraph::merge_lines(
         // Predicate for merging the lines
         PredSet l_preds = it->second;
         Predicate* merger_pred = dd.insert_new_predicate(std::make_unique<Predicate>(
-            pred_t::EQ, std::vector<Node*>{root_dest, l}, std::move(l_preds)
+            pred_t::EQ, std::vector<Node*>{root_dest, l},
+             std::move(l_preds), pred_src::GGRAPH
         ));
 
         // Predicate for merging their directions
@@ -490,7 +492,8 @@ void GeometricGraph::set_directions_para(Direction* dest, Direction* src, PredSe
     }
 
     Predicate* merger_pred = dd.insert_new_predicate(std::make_unique<Predicate>(
-        pred_t::EQ, std::vector<Node*>{root_dest, root_src}, std::move(preds)
+        pred_t::EQ, std::vector<Node*>{root_dest, root_src},
+         std::move(preds), pred_src::GGRAPH
     ));
     
     root_dest->merge(root_src, merger_pred);
@@ -564,7 +567,8 @@ void GeometricGraph::set_directions_perp(Direction* d1, Direction* d2, PredSet p
         PredSet preds_1(preds);
         preds_1 += tr->why_directions_perp(rd1, dp1);
         Predicate* merger_pred_1 = dd.insert_predicate(std::make_unique<Predicate>(
-            pred_t::EQ, std::vector<Node*>{rd2, dp1}, std::move(preds_1)
+            pred_t::EQ, std::vector<Node*>{rd2, dp1}, 
+            std::move(preds_1), pred_src::GGRAPH
         ));
 
         rd2->merge(dp1, merger_pred_1);
@@ -576,7 +580,8 @@ void GeometricGraph::set_directions_perp(Direction* d1, Direction* d2, PredSet p
         PredSet preds_2(preds);
         preds_2 += tr->why_directions_perp(rd2, dp2);
         Predicate* merger_pred_2 = dd.insert_predicate(std::make_unique<Predicate>(
-            pred_t::EQ, std::vector<Node*>{rd1, dp2}, std::move(preds_2)
+            pred_t::EQ, std::vector<Node*>{rd1, dp2}, 
+            std::move(preds_2), pred_src::GGRAPH
         ));
 
         rd1->merge(dp2, merger_pred_2);
@@ -824,14 +829,14 @@ void GeometricGraph::merge_circles(Circle* dest, std::vector<std::pair<Circle*, 
                             Point* p1_ = p1, *p2_ = p2;
                             if (p1_->name > p2_->name) std::swap(p1_, p2_);
                             c_preds += dd.insert_predicate(std::make_unique<Predicate>(
-                            pred_t::DIFF, std::vector<Node*>{p1_, p2_}
+                                pred_t::DIFF, std::vector<Node*>{p1_, p2_}, pred_src::GGRAPH
                             )); 
                         }
                         if (p4 && (point_nums.at(p3) != point_nums.at(p4))) {
                             Point* p3_ = p3, *p4_ = p4;
                             if (p3_->name > p4_->name) std::swap(p3_, p4_);
                             c_preds += dd.insert_predicate(std::make_unique<Predicate>(
-                                pred_t::DIFF, std::vector<Node*>{p3_, p4_}
+                                pred_t::DIFF, std::vector<Node*>{p3_, p4_}, pred_src::GGRAPH
                             ));
                         }
                         C2.insert({c, c_preds});
@@ -884,7 +889,8 @@ void GeometricGraph::merge_circles(Circle* dest, std::vector<std::pair<Circle*, 
         // Predicates for merging circles
         PredSet c_preds = it->second;
         Predicate* merger_pred = dd.insert_new_predicate(std::make_unique<Predicate>(
-            pred_t::EQ, std::vector<Node*>{root_dest, c}, std::move(c_preds)
+            pred_t::EQ, std::vector<Node*>{root_dest, c},
+            std::move(c_preds), pred_src::GGRAPH
         ));
         
         // Predicates for merging circle centers
@@ -969,7 +975,8 @@ void GeometricGraph::merge_segments(Segment* dest, Segment* src, PredSet preds, 
     root_segments.erase(root_src);
 
     Predicate* merger_pred = dd.insert_new_predicate(std::make_unique<Predicate>(
-        pred_t::EQ, std::vector<Node*>{root_dest, root_src}, std::move(preds)
+        pred_t::EQ, std::vector<Node*>{root_dest, root_src}, 
+        std::move(preds), pred_src::GGRAPH
     ));
 
     auto l2 = root_dest->merge(root_src, merger_pred);
@@ -1047,7 +1054,8 @@ void GeometricGraph::set_lengths_cong(Length* l1, Length* l2, PredSet preds, DDE
     }
 
     Predicate* merger_pred = dd.insert_new_predicate(std::make_unique<Predicate>(
-        pred_t::EQ, std::vector<Node*>{root_l1, root_l2}, std::move(preds)
+        pred_t::EQ, std::vector<Node*>{root_l1, root_l2}, 
+        std::move(preds), pred_src::GGRAPH
     ));
 
     root_l1->merge(root_l2, merger_pred);
@@ -1218,7 +1226,8 @@ void GeometricGraph::merge_angles(Angle* dest, Angle* src, PredSet preds, DDEngi
     root_angles.erase(root_src);
 
     Predicate* merger_pred = dd.insert_predicate(std::make_unique<Predicate>(
-        pred_t::EQ, std::vector<Node*>{root_dest, root_src}, std::move(preds)
+        pred_t::EQ, std::vector<Node*>{root_dest, root_src}, 
+        std::move(preds), pred_src::GGRAPH
     ));
 
     auto ms = root_dest->merge(root_src, merger_pred);
@@ -1272,7 +1281,8 @@ void GeometricGraph::set_measures_equal(Measure* m1, Measure* m2, PredSet preds,
     root_measures.erase(root_m2);
 
     Predicate* merger_pred = dd.insert_new_predicate(std::make_unique<Predicate>(
-        pred_t::EQ, std::vector<Node*>{root_m1, root_m2}, std::move(preds)
+        pred_t::EQ, std::vector<Node*>{root_m1, root_m2}, 
+        std::move(preds), pred_src::GGRAPH
     ));
 
     root_m1->merge(root_m2, merger_pred);
@@ -1416,7 +1426,8 @@ void GeometricGraph::merge_ratios(Ratio* dest, Ratio* src, PredSet preds, DDEngi
     root_ratios.erase(root_src);
 
     Predicate* merger_pred = dd.insert_new_predicate(std::make_unique<Predicate>(
-        pred_t::EQ, std::vector<Node*>{root_dest, root_src}, std::move(preds)
+        pred_t::EQ, std::vector<Node*>{root_dest, root_src}, 
+        std::move(preds), pred_src::GGRAPH
     ));
 
     auto fracs = root_dest->merge(root_src, merger_pred);
@@ -1470,7 +1481,8 @@ void GeometricGraph::set_fractions_equal(Fraction* f1, Fraction* f2, PredSet pre
     root_fractions.erase(root_f2);
 
     Predicate* merger_pred = dd.insert_predicate(std::make_unique<Predicate>(
-        pred_t::EQ, std::vector<Node*>{root_f1, root_f2}, std::move(preds)
+        pred_t::EQ, std::vector<Node*>{root_f1, root_f2}, 
+        std::move(preds), pred_src::GGRAPH
     ));
 
     root_f1->merge(root_f2, merger_pred);
@@ -1640,7 +1652,8 @@ void GeometricGraph::merge_triangles(Triangle* dest, Triangle* src, PredSet pred
     root_triangles.erase(root_src);
 
     Predicate* merger_pred = dd.insert_new_predicate(std::make_unique<Predicate>(
-        pred_t::EQ, std::vector<Node*>{root_dest, root_src}, std::move(preds)
+        pred_t::EQ, std::vector<Node*>{root_dest, root_src}, 
+        std::move(preds), pred_src::GGRAPH
     ));
 
     root_dest->merge(root_src, merger_pred);
@@ -1710,7 +1723,8 @@ void GeometricGraph::set_triangles_congruent(Triangle* t1, Triangle* t2, std::ar
     Dimension* dim2 = get_or_add_dimension(t2, dd);
 
     Predicate* pred = dd.insert_new_predicate(std::make_unique<Predicate>(
-        pred_t::EQ, std::vector<Node*>{t1, t2}, std::move(all_preds)
+        pred_t::EQ, std::vector<Node*>{t1, t2}, 
+        std::move(all_preds), pred_src::GGRAPH
     ));
 
     set_triangles_congruent(dim1, dim2, perm, pred, dd);
@@ -1810,7 +1824,8 @@ void GeometricGraph::set_triangles_similar(Triangle* t1, Triangle* t2, std::arra
             shp2->perm_all_triangles(perm);
 
             Predicate* pred = dd.insert_new_predicate(std::make_unique<Predicate>(
-                pred_t::EQ, std::vector<Node*>{shp1, shp2}, std::move(all_preds)
+                pred_t::EQ, std::vector<Node*>{shp1, shp2}, 
+                std::move(all_preds), pred_src::GGRAPH
             ));
 
             auto [isosceles_mask, updated] = Dimension::or_isosceles_masks(dim1->isosceles_mask, dim2->isosceles_mask);
@@ -3232,7 +3247,7 @@ int GeometricGraph::synthesise_ar_preds(DDEngine &dd) {
             LOG("Synthesised AR predicate: " << pred->to_string());
         }
     }
-    level += 1;
+    level += 2;
 
     return num;
 }
