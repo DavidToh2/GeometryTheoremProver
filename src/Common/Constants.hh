@@ -61,7 +61,7 @@ const std::string ONE = "1";
 const std::string PI = "pi";
 
 const int MIN_LEVEL = 1;
-const int MAX_LEVEL = 1024;
+const int MAX_LEVEL = 512;
 
 template <typename T>
 inline constexpr bool is_std_map_v = false;

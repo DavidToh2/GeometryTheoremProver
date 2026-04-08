@@ -70,6 +70,10 @@ int main(int argc, char** argv) {
         int total_problems = 0, solved_problems = 0;
         std::set<std::string> unsolved_problems;
 
+        // Delete the output file if it exists
+        std::ofstream ofs(output_filepath, std::ofstream::out | std::ofstream::trunc);
+        ofs.close();
+
         for (std::string problem_name : problem_names) {
             gtp.load_problem(
                 input_filepath,

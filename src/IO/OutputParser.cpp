@@ -4,6 +4,7 @@
 #include "OutputParser.hh"
 #include "Common/Constants.hh"
 #include "Geometry/Node.hh"
+#include "DD/DDEngine.hh"
 
 void OutputParser::format_problem_description(std::string problem_name, std::string problem_string, std::ostream &os) {
     os << std::endl;
@@ -27,7 +28,7 @@ std::string OutputParser::__format_predicate(Predicate* pred) {
             + ", " + pred->args[2]->to_string() + ", " + pred->args[3]->to_string() + " cyclic";
         case pred_t::CIRCLE:
             return pred->args[0]->to_string() + " center of ⦿" + pred->args[1]->to_string() 
-            + ", " + pred->args[2]->to_string() + ", " + pred->args[3]->to_string();
+            + pred->args[2]->to_string() + pred->args[3]->to_string();
         case pred_t::PARA:
             return pred->args[0]->to_string() + pred->args[1]->to_string() 
             + " ∥ " + pred->args[2]->to_string() + pred->args[3]->to_string();
@@ -50,6 +51,7 @@ std::string OutputParser::__format_predicate(Predicate* pred) {
             else if (p6 == p7) ang2 = "∠" + p5 + p6 + p8;
             else if (p6 == p8) ang2 = "∠" + p5 + p6 + p7;
             else ang2 = "∠(" + p5 + p6 + ", " + p7 + p8 + ")";
+            return ang1 + " = " + ang2;
         case pred_t::EQRATIO:
             return pred->args[0]->to_string() + pred->args[1]->to_string() 
             + " / " + pred->args[2]->to_string() + pred->args[3]->to_string() + " = "
@@ -79,30 +81,35 @@ std::string OutputParser::__format_predicate(Predicate* pred) {
             return pred->to_string();
     }
 }
-std::string OutputParser::format_predicate_with_why(Predicate* pred) {
+std::string OutputParser::format_predicate_with_why(Predicate* pred, Predicate* base_pred) {
     std::string res;
     for (Predicate* why : pred->why.preds) {
+        if (why == base_pred) continue;
         std::string pred_str = __format_predicate(why);
         if (!pred_str.empty()) {
             res += pred_str + " && ";
         }
     }
     if (!res.empty()) res.pop_back(), res.pop_back(), res.pop_back(), res.pop_back();
-    if (!res.empty()) res += " ⇒ ";
+    if (!res.empty()) res += " => ";
     res += __format_predicate(pred);
     return res;
 }
 
 
-void OutputParser::format_solution_from_predset(std::map<int, std::set<Predicate*>>& predset, std::ostream &os) {
+void OutputParser::format_solution_from_predset(
+    std::map<int, std::set<Predicate*>>& predset, DDEngine& dd, std::ostream &os
+) {
+    Predicate* base_pred = dd.base_pred.get();
     os << "==========================================" << std::endl;
     for (const auto& [level, preds] : predset) {
         for (Predicate* p : preds) {
-            std::string pred_str = format_predicate_with_why(p);
+            if (p->source <= pred_src::GGRAPH) continue;
+            std::string pred_str = format_predicate_with_why(p, base_pred);
             if (!pred_str.empty()) {
                 os << "[ "
                     << std::right << std::setw(3) << level << " | "
-                    << std::left << std::setw(6) << Utils::to_pred_src_str(p->source) << " ] "
+                    << std::left << std::setw(2) << Utils::to_pred_src_str(p->source) << " ] "
                     << pred_str << "\n";
             }
         }

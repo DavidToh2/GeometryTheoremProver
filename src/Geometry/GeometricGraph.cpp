@@ -347,7 +347,7 @@ void GeometricGraph::merge_lines(
                             l_preds += tr->why_on(p1, l);
                             l_preds += tr->why_on(p2, l);
                             l_preds += dd.insert_predicate(std::make_unique<Predicate>(
-                                pred_t::DIFF, std::vector<Node*>{p1, p2}, pred_src::GGRAPH
+                                pred_t::DIFF, std::vector<Node*>{p1, p2}, pred_src::BASE
                             ));
                             L2.insert({l, l_preds});
 
@@ -829,14 +829,14 @@ void GeometricGraph::merge_circles(Circle* dest, std::vector<std::pair<Circle*, 
                             Point* p1_ = p1, *p2_ = p2;
                             if (p1_->name > p2_->name) std::swap(p1_, p2_);
                             c_preds += dd.insert_predicate(std::make_unique<Predicate>(
-                                pred_t::DIFF, std::vector<Node*>{p1_, p2_}, pred_src::GGRAPH
+                                pred_t::DIFF, std::vector<Node*>{p1_, p2_}, pred_src::BASE
                             )); 
                         }
                         if (p4 && (point_nums.at(p3) != point_nums.at(p4))) {
                             Point* p3_ = p3, *p4_ = p4;
                             if (p3_->name > p4_->name) std::swap(p3_, p4_);
                             c_preds += dd.insert_predicate(std::make_unique<Predicate>(
-                                pred_t::DIFF, std::vector<Node*>{p3_, p4_}, pred_src::GGRAPH
+                                pred_t::DIFF, std::vector<Node*>{p3_, p4_}, pred_src::BASE
                             ));
                         }
                         C2.insert({c, c_preds});

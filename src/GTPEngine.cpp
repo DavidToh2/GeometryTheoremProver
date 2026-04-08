@@ -137,7 +137,7 @@ void GTPEngine::output_problem_solution() {
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
         std::cout << "Time to extract solution: " << duration << " us" << std::endl;
 
-        outputParser.format_solution_from_predset(minimal_predset, fbuf);
+        outputParser.format_solution_from_predset(minimal_predset, dd, fbuf);
     }
 }
 

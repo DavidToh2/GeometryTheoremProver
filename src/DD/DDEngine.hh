@@ -36,6 +36,9 @@ public:
     std::deque<Predicate*> recent_predicates;
     std::map<pred_t, std::set<Predicate*>> predicates_by_type;
 
+    // Flag indicating whether the most recent insertion was a new or existing predicate
+    bool new_predicate = false;
+
     // Hacky way to implement the conclusion. Doing it as a PredicateTemplate lets us reuse the matching functions.
     std::unique_ptr<PredicateTemplate> conclusion_;
     std::unique_ptr<Predicate> conclusion;

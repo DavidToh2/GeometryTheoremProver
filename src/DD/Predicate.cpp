@@ -198,7 +198,9 @@ std::unique_ptr<Predicate> Predicate::from_global_point_map(
         }
     }
 
-    return std::make_unique<Predicate>(Utils::to_pred_t(pred_name), std::move(nodes));
+    return std::make_unique<Predicate>(
+        Utils::to_pred_t(pred_name), std::move(nodes), pred_src::BASE
+    );
 }
 
 Predicate::Predicate(PredicateTemplate &pt, pred_src src) : name(pt.name), source(src) {
@@ -348,7 +350,7 @@ bool ClauseTemplate::is_empty() { return predicates.empty(); }
 
 Generator<std::unique_ptr<Predicate>> ClauseTemplate::instantiate() {
     for (auto& predptr : predicates) {
-        co_yield predptr.get()->instantiate();
+        co_yield  predptr.get()->instantiate();
     }
 }
 

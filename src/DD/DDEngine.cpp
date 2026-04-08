@@ -63,7 +63,8 @@ void DDEngine::set_conclusion(std::unique_ptr<Predicate> predicate) {
     conclusion_ = std::make_unique<PredicateTemplate>(predicate.get(), conclusion_args);
 
     conclusion = std::move(conclusion_.get()->instantiate());
-    conclusion.get()->level = Constants::MAX_LEVEL;
+    conclusion.get()->source = pred_src::DD;
+    conclusion.get()->level = Constants::MAX_LEVEL - 1;
 }
 
 
@@ -74,9 +75,11 @@ Predicate* DDEngine::insert_predicate(std::unique_ptr<Predicate> &&predicate) {
     std::string hash = p->hash;
     if (has_predicate_by_hash(hash)) {
         predicate.reset();
+        new_predicate = false;
         return predicates.at(hash).get();
     }
     predicates.insert({hash, std::move(predicate)});
+    new_predicate = true;
     return p;
 }
 
@@ -85,9 +88,11 @@ Predicate* DDEngine::insert_new_predicate(std::unique_ptr<Predicate> &&predicate
     std::string hash = p->hash;
     if (has_predicate_by_hash(hash)) {
         predicate.reset();
+        new_predicate = false;
         return predicates.at(hash).get();
     }
     predicates.insert({hash, std::move(predicate)});
+    new_predicate = true;
     recent_predicates.emplace_back(p);
     return p;
 }
@@ -1782,12 +1787,11 @@ Generator<bool> DDEngine::match(Theorem* theorem, int i, int n, GeometricGraph &
             auto whys_ = theorem->instantiate_preconditions();
             while (whys_) {
                 Predicate* why = insert_predicate(std::move(whys_()));
-                why->source = pred_src::GGRAPH;
+                if (new_predicate) why->source = pred_src::GGRAPH;
                 pred->why += why;
             }
 
             insert_new_predicate(std::move(pred_));
-
             co_yield true;
 
         }
