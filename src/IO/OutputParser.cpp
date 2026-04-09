@@ -6,14 +6,10 @@
 #include "Geometry/Node.hh"
 #include "DD/DDEngine.hh"
 
-void OutputParser::format_problem_description(std::string problem_name, std::string problem_string, std::ostream &os) {
-    os << std::endl;
-    os << "==========================================" << std::endl;
-    os << "Problem: " << problem_name << std::endl;
-    os << problem_string << std::endl;
+
+void OutputParser::set_output_stream(std::string file_name) {
+    os.open(file_name, std::ios_base::app);
 }
-
-
 
 
 
@@ -97,14 +93,54 @@ std::string OutputParser::format_predicate_with_why(Predicate* pred, Predicate* 
 }
 
 
+
+
+
+
+
+
+void OutputParser::format_problem_description(std::string problem_name, std::string problem_string) {
+    os << "=======================================" << std::endl;
+    os << "Problem: " << problem_name << std::endl;
+    os << problem_string << std::endl;
+}
+
+
+void OutputParser::format_numeric_diagram(NumInstance& num_instance) {
+    int i = 0;
+    os << "---------------------------------------" << std::endl;
+    for (const auto& [p, _] : num_instance.point_to_coords) {
+        os << "    " << p->name << " = "
+            << num_instance.get_most_likely_coords(p).to_string();
+        if (++i % 3 == 0) os << "\n";
+    }
+    os << std::endl;
+    os << "    Loss: " << num_instance.loss << std::endl;
+}
+
+void OutputParser::format_failed_numeric_diagram(NumInstance& num_instance) {
+    os << "---------------------------------------" << std::endl;
+    for (const auto& [p, coords] : num_instance.point_to_coords) {
+        os << " [ Candidates for " << p->name << " ] ";
+        int i = 0;
+        for (const CartesianPoint& c : coords) {
+            os << "    " << c.to_string() << " x" << num_instance.point_coord_occurences[p][i] << "";
+            if (++i % 3 == 0) os << "\n";
+        }
+    }
+    os << std::endl;
+    os << "    Loss: " << num_instance.loss << std::endl;
+}
+
+
 void OutputParser::format_solution_from_predset(
-    std::map<int, std::set<Predicate*>>& predset, DDEngine& dd, std::ostream &os
+    std::map<int, std::set<Predicate*>>& predset, DDEngine& dd
 ) {
+    os << "---------------------------------------" << std::endl;
     Predicate* base_pred = dd.base_pred.get();
-    os << "==========================================" << std::endl;
     for (const auto& [level, preds] : predset) {
         for (Predicate* p : preds) {
-            if (p->source <= pred_src::GGRAPH) continue;
+            if (p->source < pred_src::GGRAPH) continue;
             std::string pred_str = format_predicate_with_why(p, base_pred);
             if (!pred_str.empty()) {
                 os << "[ "
@@ -114,4 +150,10 @@ void OutputParser::format_solution_from_predset(
             }
         }
     }
+}
+
+
+
+void OutputParser::close_output_stream() {
+    os.close();
 }

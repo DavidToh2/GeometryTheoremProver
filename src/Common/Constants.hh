@@ -49,8 +49,8 @@ const std::string NUMERIC_NAMES[] = {
 };
 
 const std::string PRED_SRC_NAMES[] = {
-    "base",
-    "ggraph",
+    "--",
+    "gr",
     "dd",
     "ar"
 };

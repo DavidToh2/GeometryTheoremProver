@@ -287,7 +287,10 @@ public:
 
     void populate_why(Predicate* pred);
 
-    std::map<int, std::set<Predicate*>> get_minimal_predset(DDEngine& dd);
+    /* Fetch an approximately minimal set of predicates necessary to solve the problem.
+    The predicate set is indexed by level and returned as `map<int, set<Predicate*>>`.
+    Additionally, a `bool` is returned indicating whether the solution is complete.*/
+    std::pair<std::map<int, std::set<Predicate*>>, bool> get_minimal_predset(DDEngine& dd);
 
 
     void reset_problem();

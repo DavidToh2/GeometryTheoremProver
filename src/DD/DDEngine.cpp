@@ -26,6 +26,7 @@
 
 DDEngine::DDEngine() {
     base_pred = std::make_unique<Predicate>();
+    base_pred->level = Constants::MIN_LEVEL;
     int i = 0;
     pred_t pt;
     while (pt != pred_t::LAST) {
@@ -1858,31 +1859,6 @@ bool DDEngine::check_conclusion(GeometricGraph &ggraph) {
 }
 
 
-
-void DDEngine::__print_theorems(std::ostream& os) {
-    for (auto& thr : theorems) {
-        Theorem* theorem = thr.second.get();
-        os << theorem->to_string_with_placeholders() << std::endl;
-    }
-}
-
-void DDEngine::__print_constructions(std::ostream& os) {
-    for (auto& c : constructions) {
-        Construction* construction = c.second.get();
-        os << construction->to_string_with_placeholders() << std::endl;
-    }
-}
-
-void DDEngine::__print_predicates(std::ostream& os) {
-    for (auto& p : predicates) {
-        Predicate* predicate = p.second.get();
-        os << predicate->to_string() << std::endl;
-    }
-}
-
-void DDEngine::__print_conclusion(std::ostream& os) {
-    os << "Conclusion: " << conclusion_->to_string() << std::endl;
-}
 
 
 

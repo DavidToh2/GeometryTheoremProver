@@ -75,7 +75,7 @@ public:
 
 
 
-    double loss;
+    double loss = 0;
 
     void compute_loss();
 

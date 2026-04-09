@@ -171,6 +171,7 @@ TEST_SUITE("NumEngine Computation") {
 
         SUBCASE("line") {
             Numeric num("c = line a b", point_map);
+            inst.next_outs(&num);
             ne.compute_line(inst, &num);
             CartesianLine line = std::get<CartesianLine>(inst.__get_obj(c));
             CartesianPoint pa = inst.__get_coord(a);
@@ -183,6 +184,7 @@ TEST_SUITE("NumEngine Computation") {
             ne.compute_triangle(inst, &num0);
 
             Numeric num("f = line_at_angle a b c d e", point_map);
+            inst.next_outs(&num);
             ne.compute_line_at_angle(inst, &num);
             CartesianRay ray = std::get<CartesianRay>(inst.__get_obj(f));
             CartesianPoint pf = Cartesian::get_random_point_on_ray(ray, 0.8);
@@ -198,6 +200,7 @@ TEST_SUITE("NumEngine Computation") {
         }
         SUBCASE("line_bisect") {
             Numeric num("c = line_bisect a b", point_map);
+            inst.next_outs(&num);
             ne.compute_line_bisect(inst, &num);
             CartesianLine bisect = std::get<CartesianLine>(inst.__get_obj(c));
             CartesianPoint pa = inst.__get_coord(a);
@@ -214,6 +217,7 @@ TEST_SUITE("NumEngine Computation") {
             ne.compute_free(inst, &num0);
 
             Numeric num("d = line_para c a b", point_map);
+            inst.next_outs(&num);
             ne.compute_line_para(inst, &num);
             CartesianLine para = std::get<CartesianLine>(inst.__get_obj(d));
             CartesianPoint pc = inst.__get_coord(c);
@@ -229,6 +233,7 @@ TEST_SUITE("NumEngine Computation") {
             ne.compute_free(inst, &num0);
 
             Numeric num("d = line_perp c a b", point_map);
+            inst.next_outs(&num);
             ne.compute_line_perp(inst, &num);
             CartesianLine perp = std::get<CartesianLine>(inst.__get_obj(d));
             CartesianPoint pc = inst.__get_coord(c);
@@ -241,6 +246,7 @@ TEST_SUITE("NumEngine Computation") {
         }
         SUBCASE("ray") {
             Numeric num("c = ray a b", point_map);
+            inst.next_outs(&num);
             ne.compute_ray(inst, &num);
             CartesianRay ray = std::get<CartesianRay>(inst.__get_obj(c));
             CartesianPoint pa = inst.__get_coord(a);
@@ -270,6 +276,7 @@ TEST_SUITE("NumEngine Computation") {
 
         SUBCASE("midpoint") {
             Numeric num("d = midpoint a b", point_map);
+            inst.next_outs(&num);
             ne.compute_midpoint(inst, &num);
             CartesianPoint mid = inst.__get_coord(d);
             CartesianPoint pa = inst.__get_coord(a);
@@ -278,6 +285,7 @@ TEST_SUITE("NumEngine Computation") {
         }
         SUBCASE("trisegment") {
             Numeric num("d e = trisegment a b", point_map);
+            inst.next_outs(&num);
             ne.compute_trisegment(inst, &num);
             CartesianPoint pd = inst.__get_coord(d);
             CartesianPoint pe = inst.__get_coord(e);
@@ -288,6 +296,7 @@ TEST_SUITE("NumEngine Computation") {
         }
         SUBCASE("mirror") {
             Numeric num("c = mirror a b", point_map);
+            inst.next_outs(&num);
             ne.compute_mirror(inst, &num);
             CartesianPoint pc = inst.__get_coord(c);
             CartesianPoint pa = inst.__get_coord(a);
@@ -296,6 +305,7 @@ TEST_SUITE("NumEngine Computation") {
         }
         SUBCASE("reflect") {
             Numeric num("d = reflect c a b", point_map);
+            inst.next_outs(&num);
             ne.compute_reflect(inst, &num);
             CartesianPoint pd = inst.__get_coord(d);
             CartesianPoint pc = inst.__get_coord(c);
@@ -349,7 +359,10 @@ TEST_SUITE("NumEngine Computation") {
 
                 // <(DF, FE) = <(AB, BC)
                 Numeric num("f = angle_eq3 d e a b c", point_map);
+
+                inst.next_outs(&num);
                 ne.compute_angle_eq3(inst, &num);
+
                 CartesianCircle cf = std::get<CartesianCircle>(inst.__get_obj(f));
                 CartesianPoint pd = inst.__get_coord(d);
                 CartesianPoint pe = inst.__get_coord(e);
@@ -370,7 +383,10 @@ TEST_SUITE("NumEngine Computation") {
             CartesianPoint pa = inst.__get_coord(a);
             CartesianPoint pb = inst.__get_coord(b);
             CartesianPoint pc = inst.__get_coord(c);
+
+            inst.next_outs(&num);
             ne.compute_angle_mirror(inst, &num);
+
             CartesianRay rd = std::get<CartesianRay>(inst.__get_obj(d));
             CartesianPoint pd = Cartesian::get_random_point_on_ray(rd, 0.8);
             double ang_abc = Cartesian::angle_between(pa, pb, pc);
@@ -383,7 +399,10 @@ TEST_SUITE("NumEngine Computation") {
             CartesianPoint pa = inst.__get_coord(a);
             CartesianPoint pb = inst.__get_coord(b);
             CartesianPoint pc = inst.__get_coord(c);
+
+            inst.next_outs(&num);
             ne.compute_angle_bisect(inst, &num);
+
             CartesianRay rd = std::get<CartesianRay>(inst.__get_obj(d));
             CartesianPoint pd = Cartesian::get_random_point_on_ray(rd, 0.8);
             double ang_abd = Cartesian::angle_between(pa, pb, pd);
@@ -396,7 +415,10 @@ TEST_SUITE("NumEngine Computation") {
             CartesianPoint pa = inst.__get_coord(a);
             CartesianPoint pb = inst.__get_coord(b);
             CartesianPoint pc = inst.__get_coord(c);
+
+            inst.next_outs(&num);
             ne.compute_angle_exbisect(inst, &num);
+
             CartesianLine ld = std::get<CartesianLine>(inst.__get_obj(d));
             CartesianPoint pd = Cartesian::get_random_point_on_line(ld, 0.8);
             double ang_abd = Cartesian::angle_between(pa, pb, pd);
@@ -409,7 +431,10 @@ TEST_SUITE("NumEngine Computation") {
             CartesianPoint pa = inst.__get_coord(a);
             CartesianPoint pb = inst.__get_coord(b);
             CartesianPoint pc = inst.__get_coord(c);
+
+            inst.next_outs(&num);
             ne.compute_angle_trisect(inst, &num);
+
             CartesianRay rd = std::get<CartesianRay>(inst.__get_obj(d));
             CartesianRay re = std::get<CartesianRay>(inst.__get_obj(e));
             CartesianPoint pd = Cartesian::get_random_point_on_ray(rd, 0.8);
@@ -440,7 +465,10 @@ TEST_SUITE("NumEngine Computation") {
 
         SUBCASE("circle") {
             Numeric num("e = circle a b c", point_map);
+
+            inst.next_outs(&num);
             ne.compute_circle(inst, &num);
+
             CartesianCircle circle = std::get<CartesianCircle>(inst.__get_obj(e));
             CartesianPoint pe = Cartesian::get_random_point_on_circle(circle, 1.2);
             CartesianPoint pa = inst.__get_coord(a);
@@ -453,7 +481,10 @@ TEST_SUITE("NumEngine Computation") {
         }
         SUBCASE("circum") {
             Numeric num("e = circum a b c", point_map);
+
+            inst.next_outs(&num);
             ne.compute_circum(inst, &num);
+
             CartesianCircle circum = std::get<CartesianCircle>(inst.__get_obj(e));
             CartesianPoint pa = inst.__get_coord(a);
             CartesianPoint pb = inst.__get_coord(b);
@@ -475,7 +506,10 @@ TEST_SUITE("NumEngine Computation") {
         }
         SUBCASE("diameter") {
             Numeric num("e = diameter a b", point_map);
+
+            inst.next_outs(&num);
             ne.compute_diameter(inst, &num);
+
             CartesianCircle circ = std::get<CartesianCircle>(inst.__get_obj(e));
             CartesianPoint pa = inst.__get_coord(a);
             CartesianPoint pb = inst.__get_coord(b);
@@ -540,16 +574,25 @@ TEST_SUITE("NumEngine Computation") {
 
         SUBCASE("line_tangent") {
             Numeric num1("i = line_tangent a c e", point_map);
+
+            inst.next_outs(&num1);
             ne.compute_line_tangent(inst, &num1);
+
             CartesianLine line = std::get<CartesianLine>(inst.__get_obj(i));
             CHECK(line.contains(CartesianPoint(-7.7373372370592, -3.9196413474696)));
 
             Numeric num2("j = line_tangent c a e", point_map);
+
+            inst.next_outs(&num2);
             ne.compute_line_tangent(inst, &num2);
+
             CartesianLine line2 = std::get<CartesianLine>(inst.__get_obj(j));
 
             Numeric num3("k = line_tangent e a c", point_map);
+
+            inst.next_outs(&num3);
             ne.compute_line_tangent(inst, &num3);
+
             CartesianLine line3 = std::get<CartesianLine>(inst.__get_obj(k));
 
             CartesianPoint d = Cartesian::intersect(line2, line3).value();
@@ -558,7 +601,10 @@ TEST_SUITE("NumEngine Computation") {
         SUBCASE("tangents") {
             Numeric num("i j = tangents g a b", point_map);
             // AE, AF are tangent to the circle centered at B with radius BC
+
+            inst.next_outs(&num);
             ne.compute_tangents(inst, &num);
+
             CartesianPoint pi = inst.__get_coord(i);
             CartesianPoint pj = inst.__get_coord(j);
             double r = cab.r;
@@ -571,7 +617,10 @@ TEST_SUITE("NumEngine Computation") {
         }
         SUBCASE("tangents (point inside circle)") {
             Numeric num("i j = tangents c a b", point_map);
+
+            inst.next_outs(&num);
             ne.compute_tangents(inst, &num);
+
             CHECK((
                 inst.point_to_coords[i].empty() && inst.point_to_coords[j].empty()
             ));
@@ -579,7 +628,10 @@ TEST_SUITE("NumEngine Computation") {
         SUBCASE("common_tangent") {
             Numeric num("i j = common_tangent a b c d", point_map);
             // IJ is a common tangent to the circles (A, AB) and (C, CD)
+
+            inst.next_outs(&num);
             ne.compute_common_tangent(inst, &num);
+
             CartesianPoint pi = inst.__get_coord(i);
             CartesianPoint pj = inst.__get_coord(j);
             double rab = cab.r;
@@ -591,7 +643,10 @@ TEST_SUITE("NumEngine Computation") {
         }
         SUBCASE("common_tangent (same radius)") {
             Numeric num("i j = common_tangent a b e f", point_map);
+
+            inst.next_outs(&num);
             ne.compute_common_tangent(inst, &num);
+
             CartesianPoint pi = inst.__get_coord(i);
             CartesianPoint pj = inst.__get_coord(j);
             double rab = cab.r;
@@ -605,7 +660,10 @@ TEST_SUITE("NumEngine Computation") {
         SUBCASE("common_tangent2") {
             Numeric num("i j k l = common_tangent c d e f", point_map);
             // IJ and KL are the two common tangents to the circles (C, CD) and (E, EF)
+
+            inst.next_outs(&num);
             ne.compute_common_tangent2(inst, &num);
+
             CartesianPoint pi = inst.__get_coord(i);
             CartesianPoint pj = inst.__get_coord(j);
             CartesianPoint pk = inst.__get_coord(k);
@@ -625,7 +683,10 @@ TEST_SUITE("NumEngine Computation") {
         SUBCASE("common_tangent2 (circle inside circle)") {
             Numeric num("i j k l = common_tangent2 e f g h", point_map);
             // IJ and KL are the two common tangents to the circles (E, EF) and (G, GH)
+
+            inst.next_outs(&num);
             ne.compute_common_tangent2(inst, &num);
+
             CHECK((inst.point_to_coords[i].empty() && inst.point_to_coords[j].empty() &&
                 inst.point_to_coords[k].empty() && inst.point_to_coords[l].empty()));
         }

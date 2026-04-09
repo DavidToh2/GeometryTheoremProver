@@ -9,7 +9,10 @@
 #include "Numerics/Numerics.hh"
 
 TEST_SUITE("NumEngine NumInstance") {
-    TEST_CASE("Free Polygon computations") {
+    TEST_CASE("General resolution behaviour") {
 
+    }
+    TEST_CASE("") {
+        
     }
 }

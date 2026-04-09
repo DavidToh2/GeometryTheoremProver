@@ -1183,7 +1183,7 @@ PredSet TracebackEngine::why_para(Point* p1, Point* p2, Point* p3, Point* p4) {
                 }
 
                 // std::cout << "(" << d->to_string() << ": " << d1->to_string() << ", " << lca1_a->to_string() << " and " 
-                //         << d2->to_string() << ", " << lca2_a->to_string() << ")" << std::endl;
+                        // << d2->to_string() << ", " << lca2_a->to_string() << ")" << std::endl;
 
                 /* Steps 7-8: extract the shortest explanations for why `lcai` was assigned direction `di` */
                 auto [best_pair_1, res_1] = most_explainable_direction_of_line(
@@ -1790,7 +1790,7 @@ void TracebackEngine::populate_why(Predicate* pred) {
 }
 
 
-std::map<int, std::set<Predicate*>> TracebackEngine::get_minimal_predset(DDEngine& dd) {
+std::pair<std::map<int, std::set<Predicate*>>, bool> TracebackEngine::get_minimal_predset(DDEngine& dd) {
     Predicate* conc = dd.conclusion.get();
     Predicate* base_pred = dd.base_pred.get();
 
@@ -1817,7 +1817,7 @@ std::map<int, std::set<Predicate*>> TracebackEngine::get_minimal_predset(DDEngin
             break;
         }
     }
-    return all_preds;
+    return std::make_pair(all_preds, all_preds[Constants::MIN_LEVEL].contains(base_pred));
 }
 
 

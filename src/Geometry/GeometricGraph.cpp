@@ -3254,85 +3254,6 @@ int GeometricGraph::synthesise_ar_preds(DDEngine &dd) {
 
 
 
-void GeometricGraph::__print_points(std::ostream& os) {
-    os << "Points: ";
-    for (auto& p : root_points) {
-        os << p->to_string() << " ";
-    }
-    os << std::endl;
-}
-
-
-void GeometricGraph::__print_lines(std::ostream& os) {
-    os << "Lines:\n";
-    for (auto& l : lines) {
-        Line* line = l.second.get();
-        os << line->to_string() << " : ";
-        for (Point* p : line->points) {
-            os << p->to_string() << " ";
-        }
-        os << std::endl;
-    }
-    os << std::endl;
-}
-
-void GeometricGraph::__print_circles(std::ostream& os) {
-    os << "Circles:\n";
-    for (auto& c : circles) {
-        Circle* circ = c.second.get();
-        os << circ->to_string() << " : ";
-        for (Point* p : circ->points) {
-            os << p->to_string() << " ";
-        }
-        os << std::endl;
-    }
-    os << std::endl;
-}
-
-void GeometricGraph::__print_angles(std::ostream& os) {
-    os << "Angles:\n";
-    for (auto& a : angles) {
-        Angle* angle = a.second.get();
-        os << angle->to_string() << " : [" << angle->direction1->to_string() << ", " << angle->direction2->to_string() << "]\n";
-    }
-    os << std::endl;
-}
-
-void GeometricGraph::__print_directions(std::ostream& os) {
-    os << "Directions:\n";
-    for (auto& d : directions) {
-        Direction* dir = d.second.get();
-        os << dir->to_string() << " : ";
-        for (Line* l : dir->root_objs) {
-            os << l->to_string() << " ";
-        }
-        os << std::endl;
-    }
-    os << std::endl;
-}
-
-void GeometricGraph::__print_measures(std::ostream& os) {
-    os << "Measures:\n";
-    for (auto& m : measures) {
-        Measure* measure = m.second.get();
-        os << measure->to_string() << " : ";
-        for (Angle* a : measure->root_obj2s) {
-            os << a->to_string() << " ";
-        }
-        os << std::endl;
-    }
-    os << std::endl;
-}
-
-
-void GeometricGraph::print(std::ostream& os) {
-    __print_points(os);
-    __print_lines(os);
-    __print_directions(os);
-    __print_circles(os);
-    __print_angles(os);
-    __print_measures(os);
-}
 
 
 void GeometricGraph::reset_problem() {
@@ -3383,7 +3304,7 @@ void GeometricGraph::reset_problem() {
     point_to_num_eq_set.clear();
 
     adhoc = 0;
-    level = Constants::MIN_LEVEL;
+    level = Constants::MIN_LEVEL + 1;
 
     new_object = false;
 }

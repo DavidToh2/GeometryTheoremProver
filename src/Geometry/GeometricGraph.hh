@@ -27,7 +27,7 @@ class GeometricGraph {
 
 public:
     int adhoc = 0;
-    int level = Constants::MIN_LEVEL;  // For traceback
+    int level = Constants::MIN_LEVEL + 1;  // For traceback
 
     /* Flag storing whether the most recent invocation of `get_or_add_` created a new object, or fetched
     an existing one */
@@ -716,13 +716,6 @@ public:
 
 
 
-    
-    void __print_points(std::ostream &os);
-    void __print_lines(std::ostream &os);
-    void __print_circles(std::ostream &os);
-    void __print_directions(std::ostream &os);
-    void __print_angles(std::ostream &os);
-    void __print_measures(std::ostream &os);
 
     void print(std::ostream &os = std::cout);
 

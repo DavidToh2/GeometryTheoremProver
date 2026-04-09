@@ -266,7 +266,7 @@ bool PredSet::empty() const {
 }
 void PredSet::set_level(int level) {
     for (Predicate* pred : preds) {
-        if (pred->level < 0) {
+        if (pred->level > level) {
             pred->level = level;
         }
     }

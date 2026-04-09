@@ -25,8 +25,6 @@ public:
     std::string output_filepath;
     std::string problem_name;
 
-    std::ofstream fbuf;
-
     bool solved = false;
 
     GTPEngine(
@@ -34,17 +32,19 @@ public:
         std::string construction_filepath
     );
 
-    void load_problem(
+    bool load_problem(
         std::string input_filepath,
         std::string problem_name,
         std::string output_filepath
     );
 
+    bool draw();
+
     bool solve(
         int max_steps
     );
 
-    void output_problem_solution();
+    bool get_problem_solution();
 
     void clear_problem();
 

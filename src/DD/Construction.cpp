@@ -118,6 +118,7 @@ Generator<std::unique_ptr<Predicate>> Construction::__instantiate_preds_no_check
         auto pre = std::move(preconditions_());
         pre.get()->why = {base_pred};
         pre.get()->source = pred_src::BASE;
+        pre.get()->level = Constants::MIN_LEVEL + 1;
         co_yield std::move(pre);
     }
 
@@ -125,6 +126,7 @@ Generator<std::unique_ptr<Predicate>> Construction::__instantiate_preds_no_check
         auto post = std::move(postptr.get()->instantiate());
         post.get()->why = {base_pred};
         post.get()->source = pred_src::BASE;
+        post.get()->level = Constants::MIN_LEVEL + 1;
         co_yield std::move(post);
     }
 }

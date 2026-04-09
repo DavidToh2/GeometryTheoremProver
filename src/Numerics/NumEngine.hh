@@ -194,7 +194,7 @@ public:
 
 
     /* Draw a valid NumInstance. */
-    void draw();
+    bool first_draw();
 
 
 

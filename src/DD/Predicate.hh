@@ -114,7 +114,7 @@ public:
 	Frac frac_arg;
 	PredSet why;
 
-	int level = -1; // for traceback
+	int level = Constants::MAX_LEVEL; // for traceback
 
 	Predicate() : name(pred_t::BASE), hash(Utils::to_pred_str(pred_t::BASE)), source(pred_src::BASE) {}
 	Predicate(const pred_t name, Frac f, pred_src src = pred_src::BASE);	// placeholder for debugging purposes

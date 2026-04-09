@@ -75,20 +75,23 @@ int main(int argc, char** argv) {
         ofs.close();
 
         for (std::string problem_name : problem_names) {
-            gtp.load_problem(
+
+            total_problems += 1;
+
+            bool res = gtp.load_problem(
                 input_filepath,
                 problem_name,
                 output_filepath
-            );
+            )
+            && gtp.draw()
+            && gtp.solve(10)
+            && gtp.get_problem_solution();
 
-            total_problems += 1;
-            if (gtp.solve(10)) {
+            if (res) {
                 solved_problems += 1;
             } else {
                 unsolved_problems.insert(problem_name);
             }
-
-            gtp.output_problem_solution();
 
             gtp.clear_problem();
         }
@@ -104,14 +107,15 @@ int main(int argc, char** argv) {
 
     } else {
         // Solve the specified problem
-        gtp.load_problem(
+        bool res = gtp.load_problem(
             input_filepath,
             problem_name,
             output_filepath
-        );
+        )
+        && gtp.draw()
+        && gtp.solve(10)
+        && gtp.get_problem_solution();
 
-        gtp.solve(10);
-
-        gtp.output_problem_solution();
+        gtp.clear_problem();
     }
 }

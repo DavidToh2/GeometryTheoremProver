@@ -6,6 +6,7 @@
 #include <random>
 
 #include "GTPEngine.hh"
+#include "Common/Constants.hh"
 #include "DD/Predicate.hh"
 #include "AR/AREngine.hh"
 #include "Geometry/GeometricGraph.hh"
@@ -37,7 +38,7 @@ GTPEngine::GTPEngine(
     this->ggraph.tr = &tr;
 }
 
-void GTPEngine::load_problem(
+bool GTPEngine::load_problem(
     std::string input_filepath,
     std::string problem_name,
     std::string output_filepath
@@ -49,30 +50,59 @@ void GTPEngine::load_problem(
     this->problem_name = problem_name;
     this->output_filepath = output_filepath;
 
-    fbuf.open(output_filepath, std::ios_base::app);
+    outputParser.set_output_stream(output_filepath);
 
-    // Read in the problem.
-    std::string problem_string = inputParser.extract_problem_from_file(input_filepath, problem_name);
+    try {
 
-    outputParser.format_problem_description(problem_name, problem_string, fbuf);
-    
-    auto [_construction_steps, _goal] = StrUtils::split_first(problem_string, "?");
-    std::vector<std::string> _construction_stages = StrUtils::split(_construction_steps, ";");
+        // Read in the problem.
+        std::string problem_string = inputParser.extract_problem_from_file(input_filepath, problem_name);
 
-    for (std::string _construction_stage : _construction_stages) {
-        StrUtils::trim(_construction_stage);
-        /* This function:
-        - populates the DDEngine with the initial predicates;
-        - populates the GeometricGraph with the initial points only;
-        - populates the NumEngine with Numeric's.*/
-        Construction::construct_no_checks(_construction_stage, dd, nm, ggraph);
+        outputParser.format_problem_description(problem_name, problem_string);
+        
+        auto [_construction_steps, _goal] = StrUtils::split_first(problem_string, "?");
+        std::vector<std::string> _construction_stages = StrUtils::split(_construction_steps, ";");
+
+        for (std::string _construction_stage : _construction_stages) {
+            StrUtils::trim(_construction_stage);
+            /* This function:
+            - populates the DDEngine with the initial predicates;
+            - populates the GeometricGraph with the initial points only;
+            - populates the NumEngine with Numeric's.*/
+            Construction::construct_no_checks(_construction_stage, dd, nm, ggraph);
+        }
+
+        StrUtils::trim(_goal);
+        dd.set_conclusion(Predicate::from_global_point_map(_goal, ggraph.points));
+
+    } catch (const std::exception& e) {
+        std::cerr << "Error loading problem: " << e.what() << std::endl;
+        return false;
     }
 
-    StrUtils::trim(_goal);
-    dd.set_conclusion(Predicate::from_global_point_map(_goal, ggraph.points));
+    return true;
+
+
+}
+
+bool GTPEngine::draw() {
+    std::cout << "Drawing numeric diagram for problem " << problem_name << std::endl;
+    auto start_time = std::chrono::high_resolution_clock::now();
 
     // Numerically compute and resolve points in the NumEngine.
-    nm.draw();
+    bool success = nm.first_draw();
+
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
+    std::cout << "Time to draw numeric diagram: " << duration << " us" << std::endl;
+
+    if (success) {
+        outputParser.format_numeric_diagram(nm.final_inst);
+        std::cout << "Numeric diagram drawn successfully!" << std::endl;
+    } else {
+        outputParser.format_failed_numeric_diagram(nm.final_inst);
+        std::cout << "Failed to draw numeric diagram!" << std::endl;
+    }
+    return success;
 }
 
 bool GTPEngine::solve(
@@ -99,9 +129,6 @@ bool GTPEngine::solve(
 
         int ar_num_preds = ggraph.synthesise_ar_preds(dd);
 
-        // dd.__print_predicates();
-        // ggraph.print();
-
         std::cout << "Derived " << dd_num_preds << " new predicates from DD and "
                   << ar_num_preds << " new predicates from AR." << std::endl;
 
@@ -121,24 +148,26 @@ bool GTPEngine::solve(
     auto end_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
     std::cout << "Time to solve problem: " << duration << " us" << std::endl;
-
     
     return solved;
 }
 
-void GTPEngine::output_problem_solution() {
-    if (solved) {
-        std::cout << "Outputting solution for problem " << problem_name << std::endl;
-        auto start_time = std::chrono::high_resolution_clock::now();
+bool GTPEngine::get_problem_solution() {
 
-        auto minimal_predset = tr.get_minimal_predset(dd);
+    std::cout << "Outputting solution for problem " << problem_name << std::endl;
+    auto start_time = std::chrono::high_resolution_clock::now();
 
-        auto end_time = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
-        std::cout << "Time to extract solution: " << duration << " us" << std::endl;
+    auto [minimal_predset, success] = tr.get_minimal_predset(dd);
 
-        outputParser.format_solution_from_predset(minimal_predset, dd, fbuf);
-    }
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
+    if (success) std::cout << "Extraction successful!" << std::endl;
+    else std::cout << "Extraction failed!" << std::endl;
+    std::cout << "Time to extract solution: " << duration << " us" << std::endl;
+
+    outputParser.format_solution_from_predset(minimal_predset, dd);
+
+    return success;
 }
 
 void GTPEngine::clear_problem() {
@@ -151,7 +180,7 @@ void GTPEngine::clear_problem() {
 
     std::cout << std::endl;
 
-    fbuf.close();
+    outputParser.close_output_stream();
 
     solved = false;
 }

@@ -913,7 +913,7 @@ bool NumEngine::compute(NumInstance& inst) {
 
 
 
-void NumEngine::draw() {
+bool NumEngine::first_draw() {
     get_operation_order();
 
     NumInstance inst(all_points);
@@ -923,6 +923,7 @@ void NumEngine::draw() {
     } else {
         std::cout << "Invalid instance with loss " << inst.loss << std::endl;
     }
+    return inst.is_valid();
 }
 
 

@@ -308,7 +308,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         PredSet why_para_fi_fj = tr.why_para(f, i, f, j);
         REQUIRE((
             why_para_fi_fj.contains(preds[0]) &&   // perp A B F I
-            why_para_cd_ce.contains(preds[1]) &&   // para A B C D
+            why_para_fi_fj.contains(preds[1]) &&   // para A B C D
             why_para_fi_fj.contains(preds[3]) &&   // perp C D F J
             why_para_fi_fj.contains(base_pred) &&   
             why_para_fi_fj.size() == 4
