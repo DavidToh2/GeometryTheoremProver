@@ -72,7 +72,7 @@ void GTPEngine::load_problem(
     dd.set_conclusion(Predicate::from_global_point_map(_goal, ggraph.points));
 
     // Numerically compute and resolve points in the NumEngine.
-    nm.compute();
+    nm.draw();
 }
 
 bool GTPEngine::solve(

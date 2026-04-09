@@ -7,6 +7,7 @@
 #include <variant>
 #include <cmath>
 
+#include "Common/Constants.hh"
 #include "Common/Exceptions.hh"
 #include "Common/Generator.hh"
 #include "Common/NumUtils.hh"
@@ -157,24 +158,32 @@ namespace Cartesian {
     }
     
     /* Polymorphic function that intersects two CartesianObjects with dynamically determined type.
+    Returns up to two intersection points.
     Note: Because this function has to be dynamic polymorphic, so we can't use concepts here. */
     Generator<CartesianPoint> intersect(CartesianObject obj1, CartesianObject obj2);
 
-    CartesianPoint get_random_point_on_line(CartesianLine &line, CartesianPoint near = {0, 0}, double max_dist = 10.0);
-    CartesianPoint get_random_point_on_circle(CartesianCircle &circle);
-    CartesianPoint get_random_point_on_ray(CartesianRay &ray, CartesianPoint near = {0, 0}, double max_dist = 10.0);
-    CartesianPoint get_random_point(CartesianObject &obj, CartesianPoint near = {0,0}, double max_dist = 10.0);
+    CartesianPoint get_random_point_on_line(CartesianLine &line, double r, CartesianPoint near = {0, 0}, double max_dist = 10.0);
+    CartesianPoint get_random_point_on_circle(CartesianCircle &circle, double theta);
+    CartesianPoint get_random_point_on_ray(CartesianRay &ray, double r, CartesianPoint near = {0, 0}, double max_dist = 10.0);
+    /* Given a vector of CartesianObjects (of the same type), generates a random point on each of the
+    CartesianObjects using the same random parameter */
+    std::pair<std::vector<CartesianPoint>, double> get_random_points(
+        std::vector<CartesianObject> &objs, CartesianPoint near = {0,0}, double max_dist = 10.0
+    );
 
-    /* Applies a random affine transform on a set of points. */
+    /* Applies a random affine transform on a set of points.
+    Returns four parameters `[ang, scale, shift_x, shift_y]` recording the random variables applied
+    in the affine transform. */
     template <typename... T>
     requires (std::same_as<T, CartesianPoint> && ...)
-    void random_affine(T&... points) {
+    std::array<double, 4> random_affine(T&... points) {
         CartesianPoint c;
         c = (points + ...) / sizeof...(points);
         double angle = NumUtils::urand(0, 2 * M_PI);
         double scale = NumUtils::urand(0.25, 1.75);
         CartesianPoint shift = CartesianPoint(NumUtils::urand(-1, 1), NumUtils::urand(-1, 1));
         (points.shift(-c).rotate(angle).scale(scale).shift(shift), ...);
+        return {angle, scale, shift.x, shift.y};
     }
 
     /* Computes the anticlockwise angle of rotation from the y-axis to the line.

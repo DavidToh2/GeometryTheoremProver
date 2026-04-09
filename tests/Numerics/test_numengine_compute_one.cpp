@@ -6,6 +6,7 @@
 #include "Common/NumUtils.hh"
 #include "Numerics/Cartesian.hh"
 #include "Numerics/NumEngine.hh"
+#include "Numerics/NumInstance.hh"
 #include "Numerics/Numerics.hh"
 
 TEST_SUITE("NumEngine Computation") {
@@ -16,21 +17,27 @@ TEST_SUITE("NumEngine Computation") {
             point_map[pt] = std::make_unique<Point>(pt);
         }
         NumEngine ne;
+        NumInstance inst(point_map);
+
+        Point* a = point_map["a"].get();
+        Point* b = point_map["b"].get();
+        Point* c = point_map["c"].get();
+        Point* d = point_map["d"].get();
 
         SUBCASE("iso_triangle") {
             Numeric num("a b c = iso_triangle", point_map);
-            auto gen = ne.compute_iso_triangle(&num);
-            CartesianPoint pa = gen();
-            CartesianPoint pb = gen();
-            CartesianPoint pc = gen();
+            ne.compute_iso_triangle(inst, &num);
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
+            CartesianPoint pc = inst.__get_coord(c);
             CHECK(NumUtils::is_close(Cartesian::distance(pa, pb), Cartesian::distance(pa, pc)));
         }
         SUBCASE("r_triangle") {
             Numeric num("a b c = r_triangle", point_map);
-            auto gen = ne.compute_r_triangle(&num);
-            CartesianPoint pa = gen();
-            CartesianPoint pb = gen();
-            CartesianPoint pc = gen();
+            ne.compute_r_triangle(inst, &num);
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
+            CartesianPoint pc = inst.__get_coord(c);
             double ab = Cartesian::distance2(pa, pb);
             double ac = Cartesian::distance2(pa, pc);
             double bc = Cartesian::distance2(pb, pc);
@@ -40,10 +47,10 @@ TEST_SUITE("NumEngine Computation") {
         }
         SUBCASE("riso_triangle") {
             Numeric num("a b c = riso_triangle", point_map);
-            auto gen = ne.compute_riso_triangle(&num);
-            CartesianPoint pa = gen();
-            CartesianPoint pb = gen();
-            CartesianPoint pc = gen();
+            ne.compute_riso_triangle(inst, &num);
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
+            CartesianPoint pc = inst.__get_coord(c);
             double ab = Cartesian::distance2(pa, pb);
             double ac = Cartesian::distance2(pa, pc);
             double bc = Cartesian::distance2(pb, pc);
@@ -56,10 +63,10 @@ TEST_SUITE("NumEngine Computation") {
         }
         SUBCASE("equi_triangle") {
             Numeric num("a b c = equi_triangle", point_map);
-            auto gen = ne.compute_equi_triangle(&num);
-            CartesianPoint pa = gen();
-            CartesianPoint pb = gen();
-            CartesianPoint pc = gen();
+            ne.compute_equi_triangle(inst, &num);
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
+            CartesianPoint pc = inst.__get_coord(c);
             double ab = Cartesian::distance2(pa, pb);
             double ac = Cartesian::distance2(pa, pc);
             double bc = Cartesian::distance2(pb, pc);
@@ -74,11 +81,11 @@ TEST_SUITE("NumEngine Computation") {
         }
         SUBCASE("rectangle") {
             Numeric num("a b c d = rectangle", point_map);
-            auto gen = ne.compute_rectangle(&num);
-            CartesianPoint pa = gen();
-            CartesianPoint pb = gen();
-            CartesianPoint pc = gen();
-            CartesianPoint pd = gen();
+            ne.compute_rectangle(inst, &num);
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
+            CartesianPoint pc = inst.__get_coord(c);
+            CartesianPoint pd = inst.__get_coord(d);
             double ab = Cartesian::distance2(pa, pb);
             double bc = Cartesian::distance2(pb, pc);
             double cd = Cartesian::distance2(pc, pd);
@@ -98,11 +105,11 @@ TEST_SUITE("NumEngine Computation") {
         }
         SUBCASE("square") {
             Numeric num("a b c d = square", point_map);
-            auto gen = ne.compute_square(&num);
-            CartesianPoint pa = gen();
-            CartesianPoint pb = gen();
-            CartesianPoint pc = gen();
-            CartesianPoint pd = gen();
+            ne.compute_square(inst, &num);
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
+            CartesianPoint pc = inst.__get_coord(c);
+            CartesianPoint pd = inst.__get_coord(d);
             double ab = Cartesian::distance2(pa, pb);
             double bc = Cartesian::distance2(pb, pc);
             double cd = Cartesian::distance2(pc, pd);
@@ -120,22 +127,22 @@ TEST_SUITE("NumEngine Computation") {
         }
         SUBCASE("trapezoid") {
             Numeric num("a b c d = trapezoid", point_map);
-            auto gen = ne.compute_trapezoid(&num);
-            CartesianPoint pa = gen();
-            CartesianPoint pb = gen();
-            CartesianPoint pc = gen();
-            CartesianPoint pd = gen();
+            ne.compute_trapezoid(inst, &num);
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
+            CartesianPoint pc = inst.__get_coord(c);
+            CartesianPoint pd = inst.__get_coord(d);
             CartesianLine lab(pa, pb);
             CartesianLine lcd(pc, pd);
             CHECK(NumUtils::is_close(Cartesian::angle_of(lab), Cartesian::angle_of(lcd)));
         }
         SUBCASE("eq_trapezoid") {
             Numeric num("a b c d = eq_trapezoid", point_map);
-            auto gen = ne.compute_eq_trapezoid(&num);
-            CartesianPoint pa = gen();
-            CartesianPoint pb = gen();
-            CartesianPoint pc = gen();
-            CartesianPoint pd = gen();
+            ne.compute_eq_trapezoid(inst, &num);
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
+            CartesianPoint pc = inst.__get_coord(c);
+            CartesianPoint pd = inst.__get_coord(d);
             double ad = Cartesian::distance(pa, pd);
             double bc = Cartesian::distance(pb, pc);
             CHECK(NumUtils::is_close(ad, bc));
@@ -150,38 +157,40 @@ TEST_SUITE("NumEngine Computation") {
             std::string pt(1, pt_);
             point_map[pt] = std::make_unique<Point>(pt);
         }
+        Point* a = point_map["a"].get();
+        Point* b = point_map["b"].get();
+        Point* c = point_map["c"].get();
+        Point* d = point_map["d"].get();
+        Point* e = point_map["e"].get();
+        Point* f = point_map["f"].get();
         NumEngine ne;
+        NumInstance inst(point_map);
         
         Numeric num_("a b = segment", point_map);
-        auto gen_ = ne.compute_segment(&num_);
-        ne.point_to_cartesian[point_map["a"].get()].push_back(gen_());
-        ne.point_to_cartesian[point_map["b"].get()].push_back(gen_());
+        ne.compute_segment(inst, &num_);
 
         SUBCASE("line") {
             Numeric num("c = line a b", point_map);
-            auto gen = ne.compute_line(&num);
-            CartesianLine line = gen();
-            CartesianPoint pa = ne.get_arg_cartesian(&num, 0);
-            CartesianPoint pb = ne.get_arg_cartesian(&num, 1);
+            ne.compute_line(inst, &num);
+            CartesianLine line = std::get<CartesianLine>(inst.__get_obj(c));
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
             CHECK(line.contains(pa));
             CHECK(line.contains(pb));
         }
         SUBCASE("line_at_angle") {
             Numeric num0("c d e = triangle", point_map);
-            auto gen0 = ne.compute_triangle(&num0);
-            ne.point_to_cartesian[point_map["c"].get()].push_back(gen0());
-            ne.point_to_cartesian[point_map["d"].get()].push_back(gen0());
-            ne.point_to_cartesian[point_map["e"].get()].push_back(gen0());
+            ne.compute_triangle(inst, &num0);
 
             Numeric num("f = line_at_angle a b c d e", point_map);
-            auto gen = ne.compute_line_at_angle(&num);
-            CartesianRay ray = gen();
-            CartesianPoint pf = Cartesian::get_random_point_on_ray(ray);
-            CartesianPoint pa = ne.get_arg_cartesian(&num, 0);
-            CartesianPoint pb = ne.get_arg_cartesian(&num, 1);
-            CartesianPoint pc = ne.get_arg_cartesian(&num, 2);
-            CartesianPoint pd = ne.get_arg_cartesian(&num, 3);
-            CartesianPoint pe = ne.get_arg_cartesian(&num, 4);
+            ne.compute_line_at_angle(inst, &num);
+            CartesianRay ray = std::get<CartesianRay>(inst.__get_obj(f));
+            CartesianPoint pf = Cartesian::get_random_point_on_ray(ray, 0.8);
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
+            CartesianPoint pc = inst.__get_coord(c);
+            CartesianPoint pd = inst.__get_coord(d);
+            CartesianPoint pe = inst.__get_coord(e);
 
             double ang_fab = Cartesian::angle_between(pf, pa, pb);
             double ang_cde = Cartesian::angle_between(pc, pd, pe);
@@ -189,28 +198,27 @@ TEST_SUITE("NumEngine Computation") {
         }
         SUBCASE("line_bisect") {
             Numeric num("c = line_bisect a b", point_map);
-            auto gen = ne.compute_line_bisect(&num);
-            CartesianLine bisect = gen();
-            CartesianPoint pa = ne.get_arg_cartesian(&num, 0);
-            CartesianPoint pb = ne.get_arg_cartesian(&num, 1);
+            ne.compute_line_bisect(inst, &num);
+            CartesianLine bisect = std::get<CartesianLine>(inst.__get_obj(c));
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
             CartesianPoint mid = Cartesian::midpoint(pa, pb);
             CHECK(bisect.contains(mid));
-            CartesianPoint rand = Cartesian::get_random_point_on_line(bisect);
+            CartesianPoint rand = Cartesian::get_random_point_on_line(bisect, 0.8);
             double ang1 = Cartesian::angle_between(rand, pa, pb);;
             double ang2 = Cartesian::angle_between(pa, pb, rand);
             CHECK(NumUtils::is_close(ang1, ang2));
         }
         SUBCASE("line_para") {
             Numeric num0("c = free", point_map);
-            auto gen0 = ne.compute_free(&num0);
-            ne.point_to_cartesian[point_map["c"].get()].push_back(gen0());
+            ne.compute_free(inst, &num0);
 
             Numeric num("d = line_para c a b", point_map);
-            auto gen = ne.compute_line_para(&num);
-            CartesianLine para = gen();
-            CartesianPoint pc = ne.get_arg_cartesian(&num, 0);
-            CartesianPoint pa = ne.get_arg_cartesian(&num, 1);
-            CartesianPoint pb = ne.get_arg_cartesian(&num, 2);
+            ne.compute_line_para(inst, &num);
+            CartesianLine para = std::get<CartesianLine>(inst.__get_obj(d));
+            CartesianPoint pc = inst.__get_coord(c);
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
             CHECK(para.contains(pc));
             double ang_ab = Cartesian::angle_of(CartesianLine(pa, pb));
             double ang_pc = Cartesian::angle_of(para);
@@ -218,15 +226,14 @@ TEST_SUITE("NumEngine Computation") {
         }
         SUBCASE("line_perp") {
             Numeric num0("c = free", point_map);
-            auto gen0 = ne.compute_free(&num0);
-            ne.point_to_cartesian[point_map["c"].get()].push_back(gen0());
+            ne.compute_free(inst, &num0);
 
             Numeric num("d = line_perp c a b", point_map);
-            auto gen = ne.compute_line_perp(&num);
-            CartesianLine perp = gen();
-            CartesianPoint pc = ne.get_arg_cartesian(&num, 0);
-            CartesianPoint pa = ne.get_arg_cartesian(&num, 1);
-            CartesianPoint pb = ne.get_arg_cartesian(&num, 2);
+            ne.compute_line_perp(inst, &num);
+            CartesianLine perp = std::get<CartesianLine>(inst.__get_obj(d));
+            CartesianPoint pc = inst.__get_coord(c);
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
             CHECK(perp.contains(pc));
             double ang_ab = Cartesian::angle_of(CartesianLine(pa, pb));
             double ang_pc = Cartesian::angle_of(perp);
@@ -234,10 +241,10 @@ TEST_SUITE("NumEngine Computation") {
         }
         SUBCASE("ray") {
             Numeric num("c = ray a b", point_map);
-            auto gen = ne.compute_ray(&num);
-            CartesianRay ray = gen();
-            CartesianPoint pa = ne.get_arg_cartesian(&num, 0);
-            CartesianPoint pb = ne.get_arg_cartesian(&num, 1);
+            ne.compute_ray(inst, &num);
+            CartesianRay ray = std::get<CartesianRay>(inst.__get_obj(c));
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
             CHECK(ray.contains(pa));
             CHECK(ray.contains(pb));
             CHECK(ray.start == pa);
@@ -249,48 +256,51 @@ TEST_SUITE("NumEngine Computation") {
             std::string pt(1, pt_);
             point_map[pt] = std::make_unique<Point>(pt);
         }
+        Point* a = point_map["a"].get();
+        Point* b = point_map["b"].get();
+        Point* c = point_map["c"].get();
+        Point* d = point_map["d"].get();
+        Point* e = point_map["e"].get();
+        Point* f = point_map["f"].get();
         NumEngine ne;
-        
-        Numeric num_("a b c = triangle", point_map);
-        auto gen_ = ne.compute_triangle(&num_);
-        ne.point_to_cartesian[point_map["a"].get()].push_back(gen_());
-        ne.point_to_cartesian[point_map["b"].get()].push_back(gen_());
-        ne.point_to_cartesian[point_map["c"].get()].push_back(gen_());
+        NumInstance inst(point_map);
 
+        Numeric num_("a b c = triangle", point_map);
+        ne.compute_triangle(inst, &num_);
 
         SUBCASE("midpoint") {
             Numeric num("d = midpoint a b", point_map);
-            auto gen = ne.compute_midpoint(&num);
-            CartesianPoint mid = gen();
-            CartesianPoint pa = ne.get_arg_cartesian(&num, 0);
-            CartesianPoint pb = ne.get_arg_cartesian(&num, 1);
+            ne.compute_midpoint(inst, &num);
+            CartesianPoint mid = inst.__get_coord(d);
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
             CHECK(Cartesian::midpoint(pa, pb) == mid);
         }
         SUBCASE("trisegment") {
             Numeric num("d e = trisegment a b", point_map);
-            auto gen = ne.compute_trisegment(&num);
-            CartesianPoint pd = gen();
-            CartesianPoint pe = gen();
-            CartesianPoint pa = ne.get_arg_cartesian(&num, 0);
-            CartesianPoint pb = ne.get_arg_cartesian(&num, 1);
+            ne.compute_trisegment(inst, &num);
+            CartesianPoint pd = inst.__get_coord(d);
+            CartesianPoint pe = inst.__get_coord(e);
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
             CHECK(pd == 2 * pa / 3 + pb / 3);
             CHECK(pe == pa / 3 + 2 * pb / 3);
         }
         SUBCASE("mirror") {
             Numeric num("c = mirror a b", point_map);
-            auto gen = ne.compute_mirror(&num);
-            CartesianPoint pc = gen();
-            CartesianPoint pa = ne.get_arg_cartesian(&num, 0);
-            CartesianPoint pb = ne.get_arg_cartesian(&num, 1);
+            ne.compute_mirror(inst, &num);
+            CartesianPoint pc = inst.__get_coord(c);
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
             CHECK(pc == 2 * pb - pa);
         }
         SUBCASE("reflect") {
             Numeric num("d = reflect c a b", point_map);
-            auto gen = ne.compute_reflect(&num);
-            CartesianPoint pd = gen();
-            CartesianPoint pc = ne.get_arg_cartesian(&num, 0);
-            CartesianPoint pa = ne.get_arg_cartesian(&num, 1);
-            CartesianPoint pb = ne.get_arg_cartesian(&num, 2);
+            ne.compute_reflect(inst, &num);
+            CartesianPoint pd = inst.__get_coord(d);
+            CartesianPoint pc = inst.__get_coord(c);
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
             CHECK(NumUtils::is_close(Cartesian::distance(pc, pa), Cartesian::distance(pd, pa)));
             CHECK(NumUtils::is_close(Cartesian::distance(pc, pb), Cartesian::distance(pd, pb)));
             
@@ -306,23 +316,27 @@ TEST_SUITE("NumEngine Computation") {
             std::string pt(1, pt_);
             point_map[pt] = std::make_unique<Point>(pt);
         }
+        Point* a = point_map["a"].get();
+        Point* b = point_map["b"].get();
+        Point* c = point_map["c"].get();
+        Point* d = point_map["d"].get();
+        Point* e = point_map["e"].get();
+        Point* f = point_map["f"].get();
         NumEngine ne;
+        NumInstance inst(point_map);
 
         Numeric num_("a b c = triangle", point_map);
-        auto gen = ne.compute_triangle(&num_);
-        ne.point_to_cartesian[point_map["a"].get()].push_back(gen());
-        ne.point_to_cartesian[point_map["b"].get()].push_back(gen());
-        ne.point_to_cartesian[point_map["c"].get()].push_back(gen());
+        ne.compute_triangle(inst, &num_);
 
         SUBCASE("angle_eq2") {
             // <(BA, AF) = <(FC, CB)
             Numeric num("f = angle_eq2 a b c", point_map);
-            CartesianPoint pa = ne.get_arg_cartesian(&num, 0);
-            CartesianPoint pb = ne.get_arg_cartesian(&num, 1);
-            CartesianPoint pc = ne.get_arg_cartesian(&num, 2);
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
+            CartesianPoint pc = inst.__get_coord(c);
             for (int N=0; N<10; N++) {
-                auto gen = ne.compute_angle_eq2(&num);
-                CartesianPoint pf = gen();
+                ne.compute_angle_eq2(inst, &num);
+                CartesianPoint pf = inst.__get_coord(f);
                 double ang_baf = Cartesian::angle_between(pb, pa, pf);
                 double ang_fcb = Cartesian::angle_between(pf, pc, pb);
                 CHECK(NumUtils::is_close(ang_baf, ang_fcb));
@@ -331,22 +345,20 @@ TEST_SUITE("NumEngine Computation") {
         SUBCASE("angle_eq3") {
             for (int N=0; N<10; N++) {
                 Numeric num_("d e = segment", point_map);
-                auto gen_ = ne.compute_segment(&num_);
-                ne.point_to_cartesian[point_map["d"].get()].push_back(gen_());
-                ne.point_to_cartesian[point_map["e"].get()].push_back(gen_());
+                ne.compute_segment(inst, &num_);
 
                 // <(DF, FE) = <(AB, BC)
                 Numeric num("f = angle_eq3 d e a b c", point_map);
-                auto gen = ne.compute_angle_eq3(&num);
-                CartesianCircle cf = gen();
-                CartesianPoint pd = ne.get_arg_cartesian(&num, 0);
-                CartesianPoint pe = ne.get_arg_cartesian(&num, 1);
-                CartesianPoint pa = ne.get_arg_cartesian(&num, 2);
-                CartesianPoint pb = ne.get_arg_cartesian(&num, 3);
-                CartesianPoint pc = ne.get_arg_cartesian(&num, 4);
+                ne.compute_angle_eq3(inst, &num);
+                CartesianCircle cf = std::get<CartesianCircle>(inst.__get_obj(f));
+                CartesianPoint pd = inst.__get_coord(d);
+                CartesianPoint pe = inst.__get_coord(e);
+                CartesianPoint pa = inst.__get_coord(a);
+                CartesianPoint pb = inst.__get_coord(b);
+                CartesianPoint pc = inst.__get_coord(c);
                 CHECK((cf.contains(pd) && cf.contains(pe)));
 
-                CartesianPoint pf = Cartesian::get_random_point_on_circle(cf);
+                CartesianPoint pf = Cartesian::get_random_point_on_circle(cf, 0.25 + 0.05*N);
                 double ang_dfe = Cartesian::angle_between(pd, pf, pe);
                 double ang_abc = Cartesian::angle_between(pa, pb, pc);
                 CHECK((NumUtils::is_close(ang_dfe, ang_abc) || NumUtils::is_close(std::abs(ang_dfe - ang_abc), M_PI)));
@@ -355,12 +367,12 @@ TEST_SUITE("NumEngine Computation") {
         SUBCASE("angle_mirror") {
             // <(BA, BC) = <(BC, BD)
             Numeric num("d = angle_mirror a b c", point_map);
-            CartesianPoint pa = ne.get_arg_cartesian(&num, 0);
-            CartesianPoint pb = ne.get_arg_cartesian(&num, 1);
-            CartesianPoint pc = ne.get_arg_cartesian(&num, 2);
-            auto gen = ne.compute_angle_mirror(&num);
-            CartesianRay rd = gen();
-            CartesianPoint pd = Cartesian::get_random_point_on_ray(rd);
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
+            CartesianPoint pc = inst.__get_coord(c);
+            ne.compute_angle_mirror(inst, &num);
+            CartesianRay rd = std::get<CartesianRay>(inst.__get_obj(d));
+            CartesianPoint pd = Cartesian::get_random_point_on_ray(rd, 0.8);
             double ang_abc = Cartesian::angle_between(pa, pb, pc);
             double ang_cbd = Cartesian::angle_between(pc, pb, pd);
             CHECK(NumUtils::is_close(ang_abc, ang_cbd));
@@ -368,12 +380,12 @@ TEST_SUITE("NumEngine Computation") {
         SUBCASE("angle_bisect") {
             // bisect angle ABC
             Numeric num("d = angle_bisect a b c", point_map);
-            CartesianPoint pa = ne.get_arg_cartesian(&num, 0);
-            CartesianPoint pb = ne.get_arg_cartesian(&num, 1);
-            CartesianPoint pc = ne.get_arg_cartesian(&num, 2);
-            auto gen = ne.compute_angle_bisect(&num);
-            CartesianRay rd = gen();
-            CartesianPoint pd = Cartesian::get_random_point_on_ray(rd);
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
+            CartesianPoint pc = inst.__get_coord(c);
+            ne.compute_angle_bisect(inst, &num);
+            CartesianRay rd = std::get<CartesianRay>(inst.__get_obj(d));
+            CartesianPoint pd = Cartesian::get_random_point_on_ray(rd, 0.8);
             double ang_abd = Cartesian::angle_between(pa, pb, pd);
             double ang_dbc = Cartesian::angle_between(pd, pb, pc);
             CHECK(NumUtils::is_close(ang_abd, ang_dbc));
@@ -381,12 +393,12 @@ TEST_SUITE("NumEngine Computation") {
         }
         SUBCASE("angle_exbisect") {
             Numeric num("d = angle_exbisect a b c", point_map);
-            CartesianPoint pa = ne.get_arg_cartesian(&num, 0);
-            CartesianPoint pb = ne.get_arg_cartesian(&num, 1);
-            CartesianPoint pc = ne.get_arg_cartesian(&num, 2);
-            auto gen = ne.compute_angle_exbisect(&num);
-            CartesianLine ld = gen();
-            CartesianPoint pd = Cartesian::get_random_point_on_line(ld);
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
+            CartesianPoint pc = inst.__get_coord(c);
+            ne.compute_angle_exbisect(inst, &num);
+            CartesianLine ld = std::get<CartesianLine>(inst.__get_obj(d));
+            CartesianPoint pd = Cartesian::get_random_point_on_line(ld, 0.8);
             double ang_abd = Cartesian::angle_between(pa, pb, pd);
             double ang_dbc = Cartesian::angle_between(pd, pb, pc);
             CHECK(NumUtils::is_close(std::abs(ang_abd) + std::abs(ang_dbc), M_PI));
@@ -394,14 +406,14 @@ TEST_SUITE("NumEngine Computation") {
         }
         SUBCASE("angle_trisect") {
             Numeric num("d e = angle_trisect a b c", point_map);
-            CartesianPoint pa = ne.get_arg_cartesian(&num, 0);
-            CartesianPoint pb = ne.get_arg_cartesian(&num, 1);
-            CartesianPoint pc = ne.get_arg_cartesian(&num, 2);
-            auto gen = ne.compute_angle_trisect(&num);
-            CartesianRay rd = gen();
-            CartesianRay re = gen();
-            CartesianPoint pd = Cartesian::get_random_point_on_ray(rd);
-            CartesianPoint pe = Cartesian::get_random_point_on_ray(re);
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
+            CartesianPoint pc = inst.__get_coord(c);
+            ne.compute_angle_trisect(inst, &num);
+            CartesianRay rd = std::get<CartesianRay>(inst.__get_obj(d));
+            CartesianRay re = std::get<CartesianRay>(inst.__get_obj(e));
+            CartesianPoint pd = Cartesian::get_random_point_on_ray(rd, 0.8);
+            CartesianPoint pe = Cartesian::get_random_point_on_ray(re, 0.8);
             double ang_abd = Cartesian::angle_between(pa, pb, pd);
             double ang_dbe = Cartesian::angle_between(pd, pb, pe);
             double ang_ebc = Cartesian::angle_between(pe, pb, pc);
@@ -415,23 +427,25 @@ TEST_SUITE("NumEngine Computation") {
             std::string pt(1, pt_);
             point_map[pt] = std::make_unique<Point>(pt);
         }
+        Point* a = point_map["a"].get();
+        Point* b = point_map["b"].get();
+        Point* c = point_map["c"].get();
+        Point* d = point_map["d"].get();
+        Point* e = point_map["e"].get();
         NumEngine ne;
+        NumInstance inst(point_map);
 
         Numeric num_("a b c d = quadrilateral", point_map);
-        auto gen = ne.compute_quadrilateral(&num_);
-        ne.point_to_cartesian[point_map["a"].get()].push_back(gen());
-        ne.point_to_cartesian[point_map["b"].get()].push_back(gen());
-        ne.point_to_cartesian[point_map["c"].get()].push_back(gen());
-        ne.point_to_cartesian[point_map["d"].get()].push_back(gen());
+        ne.compute_quadrilateral(inst, &num_);
 
         SUBCASE("circle") {
             Numeric num("e = circle a b c", point_map);
-            auto gen = ne.compute_circle(&num);
-            CartesianCircle circle = gen();
-            CartesianPoint pe = Cartesian::get_random_point_on_circle(circle);
-            CartesianPoint pa = ne.get_arg_cartesian(&num, 0);
-            CartesianPoint pb = ne.get_arg_cartesian(&num, 1);
-            CartesianPoint pc = ne.get_arg_cartesian(&num, 2);
+            ne.compute_circle(inst, &num);
+            CartesianCircle circle = std::get<CartesianCircle>(inst.__get_obj(e));
+            CartesianPoint pe = Cartesian::get_random_point_on_circle(circle, 1.2);
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
+            CartesianPoint pc = inst.__get_coord(c);
             CHECK(circle.c == pa);
             CHECK(NumUtils::is_close(Cartesian::distance(pe, pa), circle.r));
             CHECK(NumUtils::is_close(Cartesian::distance(pb, pc), circle.r));
@@ -439,14 +453,14 @@ TEST_SUITE("NumEngine Computation") {
         }
         SUBCASE("circum") {
             Numeric num("e = circum a b c", point_map);
-            auto gen = ne.compute_circum(&num);
-            CartesianCircle circum = gen();
-            CartesianPoint pa = ne.get_arg_cartesian(&num, 0);
-            CartesianPoint pb = ne.get_arg_cartesian(&num, 1);
-            CartesianPoint pc = ne.get_arg_cartesian(&num, 2);
+            ne.compute_circum(inst, &num);
+            CartesianCircle circum = std::get<CartesianCircle>(inst.__get_obj(e));
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
+            CartesianPoint pc = inst.__get_coord(c);
             CHECK((circum.contains(pa) && circum.contains(pb) && circum.contains(pc)));
 
-            CartesianPoint pe = Cartesian::get_random_point_on_circle(circum);
+            CartesianPoint pe = Cartesian::get_random_point_on_circle(circum, 1.2);
             CartesianLine b_ab = Cartesian::perp_bisect(pa, pb);
             CartesianLine b_bc = Cartesian::perp_bisect(pb, pc);
             CartesianPoint center = Cartesian::intersect(b_ab, b_bc).value();
@@ -461,11 +475,11 @@ TEST_SUITE("NumEngine Computation") {
         }
         SUBCASE("diameter") {
             Numeric num("e = diameter a b", point_map);
-            auto gen = ne.compute_diameter(&num);
-            CartesianCircle circ = gen();
-            CartesianPoint pa = ne.get_arg_cartesian(&num, 0);
-            CartesianPoint pb = ne.get_arg_cartesian(&num, 1);
-            CartesianPoint pe = Cartesian::get_random_point_on_circle(circ);
+            ne.compute_diameter(inst, &num);
+            CartesianCircle circ = std::get<CartesianCircle>(inst.__get_obj(e));
+            CartesianPoint pa = inst.__get_coord(a);
+            CartesianPoint pb = inst.__get_coord(b);
+            CartesianPoint pe = Cartesian::get_random_point_on_circle(circ, 1.2);
             CHECK(circ.c == (pa + pb) / 2);
             CHECK(NumUtils::is_close(circ.r, Cartesian::distance(pa, pb) / 2));
             CHECK(circ.contains(pa));
@@ -480,29 +494,42 @@ TEST_SUITE("NumEngine Computation") {
             std::string pt(1, pt_);
             point_map[pt] = std::make_unique<Point>(pt);
         }
+        Point* a = point_map["a"].get();
+        Point* b = point_map["b"].get();
+        Point* c = point_map["c"].get();
+        Point* d = point_map["d"].get();
+        Point* e = point_map["e"].get();
+        Point* f = point_map["f"].get();
+        Point* g = point_map["g"].get();
+        Point* h = point_map["h"].get();
+        Point* i = point_map["i"].get();
+        Point* j = point_map["j"].get();
+        Point* k = point_map["k"].get();
+        Point* l = point_map["l"].get();
         NumEngine ne;
+        NumInstance inst(point_map);
 
         /* Circles (A, AB) and (C, CD) have two intersections. 
         Circle (E, EF) contains circle (G, GH). 
         Circles (A, AB) and (E, EF) have the same radius.
         The two groups of circles are pairwise outside each other. */
-        ne.point_to_cartesian[point_map["a"].get()].push_back(CartesianPoint(-9.01084, 1.32536));
-        ne.point_to_cartesian[point_map["b"].get()].push_back(CartesianPoint(-9.01084, 3.68154));
-        ne.point_to_cartesian[point_map["c"].get()].push_back(CartesianPoint(-7.85923, -0.38221));
-        ne.point_to_cartesian[point_map["d"].get()].push_back(CartesianPoint(-8.25634, 0.66351));
-        ne.point_to_cartesian[point_map["e"].get()].push_back(CartesianPoint(-3.29247, 1.18637));
-        ne.point_to_cartesian[point_map["f"].get()].push_back(CartesianPoint(-3.29247, -1.16981));
-        ne.point_to_cartesian[point_map["g"].get()].push_back(CartesianPoint(-3.71605, 1.3386));
-        ne.point_to_cartesian[point_map["h"].get()].push_back(CartesianPoint(-2.85565, 2.59611));
+        inst.point_to_coords[a].push_back(CartesianPoint(-9.01084, 1.32536));
+        inst.point_to_coords[b].push_back(CartesianPoint(-9.01084, 3.68154));
+        inst.point_to_coords[c].push_back(CartesianPoint(-7.85923, -0.38221));
+        inst.point_to_coords[d].push_back(CartesianPoint(-8.25634, 0.66351));
+        inst.point_to_coords[e].push_back(CartesianPoint(-3.29247, 1.18637));
+        inst.point_to_coords[f].push_back(CartesianPoint(-3.29247, -1.16981));
+        inst.point_to_coords[g].push_back(CartesianPoint(-3.71605, 1.3386));
+        inst.point_to_coords[h].push_back(CartesianPoint(-2.85565, 2.59611));
         
-        CartesianPoint pa = ne.get_cartesian(point_map["a"].get());
-        CartesianPoint pb = ne.get_cartesian(point_map["b"].get());
-        CartesianPoint pc = ne.get_cartesian(point_map["c"].get());
-        CartesianPoint pd = ne.get_cartesian(point_map["d"].get());
-        CartesianPoint pe = ne.get_cartesian(point_map["e"].get());
-        CartesianPoint pf = ne.get_cartesian(point_map["f"].get());
-        CartesianPoint pg = ne.get_cartesian(point_map["g"].get());
-        CartesianPoint ph = ne.get_cartesian(point_map["h"].get());
+        CartesianPoint pa = inst.__get_coord(a);
+        CartesianPoint pb = inst.__get_coord(b);
+        CartesianPoint pc = inst.__get_coord(c);
+        CartesianPoint pd = inst.__get_coord(d);
+        CartesianPoint pe = inst.__get_coord(e);
+        CartesianPoint pf = inst.__get_coord(f);
+        CartesianPoint pg = inst.__get_coord(g);
+        CartesianPoint ph = inst.__get_coord(h);
 
         CartesianCircle cab(pa, Cartesian::distance(pa, pb));
         CartesianCircle ccd(pc, Cartesian::distance(pc, pd));
@@ -513,25 +540,27 @@ TEST_SUITE("NumEngine Computation") {
 
         SUBCASE("line_tangent") {
             Numeric num1("i = line_tangent a c e", point_map);
-            auto gen = ne.compute_line_tangent(&num1);
-            CartesianLine line = gen();
+            ne.compute_line_tangent(inst, &num1);
+            CartesianLine line = std::get<CartesianLine>(inst.__get_obj(i));
             CHECK(line.contains(CartesianPoint(-7.7373372370592, -3.9196413474696)));
 
             Numeric num2("j = line_tangent c a e", point_map);
-            auto gen2 = ne.compute_line_tangent(&num2);
-            CartesianLine line2 = gen2();
+            ne.compute_line_tangent(inst, &num2);
+            CartesianLine line2 = std::get<CartesianLine>(inst.__get_obj(j));
+
             Numeric num3("k = line_tangent e a c", point_map);
-            auto gen3 = ne.compute_line_tangent(&num3);
-            CartesianLine line3 = gen3();
+            ne.compute_line_tangent(inst, &num3);
+            CartesianLine line3 = std::get<CartesianLine>(inst.__get_obj(k));
+
             CartesianPoint d = Cartesian::intersect(line2, line3).value();
             CHECK(d == CartesianPoint(-4.4717835709978, -2.8122963182687));
         }
         SUBCASE("tangents") {
             Numeric num("i j = tangents g a b", point_map);
             // AE, AF are tangent to the circle centered at B with radius BC
-            auto gen = ne.compute_tangents(&num);
-            CartesianPoint pi = gen();
-            CartesianPoint pj = gen();
+            ne.compute_tangents(inst, &num);
+            CartesianPoint pi = inst.__get_coord(i);
+            CartesianPoint pj = inst.__get_coord(j);
             double r = cab.r;
             CHECK((NumUtils::is_close(Cartesian::distance(pa, pi), r) && 
                 NumUtils::is_close(Cartesian::distance(pa, pj), r)));
@@ -542,15 +571,17 @@ TEST_SUITE("NumEngine Computation") {
         }
         SUBCASE("tangents (point inside circle)") {
             Numeric num("i j = tangents c a b", point_map);
-            auto gen = ne.compute_tangents(&num);
-            CHECK_FALSE(gen.next());
+            ne.compute_tangents(inst, &num);
+            CHECK((
+                inst.point_to_coords[i].empty() && inst.point_to_coords[j].empty()
+            ));
         }
         SUBCASE("common_tangent") {
             Numeric num("i j = common_tangent a b c d", point_map);
             // IJ is a common tangent to the circles (A, AB) and (C, CD)
-            auto gen = ne.compute_common_tangent(&num);
-            CartesianPoint pi = gen();
-            CartesianPoint pj = gen();
+            ne.compute_common_tangent(inst, &num);
+            CartesianPoint pi = inst.__get_coord(i);
+            CartesianPoint pj = inst.__get_coord(j);
             double rab = cab.r;
             double rcd = ccd.r;
             CHECK((NumUtils::is_close(Cartesian::distance(pa, pi), rab) && 
@@ -560,9 +591,9 @@ TEST_SUITE("NumEngine Computation") {
         }
         SUBCASE("common_tangent (same radius)") {
             Numeric num("i j = common_tangent a b e f", point_map);
-            auto gen = ne.compute_common_tangent(&num);
-            CartesianPoint pi = gen();
-            CartesianPoint pj = gen();
+            ne.compute_common_tangent(inst, &num);
+            CartesianPoint pi = inst.__get_coord(i);
+            CartesianPoint pj = inst.__get_coord(j);
             double rab = cab.r;
             double ref = cef.r;
             CHECK((NumUtils::is_close(Cartesian::distance(pa, pi), ref) && 
@@ -574,11 +605,11 @@ TEST_SUITE("NumEngine Computation") {
         SUBCASE("common_tangent2") {
             Numeric num("i j k l = common_tangent c d e f", point_map);
             // IJ and KL are the two common tangents to the circles (C, CD) and (E, EF)
-            auto gen = ne.compute_common_tangent2(&num);
-            CartesianPoint pi = gen();
-            CartesianPoint pj = gen();
-            CartesianPoint pk = gen();
-            CartesianPoint pl = gen();
+            ne.compute_common_tangent2(inst, &num);
+            CartesianPoint pi = inst.__get_coord(i);
+            CartesianPoint pj = inst.__get_coord(j);
+            CartesianPoint pk = inst.__get_coord(k);
+            CartesianPoint pl = inst.__get_coord(l);
             double rcd = ccd.r;
             double ref = cef.r;
             CHECK((pi != pj && pk != pl));
@@ -594,8 +625,9 @@ TEST_SUITE("NumEngine Computation") {
         SUBCASE("common_tangent2 (circle inside circle)") {
             Numeric num("i j k l = common_tangent2 e f g h", point_map);
             // IJ and KL are the two common tangents to the circles (E, EF) and (G, GH)
-            auto gen = ne.compute_common_tangent2(&num);
-            CHECK_FALSE(gen.next());
+            ne.compute_common_tangent2(inst, &num);
+            CHECK((inst.point_to_coords[i].empty() && inst.point_to_coords[j].empty() &&
+                inst.point_to_coords[k].empty() && inst.point_to_coords[l].empty()));
         }
     }
 }

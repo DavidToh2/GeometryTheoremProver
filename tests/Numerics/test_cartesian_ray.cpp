@@ -43,7 +43,8 @@ TEST_SUITE("CartesianRay") {
         CartesianRay r(start, head);
 
         for (int i = 0; i < 10; ++i) {
-            CartesianPoint p = Cartesian::get_random_point_on_ray(r, {0,0}, 10.0);
+            double rand = NumUtils::urand(0.0, 10.0);
+            CartesianPoint p = Cartesian::get_random_point_on_ray(r, rand, {0,0}, 10.0);
             CHECK(r.contains(p));
             CHECK((p.x > 1 && p.y > 1));
         }
