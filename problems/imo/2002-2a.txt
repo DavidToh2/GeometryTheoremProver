@@ -1,0 +1,8 @@
+problem imo-2002-2a {
+    a b c = r_triangle a b c;
+    o = midpoint o : b c; 
+    d = on_circle d : o b, on_angle_bisect d : a c b; 
+    e f = intersections_cc e f : o a a o;
+    j = on_line_para j : o a d, on_line j : a c 
+    ? eqangle e c e j e j e f
+}

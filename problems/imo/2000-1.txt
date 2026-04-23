@@ -1,0 +1,11 @@
+problem imo-2000-1 {
+    m n = segment m n;
+    g1 g2 = on_line_bisect g1 : m n, on_line_bisect g2 : m n;
+    a b = common_tangent a b : g1 m g2 m;
+    c = on_line_para c : m a b, on_circle c : g1 a; 
+    d = on_line_para d : m a b, on_circle d : g2 b; 
+    e = intersection_ll e : a c b d; 
+    p = intersection_ll p : a n c d; 
+    q = intersection_ll q : b n c d 
+    ? cong e p e q
+}

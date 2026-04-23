@@ -28,7 +28,13 @@ A B C O : cong O A O B, cong O B O C, diff O A B C => circle O A B C
 A B C O : circle O A B C => cong O A O B
 
 #cyclic_arclength_cong
-A B C D : cyclic A B C D, eqangle A D D B C B B D => cong A B C D
+A B C D : cyclic A B C D, eqangle B A A C C A A D => cong B C C D
+A B C D : cyclic A B C D, para B C D A => cong A B C D
+A B C D : cyclic A B C D, cong B C C D => eqangle B A A C C A A D
+A B C D : cyclic A B C D, cong A B C D, sameclock A B C C D A => para B C D A
+
+#angle_bisector_cong_cyclic (advanced)
+A B C D : cong A B B C, eqangle A D D B B D D C, diff A B C D, ncong A D D C => cyclic A B C D
 
 #midpoint_theorem
 A B C E F : midp E A B, midp F A C, diff B C E F, ncoll A B C => para E F B C
@@ -72,9 +78,6 @@ A B C M : perp A B B C, midp M A C => cong A M B M
 #r_triangle_diameter
 A B C O : circle O A B C, coll O A C => perp A B B C
 
-#cyclic_para_trapezoid
-A B C D : cyclic A B C D, para A B C D => eqangle A D C D C D C B
-
 #circumcenter_angle
 #A B C M O : circle O A B C, midp M B C, ncoll O B C => eqangle A B A C O B O M
 
@@ -91,8 +94,8 @@ A B C I : eqangle A B B I I B B C, eqangle B A A I I A A C, diff A B C I => eqan
 A B C P Q R : cong A B P Q, cong B C Q R, cong C A R P, ncoll A B C => contri A B C P Q R
 
 #SAS (contri)
-A B C P Q R : cong A B P Q, cong B C Q R, sameclock A B C P Q R, eqangle B A B C Q P Q R, ncoll A B C => contri A B C P Q R
-A B C P Q R : cong A B P Q, cong B C Q R, diffclock A B C P Q R, eqangle B A B C Q R Q P, ncoll A B C => contri A B C P Q R
+A B C P Q R : cong A B P Q, eqangle B A B C Q P Q R, cong B C Q R, sameclock A B C P Q R, ncoll A B C => contri A B C P Q R
+A B C P Q R : cong A B P Q, eqangle B A B C Q R Q P, cong B C Q R, diffclock A B C P Q R, ncoll A B C => contri A B C P Q R
 
 #SAS (contri, para version)
 A B C P Q R : cong A B P Q, cong B C Q R, para A B P Q, para B C Q R, sameclock A B C P Q R, ncoll A B C => contri A B C P Q R

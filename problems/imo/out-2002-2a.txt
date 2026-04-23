@@ -1,0 +1,69 @@
+=======================================
+Problem: imo-2002-2a
+
+    a b c = r_triangle a b c;
+    o = midpoint o : b c; 
+    d = on_circle d : o b, on_angle_bisect d : a c b; 
+    e f = intersections_cc e f : o a a o;
+    j = on_line_para j : o a d, on_line j : a c 
+    ? eqangle e c e j e j e f
+
+---------------------------------------
+    j = (-0.160671, 0.375742)    a = (0.535661, 0.213282)    c = (0.262442, 0.277026)
+    o = (0.558355, 0.927954)    d = (1.254687, 0.765494)    e = (1.165933, 0.550965)
+    f = (-0.071916, 0.590271)    b = (0.854268, 1.578882)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] ao = ae && oa = oe => oe = ea
+[   3 | dd ] oe = ea && ao = oe && ea = ao && ncoll a o e => △aoe ≅ △oea
+[   3 | gr ] oa = oe => ao = oe
+[   3 | gr ] o midpoint of bc && od = ob => oc = od
+[   3 | gr ] ao = ae => ea = ao
+[   3 | gr ] ncoll a o e
+[   3 | dd ] ao = oe && of = ea && fa = ao && ncoll a o f => △aof ≅ △oea
+[   3 | gr ] ao = ae && oa = of => of = ea
+[   3 | gr ] ao = af => fa = ao
+[   3 | gr ] ncoll a o f
+[   3 | gr ] oa = of && oa = oe => eo = fo
+[   3 | gr ] ao = ae && ao = af => ea = fa
+[   3 | gr ] ncoll o c d
+[   3 | dd ] o midpoint of bc && ba ⊥ ac => bo = ao
+[   3 | gr ] ab ⊥ ac => ba ⊥ ac
+[   4 | dd ] diff o a && eo = fo && ea = fa => ef ⊥ oa
+[   4 | dd ] oc = od && ncoll o c d => ∠ocd = ∠cdo
+[   6 | ar ] ab ⊥ ac && ∠acd = ∠dcb && ∠ocd = ∠cdo => ab ⊥ od
+[   6 | ar ] ao = ae && od = ob && bo = ao => do = ea
+[   7 | gr ] od = ob && bo = ao => ob = oa
+[   7 | gr ] o midpoint of bc && oa = oe && od = ob && bo = ao => oe = oc
+[   7 | gr ] oa = oe && od = ob && bo = ao => oe = od
+[   7 | gr ] oa = of && od = ob && bo = ao => of = od
+[   7 | gr ] o midpoint of bc && oa = oe && od = ob && bo = ao => co = eo
+[   7 | gr ] diffclock c o e e o c
+[   7 | gr ] o midpoint of bc => ∠coe = ∠coe
+[   7 | gr ] ncoll c o e
+[   7 | gr ] oa = oe && od = ob && bo = ao => do = eo
+[   7 | gr ] diffclock d o e e o d
+[   7 | gr ] ∠doe = ∠doe
+[   7 | gr ] ncoll d o e
+[   7 | gr ] oa = of && od = ob && bo = ao => do = fo
+[   7 | gr ] diffclock d o f f o d
+[   7 | gr ] ∠dof = ∠dof
+[   7 | gr ] ncoll d o f
+[   7 | gr ] ncoll o b a
+[   7 | gr ] j, a, c collinear && ab ⊥ ac && ab ⊥ od => ja ∥ do
+[   7 | gr ] jo ∥ ad => ad ∥ oj
+[   7 | dd ] ja ∥ do && ad ∥ oj && diff j a d o => ja = do
+[   7 | gr ] diff j a d o
+[   8 | dd ] oe = oc && co = eo && diffclock c o e e o c && ∠coe = ∠coe && ncoll c o e => △coe ≅ △eoc
+[   8 | dd ] oe = od && do = eo && diffclock d o e e o d && ∠doe = ∠doe && ncoll d o e => △doe ≅ △eod
+[   8 | dd ] of = od && do = fo && diffclock d o f f o d && ∠dof = ∠dof && ncoll d o f => △dof ≅ △fod
+[   8 | dd ] ob = oa && ncoll o b a => ∠oba = ∠bao
+[  10 | ar ] △aoe ≅ △oea && △aof ≅ △oea && ef ⊥ oa && ∠ocd = ∠cdo && △coe ≅ △eoc && △dof ≅ △fod => ∠dfe = ∠dce
+[  10 | ar ] △aoe ≅ △oea && △aof ≅ △oea && △coe ≅ △eoc && △doe ≅ △eod && △dof ≅ △fod && ∠oba = ∠bao => ∠(ab, de) = ∠(ce, df)
+[  10 | ar ] ab ⊥ ac && ∠acd = ∠dcb && ∠ocd = ∠cdo && △coe ≅ △eoc && △doe ≅ △eod => ∠dce = ∠(ab, de)
+[  11 | dd ] do = ea && ncoll d o f && of = aj && diffclock d o f e a j && ∠dof = ∠jae => △dof ≅ △eaj
+[  11 | gr ] oa = of && od = ob && bo = ao && ja = do => of = aj
+[  11 | gr ] diffclock d o f e a j
+[  11 | gr ] j, a, c collinear => ∠dof = ∠jae
+[  14 | ar ] △dof ≅ △fod && △dof ≅ △eaj => df ∥ je
+[ 511 | dd ] ∠dfe = ∠dce && ∠(ab, de) = ∠(ce, df) && ∠dce = ∠(ab, de) && df ∥ je => ∠cej = ∠jef

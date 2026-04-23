@@ -1,0 +1,581 @@
+=======================================
+Problem: imo-2004-1
+
+    a b c = triangle a b c; 
+    o = midpoint o : b c; 
+    m = intersection_lc m : a o b;
+    n = intersection_lc n : a o c;
+    r = on_angle_bisect r : b a c, on_angle_bisect r : m o n; 
+    o1 = circumcenter o1 : b m r; o2 = circumcenter o2 : c n r; 
+    p = on_circle p : o1 r, on_circle p : o2 r 
+    ? coll p b c
+
+---------------------------------------
+    r = (-0.379046, -0.264204)    o1 = (0.216312, -0.844030)    b = (-0.497216, -0.417970)
+    c = (-0.256386, -0.116183)    o = (-0.376801, -0.267077)    m = (-0.229291, -0.142541)
+    n = (-0.533289, -0.380127)    a = (0.468296, 0.574585)    o2 = (-0.947708, 0.331859)
+    p = (-0.357444, -0.242820)
+    Loss: 0
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_line_bisect r : m n, on_angle_bisect r : m a n
+    ? cong m r n r
+
+---------------------------------------
+    o = (-0.926867, 0.530920)    a = (0.078110, 0.878991)    r = (2.552574, 1.373018)
+    n = (0.775296, 2.212583)    m = (1.355879, -0.186311)
+    Loss: 0
+---------------------------------------
+[ 511 | dd ] rm = rn => mr = nr
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_line_bisect r : m n, on_angle_bisect r : m a n
+    ? cyclic a r m n
+
+---------------------------------------
+    o = (-0.719398, 0.422251)    a = (0.154078, 0.347159)    r = (-0.724543, 0.224111)
+    n = (-0.335719, 0.242090)    m = (-1.111910, 0.262247)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] rm = rn => mr = rn
+[   3 | gr ] ∠mar = ∠ran => ∠mar = ∠ran
+[   3 | gr ] diff m r n a
+[   3 | gr ] ncong m a a n
+[   4 | dd ] mr = rn && ∠mar = ∠ran && diff m r n a && ncong m a a n => m, r, n, a cyclic
+[ 511 | dd ] m, r, n, a cyclic => a, r, m, n cyclic
+=======================================
+Problem: imo-2004-1
+
+    a b c = triangle a b c; 
+    o = midpoint o : b c; 
+    m = intersection_lc m : a o b;
+    n = intersection_lc n : a o c;
+    r = on_angle_bisect r : b a c, on_angle_bisect r : m o n; 
+    o1 = circumcenter o1 : b m r; o2 = circumcenter o2 : c n r; 
+    p = on_circle p : o1 r, on_circle p : o2 r 
+    ? cyclic a r m n
+
+---------------------------------------
+    r = (-0.745093, 0.076519)    o1 = (-0.754022, -0.040537)    b = (-0.722248, -0.153552)
+    c = (-0.838029, 0.314156)    o = (-0.780138, 0.080302)    m = (-0.736289, -0.156586)
+    n = (-0.686743, 0.302375)    a = (0.837930, 0.183642)    o2 = (-0.770540, 0.203558)
+    p = (-0.778640, 0.074249)
+    Loss: 0
+=======================================
+Problem: imo-2004-1
+
+    a b c = triangle a b c; 
+    o = midpoint o : b c; 
+    m = intersection_lc m : a o b;
+    n = intersection_lc n : a o c;
+    r = on_angle_bisect r : b a c, on_angle_bisect r : m o n; 
+    o1 = circumcenter o1 : b m r; o2 = circumcenter o2 : c n r; 
+    p = on_circle p : o1 r, on_circle p : o2 r 
+    ? cong o m o n
+
+---------------------------------------
+    r = (-0.111758, 0.228927)    o1 = (0.209333, 0.283652)    b = (-0.026828, 0.507979)
+    c = (-0.483690, -0.144485)    o = (-0.255259, 0.181747)    m = (0.088745, -0.018926)
+    n = (-0.097454, 0.547405)    a = (-0.052959, 0.627112)    o2 = (-0.670567, 0.413585)
+    p = (-0.082236, 0.428847)
+    Loss: 0
+---------------------------------------
+[ 511 | dd ] oc = on && o midpoint of bc && ob = om => om = on
+=======================================
+Problem: imo-2004-1
+
+    a b c = triangle a b c; 
+    o = midpoint o : b c; 
+    m = intersection_lc m : a o b;
+    n = intersection_lc n : a o c;
+    r = on_angle_bisect r : b a c, on_angle_bisect r : m o n; 
+    o1 = circumcenter o1 : b m r; o2 = circumcenter o2 : c n r; 
+    p = on_circle p : o1 r, on_circle p : o2 r 
+    ? eqangle o m m n m n n o
+
+---------------------------------------
+    r = (0.063468, -0.296190)    o1 = (-0.160803, -0.438388)    b = (-0.245033, -0.186548)
+    c = (0.512934, -0.412524)    o = (0.133950, -0.299536)    a = (-0.701716, 0.782898)
+    m = (-0.020258, -0.663699)    n = (0.014930, 0.077597)    o2 = (0.362496, -0.067315)
+    p = (0.047582, -0.273787)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] o midpoint of bc && ob = om && oc = on => om = on
+[   3 | gr ] ncoll o m n
+[   4 | dd ] om = on && ncoll o m n => ∠omn = ∠mno
+[ 511 | dd ] ∠omn = ∠mno => ∠omn = ∠mno
+=======================================
+Problem: imo-2004-1
+
+    a b c = triangle a b c; 
+    o = midpoint o : b c; 
+    m = intersection_lc m : a o b;
+    n = intersection_lc n : a o c;
+    r = on_angle_bisect r : b a c, on_angle_bisect r : m o n; 
+    o1 = circumcenter o1 : b m r; o2 = circumcenter o2 : c n r; 
+    p = on_circle p : o1 r, on_circle p : o2 r 
+    ? cong m r n r
+
+---------------------------------------
+    r = (-0.379439, -0.368177)    o1 = (-0.427034, -0.614074)    b = (-0.480340, -0.858796)
+    c = (-0.718946, -0.012938)    o = (-0.599643, -0.435867)    m = (-0.180736, -0.568602)
+    n = (-0.327626, -0.090745)    a = (0.203574, -0.196365)    o2 = (-0.551260, -0.192534)
+    p = (-0.600371, -0.433286)
+    Loss: 0
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? cyclic a r m n
+
+---------------------------------------
+    o = (2.910972, 2.630540)    a = (0.691744, -0.906376)    r = (-0.952210, -0.094008)
+    n = (-0.041191, -0.791320)    m = (-1.303279, 0.998216)
+    Loss: 0
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? cong m r n r
+
+---------------------------------------
+    o = (-0.692635, 0.294132)    a = (0.431498, -0.235412)    r = (-1.116392, -0.707940)
+    n = (0.156108, -0.536639)    m = (-1.879914, 0.324355)
+    Loss: 0
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? contri m o r n o r
+
+---------------------------------------
+    o = (-0.703769, 0.356036)    a = (0.532890, 0.944659)    r = (-0.393130, 0.433972)
+    n = (-0.324357, 0.860210)    m = (-0.131289, 0.090683)
+    Loss: 0
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? contri m o r n o r
+
+---------------------------------------
+    o = (-0.712046, 0.693923)    a = (0.929536, -0.636133)    r = (1.950143, 1.222200)
+    n = (1.264293, 2.261928)    m = (1.713269, -0.000631)
+    Loss: 0
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? eqangle o m o r o r o n
+
+---------------------------------------
+    o = (-0.994430, 0.364787)    a = (-0.405518, -0.595147)    r = (-0.724157, 0.211552)
+    n = (-0.537189, 0.407713)    m = (-0.796477, -0.049612)
+    Loss: 0
+---------------------------------------
+[ 511 | dd ] ∠mor = ∠ron => ∠mor = ∠ron
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? cong m r n r
+
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? cong m r n r
+
+---------------------------------------
+    o = (-2.117623, 0.812718)    a = (0.650959, -0.041613)    r = (-0.136948, -0.456425)
+    n = (0.543582, -0.044605)    m = (-0.226726, -1.246777)
+    Loss: 0
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? cong m r n r
+
+---------------------------------------
+    o = (-0.041353, 0.908978)    a = (0.695869, -0.396485)    r = (-0.300201, 0.297675)
+    n = (0.358417, -0.088996)    m = (-1.036224, 0.501546)
+    Loss: 0
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? cong m r n r
+
+---------------------------------------
+    o = (0.515849, 0.942935)    a = (-0.005124, -0.640107)    r = (0.662134, 0.851271)
+    n = (0.838308, 1.116248)    m = (0.500518, 0.577173)
+    Loss: 0
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? cong m r n r
+
+---------------------------------------
+    o = (1.170436, 0.733574)    a = (0.249118, 0.573983)    r = (-0.621079, 1.008367)
+    n = (0.118524, 0.477302)    m = (0.243693, 1.293344)
+    Loss: 0
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? cong m r n r
+
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? cong m r n r
+
+---------------------------------------
+    o = (0.230156, 0.074178)    a = (0.412960, -0.931742)    r = (0.208893, 0.028466)
+    n = (0.434133, -0.150675)    m = (-0.073227, 0.085323)
+    Loss: 0
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? cong m r n r
+
+---------------------------------------
+    o = (0.248919, 0.141243)    a = (-0.508280, 0.945363)    r = (0.388559, 0.190945)
+    n = (0.169757, 0.564649)    m = (0.455076, -0.236962)
+    Loss: 0
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? cong m r n r
+
+---------------------------------------
+    o = (-1.191970, -0.508496)    a = (-0.015170, 0.714788)    r = (-0.516463, -0.424306)
+    n = (-0.479990, 0.055891)    m = (-0.363241, -0.880861)
+    Loss: 0
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? cong m r n r
+
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? cong m r n r
+
+---------------------------------------
+    o = (-0.444239, -0.385557)    a = (-0.755389, -0.195130)    r = (1.139887, 0.988560)
+    n = (-0.795477, 0.580292)    m = (0.462303, -0.869718)
+    Loss: 0
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? cong m r n r
+
+---------------------------------------
+    o = (0.218396, 1.699779)    a = (0.859294, 0.870810)    r = (1.265947, -2.166028)
+    n = (2.104774, -1.592630)    m = (0.252384, -2.094588)
+    Loss: 0
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? cong m r n r
+
+---------------------------------------
+    o = (-0.284769, 0.167132)    a = (0.898599, 0.841397)    r = (0.155691, -1.698067)
+    n = (1.319263, -0.374968)    m = (-1.476846, -1.035259)
+    Loss: 0
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? cong m r n r
+
+---------------------------------------
+    o = (-1.099968, -0.776499)    a = (-0.522968, -0.912956)    r = (-0.773245, 0.164691)
+    n = (-1.295116, 0.124056)    m = (-0.388802, -0.190560)
+    Loss: 0
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? cong m r n r
+
+---------------------------------------
+    o = (0.574995, 0.786180)    a = (-0.815969, -0.069576)    r = (1.126998, 0.938588)
+    n = (0.544771, 1.643594)    m = (0.988980, 0.034722)
+    Loss: 0
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? cong m r n r
+
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? cong m r n r
+
+---------------------------------------
+    o = (0.015693, 0.376027)    a = (0.597691, -0.207227)    r = (-1.400190, 1.104053)
+    n = (-1.234926, -0.237765)    m = (-0.212693, 1.750301)
+    Loss: 0
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? cong m r n r
+
+---------------------------------------
+    o = (-0.308017, 0.434474)    a = (0.283739, -0.462971)    r = (3.079012, 1.637106)
+    n = (0.162898, 2.416621)    m = (1.307458, -0.806859)
+    Loss: 0
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? cong m r n r
+
+---------------------------------------
+    o = (0.498951, -0.377817)    a = (0.922732, 0.059602)    r = (0.549246, -0.399951)
+    n = (0.740857, -0.103082)    m = (0.459785, -0.741773)
+    Loss: 0
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? cong m r n r
+
+---------------------------------------
+    o = (1.828536, -0.697519)    a = (-0.748277, 0.208711)    r = (1.500479, -0.736483)
+    n = (0.535359, -2.237477)    m = (0.210619, 0.496685)
+    Loss: 0
+---------------------------------------
+[   3 | dd ] ∠mor = ∠ron && mo = no && or = or && diffclock m o r n o r && ncoll m o r => △mor ≅ △nor
+[   3 | gr ] om = on => mo = no
+[   3 | gr ] or = or
+[   3 | gr ] diffclock m o r n o r
+[   3 | gr ] ncoll m o r
+[ 511 | dd ] △mor ≅ △nor => mr = nr
+=======================================
+Problem: imo-2004-1-experiment
+
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? cyclic a m n r
+
+---------------------------------------
+    o = (-0.055495, 1.099476)    a = (0.651109, -0.701131)    r = (-0.069025, 0.819224)
+    n = (0.297350, 0.726568)    m = (-0.442622, 0.762293)
+    Loss: 0
+---------------------------------------
+[   3 | dd ] ∠mor = ∠ron && mo = no && or = or && diffclock m o r n o r && ncoll m o r => △mor ≅ △nor
+[   3 | gr ] om = on => mo = no
+[   3 | gr ] or = or
+[   3 | gr ] diffclock m o r n o r
+[   3 | gr ] ncoll m o r
+[   7 | gr ] ncong m a a n
+[   7 | gr ] diff m r n a
+[   7 | gr ] ∠mar = ∠ran => ∠mar = ∠ran
+[   7 | gr ] △mor ≅ △nor => mr = rn
+[   8 | dd ] ncong m a a n && diff m r n a && ∠mar = ∠ran && mr = rn => m, r, n, a cyclic
+[ 511 | dd ] m, r, n, a cyclic => a, m, n, r cyclic
+=======================================
+Problem: imo-2004-1
+
+    a b c = triangle a b c; 
+    o = midpoint o : b c; 
+    m = intersection_lc m : a o b;
+    n = intersection_lc n : a o c;
+    r = on_angle_bisect r : b a c, on_angle_bisect r : m o n; 
+    o1 = circumcenter o1 : b m r; o2 = circumcenter o2 : c n r; 
+    p = on_circle p : o1 r, on_circle p : o2 r 
+    ? coll b c p
+
+---------------------------------------
+    r = (0.257932, 0.312062)    o1 = (-0.081945, 0.521722)    b = (-0.216536, 0.897700)
+    c = (-0.897247, -0.744613)    o = (-0.556892, 0.076544)    m = (0.284547, 0.363112)
+    n = (0.307678, 0.283085)    a = (0.336509, 0.307675)    o2 = (-0.134457, -0.418741)
+    p = (-0.443050, 0.351202)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] ncoll o b o1
+[   3 | gr ] o1o = o1o
+[   3 | dd ] ob = om && ncoll o b o1 && o1o = o1o && bo1 = mo1 => △obo1 ≅ △omo1
+[   3 | gr ] o1b = o1m => bo1 = mo1
+[   3 | dd ] oc = on && co2 = no2 && o2o = o2o && ncoll o c o2 => △oco2 ≅ △ono2
+[   3 | gr ] o2c = o2n => co2 = no2
+[   3 | gr ] o2o = o2o
+[   3 | gr ] ncoll o c o2
+[   3 | gr ] ob = om => bo = mo
+[   3 | dd ] o1r = o1p && ro2 = po2 && o2o1 = o2o1 && ncoll o1 r o2 => △o1ro2 ≅ △o1po2
+[   3 | gr ] o1b = o1m && o1m = o1r && o1p = o1r => o1r = o1p
+[   3 | gr ] o2c = o2n && o2n = o2r && o2p = o2r => ro2 = po2
+[   3 | gr ] o2o1 = o2o1
+[   3 | gr ] ncoll o1 r o2
+[   3 | gr ] oc = on && o midpoint of bc => co = no
+[   3 | gr ] oc = on && o midpoint of bc && ob = om => om = on
+[   3 | gr ] o1b = o1m && o1m = o1r && o1p = o1r => o1b = o1p
+[   3 | gr ] o2c = o2n && o2n = o2r && o2p = o2r => o2c = o2p
+[   3 | gr ] diff o o1
+[   3 | gr ] diff o o2
+[   3 | dd ] ∠mor = ∠ron && mo = no && or = or && diffclock m o r n o r && ncoll m o r => △mor ≅ △nor
+[   3 | gr ] oc = on && o midpoint of bc && ob = om => mo = no
+[   3 | gr ] or = or
+[   3 | gr ] diffclock m o r n o r
+[   3 | gr ] ncoll m o r
+[   3 | gr ] ncoll o m n
+[   3 | gr ] ncoll o1 b p
+[   3 | gr ] ncoll o1 m r
+[   3 | gr ] ncoll o2 c p
+[   3 | gr ] ncoll o2 n r
+[   4 | dd ] bo1 = mo1 && bo = mo && diff o o1 => bm ⊥ oo1
+[   4 | dd ] co2 = no2 && co = no && diff o o2 => cn ⊥ oo2
+[   4 | dd ] om = on && ncoll o m n => ∠omn = ∠mno
+[   4 | dd ] o1b = o1p && ncoll o1 b p => ∠o1bp = ∠bpo1
+[   4 | dd ] o1m = o1r && ncoll o1 m r => ∠o1mr = ∠mro1
+[   4 | dd ] o2c = o2p && ncoll o2 c p => ∠o2cp = ∠cpo2
+[   4 | dd ] o2n = o2r && ncoll o2 n r => ∠o2nr = ∠nro2
+[   7 | gr ] ∠bar = ∠rac => ∠mar = ∠ran
+[   7 | gr ] diff m r n a
+[   7 | gr ] ncong m a a n
+[   7 | gr ] △mor ≅ △nor => mr = rn
+[   8 | dd ] ∠mar = ∠ran && diff m r n a && ncong m a a n && mr = rn => m, r, n, a cyclic
+[  11 | gr ] m, r, n, a cyclic => r, m, n, a cyclic
+[  12 | dd ] r, m, n, a cyclic => ∠rnm = ∠ram
+[  14 | ar ] ∠bar = ∠rac && ∠mor = ∠ron && △obo1 ≅ △omo1 && △oco2 ≅ △ono2 && △o1ro2 ≅ △o1po2 && bm ⊥ oo1 && cn ⊥ oo2 && △mor ≅ △nor && ∠omn = ∠mno && ∠o1bp = ∠bpo1 && ∠o1mr = ∠mro1 && ∠o2cp = ∠cpo2 && ∠o2nr = ∠nro2 && ∠rnm = ∠ram => bp ∥ cp
+[  15 | dd ] diff b c && pb ∥ pc => p, b, c collinear
+[  15 | gr ] bp ∥ cp => pb ∥ pc
+[ 511 | dd ] o midpoint of bc && p, b, c collinear => b, c, p collinear
+=======================================
+Problem: imo-2004-1
+
+    a b c = triangle a b c; 
+    o = midpoint o : b c; 
+    m = intersection_lc m : a o b;
+    n = intersection_lc n : a o c;
+    r = on_angle_bisect r : b a c, on_angle_bisect r : m o n; 
+    o1 = circumcenter o1 : b m r; o2 = circumcenter o2 : c n r; 
+    p = on_circle p : o1 r, on_circle p : o2 r 
+    ? coll b c p
+
+---------------------------------------
+    r = (0.062625, 0.234471)    o1 = (-0.429155, -0.311108)    b = (-0.010560, -0.914666)
+    c = (0.204914, 0.651451)    o = (0.097177, -0.131607)    m = (-0.466570, 0.422448)
+    n = (0.547304, 0.518142)    a = (-0.659443, 0.987989)    o2 = (0.298941, 0.386599)
+    p = (0.136882, 0.156980)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] o1o = o1o
+[   3 | dd ] ob = om && o1o = o1o && bo1 = mo1 && ncoll o b o1 => △obo1 ≅ △omo1
+[   3 | gr ] o1b = o1m => bo1 = mo1
+[   3 | gr ] ncoll o b o1
+[   3 | dd ] oc = on && co2 = no2 && o2o = o2o && ncoll o c o2 => △oco2 ≅ △ono2
+[   3 | gr ] o2c = o2n => co2 = no2
+[   3 | gr ] o2o = o2o
+[   3 | gr ] ncoll o c o2
+[   3 | gr ] ob = om => bo = mo
+[   3 | dd ] o1r = o1p && ro2 = po2 && o2o1 = o2o1 && ncoll o1 r o2 => △o1ro2 ≅ △o1po2
+[   3 | gr ] o1b = o1m && o1m = o1r && o1p = o1r => o1r = o1p
+[   3 | gr ] o2c = o2n && o2n = o2r && o2p = o2r => ro2 = po2
+[   3 | gr ] o2o1 = o2o1
+[   3 | gr ] ncoll o1 r o2
+[   3 | gr ] oc = on && o midpoint of bc => co = no
+[   3 | gr ] oc = on && o midpoint of bc && ob = om => om = on
+[   3 | gr ] o1b = o1m && o1m = o1r && o1p = o1r => o1b = o1p
+[   3 | gr ] o2c = o2n && o2n = o2r && o2p = o2r => o2c = o2p
+[   3 | gr ] diff o o1
+[   3 | gr ] diff o o2
+[   3 | dd ] ∠mor = ∠ron && mo = no && or = or && diffclock m o r n o r && ncoll m o r => △mor ≅ △nor
+[   3 | gr ] oc = on && o midpoint of bc && ob = om => mo = no
+[   3 | gr ] or = or
+[   3 | gr ] diffclock m o r n o r
+[   3 | gr ] ncoll m o r
+[   3 | gr ] ncoll o m n
+[   3 | gr ] ncoll o1 b p
+[   3 | gr ] ncoll o1 m r
+[   3 | gr ] ncoll o2 c p
+[   3 | gr ] ncoll o2 n r
+[   4 | dd ] bo1 = mo1 && bo = mo && diff o o1 => bm ⊥ oo1
+[   4 | dd ] co2 = no2 && co = no && diff o o2 => cn ⊥ oo2
+[   4 | dd ] om = on && ncoll o m n => ∠omn = ∠mno
+[   4 | dd ] o1b = o1p && ncoll o1 b p => ∠o1bp = ∠bpo1
+[   4 | dd ] o1m = o1r && ncoll o1 m r => ∠o1mr = ∠mro1
+[   4 | dd ] o2c = o2p && ncoll o2 c p => ∠o2cp = ∠cpo2
+[   4 | dd ] o2n = o2r && ncoll o2 n r => ∠o2nr = ∠nro2
+[   7 | gr ] diff m r n a
+[   7 | gr ] △mor ≅ △nor => mr = rn
+[   7 | gr ] ncong m a a n
+[   7 | gr ] ∠bar = ∠rac => ∠mar = ∠ran
+[   8 | dd ] diff m r n a && mr = rn && ncong m a a n && ∠mar = ∠ran => m, r, n, a cyclic
+[  11 | gr ] m, r, n, a cyclic => r, m, n, a cyclic
+[  12 | dd ] r, m, n, a cyclic => ∠rnm = ∠ram
+[  14 | ar ] ∠bar = ∠rac && ∠mor = ∠ron && △obo1 ≅ △omo1 && △oco2 ≅ △ono2 && △o1ro2 ≅ △o1po2 && bm ⊥ oo1 && cn ⊥ oo2 && △mor ≅ △nor && ∠omn = ∠mno && ∠o1bp = ∠bpo1 && ∠o1mr = ∠mro1 && ∠o2cp = ∠cpo2 && ∠o2nr = ∠nro2 && ∠rnm = ∠ram => bp ∥ cp
+[  15 | dd ] diff b c && pb ∥ pc => p, b, c collinear
+[  15 | gr ] bp ∥ cp => pb ∥ pc
+[ 511 | dd ] o midpoint of bc && p, b, c collinear => b, c, p collinear

@@ -1,0 +1,10 @@
+problem imo-2003-4 {
+    a b c = triangle a b c; 
+    o = circumcenter o : a b c; 
+    m = midpoint m : a c;
+    b1 d1 = intersections_lc b1 d1 : o m o a;
+    x = intersection_ll x : a c b b1; 
+    d = intersection_lc d : x o d1;
+    p = foot p : d b c; q = foot q : d c a; r = foot r : d a b 
+    ? cong p q q r
+}

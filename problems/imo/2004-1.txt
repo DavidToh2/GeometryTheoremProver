@@ -1,0 +1,17 @@
+problem imo-2004-1-experiment {
+    o m n = iso_triangle o m n;
+    a = free a;
+    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
+    ? cyclic a m n r
+}
+
+problem imo-2004-1 {
+    a b c = triangle a b c; 
+    o = midpoint o : b c; 
+    m = intersection_lc m : a o b;
+    n = intersection_lc n : a o c;
+    r = on_angle_bisect r : b a c, on_angle_bisect r : m o n; 
+    o1 = circumcenter o1 : b m r; o2 = circumcenter o2 : c n r; 
+    p = on_circle p : o1 r, on_circle p : o2 r 
+    ? coll b c p
+}
