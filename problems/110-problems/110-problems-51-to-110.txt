@@ -1,0 +1,487 @@
+problem 110-51 {
+    a b c = triangle a b c;
+    d = on_line_perp d : b a c, on_circum d : a b c;
+    o = circumcenter o : a b c;
+    e = on_line e : d o, on_circum e : a b c
+    ? cong a e b c
+}
+
+# 110-52 is overconstrained in its original formulation. We rewrite it (which I think
+# simplifies it somewhat)
+
+problem 110-52 {
+    a b c = r_triangle c a b;
+    m = on_angle_bisect m : b a c, on_line m : b c;
+    d = mirror d : c m;
+    e = foot e : m a b;
+    f = intersection_ll f : d e a c
+    ? cong a e a f
+}
+
+problem 110-53 {
+    a b = segment a b;
+    o = on_line_bisect o : a b;
+    c = on_line c : a b;
+    d = on_line_perp d : a a o, on_line_perp d : c c o;
+    e = on_line_perp e : b b o, on_line_perp e : c c o
+    ? midp c d e
+}
+
+problem 110-54 {
+    b c g = r_triangle g b c;
+    o = midpoint o : b c;
+    a = on_angle_bisect a : b c g, on_circle a : o b;
+    e = on_line_perp e : a b c, on_line e : b g;
+    f = intersection_ll f : a c b g
+    ? midp e b f
+}
+
+problem 110-55 {
+    b c g = r_triangle g b c;
+    o = midpoint o : b c;
+    a = on_angle_bisect a : b c g, on_circle a : o b;
+    e = on_line_perp e : a b c, on_line e : b g;
+    f = intersection_ll f : a c b g
+    ? cong e a e f
+}
+
+problem 110-56 {
+    a b = segment a b;
+    d = on_line_bisect d : a b;
+    k = on_tangent k : a b d;
+    e = foot e : d a k;
+    m = midpoint m : a b
+    ? cong d m d e
+}
+
+problem 110-57 {
+    a b c = triangle a b c;
+    d = foot d : a b c;
+    e f = foot e : d a b, foot f : d a c
+    ? cyclic b c e f
+}
+
+problem 110-58 {
+    a b c d = cyclic_quad a b c d;
+    e = intersection_ll e : a b c d;
+    f = on_line f : b c, on_line_para f : e a d;
+    o = circumcenter o : a b c;
+    g h = tangents g h : f o a
+    ? cong e f f g
+}
+
+problem 110-59 {
+    a b c = triangle a b c;
+    n = on_angle_bisect n : a c b, on_circum n : a b c
+    ? eqangle a c c n n c c b
+}
+
+problem 110-60 {
+    a b c = triangle a b c;
+    n = on_angle_bisect n : a c b, on_circum n : a b c;
+    d e f = midpoint d : b c, midpoint e : c a, midpoint f : a b;
+    k = foot k : n a c
+    ? eqangle e f f k k f f d
+}
+
+problem 110-61 {
+    a b = segment a b;
+    o o1 = on_line_bisect o : a b, on_line_bisect o1 : a b;
+    c = on_circle c : o a;
+    d = on_circle d : o1 a, on_line d : b c
+    ? eqangle a o o o1 a c c d
+}
+
+# This is the same as Simson line
+problem 110-62 {
+    a b c d = cyclic_quad a b c d;
+    e = on_circle e : a d, on_circle e : b d;
+    f = on_circle f : a d, on_circle f : c d;
+    g = on_circle g : b d, on_circle g : c d
+    ? coll e f g
+}
+
+problem 110-63 {
+    a b p = triangle a b p;
+    c = on_line c : a b;
+    x y z = circumcenter x : p a b, circumcenter y : p a c, circumcenter z : p b c
+    ? cyclic p x y z
+}
+
+problem 110-64 {
+    e f = segment e f;
+    a b = on_line_bisect a : e f, on_line_bisect b : e f;
+    m = on_circle m : b e;
+    e1 = on_circle e1 : a e, on_line e1 : m e;
+    f1 = on_circle f1 : a f, on_line f1 : m f
+    ? perp e1 f1 b m
+}
+
+problem 110-65 {
+    a b c = triangle a b c;
+    d = on_line d : a b;
+    e = on_line e : a c, on_line_para e : d b c;
+    o n = circumcenter o : a b c, circumcenter n : a d e
+    ? coll a n o
+}
+
+problem 110-66 {
+    a b c = triangle a b c;
+    d e = foot d : b a c, foot e : c a b;
+    h = intersection_ll h : b d c e;
+    m n = midpoint m : b c, midpoint n : a h
+    ? perp m d d n
+}
+
+problem 110-67 {
+    a b c = triangle a b c;
+    i = incenter i : a b c;
+    ib = excenter ib : b c a;
+    ic = excenter ic : c a b;
+    o = circumcenter o : b i c;
+    m = midpoint m : ib ic
+    ? perp m b b o
+}
+
+problem 110-68 {
+    a p b = r_triangle p a b;
+    q = reflect q : p a b;
+    d = on_circle d : a p;
+    f = on_circle f : b q, on_line f : d q
+    ? perp d a f b
+}
+
+problem 110-69 {
+    a b = segment a b;
+    o = midpoint o : a b;
+    m = on_circle m : o a;
+    i j = circumcenter i : a o m, circumcenter j : b o m
+    ? perp i m m j
+}
+
+# Lot of equivalent problems here...
+problem 110-70 {
+    a b p = triangle a b p;
+    o = midpoint o : a b;
+    a1 = on_line a1 : a p, on_circle a1 : o a;
+    b1 = on_line b1 : b p, on_circle b1 : o b;
+    o1 = circumcenter o1 : a1 b1 p
+    ? perp o a1 a1 o1
+}
+
+problem 110-71 {
+    a b c d = eq_trapezoid b c d a;
+    f g = foot f : d a c, foot g : d a b;
+    o = circumcenter o : a b c
+    ? para f g a o
+}
+
+problem 110-72 {
+    a b c d = cyclic_quad a b c d;
+    f g = foot f : d a c, foot g : d a b
+    ? simtri d f g d c b
+}
+
+problem 110-73 {
+    a b c d = cyclic_quad a b c d;
+    f g = foot f : d a c, foot g : d a b;
+    l = on_line_perp l : d a b, on_circum l : a b c
+    ? para c l f g
+}
+
+problem 110-74 {
+    a b c = triangle a b c;
+    d = on_line_perp d : c a b, on_circum d : a b c;
+    e f = foot e : d a c, foot f : d b c
+    ? cyclic a b e f
+}
+
+problem 110-75 {
+    a b = segment a b;
+    o1 o2 = on_line_bisect o1 : a b, on_line_bisect o2 : a b;
+    c = on_circle c : o1 a;
+    d = on_circle d : o2 a, on_line d : c a
+    ? eqangle c b b d o1 c o2 d
+}
+
+problem 110-76 {
+    a b c = equi_triangle a b c;
+    e = on_circum e : a b c;
+    d = intersection_ll d : a e b c
+    ? eqratio b e e d a e e c
+}
+
+problem 110-77 {
+    a b c = triangle a b c;
+    i = incenter i : a b c;
+    o = on_line_bisect o : i b, on_line_perp o : b b a;
+    h k = intersections_lc h k : a c o b
+    ? eqangle h i i c c i i k
+}
+
+problem 110-78 {
+    a b c = triangle a b c;
+    g = midpoint g : b c;
+    e = on_circum e : a b c, on_angle_bisect e : b a c;
+    h k = foot h : a e g, foot k : e a b
+    ? eqangle k h h g e k k g
+}
+
+problem 110-79 {
+    a b c = triangle a b c;
+    o = circumcenter o : a b c;
+    d = foot d : a b c;
+    f = on_angle_bisect f : b a c
+    ? eqangle o a a f f a a d
+}
+
+problem 110-80 {
+    a b c = triangle a b c;
+    u = on_angle_bisect u : b a c, on_line u : b c;
+    u1 = on_line_perp u1 : a a u, on_line u1 : b c;
+    t = on_tangent t : a b c, on_line t : b c
+    ? cong u t t u1
+}
+
+problem 110-81 {
+    a u v = riso_triangle a u v;
+    b = on_line b : u v;
+    c = on_line_at_angle c : a u u a b, on_line c : u v;
+    o = midpoint o : b c;
+    p q = on_circle p : o b, on_line p : a b, on_circle q : o b, on_line q : a c
+    ? cong c p c q
+}
+
+# Incenter necessary to solve problem
+problem 110-82 {
+    a b c = triangle a b c;
+    d = on_angle_bisect d : a b c;
+    e = on_angle_bisect e : a c b;
+    f = on_line_perp f : b b d;
+    x y z = foot x : a b d, foot y : a c e, foot z : a b f;
+    i = incenter i : a b c
+    ? coll x y z
+}
+
+problem 110-83 {
+    a b c = triangle a b c;
+    d e f = foot d : a b c, foot e : b c a, foot f : c a b;
+    b1 = mirror b1 : b f
+    ? eqangle a c c b1 d e a b
+}
+
+problem 110-84 {
+    a b c = triangle a b c;
+    d e f = midpoint d : b c, midpoint e : c a, midpoint f : a b;
+    n = circumcenter n : d e f;
+    j k = lc_tangent j : d n, on_line j : a b, lc_tangent k : d n, on_line k : a c
+    ? cyclic b c j k
+}
+
+problem 110-85 {
+    a b c = triangle a b c;
+    o = circumcenter o : a b c;
+    u = on_angle_bisect u : b a c, on_line u : b c;
+    i = on_line_bisect i : a u, on_line i : a o
+    ? perp i u b c
+}
+
+problem 110-86 {
+    a b c = triangle a b c;
+    a1 b1 c1 = midpoint a1 : b c, midpoint b1 : c a, midpoint c1 : a b;
+    a2 = on_line a2 : b1 c1, on_angle_bisect a2 : a b c
+    ? perp a a2 b a2
+}
+
+problem 110-87 {
+    a b c = triangle a b c;
+    a1 b1 c1 = midpoint a1 : b c, midpoint b1 : c a, midpoint c1 : a b;
+    a2 = on_line a2 : b1 c1, on_angle_bisect a2 : a b c;
+    c2 = on_line c2 : a1 b1, on_angle_bisect c2 : a b c
+    ? cong b1 a2 b1 c2
+}
+
+problem 110-88 {
+    x o y = triangle x o y;
+    l = free l;
+    p q = reflect p : l o x, reflect q : l o y;
+    p1 q1 = intersection_ll p1 : l q o x, intersection_ll q1 : l p o y
+    ? cyclic p q p1 q1
+}
+
+problem 110-89 {
+    a b c = triangle a b c;
+    i = incenter i : a b c;
+    a1 p q = midpoint a1 : b c, midpoint p : i b, midpoint q : i c;
+    n = circumcenter n : a1 p q
+    ? para a1 n a i
+}
+
+problem 110-90 {
+    a b c d = cyclic_quad a b c d;
+    a1 = on_line_perp a1 : d b c, on_circum a1 : a b c;
+    b1 = on_line_perp b1 : d a c, on_circum b1 : a b c;
+    c1 = on_line_perp c1 : d a b, on_circum c1 : a b c
+    ? contri a b c a1 b1 c1
+}
+
+problem 110-91 {
+    a b c = triangle a b c;
+    p p1 = on_circum p : a b c, on_circum p1 : a b c;
+    f g = foot f : p a c, foot g : p a b;
+    f1 g1 = foot f1 : p1 a c, foot g1 : p1 a b;
+    k = on_line_perp k : p f1 g1, on_line_perp k : p1 f g
+    ? cyclic k a b c
+}
+
+problem 110-92 {
+    a b c = triangle a b c;
+    p p1 = on_circum p : a b c, on_circum p1 : a b c;
+    f g = foot f : p a c, foot g : p a b;
+    f1 g1 = foot f1 : p1 a c, foot g1 : p1 a b;
+    k = on_line_para k : p f1 g1, on_line_para k : p1 f g
+    ? cyclic k a b c
+}
+
+problem 110-93 {
+    a b c = triangle a b c;
+    p = on_circum p : a b c;
+    p1 = on_circum p1 : a b c, on_line_perp p1 : a a p;
+    f g = foot f : p a c, foot g : p a b;
+    f1 g1 = foot f1 : p1 a c, foot g1 : p1 a b
+    ? perp f g f1 g1
+}
+
+problem 110-94 {
+    a b c d = cyclic_quad a b c d;
+    p = on_circum p : a b c;
+    w x y z = foot w : p a b, foot x : p b c, foot y : p c d, foot z : p d a;
+    k = intersection_ll k : w x y z
+    ? cyclic p x y k
+}
+
+# Note: The produced solution to this problem is not coherent
+problem 110-95 {
+    a b c = triangle a b c;
+    o = circumcenter o : a b c;
+    m = midpoint m : b c;
+    p = intersection_lc p : m o a;
+    q = intersection_cc q : a b c o m
+    ? para p q b c
+}
+
+problem 110-96 {
+    a b c = triangle a b c;
+    a1 = midpoint a1 : b c;
+    s = on_line_at_angle s : a c b a a1, on_line s : b c;
+    n = on_line n : a a1;
+    f g = foot f : n a b, foot g : n a c
+    ? perp f g a s
+}
+
+problem 110-97 {
+    a b c = triangle a b c;
+    a1 = midpoint a1 : b c;
+    q = on_line_at_angle q : a c b a a1, on_circum q : a b c;
+    d g = foot d : q b c, foot g : q a b
+    ? perp d g a a1
+}
+
+problem 110-98 {
+    a b c d = cyclic_quad a b c d;
+    e = on_line_at_angle e : a c b a d, on_circum e : a b c
+    ? para d e b c
+}
+
+problem 110-99 {
+    a b c = triangle a b c;
+    a1 = free a1;
+    q = on_line_at_angle q : a c b a a1;
+    r s = foot r : a1 a b, foot s : a1 a c
+    ? perp r s a q
+}
+
+problem 110-100 {
+    a b c = equi_triangle a b c;
+    m = mirror m : a b;
+    d = mirror d : b m;
+    f = foot f : d b c
+    ? perp a c a f
+}
+
+problem 110-101 {
+    a b c = triangle a b c;
+    o = circumcenter o : a b c;
+    e = lc_tangent e : a o, lc_tangent e : c o;
+    d = on_line d : a b, on_line_bisect d : b c
+    ? cyclic o d a e
+}
+
+problem 110-102 {
+    a b c = triangle a b c;
+    i = incenter i : a b c;
+    a1 = on_circum a1 : a b c, on_line a1 : a i;
+    b1 = on_circum b1 : a b c, on_line b1 : b i
+    ? perp a1 b1 c i
+}
+
+problem 110-103 {
+    a b c = triangle a b c;
+    i = incenter i : a b c;
+    a1 = on_circum a1 : a b c, on_line a1 : a i;
+    b1 = on_circum b1 : a b c, on_line b1 : b i;
+    c1 = on_circum c1 : a b c, on_line c1 : c i;
+    a2 = intersection_ll a2 : b1 c1 a i;
+    b2 = intersection_ll b2 : a1 c1 b i
+    ? para a b a2 b2
+}
+
+problem 110-104 {
+    a b g = r_triangle g a b;
+    e = midpoint e : a b;
+    c = lc_tangent c : g e;
+    d = lc_tangent d : g e, on_line_para d : a b c;
+    x = intersection_ll x : a b c d;
+    f = midpoint f : c d;
+    h = foot h : f a b
+    ? perp c h h d
+}
+
+problem 110-107 {
+    a b c d = cyclic_quad a b c d;
+    u v = orthocenter u : a b d, orthocenter v : a c d
+    ? cong b c u v
+}
+
+problem 110-108 {
+    a b d = r_triangle d a b;
+    c = on_circum c : a b d, on_angle_bisect c : b a d;
+    p = on_circum p : a b d;
+    e f = intersection_ll e : b p a c, intersection_ll f : c p a d
+    ? perp a d e f
+}
+
+# Miquel point required
+problem 110-109 {
+    a b c = triangle a b c;
+    d e = on_line d : b c, on_line e : a c;
+    f = intersection_ll f : a b d e;
+    o1 = circumcenter o1 : a b c;
+    o2 = circumcenter o2 : e d c;
+    o3 = circumcenter o3 : b d f;
+    o4 = circumcenter o4 : a e f;
+    m = intersection_cc m : a b c e f
+    ? cyclic o1 o2 o3 o4
+}
+
+problem 110-110 {
+    a b c = triangle a b c;
+    d e = on_line d : b c, on_line e : a c;
+    f = intersection_ll f : a b d e;
+    o1 = circumcenter o1 : a b c;
+    o2 = circumcenter o2 : e d c;
+    o3 = circumcenter o3 : b d f;
+    o4 = circumcenter o4 : a e f;
+    m = intersection_cc m : a b c e f
+    ? cyclic o1 o2 o3 m
+}

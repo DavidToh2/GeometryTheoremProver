@@ -31,7 +31,7 @@ A B C O : circle O A B C => cong O A O B
 A B C D : cyclic A B C D, eqangle A D D B C B B D => cong A B C D
 
 #midpoint_theorem
-A B C E F : midp E A B, midp F A C, diff B C E F => para E F B C
+A B C E F : midp E A B, midp F A C, diff B C E F, ncoll A B C => para E F B C
 
 #midp_midp_parallelogram (necessary as midp, cong and eqratio have separate matching rules)
 A B C D M : midp M A B, midp M C D, diff A B C D => para A C B D
@@ -39,6 +39,12 @@ A B C D M : midp M A B, midp M C D, diff A B C D => para A D B C
 
 #midp_parallelogram_midp (necessary as midp, cong and eqratio have separate matching rules)
 A B C D M : midp M A B, para A C B D, para A D B C, diff A B C D => midp M C D
+
+#angle_bisector_theorem
+A B C D : eqratio D B D C A B A C, coll D B C, ncoll A B C => eqangle A B A D A D A C
+
+#angle_bisector_theorem_2
+A B C D : eqangle A B A D A D A C, coll D B C, ncoll A B C => eqratio D B D C A B A C
 
 #parallelogram_cong
 A B C D : para A B C D, para B C D A, diff A B C D => cong A B C D
@@ -49,7 +55,7 @@ A B O : eqangle A O A B B A B O, ncoll O A B => cong O A O B
 
 #isosceles_perpbisect_eqangle
 A B M O : midp M A B, perp O M A B => cong O A O B
-A B M O : cong O A O B, perp O M A B, coll M A B => midp M A B
+A B M O : cong O A O B, ncoll O A B, perp O M A B, coll M A B => midp M A B
 
 #kite_diagonals_perpbisect
 A B P Q : cong A P B P, cong A Q B Q, diff P Q => perp A B P Q
@@ -73,7 +79,7 @@ A B C D : cyclic A B C D, para A B C D => eqangle A D C D C D C B
 #A B C M O : circle O A B C, midp M B C, ncoll O B C => eqangle A B A C O B O M
 
 #circumcenter_angle_2
-#A B C M O : circle O A B C, coll M B C, eqangle A B A C O B O M => midp M B C
+#A B C M O : circle O A B C, coll M B C, diff O M, eqangle A B A C O B O M => midp M B C
 
 #orthocenter
 A B C H : perp A B C H, perp B C A H, diff A B C H => perp C A B H
@@ -89,7 +95,7 @@ A B C P Q R : cong A B P Q, cong B C Q R, sameclock A B C P Q R, eqangle B A B C
 A B C P Q R : cong A B P Q, cong B C Q R, diffclock A B C P Q R, eqangle B A B C Q R Q P, ncoll A B C => contri A B C P Q R
 
 #SAS (contri, para version)
-A B C P Q R : cong A B P Q, cong B C Q R, para A B P Q, para B C Q R, ncoll A B C => contri A B C P Q R
+A B C P Q R : cong A B P Q, cong B C Q R, para A B P Q, para B C Q R, sameclock A B C P Q R, ncoll A B C => contri A B C P Q R
 
 #ASA (contri)
 A B C P Q R : cong A B P Q, eqangle B A B C Q P Q R, sameclock A B C P Q R, eqangle C A C B R P R Q, ncoll A B C => contri A B C P Q R
@@ -106,7 +112,7 @@ A B C P Q R : eqratio B A B C Q P Q R, sameclock A B C P Q R, eqangle B A B C Q 
 A B C P Q R : eqratio B A B C Q P Q R, diffclock A B C P Q R, eqangle B A B C Q R Q P, ncoll A B C => simtri A B C P Q R
 
 #SAS (simtri, para version)
-A B C P Q R : eqratio B A B C Q P Q R, para B A Q P, para B C Q R, ncoll A B C => simtri A B C P Q R
+A B C P Q R : eqratio B A B C Q P Q R, para B A Q P, para B C Q R, sameclock A B C P Q R, ncoll A B C => simtri A B C P Q R
 
 #AAA (simtri)
 A B C P Q R : eqangle B A B C Q P Q R, sameclock A B C P Q R, eqangle C A C B R P R Q, ncoll A B C => simtri A B C P Q R
@@ -117,6 +123,10 @@ A B C P Q R : para A B P Q, para B C Q R, para A C P R, ncoll A B C => simtri A 
 A B C P Q R : para A B R Q, para B C Q P, eqangle B A A C R P P Q, ncoll A B C => simtri A B C P Q R
 
 #ratio_theorem
-A B C D O : coll O A C, coll O B D, eqratio O A A C O B B D, ncoll A B C => simtri O A B O C D
-A B C D O : coll O A C, coll O B D, eqangle O A A C O B B D, ncoll A B C => simtri O A B O C D
+A B C D O : coll O A C, coll O B D, ncoll A B C, diffside_p A O C, diffside_p B O D, eqratio O A A C O B B D => simtri O A B O C D
+A B C D O : coll O A C, coll O B D, ncoll A B C, diffside_p O A C, diffside_p O B D, eqratio O A O C O B O D => simtri O A B O C D
 A B C D O : para A B C D, coll O A C, coll O B D, ncoll A B C => simtri O A B O C D
+
+#ratio_theorem (generalised)
+A B C P Q R : coll A B C, coll P Q R, ncoll A B P Q, para A P C R, eqratio A B B C P Q Q R => para A P B Q
+A B C P Q R : coll A B C, coll P Q R, ncoll A B P Q, para A P C R, cong A B B C, cong P Q Q R => para A P B Q

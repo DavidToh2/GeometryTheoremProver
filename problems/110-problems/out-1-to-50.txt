@@ -1,0 +1,1638 @@
+=======================================
+Problem: 110-1
+
+    a b c = triangle a b c;
+    d = foot d : c a b;
+    e = foot e : b a c;
+    f = midpoint f : b c;
+    g = midpoint g : d e
+    ? perp f g d e
+
+---------------------------------------
+    f = (-0.056350, -0.555936)    g = (-0.269733, 0.236041)    a = (-0.307808, 0.516795)
+    d = (-0.480473, 0.179261)    e = (-0.058994, 0.292820)    c = (0.788011, -0.469629)
+    b = (-0.900711, -0.642243)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] dc ⊥ ab && d, a, b collinear => cd ⊥ db
+[   3 | gr ] f midpoint of bc => f midpoint of cb
+[   3 | gr ] e, a, c collinear && eb ⊥ ac => be ⊥ ec
+[   4 | dd ] cd ⊥ db && f midpoint of cb => cf = df
+[   4 | dd ] f midpoint of bc && be ⊥ ec => bf = ef
+[   6 | ar ] f midpoint of bc && cf = df && bf = ef => df = ef
+[   7 | gr ] diff f g
+[   7 | gr ] g midpoint of de => dg = eg
+[   8 | dd ] df = ef && diff f g && dg = eg => de ⊥ fg
+[ 511 | dd ] g midpoint of de && de ⊥ fg => fg ⊥ de
+=======================================
+Problem: 110-2
+
+    a b c = triangle a b c;
+    d = midpoint d : b c;
+    e = midpoint e : a c;
+    f = midpoint f : a b;
+    o = circumcenter o : a b c
+    ? perp o d e f
+
+---------------------------------------
+    a = (0.051528, -0.682473)    b = (-0.927127, 0.123670)    o = (-0.101341, 0.129059)
+    c = (0.429450, 0.761682)    d = (-0.248838, 0.442676)    e = (0.240489, 0.039605)
+    f = (-0.437799, -0.279401)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] oa = ob && ob = oc => co = bo
+[   3 | gr ] diff c b e f
+[   3 | gr ] ncoll a c b
+[   3 | gr ] d midpoint of bc => cd = bd
+[   3 | gr ] diff d o
+[   4 | dd ] diff c b e f && f midpoint of ab && e midpoint of ac && ncoll a c b => ef ∥ cb
+[   4 | dd ] co = bo && cd = bd && diff d o => cb ⊥ do
+[ 511 | dd ] ef ∥ cb && cb ⊥ do => od ⊥ ef
+=======================================
+Problem: 110-3
+
+    a b c = triangle a b c;
+    d e f h = orthocenter2 d e f h : a b c;
+    p = midpoint p : b e;
+    q = midpoint q : c f;
+    a1 = midpoint a1 : b c
+    ? cyclic p q h d
+
+---------------------------------------
+    c = (-0.281612, -0.782317)    q = (-0.276911, -0.525958)    a = (-0.959677, -0.256990)
+    b = (0.473325, -0.283271)    a1 = (0.095857, -0.532794)    d = (-0.511818, -0.934493)
+    p = (0.210935, -0.621950)    e = (-0.051456, -0.960630)    f = (-0.272209, -0.269598)
+    h = (-0.290542, -1.269230)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] a1 midpoint of bc => a1 midpoint of cb
+[   3 | gr ] diff f b q a1
+[   3 | gr ] ncoll c f b
+[   4 | dd ] a1 midpoint of cb && diff f b q a1 && ncoll c f b && q midpoint of cf => qa1 ∥ fb
+[   6 | ar ] cf ⊥ ab && ad ⊥ bc => ∠(cb, qa1) = ∠(ad, cq)
+[   7 | gr ] a1 midpoint of bc && c, h, f collinear && b, d, c collinear && a, h, d collinear && q midpoint of cf && qa1 ∥ fb && ∠(cb, qa1) = ∠(ad, cq) => ∠da1q = ∠dhq
+[   7 | gr ] diff d q a1 h
+[   8 | dd ] ∠da1q = ∠dhq && diff d q a1 h => d, q, a1, h cyclic
+[ 511 | dd ] d, q, a1, h cyclic => p, q, h, d cyclic
+=======================================
+Problem: 110-4
+
+    a b c d = cyclic_quad a b c d;
+    o = circumcenter o : a b c;
+    q = midpoint q : b c;
+    s = midpoint s : a d;
+    j = midpoint j : q s;
+    m = mirror m : o j
+    ? perp s m b c
+
+---------------------------------------
+    s = (0.098683, -0.601475)    o = (0.645381, -0.128263)    q = (1.343789, -0.969892)
+    b = (1.104384, -1.168557)    j = (0.721236, -0.785683)    c = (1.583193, -0.771228)
+    d = (-0.475637, 0.062033)    a = (0.673004, -1.264983)    m = (0.797091, -1.443104)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] q midpoint of bc => cq = bq
+[   3 | gr ] m, o, j collinear && jo = jm => j midpoint of mo
+[   3 | gr ] j midpoint of qs => j midpoint of sq
+[   3 | gr ] diff m o s q
+[   3 | gr ] oa = ob && ob = oc => co = bo
+[   3 | gr ] diff q o
+[   4 | dd ] cq = bq && co = bo && diff q o => cb ⊥ qo
+[   4 | dd ] j midpoint of mo && j midpoint of sq && diff m o s q => ms ∥ oq
+[ 511 | dd ] cb ⊥ qo && q midpoint of bc && ms ∥ oq => sm ⊥ bc
+=======================================
+Problem: 110-5
+
+    a b c = triangle a b c;
+    h = orthocenter h : a b c;
+    o = circumcenter o : a b c;
+    p = circumcenter p : a c h;
+    q = circumcenter q : a b h
+    ? para p q b c
+
+---------------------------------------
+    b = (-0.354460, 0.632746)    a = (-0.651710, -0.640162)    q = (-0.843535, 0.075794)
+    o = (-0.162635, -0.083210)    p = (-0.051205, -0.205670)    c = (0.437870, 0.351282)
+    h = (-0.243030, 0.510286)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] diff q p
+[   3 | gr ] pc = ph && pa = pc => ap = hp
+[   3 | gr ] qb = qh && qa = qb => aq = hq
+[   4 | dd ] diff q p && ap = hp && aq = hq => ah ⊥ qp
+[ 511 | dd ] ah ⊥ qp && ha ⊥ bc => pq ∥ bc
+=======================================
+Problem: 110-6
+
+    a b c = triangle a b c;
+    d = foot d : a b c;
+    e = foot e : b a c;
+    h = intersection_ll h : a d b e
+    ? perp c h a b
+
+---------------------------------------
+    a = (-0.559556, -0.873705)    h = (5.751784, -0.614382)    d = (-0.189347, -0.858494)
+    e = (-0.348543, 0.397910)    b = (-0.240233, 0.379937)    c = (-0.262321, 0.917510)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] da ⊥ bc && h, a, d collinear => cb ⊥ ah
+[   3 | gr ] diff a c b h
+[   3 | gr ] eb ⊥ ac && h, b, e collinear => ac ⊥ bh
+[   4 | dd ] cb ⊥ ah && diff a c b h && ac ⊥ bh => ba ⊥ ch
+[ 511 | dd ] ba ⊥ ch => ch ⊥ ab
+=======================================
+Problem: 110-7
+
+    a b c = triangle a b c;
+    d = on_circum d : a b c;
+    e = foot e : d a b;
+    f = foot f : d b c;
+    g = foot g : d c a
+    ? coll e f g
+
+---------------------------------------
+    g = (-0.679169, -0.026291)    a = (-0.373130, -0.043136)    f = (-0.351222, -0.116001)
+    d = (-0.772953, -1.730091)    e = (-0.043776, -0.200103)    b = (-0.061296, -0.191753)
+    c = (-0.698679, -0.025217)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] diff g e
+[   3 | gr ] a, b, c, d cyclic => a, d, b, c cyclic
+[   3 | gr ] diff e f
+[   3 | gr ] f, b, c collinear && fd ⊥ bc => cf ⊥ fd
+[   3 | gr ] gd ⊥ ca && g, c, a collinear => cg ⊥ gd
+[   3 | gr ] diff f g
+[   3 | gr ] ed ⊥ ab && e, a, b collinear => be ⊥ ed
+[   3 | gr ] f, b, c collinear && fd ⊥ bc => bf ⊥ fd
+[   4 | dd ] a, d, b, c cyclic => ∠abd = ∠acd
+[   4 | dd ] cf ⊥ fd && cg ⊥ gd && diff f g => c, f, d, g cyclic
+[   4 | dd ] diff e f && be ⊥ ed && bf ⊥ fd => b, e, d, f cyclic
+[   7 | gr ] b, e, d, f cyclic => f, d, e, b cyclic
+[   7 | gr ] c, f, d, g cyclic => g, d, f, c cyclic
+[   8 | dd ] f, d, e, b cyclic => ∠fed = ∠fbd
+[   8 | dd ] g, d, f, c cyclic => ∠gfd = ∠gcd
+[  10 | ar ] ∠abd = ∠acd && ∠fed = ∠fbd && ed ⊥ ab && fd ⊥ bc && ∠gfd = ∠gcd => fe ∥ gf
+[  11 | gr ] fe ∥ gf => fg ∥ fe
+[  11 | dd ] diff g e && fg ∥ fe => f, g, e collinear
+[ 511 | dd ] f, g, e collinear => e, f, g collinear
+=======================================
+Problem: 110-8
+
+    a b c = triangle a b c;
+    p = on_circum p : a b c;
+    p1 = on_circum p1 : a b c;
+    f = foot f : p a b;
+    g = foot g : p b c;
+    f1 = foot f1 : p1 a b;
+    g1 = foot g1 : p1 b c;
+    k = intersection_ll k : f g f1 g1
+    ? eqangle p a a p1 f1 k k f
+
+---------------------------------------
+    g1 = (0.781503, -0.865847)    c = (0.891796, -0.993419)    b = (-0.465186, 0.576154)
+    k = (1.862331, 0.204241)    a = (0.873936, -0.575213)    p = (-1.251814, 0.375631)
+    f = (-0.818339, 0.879793)    g = (-0.702448, 0.850588)    f1 = (0.981577, -0.667761)
+    p1 = (0.897457, -0.765599)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] a, b, c, p cyclic && a, b, c, p1 cyclic => p, p1, c, b cyclic
+[   3 | gr ] diff f g
+[   3 | gr ] gp ⊥ bc && g, b, c collinear => bg ⊥ gp
+[   3 | gr ] f, a, b collinear && fp ⊥ ab => bf ⊥ fp
+[   3 | gr ] g1, b, c collinear && g1p1 ⊥ bc => p1g1 ⊥ g1b
+[   3 | gr ] f1, a, b collinear && f1p1 ⊥ ab => p1f1 ⊥ f1b
+[   3 | gr ] diff g1 f1
+[   3 | gr ] a, b, c, p cyclic && a, b, c, p1 cyclic => p, p1, c, a cyclic
+[   4 | dd ] p, p1, c, b cyclic => ∠pcp1 = ∠pbp1
+[   4 | dd ] diff f g && bg ⊥ gp && bf ⊥ fp => b, f, p, g cyclic
+[   4 | dd ] p1g1 ⊥ g1b && p1f1 ⊥ f1b && diff g1 f1 => p1, g1, b, f1 cyclic
+[   4 | dd ] p, p1, c, a cyclic => ∠pcp1 = ∠pap1
+[   7 | gr ] p1, g1, b, f1 cyclic => g1, b, f1, p1 cyclic
+[   8 | dd ] b, f, p, g cyclic => ∠bpf = ∠bgf
+[   8 | dd ] g1, b, f1, p1 cyclic => ∠g1f1b = ∠g1p1b
+[  10 | ar ] f1p1 ⊥ ab && ∠bpf = ∠bgf && g1p1 ⊥ bc && ∠g1f1b = ∠g1p1b => ∠g1kf = ∠pbp1
+[ 511 | dd ] ∠pcp1 = ∠pbp1 && ∠g1kf = ∠pbp1 && ∠pcp1 = ∠pap1 => ∠pap1 = ∠f1kf
+=======================================
+Problem: 110-9
+
+    a b c d = cyclic_quad a b c d;
+    p p1 = on_circum p : a b c, on_circum p1 : a b c;
+    f g h = foot f : p a b, foot g : p a c, foot h : p a d;
+    f1 g1 h1 = foot f1 : p1 a b, foot g1 : p1 a c, foot h1 : p1 a d
+    ? eqangle f g g h f1 g1 g1 h1
+
+---------------------------------------
+    f1 = (-2.229770, -0.312004)    g1 = (-1.235717, -1.383113)    p1 = (-1.331404, -1.375033)
+    c = (-1.241789, -1.455024)    d = (0.744797, 0.097097)    a = (-1.061930, 0.674938)
+    b = (-1.430878, 0.363140)    h = (1.015694, 0.010456)    f = (-0.493820, 1.155048)
+    p = (0.866829, -0.454996)    h1 = (-0.711601, 0.562893)    g = (-1.143013, -0.285280)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] a, b, c, p1 cyclic => p1, a, c, b cyclic
+[   3 | gr ] g, a, c collinear && gp ⊥ ac => pg ⊥ ga
+[   3 | gr ] fp ⊥ ab && f, a, b collinear => pf ⊥ fa
+[   3 | gr ] diff g f
+[   3 | gr ] hp ⊥ ad && h, a, d collinear => ph ⊥ ha
+[   3 | gr ] diff g h
+[   3 | gr ] a, b, c, p1 cyclic && a, b, c, d cyclic => p1, c, d, a cyclic
+[   3 | gr ] a, b, c, p1 cyclic && a, b, c, d cyclic => p1, d, c, a cyclic
+[   3 | gr ] a, b, c, p1 cyclic && a, b, c, d cyclic => b, d, p1, c cyclic
+[   3 | gr ] a, b, c, p1 cyclic && a, b, c, d cyclic => b, d, p1, a cyclic
+[   3 | gr ] a, b, c, p1 cyclic && a, b, c, d cyclic => p1, c, d, b cyclic
+[   3 | gr ] g1p1 ⊥ ac && g1, a, c collinear => p1g1 ⊥ g1a
+[   3 | gr ] h1, a, d collinear && h1p1 ⊥ ad => p1h1 ⊥ h1a
+[   3 | gr ] diff g1 h1
+[   3 | gr ] f1p1 ⊥ ab && f1, a, b collinear => p1f1 ⊥ f1a
+[   3 | gr ] diff g1 f1
+[   4 | dd ] p1, a, c, b cyclic => ∠p1ca = ∠p1ba
+[   4 | dd ] pg ⊥ ga && pf ⊥ fa && diff g f => p, g, a, f cyclic
+[   4 | dd ] pg ⊥ ga && ph ⊥ ha && diff g h => p, g, a, h cyclic
+[   4 | dd ] p1, c, d, a cyclic => ∠p1dc = ∠p1ac
+[   4 | dd ] p1, d, c, a cyclic => ∠p1cd = ∠p1ad
+[   4 | dd ] b, d, p1, c cyclic => ∠bp1d = ∠bcd
+[   4 | dd ] b, d, p1, a cyclic => ∠bp1d = ∠bad
+[   4 | dd ] p1, c, d, b cyclic => ∠p1dc = ∠p1bc
+[   4 | dd ] p1g1 ⊥ g1a && p1h1 ⊥ h1a && diff g1 h1 => p1, g1, a, h1 cyclic
+[   4 | dd ] p1g1 ⊥ g1a && p1f1 ⊥ f1a && diff g1 f1 => p1, g1, a, f1 cyclic
+[   6 | ar ] ∠p1ca = ∠p1ba && fp ⊥ ab && ∠p1dc = ∠p1ac && ∠p1cd = ∠p1ad && h1p1 ⊥ ad && ∠p1dc = ∠p1bc => ∠(fp, p1h1) = ∠bcd
+[   7 | gr ] p, g, a, f cyclic && p, g, a, h cyclic => f, h, a, g cyclic
+[   7 | gr ] p1, g1, a, h1 cyclic && p1, g1, a, f1 cyclic => f1, h1, g1, p1 cyclic
+[   8 | dd ] f, h, a, g cyclic => ∠fah = ∠fgh
+[   8 | dd ] f1, h1, g1, p1 cyclic => ∠f1g1h1 = ∠f1p1h1
+[ 511 | dd ] ∠fah = ∠fgh && ∠bp1d = ∠bcd && ∠(fp, p1h1) = ∠bcd && ∠bp1d = ∠bad && ∠f1g1h1 = ∠f1p1h1 => ∠fgh = ∠f1g1h1
+=======================================
+Problem: 110-10
+
+    a b c d = quadrilateral a b c d;
+    e = intersection_ll e : a c b d;
+    p = intersection_ll p : a b c d;
+    q = intersection_cc q : e a b c d
+    ? cyclic a q c p
+
+---------------------------------------
+    e = (-0.803855, 0.173854)    p = (22.189561, -35.171275)    q = (-0.826203, 0.198879)
+    c = (0.731621, -0.570381)    a = (-1.359680, 0.443259)    d = (-1.221582, 2.579157)
+    b = (-0.669321, -0.600800)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] e, q, c, d cyclic => q, d, e, c cyclic
+[   3 | gr ] e, q, a, b cyclic => q, b, e, a cyclic
+[   4 | dd ] q, d, e, c cyclic => ∠qed = ∠qcd
+[   4 | dd ] q, b, e, a cyclic => ∠qeb = ∠qab
+[   7 | gr ] diff q p a c
+[   7 | gr ] ∠qed = ∠qcd && ∠qeb = ∠qab => ∠qap = ∠qcp
+[   8 | dd ] diff q p a c && ∠qap = ∠qcp => q, p, a, c cyclic
+[ 511 | dd ] q, p, a, c cyclic => a, q, c, p cyclic
+=======================================
+Problem: 110-11
+
+    a b c = triangle a b c;
+    l m n = midpoint l : a b, midpoint m : b c, midpoint n : c a;
+    d = foot d : a b c
+    ? cyclic l m n d
+
+---------------------------------------
+    l = (-0.578600, -0.461206)    m = (-0.365035, -0.144479)    n = (-0.163194, -0.465892)
+    b = (-0.780442, -0.139794)    c = (0.050372, -0.149165)    d = (-0.369560, -0.144428)
+    a = (-0.376759, -0.782619)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] d, b, c collinear && m midpoint of bc && da ⊥ bc => ad ⊥ dc
+[   3 | gr ] n midpoint of ca => n midpoint of ac
+[   3 | gr ] diff c a m l
+[   3 | gr ] ncoll b c a
+[   3 | gr ] diff b c l n
+[   3 | gr ] l midpoint of ab => l midpoint of ba
+[   4 | dd ] ad ⊥ dc && n midpoint of ac => an = dn
+[   4 | dd ] n midpoint of ac && ncoll a b c && l midpoint of ab && diff b c l n => ln ∥ bc
+[   4 | dd ] m midpoint of bc && diff c a m l && ncoll b c a && l midpoint of ba => ml ∥ ca
+[   7 | gr ] n midpoint of ca && an = dn => nd = nc
+[   7 | gr ] ncoll n d c
+[   8 | dd ] nd = nc && ncoll n d c => ∠ndc = ∠dcn
+[  11 | gr ] d, b, c collinear && ln ∥ bc && ∠ndc = ∠dcn && ml ∥ ca => ∠dnl = ∠dml
+[  11 | gr ] diff d l n m
+[  12 | dd ] ∠dnl = ∠dml && diff d l n m => d, l, n, m cyclic
+[ 511 | dd ] d, l, n, m cyclic => l, m, n, d cyclic
+=======================================
+Problem: 110-12
+
+    a b c = triangle a b c;
+    d = on_circum d : a b c, on_line_perp d : b a c;
+    e = intersection_ll e : a c b d;
+    f = midpoint f : a b
+    ? perp e f c d
+
+---------------------------------------
+    e = (0.499606, 0.366625)    f = (-0.202898, 0.378102)    a = (0.231608, 0.930233)
+    b = (-0.637404, -0.174029)    c = (0.888241, -0.450686)    d = (0.904741, 0.559268)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] e, b, d collinear && db ⊥ ac && e, a, c collinear => ae ⊥ eb
+[   3 | gr ] a, b, c, d cyclic => a, c, b, d cyclic
+[   4 | dd ] f midpoint of ab && ae ⊥ eb => af = ef
+[   4 | dd ] a, c, b, d cyclic => ∠abc = ∠adc
+[   4 | dd ] a, b, c, d cyclic => ∠acb = ∠adb
+[   7 | gr ] f midpoint of ab && af = ef => fe = fb
+[   7 | gr ] ncoll f e b
+[   8 | dd ] fe = fb && ncoll f e b => ∠feb = ∠ebf
+[  10 | ar ] db ⊥ ac && ∠abc = ∠adc && ∠feb = ∠ebf && ∠acb = ∠adb => cd ⊥ ef
+[ 511 | dd ] cd ⊥ ef => ef ⊥ cd
+=======================================
+Problem: 110-13
+
+    a b c = triangle a b c;
+    d = parallelogram d : a b c;
+    w y = foot w : a b d, foot y : c b d;
+    x z = foot x : b a c, foot z : d a c
+    ? para w x y z
+
+---------------------------------------
+    z = (-0.939288, -0.014231)    d = (-0.890378, 0.150778)    w = (0.174873, -0.487788)
+    y = (-0.770941, 0.079181)    a = (0.247819, -0.366098)    b = (0.294310, -0.559384)
+    c = (-0.843888, -0.042508)    x = (0.343219, -0.394376)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] z, a, c collinear && zd ⊥ ac => dz ⊥ zc
+[   3 | gr ] yc ⊥ bd && y, b, d collinear => dy ⊥ yc
+[   3 | gr ] diff z y
+[   3 | gr ] xb ⊥ ac && x, a, c collinear => bx ⊥ xa
+[   3 | gr ] w, b, d collinear && wa ⊥ bd => bw ⊥ wa
+[   3 | gr ] diff x w
+[   4 | dd ] dz ⊥ zc && dy ⊥ yc && diff z y => d, z, c, y cyclic
+[   4 | dd ] bx ⊥ xa && bw ⊥ wa && diff x w => b, x, a, w cyclic
+[   7 | gr ] d, z, c, y cyclic => z, d, y, c cyclic
+[   7 | gr ] b, x, a, w cyclic => w, a, b, x cyclic
+[   8 | dd ] z, d, y, c cyclic => ∠zyd = ∠zcd
+[   8 | dd ] w, a, b, x cyclic => ∠wba = ∠wxa
+[  10 | ar ] ∠zyd = ∠zcd && ∠wba = ∠wxa => wx ∥ zy
+[ 511 | dd ] wx ∥ zy => wx ∥ yz
+=======================================
+Problem: 110-14
+
+    e p q = r_triangle e p q;
+    f = reflect f : e p q;
+    a = on_circle a : p e;
+    c = intersection_lc c : a q e;
+    d = intersection_lc d : a q f
+    ? midp q c d
+
+---------------------------------------
+    q = (-0.279033, 0.658259)    f = (0.496407, -0.490836)    c = (-1.068363, -0.481340)
+    d = (0.510296, 1.797858)    e = (-0.917094, -0.572433)    p = (-0.186111, -0.951417)
+    a = (0.490767, -1.420248)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] pa = pe => pe = pa
+[   3 | gr ] qe = qc => qc = qe
+[   3 | gr ] ncoll p e a
+[   3 | gr ] pe = pf => pf = pe
+[   3 | gr ] ncoll p f e
+[   3 | gr ] ncoll q e f
+[   3 | gr ] ncoll q d f
+[   3 | gr ] pa = pe && pe = pf => pf = pa
+[   3 | gr ] ncoll p f a
+[   3 | gr ] qf = qd && qe = qf => qd = qf
+[   3 | gr ] ncoll q c e
+[   4 | dd ] pe = pa && ncoll p e a => ∠pea = ∠eap
+[   4 | dd ] pf = pe && ncoll p f e => ∠pfe = ∠fep
+[   4 | dd ] qe = qf && ncoll q e f => ∠qef = ∠efq
+[   4 | dd ] ncoll q d f && qd = qf => ∠qdf = ∠dfq
+[   4 | dd ] pf = pa && ncoll p f a => ∠pfa = ∠fap
+[   4 | dd ] qc = qe && ncoll q c e => ∠qce = ∠ceq
+[   6 | ar ] ∠pea = ∠eap && ep ⊥ eq && ∠qce = ∠ceq => pa ⊥ qc
+[   6 | ar ] ep ⊥ eq && ∠pfe = ∠fep && ∠qef = ∠efq && ∠qdf = ∠dfq && ∠pfa = ∠fap => pa ⊥ qd
+[   7 | dd ] qd ∥ qc && diff d c => q, d, c collinear
+[   7 | gr ] pa ⊥ qc && pa ⊥ qd => qd ∥ qc
+[   7 | gr ] diff d c
+[ 511 | dd ] qf = qd && qe = qc && qe = qf && q, d, c collinear => q midpoint of cd
+=======================================
+Problem: 110-15
+
+    a b c = triangle a b c;
+    d e f x = orthocenter2 d e f x : a b c;
+    g h = foot g : f b c, foot h : f a c;
+    i k = foot i : d a b, foot k : e a b
+    ? cyclic g h i k
+
+---------------------------------------
+    g = (-0.590368, 0.289282)    h = (-0.603232, 0.527199)    i = (-0.510489, 0.353418)
+    b = (-0.490798, 0.241363)    f = (-0.523599, 0.428020)    a = (-0.548719, 0.570969)
+    c = (-0.783679, 0.382316)    x = (-0.626192, 0.409991)    d = (-0.666622, 0.325981)
+    e = (-0.674412, 0.470048)    k = (-0.535281, 0.494497)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] hf ⊥ ac && h, a, c collinear => fh ⊥ hc
+[   3 | gr ] g, b, c collinear && gf ⊥ bc => fg ⊥ gc
+[   3 | gr ] diff h g
+[   3 | gr ] i, a, b collinear && a, f, b collinear && id ⊥ ab => di ⊥ if
+[   3 | gr ] g, b, c collinear && b, d, c collinear && gf ⊥ bc => dg ⊥ gf
+[   3 | gr ] diff i g
+[   3 | gr ] diff f e
+[   3 | gr ] cf ⊥ ab && a, f, b collinear => cf ⊥ fa
+[   3 | gr ] c, e, a collinear && be ⊥ ac => be ⊥ ec
+[   3 | gr ] cf ⊥ ab && a, f, b collinear => bf ⊥ fc
+[   3 | gr ] b, d, c collinear && ad ⊥ bc => cd ⊥ da
+[   3 | gr ] diff f d
+[   3 | gr ] c, e, a collinear && hf ⊥ ac && h, a, c collinear => fh ⊥ he
+[   3 | gr ] a, f, b collinear && k, a, b collinear && ke ⊥ ab => fk ⊥ ke
+[   3 | gr ] diff h k
+[   4 | dd ] fh ⊥ hc && fg ⊥ gc && diff h g => f, h, c, g cyclic
+[   4 | dd ] cf ⊥ fa && cd ⊥ da && diff f d => c, f, a, d cyclic
+[   4 | dd ] di ⊥ if && dg ⊥ gf && diff i g => d, i, f, g cyclic
+[   4 | dd ] diff f e && be ⊥ ec && bf ⊥ fc => b, f, c, e cyclic
+[   4 | dd ] fh ⊥ he && fk ⊥ ke && diff h k => f, h, e, k cyclic
+[   6 | ar ] cf ⊥ ab && ad ⊥ bc => ∠ibg = ∠(id, gf)
+[   7 | gr ] f, h, c, g cyclic => c, g, h, f cyclic
+[   7 | gr ] f, h, e, k cyclic => h, f, e, k cyclic
+[   7 | dd ] g, f, i, d cyclic => ∠gif = ∠gdf
+[   7 | gr ] d, i, f, g cyclic => g, f, i, d cyclic
+[   7 | dd ] f, a, c, d cyclic => ∠fca = ∠fda
+[   7 | gr ] c, f, a, d cyclic => f, a, c, d cyclic
+[   8 | dd ] b, f, c, e cyclic => ∠bcf = ∠bef
+[   8 | dd ] c, g, h, f cyclic => ∠chg = ∠cfg
+[   8 | dd ] h, f, e, k cyclic => ∠hef = ∠hkf
+[  10 | ar ] gf ⊥ bc && ∠gif = ∠gdf && ∠fca = ∠fda && be ⊥ ac && ke ⊥ ab => hf ⊥ gi
+[  10 | ar ] hf ⊥ ac && ad ⊥ bc && ∠bcf = ∠bef && ∠hef = ∠hkf && ke ⊥ ab => gf ⊥ hk
+[  11 | gr ] hf ⊥ ac && i, a, b collinear && ad ⊥ bc && ∠chg = ∠cfg && k, a, b collinear && gf ⊥ bc && ∠ibg = ∠(id, gf) && hf ⊥ gi && gf ⊥ hk => ∠igh = ∠ikh
+[  11 | gr ] diff i h g k
+[  12 | dd ] ∠igh = ∠ikh && diff i h g k => i, h, g, k cyclic
+[ 511 | dd ] i, h, g, k cyclic => g, h, i, k cyclic
+=======================================
+Problem: 110-16
+
+    a b o = triangle a b o;
+    c d = foot c : a b o, foot d : b a o;
+    m = on_line m : a b;
+    p q = foot p : m a o, foot q : m b o;
+    k t = foot k : p b o, foot t : q a o;
+    s = intersection_ll s : p k q t
+    ? perp o s p q
+
+---------------------------------------
+    k = (0.475167, -0.037002)    q = (0.656102, -0.441411)    p = (0.033104, -0.234784)
+    c = (0.587180, -0.287363)    a = (-0.122303, -0.604791)    m = (0.592650, -0.469800)
+    b = (0.662871, -0.456541)    o = (0.290002, 0.376861)    d = (0.048368, -0.198442)
+    s = (0.096556, -0.206395)    t = (0.052755, -0.187998)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] p, a, o collinear && s, q, t collinear && tq ⊥ ao => qs ⊥ po
+[   3 | gr ] q, b, o collinear && kp ⊥ bo && s, p, k collinear => sp ⊥ qo
+[   3 | gr ] diff q s p o
+[   4 | dd ] qs ⊥ po && sp ⊥ qo && diff q s p o => pq ⊥ so
+[ 511 | dd ] pq ⊥ so => os ⊥ pq
+=======================================
+Problem: 110-17
+
+    a c n k = cyclic_quad a c n k;
+    b = intersection_ll b : a k c n;
+    m = intersection_cc m : b k n a c;
+    o = circumcenter o : a c n
+    ? cyclic k o c m
+
+---------------------------------------
+    a = (-0.940011, -0.708260)    c = (-0.237605, -0.183247)    n = (-0.033589, 0.254928)
+    k = (-0.758014, 1.865891)    b = (-1.022003, -1.867937)    o = (-1.382831, 0.616557)
+    m = (-0.042969, -0.144642)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] oa = oc && oc = on => on = oc
+[   3 | gr ] ncoll o n c
+[   3 | gr ] o center of ⦿acn && a, c, n, k cyclic => o center of ⦿kna
+[   3 | gr ] b, m, a, c cyclic => a, c, b, m cyclic
+[   3 | dd ] a, n, c, k cyclic => ∠acn = ∠akn
+[   3 | gr ] a, c, n, k cyclic => a, n, c, k cyclic
+[   3 | gr ] b, m, a, c cyclic => a, b, c, m cyclic
+[   3 | gr ] b, m, k, n cyclic => n, k, b, m cyclic
+[   3 | gr ] b, m, k, n cyclic => n, b, k, m cyclic
+[   4 | dd ] o center of ⦿kna => ok = on
+[   4 | dd ] on = oc && ncoll o n c => ∠onc = ∠nco
+[   4 | dd ] a, b, c, m cyclic => ∠acb = ∠amb
+[   4 | dd ] n, k, b, m cyclic => ∠nbk = ∠nmk
+[   4 | dd ] n, b, k, m cyclic => ∠nkb = ∠nmb
+[   4 | dd ] a, c, b, m cyclic => ∠abc = ∠amc
+[   7 | gr ] ncoll o k n
+[   8 | dd ] ok = on && ncoll o k n => ∠okn = ∠kno
+[  10 | ar ] ∠onc = ∠nco && ∠acn = ∠akn && ∠acb = ∠amb && ∠nbk = ∠nmk && ∠okn = ∠kno && ∠nkb = ∠nmb && ∠abc = ∠amc => ∠kmc = ∠koc
+[  11 | gr ] ∠kmc = ∠koc => ∠koc = ∠kmc
+[  11 | gr ] diff k c o m
+[  12 | dd ] ∠koc = ∠kmc && diff k c o m => k, c, o, m cyclic
+[ 511 | dd ] k, c, o, m cyclic => k, o, c, m cyclic
+=======================================
+Problem: 110-18
+
+    a c n k = cyclic_quad a c n k;
+    b = intersection_ll b : a k c n;
+    m = intersection_cc m : b k n a c;
+    o = circumcenter o : a c n
+    ? perp b m m o
+
+---------------------------------------
+    b = (1.757550, 0.078953)    a = (1.372093, -0.303726)    m = (1.203260, 0.699603)
+    o = (-0.160722, -0.518542)    n = (0.307055, 0.956874)    k = (-0.386617, -2.049763)
+    c = (0.929490, 0.580142)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] b, m, k, n cyclic => b, n, m, k cyclic
+[   3 | gr ] oa = oc && oc = on => on = oa
+[   3 | gr ] ncoll o n a
+[   3 | gr ] ncoll o a c
+[   3 | gr ] oa = oc && oc = on => on = oc
+[   3 | gr ] ncoll o n c
+[   3 | gr ] b, m, a, c cyclic => b, a, m, c cyclic
+[   3 | gr ] a, c, n, k cyclic => a, n, k, c cyclic
+[   4 | dd ] b, n, m, k cyclic => ∠bmn = ∠bkn
+[   4 | dd ] oa = oc && ncoll o a c => ∠oac = ∠aco
+[   4 | dd ] on = oa && ncoll o n a => ∠ona = ∠nao
+[   4 | dd ] on = oc && ncoll o n c => ∠onc = ∠nco
+[   4 | dd ] b, a, m, c cyclic => ∠bma = ∠bca
+[   4 | dd ] a, n, k, c cyclic => ∠akn = ∠acn
+[   6 | ar ] ∠bmn = ∠bkn && ∠oac = ∠aco && ∠onc = ∠nco && ∠bma = ∠bca && ∠akn = ∠acn => ∠amn = ∠aon
+[   7 | gr ] diff a n m o
+[   7 | gr ] ∠amn = ∠aon => ∠amn = ∠aon
+[   8 | dd ] diff a n m o && ∠amn = ∠aon => a, n, m, o cyclic
+[  11 | gr ] a, n, m, o cyclic => a, m, o, n cyclic
+[  12 | dd ] a, m, o, n cyclic => ∠aom = ∠anm
+[  14 | ar ] ∠bmn = ∠bkn && ∠oac = ∠aco && ∠ona = ∠nao && ∠aom = ∠anm && ∠onc = ∠nco && ∠akn = ∠acn => bm ⊥ mo
+[ 511 | dd ] bm ⊥ mo => bm ⊥ mo
+=======================================
+Problem: 110-19
+
+    a b c d = cyclic_quad a b c d;
+    e = on_line e : c a;
+    f = on_line f : d b, on_circum f : a b e
+    ? para c d e f
+
+---------------------------------------
+    a = (0.091989, -0.034470)    e = (0.078217, -0.322388)    f = (-1.972024, 0.799816)
+    c = (0.036675, -1.190865)    d = (0.440079, -1.411669)    b = (-0.155229, -0.865874)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] a, b, c, d cyclic => a, d, c, b cyclic
+[   3 | gr ] a, b, e, f cyclic => a, f, e, b cyclic
+[   4 | dd ] a, d, c, b cyclic => ∠acd = ∠abd
+[   4 | dd ] a, f, e, b cyclic => ∠aef = ∠abf
+[   6 | ar ] ∠acd = ∠abd && ∠aef = ∠abf => cd ∥ ef
+[ 511 | dd ] cd ∥ ef => cd ∥ ef
+=======================================
+Problem: 110-20
+
+    a b c = triangle a b c;
+    d = foot d : a b c;
+    e = foot e : b a c;
+    h = intersection_ll h : a d b e;
+    g = foot g : h a b
+    ? eqangle e g g h h g g d
+
+---------------------------------------
+    a = (0.521227, 0.272372)    e = (0.190354, 0.242837)    h = (-0.380415, 6.637053)
+    c = (-0.789394, 0.155381)    d = (0.511689, 0.339697)    b = (0.185829, 0.293534)
+    g = (-0.776844, 0.354277)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] diff d g
+[   3 | gr ] h, a, d collinear && d, b, c collinear && da ⊥ bc => hd ⊥ db
+[   3 | gr ] gh ⊥ ab && g, a, b collinear => hg ⊥ gb
+[   3 | gr ] gh ⊥ ab && g, a, b collinear => ag ⊥ gh
+[   3 | gr ] eb ⊥ ac && h, b, e collinear && e, a, c collinear => ae ⊥ eh
+[   3 | gr ] diff g e
+[   3 | gr ] h, a, d collinear && da ⊥ bc => cb ⊥ ha
+[   3 | gr ] eb ⊥ ac && h, b, e collinear => bh ⊥ ca
+[   3 | gr ] diff c b h a
+[   4 | dd ] diff d g && hd ⊥ db && hg ⊥ gb => h, d, b, g cyclic
+[   4 | dd ] ag ⊥ gh && ae ⊥ eh && diff g e => a, g, h, e cyclic
+[   4 | dd ] cb ⊥ ha && bh ⊥ ca && diff c b h a => hc ⊥ ba
+[   6 | ar ] eb ⊥ ac && da ⊥ bc => ∠eah = ∠(eh, cd)
+[   7 | gr ] a, g, h, e cyclic => e, h, a, g cyclic
+[   8 | dd ] h, d, b, g cyclic => ∠hbd = ∠hgd
+[   8 | dd ] e, h, a, g cyclic => ∠eah = ∠egh
+[ 511 | dd ] gh ⊥ ab && ∠hbd = ∠hgd && ∠eah = ∠egh && hc ⊥ ba && ∠eah = ∠(eh, cd) => ∠egh = ∠hgd
+=======================================
+Problem: 110-21
+
+    a b c = triangle a b c;
+    o = circumcenter o : a b c;
+    d = foot d : a b c
+    ? eqangle b a a o d a a c
+
+---------------------------------------
+    c = (0.550490, -0.264052)    a = (0.605266, 0.516037)    o = (0.400895, 0.138420)
+    d = (0.828303, 0.426279)    b = (0.787575, 0.325075)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] ncoll o c a
+[   3 | gr ] ncoll o b c
+[   3 | gr ] ob = oc && oa = ob => oc = oa
+[   3 | gr ] ncoll o b a
+[   3 | gr ] oa = ob => ob = oa
+[   4 | dd ] ncoll o b c && ob = oc => ∠obc = ∠bco
+[   4 | dd ] ncoll o c a && oc = oa => ∠oca = ∠cao
+[   4 | dd ] ncoll o b a && ob = oa => ∠oba = ∠bao
+[   6 | ar ] ∠obc = ∠bco && da ⊥ bc && ∠oca = ∠cao && ∠oba = ∠bao => ∠bao = ∠dac
+[ 511 | dd ] ∠bao = ∠dac && ∠oba = ∠bao => ∠bao = ∠dac
+=======================================
+Problem: 110-22
+
+    a b c = triangle a b c;
+    m = on_circum m : a b c, on_angle_bisect m : a c b;
+    n = on_circum n : a b c, on_angle_bisect n : a b c;
+    d, e = intersection_ll d : a b m n, intersection_ll e : a c m n
+    ? cong a d a e
+
+---------------------------------------
+    c = (-0.373968, -0.041728)    a = (-0.482793, -0.352079)    d = (-0.367660, -0.254046)
+    e = (-0.432756, -0.209382)    n = (-0.474525, -0.180723)    m = (0.004560, -0.509434)
+    b = (-0.073090, -0.003228)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] a, b, c, n cyclic => c, a, n, b cyclic
+[   3 | gr ] a, b, c, n cyclic && a, b, c, m cyclic => c, a, n, m cyclic
+[   3 | gr ] a, b, c, n cyclic => c, n, a, b cyclic
+[   3 | gr ] a, b, c, n cyclic && a, b, c, m cyclic => c, n, a, m cyclic
+[   3 | gr ] a, b, c, n cyclic && a, b, c, m cyclic => m, n, c, a cyclic
+[   4 | dd ] c, n, a, m cyclic => ∠can = ∠cmn
+[   4 | dd ] c, a, n, b cyclic => ∠cna = ∠cba
+[   4 | dd ] c, n, a, b cyclic => ∠can = ∠cbn
+[   4 | dd ] m, n, c, a cyclic => ∠mcn = ∠man
+[   4 | dd ] c, a, n, m cyclic => ∠cna = ∠cma
+[   6 | ar ] ∠abn = ∠nbc && ∠can = ∠cmn && ∠cna = ∠cba && ∠can = ∠cbn && ∠cna = ∠cma => ∠man = ∠(de, ca)
+[   6 | ar ] ∠can = ∠cmn && ∠cna = ∠cba && ∠acm = ∠mcb && ∠cna = ∠cma => ∠man = ∠ade
+[   7 | gr ] e, a, c collinear && d, a, b collinear && ∠man = ∠(de, ca) && ∠mcn = ∠man && ∠man = ∠ade && e, m, n collinear => ∠ade = ∠dea
+[   7 | gr ] ncoll a d e
+[   7 | dd ] ∠ade = ∠dea && ncoll a d e => ad = ae
+[ 511 | dd ] ad = ae => ad = ae
+=======================================
+Problem: 110-23
+
+    a b c = iso_triangle c a b;
+    f, g = on_line f : a b, on_line g : a b;
+    d = on_line d : c f, on_circum d : a b c;
+    e = on_line e : c g, on_circum e : a b c
+    ? cyclic d e f g
+
+---------------------------------------
+    f = (0.609787, -0.236406)    e = (0.520430, -0.310676)    d = (0.662343, -0.346006)
+    a = (0.538004, -0.319921)    b = (0.874049, 0.071042)    g = (0.524671, -0.335432)
+    c = (0.450969, 0.094790)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] a, b, c, d cyclic && a, b, c, e cyclic => d, c, e, b cyclic
+[   3 | gr ] a, b, c, d cyclic && a, b, c, e cyclic => e, a, d, c cyclic
+[   3 | gr ] a, b, c, d cyclic && a, b, c, e cyclic => e, d, a, b cyclic
+[   3 | gr ] a, b, c, d cyclic && a, b, c, e cyclic => e, a, d, b cyclic
+[   3 | gr ] a, b, c, d cyclic && a, b, c, e cyclic => e, d, a, c cyclic
+[   4 | dd ] d, c, e, b cyclic => ∠dec = ∠dbc
+[   4 | dd ] e, a, d, b cyclic => ∠eda = ∠eba
+[   4 | dd ] e, a, d, c cyclic => ∠eda = ∠eca
+[   4 | dd ] e, d, a, b cyclic => ∠ead = ∠ebd
+[   4 | dd ] e, d, a, c cyclic => ∠ead = ∠ecd
+[   6 | ar ] ∠eda = ∠eba && ∠eda = ∠eca && ∠ead = ∠ebd && ∠cab = ∠abc && ∠ead = ∠ecd => ∠dbc = ∠dfa
+[   7 | gr ] diff d g e f
+[   7 | gr ] ∠dec = ∠dbc && d, c, f collinear && e, c, g collinear && f, a, b collinear && g, a, b collinear && ∠dbc = ∠dfa => ∠deg = ∠dfg
+[   8 | dd ] diff d g e f && ∠deg = ∠dfg => d, g, e, f cyclic
+[ 511 | dd ] d, g, e, f cyclic => d, e, f, g cyclic
+=======================================
+Problem: 110-24
+
+    p q s = triangle p q s;
+    y = on_line y : q s;
+    o = free o;
+    x = on_circum x : p q y, on_circle x : o p;
+    r = on_circum r : p q s, on_circle r : o p;
+    i = intersection_ll i : x y r s
+    ? cong o i o p
+
+---------------------------------------
+    i = (-0.187463, -0.986655)    r = (-0.457531, -1.028696)    o = (-0.366022, -0.728075)
+    y = (0.442717, -0.663025)    s = (0.521143, -0.876347)    p = (-0.631220, -0.896647)
+    x = (-0.259892, -1.023850)    q = (0.028932, 0.462479)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] ox = op => op = ox
+[   3 | gr ] diff o p x r
+[   3 | gr ] p, q, y, x cyclic => p, y, x, q cyclic
+[   3 | gr ] ox = op && or = op => ox = or
+[   3 | gr ] p, q, s, r cyclic => p, s, r, q cyclic
+[   4 | dd ] op = ox && diff o p x r && ox = or => o center of ⦿pxr
+[   4 | dd ] p, y, x, q cyclic => ∠pxy = ∠pqy
+[   4 | dd ] p, s, r, q cyclic => ∠prs = ∠pqs
+[   7 | gr ] diff p i x r
+[   7 | gr ] ∠pxy = ∠pqy && ∠prs = ∠pqs => ∠pxi = ∠pri
+[   8 | dd ] diff p i x r && ∠pxi = ∠pri => p, i, x, r cyclic
+[  11 | dd ] o center of ⦿irp => oi = or
+[  11 | gr ] o center of ⦿pxr && p, i, x, r cyclic => o center of ⦿irp
+[ 511 | dd ] oi = or && ox = op && or = op => oi = op
+=======================================
+Problem: 110-25
+
+    a b c = triangle a b c;
+    d e f h = orthocenter2 d e f h : a b c;
+    x y z = midpoint x : a h, midpoint y : b h, midpoint z : c h
+    ? cyclic x y z d
+
+---------------------------------------
+    x = (-0.493832, 0.020518)    b = (0.728939, 0.735301)    z = (-0.427225, 0.760100)
+    h = (-0.545988, 0.850120)    e = (-0.294289, 0.827452)    c = (-0.308462, 0.670080)
+    f = (0.319002, 0.194473)    y = (0.091476, 0.792711)    d = (-0.533779, 0.655915)
+    a = (-0.441675, -0.809084)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] cf ⊥ ab && a, f, b collinear && c, h, f collinear => hf ⊥ fb
+[   3 | gr ] cf ⊥ ab && a, f, b collinear && c, h, f collinear => hf ⊥ fa
+[   3 | gr ] b, d, c collinear && a, h, d collinear && ad ⊥ bc => hd ⊥ db
+[   3 | gr ] a, h, d collinear && x midpoint of ah => x midpoint of ha
+[   3 | gr ] b, h, e collinear && y midpoint of bh => y midpoint of hb
+[   4 | dd ] hf ⊥ fb && y midpoint of hb => hy = fy
+[   4 | dd ] hf ⊥ fa && x midpoint of ha => hx = fx
+[   4 | dd ] hd ⊥ db && y midpoint of hb => hy = dy
+[   6 | ar ] x midpoint of ah && z midpoint of ch => hc / ha = ze / xf
+[   6 | ar ] cf ⊥ ab && ad ⊥ bc => ∠xyz = ∠zhx
+[   6 | ar ] cf ⊥ ab && be ⊥ ac => ∠(xy, bh) = ∠(zh, ec)
+[   6 | ar ] be ⊥ ac && ad ⊥ bc => ∠(ec, xh) = ∠(bh, zy)
+[   6 | ar ] cf ⊥ ab && ad ⊥ bc => ∠(xy, zh) = ∠(xh, zy)
+[   6 | ar ] be ⊥ ac && ad ⊥ bc => ∠(bh, ec) = ∠(zy, xh)
+[   6 | ar ] be ⊥ ac && ad ⊥ bc => ∠(ec, bh) = ∠(xh, zy)
+[   6 | ar ] be ⊥ ac && ad ⊥ bc => ∠(ec, bh) = ∠(zy, xh)
+[   6 | ar ] be ⊥ ac && ad ⊥ bc => ∠(ec, zy) = ∠bhx
+[   7 | dd ] ∠hbd = ∠eah && diffclock h b d h a e && ∠hdb = ∠aeh && ncoll h b d => △hbd ~ △hae
+[   7 | gr ] b, d, c collinear && c, e, a collinear && a, h, d collinear && b, h, e collinear && ∠(ec, xh) = ∠(bh, zy) => ∠hbd = ∠eah
+[   7 | gr ] diffclock h b d h a e
+[   7 | gr ] b, d, c collinear && c, e, a collinear && a, h, d collinear && b, h, e collinear && ∠(ec, bh) = ∠(xh, zy) => ∠hdb = ∠aeh
+[   7 | gr ] ncoll h b d
+[   7 | gr ] a, f, b collinear && c, h, f collinear && a, h, d collinear && ∠xyz = ∠zhx => ∠fbc = ∠chd
+[   7 | gr ] diffclock f b c d h c
+[   7 | gr ] b, d, c collinear && c, h, f collinear => ∠fcb = ∠hcd
+[   7 | gr ] ncoll f b c
+[   7 | gr ] x midpoint of ah && hx = fx => xf = xa
+[   7 | gr ] hy = fy && y midpoint of bh => yf = yh
+[   7 | gr ] ncoll y f h
+[   7 | dd ] ∠fbc = ∠chd && diffclock f b c d h c && ∠fcb = ∠hcd && ncoll f b c => △fbc ~ △dhc
+[   7 | dd ] ∠bhd = ∠ecb && diffclock b h d b c e && ∠bdh = ∠ceb && ncoll b h d => △bhd ~ △bce
+[   7 | gr ] c, e, a collinear && a, h, d collinear && b, h, e collinear && ∠(ec, zy) = ∠bhx => ∠bhd = ∠ecb
+[   7 | gr ] diffclock b h d b c e
+[   7 | gr ] b, d, c collinear && c, e, a collinear && a, h, d collinear && ∠(bh, ec) = ∠(zy, xh) && ∠(ec, bh) = ∠(zy, xh) => ∠bdh = ∠ceb
+[   7 | gr ] ncoll b h d
+[   7 | gr ] ncoll x f a
+[   7 | gr ] ncoll y h d
+[   7 | gr ] hy = dy && y midpoint of bh => yh = yd
+[   7 | dd ] ∠hce = ∠fbh && diffclock h c e h b f && ∠hec = ∠bfh && ncoll h c e => △hce ~ △hbf
+[   7 | gr ] c, e, a collinear && a, f, b collinear && c, h, f collinear && b, h, e collinear && ∠(xy, bh) = ∠(zh, ec) => ∠hce = ∠fbh
+[   7 | gr ] diffclock h c e h b f
+[   7 | gr ] c, e, a collinear && a, f, b collinear && c, h, f collinear && b, h, e collinear && ∠(xy, zh) = ∠(xh, zy) && ∠(bh, ec) = ∠(zy, xh) && ∠(ec, bh) = ∠(xh, zy) && ∠(ec, bh) = ∠(zy, xh) => ∠hec = ∠bfh
+[   7 | gr ] ncoll h c e
+[   8 | dd ] yf = yh && ncoll y f h => ∠yfh = ∠fhy
+[   8 | dd ] xf = xa && ncoll x f a => ∠xfa = ∠fax
+[   8 | dd ] ncoll y h d && yh = yd => ∠yhd = ∠hdy
+[  10 | ar ] x midpoint of ah && y midpoint of bh && △hbd ~ △hae => xf / he = yf / hd
+[  10 | ar ] △hbd ~ △hae && △fbc ~ △dhc && △bhd ~ △bce && △hce ~ △hbf => hc / ha = hd / hf
+[  10 | ar ] cf ⊥ ab && ∠yfh = ∠fhy && be ⊥ ac && ad ⊥ bc && ∠xfa = ∠fax => ∠(ec, zy) = ∠xfy
+[  11 | dd ] z, h, f collinear && x, h, d collinear && ncoll z x f && sameside_p h z f && sameside_p h x d && hz / hx = hd / hf => z, x, f, d cyclic
+[  11 | gr ] c, h, f collinear && z midpoint of ch => z, h, f collinear
+[  11 | gr ] a, h, d collinear && x midpoint of ah => x, h, d collinear
+[  11 | gr ] ncoll z x f
+[  11 | gr ] sameside_p h z f
+[  11 | gr ] sameside_p h x d
+[  11 | gr ] x midpoint of ah && hc / ha = ze / xf && z midpoint of ch && hc / ha = hd / hf => hz / hx = hd / hf
+[  11 | gr ] b, h, e collinear && y midpoint of bh => e, h, y collinear
+[  11 | gr ] sameside_p h e y
+[  11 | dd ] x, h, d collinear && sameside_p h x d && e, h, y collinear && sameside_p h e y && ncoll x e d && hx / he = hy / hd => x, e, d, y cyclic
+[  11 | gr ] ncoll x e d
+[  11 | gr ] x midpoint of ah && y midpoint of bh && xf / he = yf / hd => hx / he = hy / hd
+[  11 | gr ] diff x y d f
+[  11 | dd ] diff x y d f && ∠xdy = ∠xfy => x, y, d, f cyclic
+[  11 | gr ] x midpoint of ah && ∠yhd = ∠hdy && ∠(ec, zy) = ∠bhx && ∠(ec, zy) = ∠xfy => ∠xdy = ∠xfy
+[ 511 | dd ] z, x, f, d cyclic && x, e, d, y cyclic && x, y, d, f cyclic => x, y, z, d cyclic
+=======================================
+Problem: 110-26
+
+    a b c = triangle a b c;
+    h = orthocenter h : a b c;
+    o = circumcenter o : a b c;
+    p = circumcenter p : a c h;
+    q = circumcenter q : a b h
+    ? para p c q b
+
+---------------------------------------
+    b = (0.873495, 0.299515)    o = (0.308259, 0.061682)    a = (0.439262, -0.537396)
+    p = (0.001239, -0.108220)    h = (0.566475, 0.129613)    q = (1.004498, -0.299563)
+    c = (-0.129764, 0.490858)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] pa = pc => pc = pa
+[   3 | gr ] ncoll p c a
+[   3 | gr ] ob = oc && oa = ob => oc = oa
+[   3 | gr ] ncoll o c a
+[   3 | gr ] ncoll q b h
+[   3 | gr ] pc = ph && pa = pc => ph = pc
+[   3 | gr ] ncoll p h c
+[   3 | gr ] ncoll o a b
+[   3 | gr ] qb = qh && qa = qb => qa = qh
+[   3 | gr ] ncoll q a h
+[   3 | gr ] pa = pc => cp = ap
+[   3 | gr ] ob = oc && oa = ob => co = ao
+[   3 | gr ] diff p o
+[   3 | gr ] qb = qh && qa = qb => aq = hq
+[   3 | gr ] pc = ph && pa = pc => ap = hp
+[   3 | gr ] diff q p
+[   3 | gr ] ob = oc && oa = ob => oc = ob
+[   3 | gr ] ncoll o c b
+[   3 | gr ] qa = qb => bq = aq
+[   3 | gr ] pc = ph && pa = pc => ph = pa
+[   3 | gr ] ncoll p h a
+[   3 | gr ] diff q o
+[   3 | gr ] ncoll q b a
+[   3 | gr ] oa = ob => bo = ao
+[   3 | gr ] qa = qb => qb = qa
+[   4 | dd ] cp = ap && co = ao && diff p o => ca ⊥ po
+[   4 | dd ] pc = pa && ncoll p c a => ∠pca = ∠cap
+[   4 | dd ] oc = oa && ncoll o c a => ∠oca = ∠cao
+[   4 | dd ] qa = qh && ncoll q a h => ∠qah = ∠ahq
+[   4 | dd ] ph = pc && ncoll p h c => ∠phc = ∠hcp
+[   4 | dd ] ncoll o a b && oa = ob => ∠oab = ∠abo
+[   4 | dd ] oc = ob && ncoll o c b => ∠ocb = ∠cbo
+[   4 | dd ] ph = pa && ncoll p h a => ∠pha = ∠hap
+[   4 | dd ] bq = aq && diff q o && bo = ao => ba ⊥ qo
+[   4 | dd ] aq = hq && ap = hp && diff q p => ah ⊥ qp
+[   4 | dd ] qb = qh && ncoll q b h => ∠qbh = ∠bhq
+[   4 | dd ] ncoll q b a && qb = qa => ∠qba = ∠baq
+[   6 | ar ] ca ⊥ po && ∠oca = ∠cao && ∠qah = ∠ahq && ∠oab = ∠abo && ∠ocb = ∠cbo && ah ⊥ qp && ∠qbh = ∠bhq && ∠qba = ∠baq => oa ∥ bq
+[   6 | ar ] ∠pca = ∠cap && ∠oca = ∠cao && ∠phc = ∠hcp && ∠oab = ∠abo && ∠ocb = ∠cbo && ∠pha = ∠hap && ba ⊥ qo && ah ⊥ qp => bq ∥ pc
+[ 511 | dd ] oa ∥ bq && bq ∥ pc => pc ∥ qb
+=======================================
+Problem: 110-27
+
+    a b c = triangle a b c;
+    h = orthocenter h : a b c;
+    o = circumcenter o : a b c;
+    p = circumcenter p : a c h;
+    q = circumcenter q : a b h;
+    m = midpoint m : a h
+    ? cong h p h q
+
+---------------------------------------
+    m = (0.705973, 0.448140)    a = (0.931247, 0.160665)    h = (0.480699, 0.735615)
+    o = (0.051587, 0.161494)    c = (-0.803582, -0.044636)    p = (0.076079, -0.045464)
+    q = (1.335868, 0.941745)    b = (0.456208, 0.942573)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] pc = ph && pa = pc => ph = pc
+[   3 | gr ] ncoll p h c
+[   3 | gr ] ob = oc && oa = ob => oa = oc
+[   3 | gr ] ncoll o a c
+[   3 | gr ] ncoll o a b
+[   3 | gr ] qa = qb => aq = bq
+[   3 | gr ] ncoll q a b
+[   3 | gr ] qb = qh && qa = qb => qa = qh
+[   3 | gr ] ncoll q a h
+[   3 | gr ] m midpoint of ah => hm = am
+[   3 | gr ] qb = qh && qa = qb => hq = aq
+[   3 | gr ] diff m q
+[   3 | gr ] diff o q
+[   3 | gr ] ob = oc && oa = ob => ao = co
+[   3 | gr ] pa = pc => ap = cp
+[   3 | gr ] ncoll p a c
+[   3 | gr ] oa = ob => ao = bo
+[   3 | gr ] ncoll o b c
+[   3 | gr ] qb = qh && qa = qb => qh = qb
+[   3 | gr ] ncoll q h b
+[   3 | gr ] qb = qh && qa = qb => aq = hq
+[   3 | gr ] diff p q
+[   3 | gr ] m midpoint of ah => am = hm
+[   3 | gr ] diff p m
+[   3 | gr ] diff o p
+[   3 | gr ] pc = ph && pa = pc => ap = hp
+[   3 | gr ] pc = ph && pa = pc => pa = ph
+[   3 | gr ] ncoll p a h
+[   4 | dd ] ph = pc && ncoll p h c => ∠phc = ∠hcp
+[   4 | dd ] oa = oc && ncoll o a c => ∠oac = ∠aco
+[   4 | dd ] ncoll q a b && qa = qb => ∠qab = ∠abq
+[   4 | dd ] qa = qh && ncoll q a h => ∠qah = ∠ahq
+[   4 | dd ] aq = bq && diff o q && ao = bo => ab ⊥ oq
+[   4 | dd ] hm = am && hq = aq && diff m q => ha ⊥ mq
+[   4 | dd ] ao = co && ap = cp && diff o p => ac ⊥ op
+[   4 | dd ] pa = pc && ncoll p a c => ∠pac = ∠acp
+[   4 | dd ] ob = oc && ncoll o b c => ∠obc = ∠bco
+[   4 | dd ] qh = qb && ncoll q h b => ∠qhb = ∠hbq
+[   4 | dd ] am = hm && diff p m && ap = hp => ah ⊥ pm
+[   4 | dd ] aq = hq && diff p q && ap = hp => ah ⊥ pq
+[   4 | dd ] pa = ph && ncoll p a h => ∠pah = ∠ahp
+[   4 | dd ] ncoll o a b && oa = ob => ∠oab = ∠abo
+[   6 | ar ] ∠oac = ∠aco && ∠qab = ∠abq && ∠qah = ∠ahq && ha ⊥ mq && ac ⊥ op && ∠obc = ∠bco && ∠qhb = ∠hbq && ∠oab = ∠abo => aq ∥ ob
+[   6 | ar ] ∠phc = ∠hcp && ∠oac = ∠aco && ab ⊥ oq && ha ⊥ mq && ∠pac = ∠acp && ∠obc = ∠bco && ∠pah = ∠ahp && ∠oab = ∠abo => ap ∥ oc
+[   7 | gr ] aq ∥ ob && ha ⊥ mq && ha ⊥ bc && ∠obc = ∠bco && ah ⊥ pm && ap ∥ oc && ah ⊥ pq => ∠aqp = ∠qpa
+[   7 | dd ] ∠aqp = ∠qpa && ncoll a q p => aq = ap
+[   7 | gr ] ncoll a q p
+[ 511 | dd ] qb = qh && pc = ph && pa = pc && qa = qb && aq = ap => hp = hq
+=======================================
+Problem: 110-28
+
+    a b c = triangle a b c;
+    h = orthocenter h : a b c;
+    f = foot f : c a b;
+    p q t = foot p : f a c, foot q : f a h, foot t : f b c
+    ? coll p q t
+
+---------------------------------------
+    c = (0.537959, -0.667022)    b = (0.922473, 0.292046)    t = (0.583264, -0.554019)
+    h = (1.608075, -1.627943)    a = (-0.163726, -0.917584)    f = (0.274059, -0.430051)
+    p = (0.378953, -0.723801)    q = (0.045038, -1.001283)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] t, b, c collinear && qf ⊥ ah && ha ⊥ bc && tf ⊥ bc => ct ⊥ tf
+[   3 | gr ] pf ⊥ ac && p, a, c collinear => cp ⊥ pf
+[   3 | gr ] diff t p
+[   3 | gr ] q, a, h collinear && qf ⊥ ah => aq ⊥ qf
+[   3 | gr ] pf ⊥ ac && p, a, c collinear => ap ⊥ pf
+[   3 | gr ] diff p q
+[   4 | dd ] ct ⊥ tf && cp ⊥ pf && diff t p => c, t, f, p cyclic
+[   4 | dd ] aq ⊥ qf && ap ⊥ pf && diff p q => a, p, f, q cyclic
+[   8 | dd ] a, p, f, q cyclic => ∠afp = ∠aqp
+[   8 | dd ] c, t, f, p cyclic => ∠cft = ∠cpt
+[  10 | ar ] pf ⊥ ac && fc ⊥ ab && ∠afp = ∠aqp && ∠cft = ∠cpt => pq ∥ tp
+[  11 | dd ] pt ∥ pq && diff t q => p, t, q collinear
+[  11 | gr ] pq ∥ tp => pt ∥ pq
+[  11 | gr ] diff t q
+[ 511 | dd ] p, t, q collinear => p, q, t collinear
+=======================================
+Problem: 110-29
+
+    a b c = triangle a b c;
+    d = foot d : a b c;
+    p q = foot p : d a c, foot q : d a b
+    ? cyclic b c p q
+
+---------------------------------------
+    q = (0.440790, 0.071221)    a = (-0.385157, -0.493614)    c = (-0.353499, 0.782735)
+    d = (0.215282, 0.400977)    p = (-0.362612, 0.415310)    b = (0.572444, 0.161254)
+
+    Loss: 0
+---------------------------------------
+[   6 | ar ] pd ⊥ ac && da ⊥ bc => ∠(dp, ac) = ∠cda
+[   6 | ar ] pd ⊥ ac && da ⊥ bc => ∠(ac, dp) = ∠adc
+[   6 | ar ] pd ⊥ ac && da ⊥ bc => ∠acd = ∠pda
+[   6 | ar ] qd ⊥ ab && da ⊥ bc => ∠(qa, cd) = ∠qda
+[   6 | ar ] pd ⊥ ac && da ⊥ bc => ∠(ac, dp) = ∠cda
+[   6 | ar ] qd ⊥ ab && da ⊥ bc => ∠dqa = ∠cda
+[   7 | gr ] ∠(qa, cd) = ∠qda && d, b, c collinear => ∠abd = ∠qda
+[   7 | gr ] diffclock a b d a d q
+[   7 | gr ] ∠(dp, ac) = ∠cda && ∠(ac, dp) = ∠adc && q, a, b collinear && ∠(ac, dp) = ∠cda && d, b, c collinear && ∠dqa = ∠cda => ∠adb = ∠dqa
+[   7 | gr ] ncoll a b d
+[   7 | gr ] ∠acd = ∠pda && d, b, c collinear => ∠pda = ∠acd
+[   7 | gr ] diffclock p d a d c a
+[   7 | gr ] p, a, c collinear => ∠pad = ∠cad
+[   7 | gr ] ncoll p d a
+[   8 | dd ] ∠abd = ∠qda && diffclock a b d a d q && ∠adb = ∠dqa && ncoll a b d => △abd ~ △adq
+[   8 | dd ] ∠pda = ∠acd && diffclock p d a d c a && ∠pad = ∠cad && ncoll p d a => △pda ~ △dca
+[  10 | ar ] △abd ~ △adq && △pda ~ △dca => ab / ap = ac / aq
+[  11 | gr ] p, a, c collinear => c, a, p collinear
+[  11 | gr ] sameside_p a q b
+[  11 | gr ] sameside_p a c p
+[  11 | gr ] ab / ap = ac / aq => ac / aq = ab / ap
+[  11 | gr ] ncoll c q p
+[  12 | dd ] q, a, b collinear && c, a, p collinear && sameside_p a q b && sameside_p a c p && ac / aq = ab / ap && ncoll c q p => c, q, p, b cyclic
+[ 511 | dd ] c, q, p, b cyclic => b, c, p, q cyclic
+=======================================
+Problem: 110-30
+
+    a b c = triangle a b c;
+    e f = foot e : b a c, foot f : c a b;
+    o = circumcenter o : a b c
+    ? perp a o e f
+
+---------------------------------------
+    o = (0.473029, 0.858974)    a = (-0.304173, 0.210154)    c = (-0.049108, -0.008426)
+    e = (0.493295, -0.473243)    f = (-0.011489, 0.131422)    b = (0.819832, -0.092203)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] eb ⊥ ac && e, a, c collinear => ce ⊥ eb
+[   3 | gr ] fc ⊥ ab && f, a, b collinear => cf ⊥ fb
+[   3 | gr ] ncoll o a b
+[   3 | gr ] diff e f
+[   3 | gr ] ncoll o a c
+[   3 | gr ] oa = ob && ob = oc => oa = oc
+[   3 | gr ] ncoll o b c
+[   4 | dd ] oa = ob && ncoll o a b => ∠oab = ∠abo
+[   4 | dd ] ce ⊥ eb && cf ⊥ fb && diff e f => c, e, b, f cyclic
+[   4 | dd ] ob = oc && ncoll o b c => ∠obc = ∠bco
+[   4 | dd ] ncoll o a c && oa = oc => ∠oac = ∠aco
+[   7 | gr ] c, e, b, f cyclic => c, e, f, b cyclic
+[   8 | dd ] c, e, f, b cyclic => ∠cfe = ∠cbe
+[  10 | ar ] fc ⊥ ab && ∠oab = ∠abo && eb ⊥ ac && ∠cfe = ∠cbe && ∠obc = ∠bco && ∠oac = ∠aco => oa ⊥ ef
+[ 511 | dd ] oa ⊥ ef => ao ⊥ ef
+=======================================
+Problem: 110-31
+
+    a b c = triangle a b c;
+    p = on_line p : a c, on_line_bisect p : a b;
+    q = on_line q : a b, on_line_bisect q : a c
+    ? cyclic b c p q
+
+---------------------------------------
+    c = (-0.264121, -0.086039)    p = (-0.409786, -0.184390)    q = (-0.908202, 0.486637)
+    a = (-0.617750, -0.324804)    b = (-0.659616, -0.207842)
+    Loss: 0
+---------------------------------------
+[   6 | ar ] ∠qac = ∠acq && ∠pab = ∠abp => ∠cqa = ∠cpb
+[   7 | gr ] q, a, b collinear && p, a, c collinear && ∠cqa = ∠cpb => ∠cpb = ∠cqb
+[   7 | gr ] diff c b p q
+[   8 | dd ] ∠cpb = ∠cqb && diff c b p q => c, b, p, q cyclic
+[ 511 | dd ] c, b, p, q cyclic => b, c, p, q cyclic
+=======================================
+Problem: 110-32
+
+    b c s r = cyclic_quad b c s r;
+    a = intersection_ll a : b r c s;
+    m = foot m : a r s;
+    n = foot n : a b c
+    ? eqangle r a a m n a a c
+
+---------------------------------------
+    s = (-2.015532, 0.721009)    n = (0.741690, 0.073906)    r = (-0.068813, -1.654739)
+    a = (1.680014, -0.089266)    m = (-0.133752, -1.575489)    b = (0.535089, -1.114152)
+    c = (0.748819, 0.114905)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] b, c, s, r cyclic => s, b, r, c cyclic
+[   4 | dd ] s, b, r, c cyclic => ∠srb = ∠scb
+[   6 | ar ] na ⊥ bc && ma ⊥ rs && ∠srb = ∠scb => ∠ram = ∠nas
+[ 511 | dd ] a, b, r collinear && ∠ram = ∠nas => ∠ram = ∠nac
+=======================================
+Problem: 110-33
+
+    a b c d = cyclic_quad a b c d;
+    i = intersection_ll i : a b c d;
+    e = on_line_perp e : d d c, on_line_perp e : a a b;
+    f = on_line_perp f : b b a, on_line_perp f : c c d
+    ? eqangle e i i d b i i f
+
+---------------------------------------
+    e = (0.377805, 0.127227)    d = (-0.113101, -0.561215)    i = (-1.548196, 0.462107)
+    c = (-1.235488, 0.239125)    f = (-1.111425, 0.413109)    a = (0.064808, 1.024669)
+    b = (-1.174027, 0.592605)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] a, b, c, d cyclic => d, a, c, b cyclic
+[   3 | gr ] a, b, c, d cyclic => d, c, a, b cyclic
+[   3 | gr ] fc ⊥ cd => ic ⊥ cf
+[   3 | gr ] diff b c
+[   3 | gr ] ed ⊥ dc && i, c, d collinear => ed ⊥ di
+[   3 | gr ] i, a, b collinear && fb ⊥ ba => ib ⊥ bf
+[   3 | gr ] diff d a
+[   3 | gr ] ea ⊥ ab => ea ⊥ ai
+[   4 | dd ] d, c, a, b cyclic => ∠dac = ∠dbc
+[   4 | dd ] d, a, c, b cyclic => ∠dca = ∠dba
+[   4 | dd ] ic ⊥ cf && diff b c && ib ⊥ bf => i, b, f, c cyclic
+[   4 | dd ] ed ⊥ di && diff d a && ea ⊥ ai => e, d, i, a cyclic
+[   6 | ar ] ∠dac = ∠dbc && fc ⊥ cd && fb ⊥ ba && ∠dca = ∠dba => ∠(cb, ed) = ∠ead
+[   7 | gr ] i, b, f, c cyclic => b, f, i, c cyclic
+[   8 | dd ] e, d, i, a cyclic => ∠eid = ∠ead
+[   8 | dd ] b, f, i, c cyclic => ∠bif = ∠bcf
+[ 511 | dd ] ∠eid = ∠ead && i, c, d collinear && i, a, b collinear && ∠(cb, ed) = ∠ead && ∠bif = ∠bcf => ∠eid = ∠bif
+=======================================
+Problem: 110-34
+
+    a b c = triangle a b c;
+    h = orthocenter h : a b c;
+    p = on_line_para p : h a b, on_circum p : b h c
+    ? para a h b p
+
+---------------------------------------
+    c = (-0.429844, 0.097074)    b = (0.079061, -0.091878)    p = (-0.328992, -1.190888)
+    h = (0.191807, -0.245316)    a = (0.599860, 0.853694)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] b, h, c, p cyclic => c, p, b, h cyclic
+[   4 | dd ] c, p, b, h cyclic => ∠cbp = ∠chp
+[   6 | ar ] hc ⊥ ab && ∠cbp = ∠chp => cb ⊥ bp
+[ 511 | dd ] ha ⊥ bc && cb ⊥ bp => ah ∥ bp
+=======================================
+Problem: 110-35
+
+    a b c = triangle a b c;
+    d e f h = orthocenter2 d e f h : a b c;
+    k = on_line k : c f, on_circum k : a b c
+    ? midp f h k
+
+---------------------------------------
+    k = (0.195621, -0.968681)    c = (0.467293, 0.420479)    f = (0.306848, -0.399938)
+    h = (0.418074, 0.168804)    b = (-0.681043, -0.206741)    e = (0.539150, 0.210173)
+    d = (0.323506, 0.341943)    a = (0.779173, -0.492309)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] a, b, c, k cyclic => b, c, k, a cyclic
+[   4 | dd ] b, c, k, a cyclic => ∠bkc = ∠bac
+[   6 | ar ] cf ⊥ ab && ad ⊥ bc => ∠(cb, hd) = ∠(kc, fb)
+[   6 | ar ] cf ⊥ ab && be ⊥ ac => ∠(fb, ce) = ∠(kc, hb)
+[   6 | ar ] be ⊥ ac && ad ⊥ bc => ∠(hb, ce) = ∠(cb, hd)
+[   6 | ar ] be ⊥ ac && ad ⊥ bc => ∠(ce, hb) = ∠(hd, cb)
+[   6 | ar ] be ⊥ ac && ad ⊥ bc => ∠(hd, cb) = ∠(hb, ce)
+[   6 | ar ] cf ⊥ ab && ad ⊥ bc => ∠(hd, cb) = ∠(fb, kc)
+[   7 | gr ] ncoll b k f
+[   7 | gr ] b, h, e collinear && c, h, f collinear && ∠(fb, ce) = ∠(kc, hb) && ∠bkc = ∠bac && k, c, f collinear => ∠bkf = ∠fhb
+[   7 | gr ] diffclock b k f b h f
+[   7 | gr ] c, h, f collinear && ∠(cb, hd) = ∠(kc, fb) && k, c, f collinear && ∠(hb, ce) = ∠(cb, hd) && ∠(ce, hb) = ∠(hd, cb) && a, f, b collinear && ∠(hd, cb) = ∠(hb, ce) && ∠(hd, cb) = ∠(fb, kc) => ∠bfk = ∠hfb
+[   8 | dd ] ncoll b k f && ∠bkf = ∠fhb && diffclock b k f b h f && ∠bfk = ∠hfb => △bkf ~ △bhf
+[  10 | ar ] △bkf ~ △bhf => fh = kf
+[ 511 | dd ] c, h, f collinear && k, c, f collinear && fh = kf => f midpoint of hk
+=======================================
+Problem: 110-36
+
+    a b c = triangle a b c;
+    d e f h = orthocenter2 d e f h : a b c;
+    o = circumcenter o : a b c;
+    o1 = circumcenter o1 : a b h
+    ? cong a o a o1
+
+---------------------------------------
+    o1 = (6.863628, -6.334023)    o = (-5.523443, 6.874836)    b = (0.648000, 0.249689)
+    e = (0.646169, 0.251834)    f = (0.033763, -0.326334)    a = (0.692185, 0.291124)
+    d = (0.694140, 0.288819)    h = (12.392054, -13.504503)    c = (0.004983, -0.295645)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] o1a = o1b => ao1 = bo1
+[   3 | gr ] diff o1 o
+[   3 | gr ] ncoll o1 a b
+[   3 | gr ] ob = oc && oa = ob => oc = oa
+[   3 | gr ] ncoll o c a
+[   3 | gr ] ncoll o a b
+[   3 | gr ] ncoll o1 b h
+[   3 | gr ] oa = ob => ao = bo
+[   3 | gr ] o1a = o1b && o1b = o1h => o1a = o1h
+[   3 | gr ] ncoll o1 a h
+[   3 | gr ] ob = oc && oa = ob => oc = ob
+[   3 | gr ] ncoll o c b
+[   4 | dd ] ao1 = bo1 && diff o1 o && ao = bo => ab ⊥ o1o
+[   4 | dd ] oc = oa && ncoll o c a => ∠oca = ∠cao
+[   4 | dd ] oa = ob && ncoll o a b => ∠oab = ∠abo
+[   4 | dd ] ncoll o1 b h && o1b = o1h => ∠o1bh = ∠bho1
+[   4 | dd ] oc = ob && ncoll o c b => ∠ocb = ∠cbo
+[   4 | dd ] o1a = o1h && ncoll o1 a h => ∠o1ah = ∠aho1
+[   4 | dd ] o1a = o1b && ncoll o1 a b => ∠o1ab = ∠abo1
+[   6 | ar ] cf ⊥ ab && ∠o1bh = ∠bho1 && ∠o1ah = ∠aho1 && ∠o1ab = ∠abo1 => ∠(ad, be) = ∠(o1a, fh)
+[   6 | ar ] cf ⊥ ab && ∠oca = ∠cao && ∠oab = ∠abo && ∠ocb = ∠cbo => ∠(bd, ea) = ∠(ob, fh)
+[   6 | ar ] ab ⊥ o1o && ∠o1bh = ∠bho1 && ad ⊥ bc && be ⊥ ac && ∠o1ah = ∠aho1 && ∠o1ab = ∠abo1 => ∠(o1a, fh) = ∠(bd, ea)
+[   6 | ar ] cf ⊥ ab && ab ⊥ o1o && ∠oab = ∠abo => ∠(ob, fh) = ∠(fh, oa)
+[   7 | gr ] ncoll a o1 o
+[   7 | dd ] ncoll a o1 o && ∠ao1o = ∠o1oa => ao1 = ao
+[   7 | gr ] ∠(ad, be) = ∠(o1a, fh) && ∠(bd, ea) = ∠(ob, fh) && ∠(o1a, fh) = ∠(bd, ea) && ∠(ob, fh) = ∠(fh, oa) => ∠ao1o = ∠o1oa
+[ 511 | dd ] ao1 = ao => ao = ao1
+=======================================
+Problem: 110-37
+
+    a b c = triangle a b c;
+    a1 = on_line_perp a1 : a b c, on_circum a1 : a b c;
+    c1 = on_line_perp c1 : c a b, on_circum c1 : a b c
+    ? cong b a1 b c1
+
+---------------------------------------
+    c = (-0.617621, -0.570423)    b = (0.876643, 0.527001)    a1 = (-0.094909, -0.856579)
+    a = (-0.856933, 0.181001)    c1 = (-0.807779, 0.382331)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] a, b, c, c1 cyclic && a, b, c, a1 cyclic => c, a1, b, c1 cyclic
+[   3 | gr ] a, b, c, a1 cyclic => a1, b, c, a cyclic
+[   3 | gr ] a, b, c, c1 cyclic && a, b, c, a1 cyclic => b, c1, c, a1 cyclic
+[   3 | gr ] a, b, c, c1 cyclic && a, b, c, a1 cyclic => a1, b, c, c1 cyclic
+[   4 | dd ] c, a1, b, c1 cyclic => ∠cba1 = ∠cc1a1
+[   4 | dd ] a1, b, c, a cyclic => ∠a1cb = ∠a1ab
+[   4 | dd ] a1, b, c, c1 cyclic => ∠a1cb = ∠a1c1b
+[   4 | dd ] b, c1, c, a1 cyclic => ∠bcc1 = ∠ba1c1
+[   6 | ar ] c1c ⊥ ab && ∠cba1 = ∠cc1a1 && a1a ⊥ bc => ∠ba1c1 = ∠a1ab
+[   7 | dd ] ncoll b a1 c1 && ∠ba1c1 = ∠a1c1b => ba1 = bc1
+[   7 | gr ] ncoll b a1 c1
+[   7 | gr ] ∠a1cb = ∠a1ab && ∠a1cb = ∠a1c1b && ∠ba1c1 = ∠a1ab && ∠bcc1 = ∠ba1c1 => ∠ba1c1 = ∠a1c1b
+[ 511 | dd ] ba1 = bc1 => ba1 = bc1
+=======================================
+Problem: 110-38
+
+    a b c = triangle a b c;
+    d = foot d : a b c;
+    d1 = on_line d1 : a d, on_circum d1 : a b c;
+    p = on_line p : b c, on_line_perp p : d1 a c;
+    o = circumcenter o : a b c
+    ? eqangle o a a d1 c a a p
+
+---------------------------------------
+    o = (0.764404, -0.374044)    d = (0.374731, -0.184799)    c = (0.712276, 0.120060)
+    b = (0.278143, -0.272034)    a = (0.329188, -0.134372)    p = (0.471320, -0.097563)
+    d1 = (0.958664, -0.831338)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] ncoll o c b
+[   3 | gr ] p, b, c collinear && d1, a, d collinear && da ⊥ bc => d1a ⊥ pc
+[   3 | gr ] diff p d1 a c
+[   3 | gr ] a, b, c, d1 cyclic => c, a, b, d1 cyclic
+[   3 | gr ] ob = oc && oa = ob => oc = oa
+[   3 | gr ] ncoll o a b
+[   3 | gr ] ob = oc && oa = ob => oc = ob
+[   3 | gr ] ncoll o c a
+[   4 | dd ] oc = oa && ncoll o c a => ∠oca = ∠cao
+[   4 | dd ] pd1 ⊥ ac && d1a ⊥ pc && diff p d1 a c => ap ⊥ d1c
+[   4 | dd ] oa = ob && ncoll o a b => ∠oab = ∠abo
+[   4 | dd ] ncoll o c b && oc = ob => ∠ocb = ∠cbo
+[   4 | dd ] c, a, b, d1 cyclic => ∠cba = ∠cd1a
+[   6 | ar ] ∠oca = ∠cao && ap ⊥ d1c && ∠oab = ∠abo && ∠ocb = ∠cbo && ∠cba = ∠cd1a => ∠cap = ∠oad
+[ 511 | dd ] ∠cap = ∠oad && d1, a, d collinear => ∠oad1 = ∠cap
+=======================================
+Problem: 110-39
+
+    a b c = triangle a b c;
+    i = incenter i : a b c;
+    t = on_line_perp t : a a i, on_circum t : a b c;
+    m = on_angle_bisect m : a b c, on_circum m : a b c
+    ? para m t c i
+
+---------------------------------------
+    t = (0.799086, 0.139323)    c = (0.423863, -0.537451)    b = (0.535715, 0.608805)
+    a = (0.783807, 0.275617)    m = (0.760886, -0.200443)    i = (0.633124, 0.258725)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] a, b, c, t cyclic => t, b, c, a cyclic
+[   3 | gr ] a, b, c, t cyclic && a, b, c, m cyclic => t, b, c, m cyclic
+[   4 | dd ] t, b, c, m cyclic => ∠tcb = ∠tmb
+[   4 | dd ] t, b, c, a cyclic => ∠tcb = ∠tab
+[   6 | ar ] ta ⊥ ai && ∠abm = ∠mbc && ∠aci = ∠icb && ∠tcb = ∠tmb && ∠tcb = ∠tab && ∠bai = ∠iac => ci ∥ tm
+[ 511 | dd ] ci ∥ tm => mt ∥ ci
+=======================================
+Problem: 110-40
+
+    a b c = triangle a b c;
+    i = incenter i : a b c;
+    m = on_line m : a c, on_line_para m : i a b
+    ? cong a m m i
+
+---------------------------------------
+    c = (-0.612257, 0.994415)    b = (0.858212, 0.243036)    a = (0.531250, -0.742818)
+    i = (0.424810, 0.065348)    m = (0.282242, -0.364521)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] ncoll m i a
+[   3 | gr ] mi ∥ ab && m, a, c collinear && ∠bai = ∠iac => ∠mia = ∠iam
+[   3 | dd ] ncoll m i a && ∠mia = ∠iam => mi = ma
+[ 511 | dd ] mi = ma => am = mi
+=======================================
+Problem: 110-41
+
+    a b c = triangle a b c;
+    x y z i = incenter2 x y z i : a b c;
+    l = foot l : b a i
+    ? coll l x y
+
+---------------------------------------
+    l = (-0.051153, 0.256669)    c = (0.023291, 0.096110)    b = (0.008165, 0.322542)
+    z = (0.137106, 0.175712)    a = (0.508853, -0.247608)    i = (0.087312, 0.131984)
+    x = (0.021190, 0.127567)    y = (0.049023, 0.077895)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] ncoll i x y
+[   3 | gr ] iz ⊥ ab && z, a, b collinear => iz ⊥ zb
+[   3 | gr ] x, b, c collinear && ix ⊥ bc => ix ⊥ xb
+[   3 | gr ] diff z x
+[   3 | gr ] l, a, i collinear && lb ⊥ ai => il ⊥ lb
+[   3 | gr ] diff z l
+[   4 | dd ] ix = iy && ncoll i x y => ∠ixy = ∠xyi
+[   4 | dd ] iz ⊥ zb && il ⊥ lb && diff z l => i, z, b, l cyclic
+[   4 | dd ] iz ⊥ zb && ix ⊥ xb && diff z x => i, z, b, x cyclic
+[   6 | ar ] ix ⊥ bc && ∠ixy = ∠xyi && iy ⊥ ca && ∠aci = ∠icb => ci ⊥ xy
+[   7 | gr ] i, z, b, l cyclic => l, b, z, i cyclic
+[   7 | gr ] i, z, b, l cyclic && i, z, b, x cyclic => l, b, z, x cyclic
+[   8 | dd ] l, b, z, i cyclic => ∠lzb = ∠lib
+[   8 | dd ] l, b, z, x cyclic => ∠lzb = ∠lxb
+[  10 | ar ] ∠cbi = ∠iba && ∠bai = ∠iac && ∠lzb = ∠lib && ∠lzb = ∠lxb && ∠aci = ∠icb => ci ⊥ lx
+[  11 | dd ] xy ∥ xl && diff y l => x, y, l collinear
+[  11 | gr ] ci ⊥ xy && ci ⊥ lx => xy ∥ xl
+[  11 | gr ] diff y l
+[ 511 | dd ] x, y, l collinear => l, x, y collinear
+=======================================
+Problem: 110-42
+
+    a b c = triangle a b c;
+    i = incenter i : a b c;
+    d = foot d : a b c;
+    x y = foot x : b a i, foot y : c a i;
+    m = midpoint m : b c;
+    n = midpoint n : a c
+    ? cyclic d m x y
+
+---------------------------------------
+    m = (-0.566246, -0.676264)    d = (-0.041494, -0.603760)    n = (-0.141265, -0.420435)
+    y = (-0.320081, -0.528079)    a = (-0.094943, -0.216925)    b = (-0.944905, -0.728583)
+    i = (-0.300420, -0.500905)    c = (-0.187587, -0.623946)    x = (-0.630016, -0.956425)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] diff a b n m
+[   3 | gr ] ncoll c a b
+[   3 | gr ] d, b, c collinear && da ⊥ bc => ad ⊥ db
+[   3 | gr ] x, a, i collinear && xb ⊥ ai => ax ⊥ xb
+[   3 | gr ] diff d x
+[   3 | gr ] yc ⊥ ai && y, a, i collinear => cy ⊥ ya
+[   3 | gr ] n midpoint of ac => n midpoint of ca
+[   3 | gr ] m midpoint of bc => m midpoint of cb
+[   4 | dd ] diff a b n m && ncoll c a b && n midpoint of ca && m midpoint of cb => nm ∥ ab
+[   4 | dd ] cy ⊥ ya && n midpoint of ca => cn = yn
+[   4 | dd ] ad ⊥ db && ax ⊥ xb && diff d x => a, d, b, x cyclic
+[   6 | ar ] cn = yn => ny = nc
+[   7 | gr ] ncoll n y c
+[   7 | gr ] a, d, b, x cyclic => b, x, d, a cyclic
+[   8 | dd ] ny = nc && ncoll n y c => ∠nyc = ∠ycn
+[   8 | dd ] b, x, d, a cyclic => ∠bdx = ∠bax
+[  10 | ar ] yc ⊥ ai && ∠nyc = ∠ycn && ∠bai = ∠iac => ab ∥ ny
+[  11 | dd ] ny ∥ nm && diff y m => n, y, m collinear
+[  11 | gr ] nm ∥ ab && ab ∥ ny => ny ∥ nm
+[  11 | gr ] diff y m
+[  15 | gr ] x, a, i collinear && m midpoint of bc && y, a, i collinear && d, b, c collinear && n, y, m collinear && ab ∥ ny && ∠bdx = ∠bax => ∠myx = ∠mdx
+[  15 | gr ] diff m x y d
+[  16 | dd ] ∠myx = ∠mdx && diff m x y d => m, x, y, d cyclic
+[ 511 | dd ] m, x, y, d cyclic => d, m, x, y cyclic
+=======================================
+Problem: 110-43
+
+    a b c = r_triangle c a b;
+    f e = square_off_p f e : a b;
+    p = intersection_ll p : a f b e
+    ? cyclic a b c p
+
+---------------------------------------
+    c = (-0.797714, -1.707631)    p = (-1.994075, -0.385555)    f = (-4.335591, 0.993686)
+    e = (-3.373315, -2.727071)    a = (0.347441, -1.764795)    b = (-0.614835, 1.955962)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] p, b, e collinear && p, a, f collinear && af ⊥ be => ap ⊥ pb
+[   3 | gr ] ca ⊥ cb => ac ⊥ cb
+[   3 | gr ] diff p c
+[   4 | dd ] ap ⊥ pb && ac ⊥ cb && diff p c => a, p, b, c cyclic
+[ 511 | dd ] a, p, b, c cyclic => a, b, c, p cyclic
+=======================================
+Problem: 110-44
+
+    a b c d = cyclic_quad a b c d;
+    a1 = on_line_perp a1 : a a b, on_line a1 : c d;
+    c1 = on_line_perp c1 : c c d, on_line c1 : a b
+    ? para a1 c1 b d
+
+---------------------------------------
+    c = (-1.770284, -0.110329)    c1 = (-0.669876, 0.616649)    a1 = (-0.689604, -1.746126)
+    d = (0.058359, -2.878298)    a = (0.494309, -0.696587)    b = (0.080473, -0.229768)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] c1c ⊥ cd => a1c ⊥ cc1
+[   3 | gr ] c1, a, b collinear && a1a ⊥ ab => a1a ⊥ ac1
+[   3 | gr ] diff c a
+[   3 | gr ] a, b, c, d cyclic => c, a, d, b cyclic
+[   3 | gr ] a, b, c, d cyclic => c, d, a, b cyclic
+[   4 | dd ] c, d, a, b cyclic => ∠cad = ∠cbd
+[   4 | dd ] c, a, d, b cyclic => ∠cda = ∠cba
+[   4 | dd ] a1c ⊥ cc1 && a1a ⊥ ac1 && diff c a => a1, c, c1, a cyclic
+[   7 | gr ] a1, c, c1, a cyclic => c, c1, a1, a cyclic
+[   8 | dd ] c, c1, a1, a cyclic => ∠ca1c1 = ∠cac1
+[  10 | ar ] ∠cad = ∠cbd && ∠ca1c1 = ∠cac1 && ∠cda = ∠cba => c1a1 ∥ db
+[ 511 | dd ] c1a1 ∥ db => a1c1 ∥ bd
+=======================================
+Problem: 110-45
+
+    a b c d = cyclic_quad a b c d;
+    o = circumcenter o : a b c;
+    q = midpoint q : b c;
+    s = midpoint s : a d;
+    j = midpoint j : q s;
+    m = mirror m : o j;
+    i = intersection_ll i : a d b c
+    ? perp i m q s
+
+---------------------------------------
+    i = (-0.991075, -1.016658)    s = (-0.824997, 0.757276)    j = (-0.015344, -0.011531)
+    a = (-0.868045, 0.297461)    c = (1.321035, -0.710619)    b = (0.267581, -0.850058)
+    d = (-0.781948, 1.217091)    m = (-0.639238, -0.646128)    o = (0.608549, 0.623065)
+    q = (0.794308, -0.780338)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] oa = ob && ob = oc => co = bo
+[   3 | gr ] diff q s m o
+[   3 | gr ] m, o, j collinear && jo = jm => j midpoint of om
+[   3 | gr ] diff q s o m
+[   3 | gr ] a, b, c, d cyclic && o center of ⦿abc => o center of ⦿adc
+[   3 | gr ] q midpoint of bc => cq = bq
+[   3 | gr ] diff o q
+[   3 | gr ] m, o, j collinear && jo = jm => j midpoint of mo
+[   4 | dd ] j midpoint of qs && j midpoint of om && diff q s o m => qo ∥ sm
+[   4 | dd ] co = bo && cq = bq && diff o q => cb ⊥ oq
+[   4 | dd ] o center of ⦿adc => oa = od
+[   4 | dd ] j midpoint of qs && diff q s m o && j midpoint of mo => qm ∥ so
+[   6 | ar ] oa = od => do = ao
+[   7 | gr ] diff o s
+[   7 | gr ] s midpoint of ad => ds = as
+[   8 | dd ] do = ao && diff o s && ds = as => da ⊥ os
+[  11 | gr ] qo ∥ sm && cb ⊥ oq && i, b, c collinear => sm ⊥ qi
+[  11 | gr ] i, a, d collinear && da ⊥ os && qm ∥ so => mq ⊥ si
+[  11 | gr ] diff s m q i
+[  12 | dd ] sm ⊥ qi && mq ⊥ si && diff s m q i => qs ⊥ mi
+[ 511 | dd ] j midpoint of qs && qs ⊥ mi => im ⊥ qs
+=======================================
+Problem: 110-46
+
+    a b c d = cyclic_quad a b c d;
+    e = on_circum e : a b c;
+    p q r s = foot p : e a b, foot q : e b c, foot r : e c d, foot s : e d a
+    ? eqangle e p p s e q q r
+
+---------------------------------------
+    r = (-0.080048, -0.608867)    s = (1.045634, -0.683175)    b = (0.199436, -0.442406)
+    q = (0.127854, -0.238191)    e = (0.230957, -0.202050)    a = (1.591433, 0.241014)
+    p = (0.319921, -0.383252)    c = (0.381455, -0.961679)    d = (0.725725, -1.224868)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] diff s p
+[   3 | gr ] se ⊥ da && s, d, a collinear => es ⊥ sa
+[   3 | gr ] a, b, c, d cyclic && a, b, c, e cyclic => e, d, b, c cyclic
+[   3 | gr ] p, a, b collinear && pe ⊥ ab => ep ⊥ pa
+[   3 | gr ] re ⊥ cd && r, c, d collinear => cr ⊥ re
+[   3 | gr ] qe ⊥ bc && q, b, c collinear => cq ⊥ qe
+[   3 | gr ] a, b, c, d cyclic && a, b, c, e cyclic => e, d, b, a cyclic
+[   3 | gr ] diff r q
+[   4 | dd ] diff s p && es ⊥ sa && ep ⊥ pa => e, s, a, p cyclic
+[   4 | dd ] e, d, b, a cyclic => ∠ebd = ∠ead
+[   4 | dd ] e, d, b, c cyclic => ∠ebd = ∠ecd
+[   4 | dd ] cr ⊥ re && cq ⊥ qe && diff r q => c, r, e, q cyclic
+[   7 | gr ] c, r, e, q cyclic => e, r, q, c cyclic
+[   8 | dd ] e, s, a, p cyclic => ∠eas = ∠eps
+[   8 | dd ] e, r, q, c cyclic => ∠eqr = ∠ecr
+[ 511 | dd ] ∠eas = ∠eps && ∠ebd = ∠ead && ∠ebd = ∠ecd && ∠eqr = ∠ecr => ∠eps = ∠eqr
+=======================================
+Problem: 110-47
+
+    a b c d = cyclic_quad a b c d;
+    u = orthocenter u : a b d;
+    v = orthocenter v : a c d
+    ? cong u v b c
+
+---------------------------------------
+    a = (0.286392, -0.290547)    v = (-0.521575, 0.222219)    d = (-0.760509, -0.111324)
+    u = (-0.043360, 0.263042)    b = (-0.033293, 0.321850)    c = (-0.511507, 0.281028)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] a, b, c, d cyclic => a, d, b, c cyclic
+[   3 | gr ] a, b, c, d cyclic => a, b, d, c cyclic
+[   4 | dd ] a, d, b, c cyclic => ∠abd = ∠acd
+[   4 | dd ] a, b, d, c cyclic => ∠adb = ∠acb
+[   6 | ar ] ∠abd = ∠acd && va ⊥ cd && vd ⊥ ac && ud ⊥ ab && ua ⊥ bd => ∠dua = ∠dva
+[   6 | ar ] ∠abd = ∠acd && ud ⊥ ab && ua ⊥ bd => ∠acd = ∠dua
+[   7 | gr ] ∠abd = ∠acd && ∠dua = ∠dva && ∠acd = ∠dua => ∠dua = ∠dva
+[   7 | gr ] diff d a u v
+[   8 | dd ] ∠dua = ∠dva && diff d a u v => d, a, u, v cyclic
+[  11 | gr ] d, a, u, v cyclic => a, v, d, u cyclic
+[  12 | dd ] a, v, d, u cyclic => ∠adv = ∠auv
+[  14 | ar ] ∠adb = ∠acb && vd ⊥ ac && ∠adv = ∠auv && ua ⊥ bd => bc ∥ vu
+[  15 | gr ] diff b c v u
+[  15 | gr ] bc ∥ vu => bc ∥ vu
+[  15 | gr ] vc ⊥ da && ub ⊥ da => cv ∥ ub
+[  16 | dd ] diff b c v u && bc ∥ vu && cv ∥ ub => bc = vu
+[ 511 | dd ] bc = vu => uv = bc
+=======================================
+Problem: 110-48
+
+    a b c d = cyclic_quad a b c d;
+    e = intersection_ll e : a c b d;
+    i = circumcenter i : a b e
+    ? perp i e c d
+
+---------------------------------------
+    a = (-0.240366, -0.801253)    i = (-0.015559, 0.101438)    d = (0.690998, 1.944087)
+    e = (0.775487, 0.590964)    b = (0.830237, -0.285883)    c = (1.182860, 1.149265)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] a, b, c, d cyclic => a, d, b, c cyclic
+[   3 | gr ] ncoll i a b
+[   3 | gr ] ib = ie && ia = ib => ie = ib
+[   3 | gr ] ncoll i e b
+[   3 | gr ] ib = ie && ia = ib => ie = ia
+[   3 | gr ] ncoll i e a
+[   4 | dd ] ia = ib && ncoll i a b => ∠iab = ∠abi
+[   4 | dd ] a, d, b, c cyclic => ∠abd = ∠acd
+[   4 | dd ] ie = ib && ncoll i e b => ∠ieb = ∠ebi
+[   4 | dd ] ie = ia && ncoll i e a => ∠iea = ∠eai
+[   6 | ar ] ∠iab = ∠abi && ∠abd = ∠acd && ∠ieb = ∠ebi && ∠iea = ∠eai => dc ⊥ ie
+[ 511 | dd ] dc ⊥ ie => ie ⊥ cd
+=======================================
+Problem: 110-49
+
+    a b c = triangle a b c;
+    d = on_line_perp d : b a c;
+    p q r s = midpoint p : a b, midpoint q : b c, midpoint r : c d, midpoint s : d a;
+    o = intersection_ll o : p r q s
+    ? cong o s o r
+
+---------------------------------------
+    a = (0.710460, -0.631995)    o = (0.167951, -0.529552)    s = (0.546632, -0.399285)
+    q = (-0.210730, -0.659820)    d = (0.382805, -0.166574)    p = (0.455508, -0.808264)
+    b = (0.200556, -0.984533)    c = (-0.622017, -0.335107)    r = (-0.119606, -0.250841)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] p midpoint of ab => p midpoint of ba
+[   3 | gr ] diff c a q p
+[   3 | gr ] r midpoint of cd => r midpoint of dc
+[   3 | gr ] diff c a r s
+[   3 | gr ] ncoll d c a
+[   3 | gr ] s midpoint of da => s midpoint of ad
+[   3 | gr ] diff d b s p
+[   3 | gr ] ncoll a d b
+[   3 | gr ] ncoll b c a
+[   4 | dd ] s midpoint of da && r midpoint of dc && diff c a r s && ncoll d c a => rs ∥ ca
+[   4 | dd ] q midpoint of bc && p midpoint of ba && diff c a q p && ncoll b c a => qp ∥ ca
+[   4 | dd ] s midpoint of ad && diff d b s p && ncoll a d b && p midpoint of ab => sp ∥ db
+[   6 | ar ] p midpoint of ab => cd / cd = bp / bp
+[   6 | ar ] s midpoint of da => ba / ba = ds / ds
+[   6 | ar ] r midpoint of cd => ba / ba = rd / rd
+[   6 | ar ] q midpoint of bc => ba / ba = qb / qb
+[   6 | ar ] q midpoint of bc => cd / cd = qb / qb
+[   6 | ar ] p midpoint of ab => cb / cb = bp / bp
+[   7 | gr ] diffside_p q b c
+[   7 | gr ] ncoll r s c
+[   7 | gr ] diffside_p r d c
+[   7 | gr ] diffside_p s d a
+[   7 | gr ] s midpoint of da => d, s, a collinear
+[   7 | gr ] q midpoint of bc && cd / cd = bp / bp && ba / ba = qb / qb && cd / cd = qb / qb && cb / cb = bp / bp && p midpoint of ab => bq / qc = bp / pa
+[   7 | gr ] rs ∥ ca && sp ∥ db && db ⊥ ac => rs ⊥ sp
+[   7 | gr ] r midpoint of cd && ba / ba = ds / ds && ba / ba = rd / rd && s midpoint of da => dr / rc = ds / sa
+[   7 | gr ] diffside_p p b a
+[   7 | gr ] r midpoint of cd => d, r, c collinear
+[   7 | gr ] rs ∥ ca && qp ∥ ca => sr ∥ qp
+[   7 | gr ] o, q, s collinear => o, s, q collinear
+[   7 | gr ] o, p, r collinear => o, r, p collinear
+[   7 | gr ] ncoll s r q
+[   7 | gr ] q midpoint of bc => b, q, c collinear
+[   7 | gr ] p midpoint of ab => b, p, a collinear
+[   7 | gr ] ncoll q p c
+[   8 | dd ] diffside_p q b c && bq / qc = bp / pa && diffside_p p b a && b, q, c collinear && b, p, a collinear && ncoll q p c => △bqp ~ △bca
+[   8 | dd ] sr ∥ qp && o, s, q collinear && o, r, p collinear && ncoll s r q => △osr ~ △oqp
+[   8 | dd ] ncoll r s c && diffside_p r d c && diffside_p s d a && d, s, a collinear && dr / rc = ds / sa && d, r, c collinear => △drs ~ △dca
+[  10 | ar ] r midpoint of cd && q midpoint of bc && △bqp ~ △bca && △osr ~ △oqp && △drs ~ △dca => op = ro
+[  11 | dd ] rs ⊥ sp && o midpoint of rp => ro = so
+[  11 | gr ] o, p, r collinear && op = ro => o midpoint of rp
+[ 511 | dd ] op = ro && ro = so => os = or
+=======================================
+Problem: 110-50
+
+    a b c = triangle a b c;
+    d = on_line_perp d : b a c, on_circum d : a b c;
+    m = intersection_ll m : a c b d;
+    o = circumcenter o : a b c;
+    p r = midpoint p : a b, midpoint r : c d
+    ? cong o p r m
+
+---------------------------------------
+    c = (0.217413, -0.201465)    d = (0.071150, -0.243311)    o = (0.300343, -0.767865)
+    m = (0.147909, -0.298367)    b = (0.870687, -0.816787)    a = (-0.262747, -0.870902)
+    r = (0.144282, -0.222388)    p = (0.303970, -0.843844)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] ob = oc && oa = ob => oc = ob
+[   3 | gr ] ncoll o c b
+[   3 | gr ] p midpoint of ab => ap = bp
+[   3 | gr ] a, b, c, d cyclic => c, b, d, a cyclic
+[   3 | gr ] ncoll o a b
+[   3 | gr ] ob = oc && oa = ob => oc = oa
+[   3 | gr ] ncoll o c a
+[   3 | gr ] m, a, c collinear && m, b, d collinear && db ⊥ ac => cm ⊥ md
+[   3 | gr ] a, b, c, d cyclic => c, d, b, a cyclic
+[   3 | gr ] oa = ob => ao = bo
+[   3 | gr ] a, b, c, d cyclic => d, a, c, b cyclic
+[   3 | gr ] a, b, c, d cyclic => d, c, b, a cyclic
+[   3 | gr ] diff o p
+[   4 | dd ] oc = ob && ncoll o c b => ∠ocb = ∠cbo
+[   4 | dd ] a, b, c, d cyclic => ∠acb = ∠adb
+[   4 | dd ] c, b, d, a cyclic => ∠cdb = ∠cab
+[   4 | dd ] oa = ob && ncoll o a b => ∠oab = ∠abo
+[   4 | dd ] oc = oa && ncoll o c a => ∠oca = ∠cao
+[   4 | dd ] r midpoint of cd && cm ⊥ md => cr = mr
+[   4 | dd ] c, d, b, a cyclic => ∠cbd = ∠cad
+[   4 | dd ] ap = bp && ao = bo && diff o p => ab ⊥ op
+[   4 | dd ] d, a, c, b cyclic => ∠dca = ∠dba
+[   4 | dd ] d, c, b, a cyclic => ∠dbc = ∠dac
+[   6 | ar ] ∠ocb = ∠cbo && ∠oab = ∠abo && ∠oca = ∠cao && db ⊥ ac && ∠cbd = ∠cad => ∠(da, cm) = ∠abo
+[   6 | ar ] ∠ocb = ∠cbo && ∠oab = ∠abo && ∠oca = ∠cao && ∠cbd = ∠cad && ab ⊥ op => ∠adm = ∠pob
+[   7 | gr ] m, a, c collinear && p midpoint of ab && ∠(da, cm) = ∠abo && ∠oab = ∠abo && ∠dbc = ∠dac => ∠pbo = ∠dam
+[   7 | gr ] diffclock p b o m a d
+[   7 | gr ] m, b, d collinear && ∠acb = ∠adb && ∠adm = ∠pob => ∠pob = ∠adm
+[   7 | gr ] ncoll p b o
+[   7 | gr ] m, a, c collinear && m, b, d collinear && p midpoint of ab && r midpoint of cd && ∠cdb = ∠cab => ∠mab = ∠cdm
+[   7 | gr ] diffclock m a b m d c
+[   7 | gr ] m, a, c collinear && m, b, d collinear && p midpoint of ab && r midpoint of cd && ∠dca = ∠dba => ∠mba = ∠dcm
+[   7 | gr ] ncoll m a b
+[   8 | dd ] ∠pbo = ∠dam && diffclock p b o m a d && ∠pob = ∠adm && ncoll p b o => △pbo ~ △mad
+[   8 | dd ] ∠mab = ∠cdm && diffclock m a b m d c && ∠mba = ∠dcm && ncoll m a b => △mab ~ △mdc
+[  10 | ar ] p midpoint of ab && r midpoint of cd && △pbo ~ △mad && △mab ~ △mdc => rc = op
+[ 511 | dd ] cr = mr && rc = op => op = rm

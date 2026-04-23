@@ -420,11 +420,3 @@ problem 110-50 {
     p r = midpoint p : a b, midpoint r : c d
     ? cong o p r m
 }
-
-problem 110-51 {
-    a b c = triangle a b c;
-    d = on_line_perp d : b a c, on_circum d : a b c;
-    o = circumcenter o : a b c;
-    e = on_line e : d o, on_circum e : a b c
-    ? cong a e b c
-}
