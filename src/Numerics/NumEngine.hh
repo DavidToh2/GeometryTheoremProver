@@ -73,6 +73,17 @@ public:
     /* Given two points A, B: generate the circle with AB as diameter. */
     void compute_diameter(NumInstance& inst, Numeric* num);
 
+    /* Given four points A, B, O, P: generate the two intersections X, Y of the
+    line AB and circle (O, OP). 
+    Note: The numeric candidates of X, Y are not updated if the intersections do
+    not exist. Only use if you are sure these intersections exist! */
+    void compute_intersections_lc(NumInstance& inst, Numeric* num);
+    /* Given four points O, A, I, B: generate the two intersections X, Y of the
+    circles (O, OA) and (I, IB). 
+    Note: The numeric candidates of X, Y are not updated if the intersections do
+    not exist. Only use if you are sure these intersections exist! */
+    void compute_intersections_cc(NumInstance& inst, Numeric* num);
+
     void compute_midpoint(NumInstance& inst, Numeric* num);
     void compute_trisegment(NumInstance& inst, Numeric* num);
     /* Given two points A, B: generate the reflection of A in B. */
@@ -142,6 +153,9 @@ public:
         {num_t::MIRROR, &NumEngine::compute_mirror},
         {num_t::REFLECT, &NumEngine::compute_reflect},
 
+        {num_t::INTERSECTIONS_LC, &NumEngine::compute_intersections_lc},
+        {num_t::INTERSECTIONS_CC, &NumEngine::compute_intersections_cc},
+
         {num_t::ANGLE_EQ2, &NumEngine::compute_angle_eq2},
 
         {num_t::TANGENTS, &NumEngine::compute_tangents},
@@ -150,7 +164,6 @@ public:
     };
 
     std::map<num_t, void(NumEngine::*)(NumInstance&, Numeric*)> compute_function_map_ray = {
-        {num_t::LINE_AT_ANGLE, &NumEngine::compute_line_at_angle},
         {num_t::ANGLE_MIRROR, &NumEngine::compute_angle_mirror},
         {num_t::ANGLE_BISECT, &NumEngine::compute_angle_bisect},
         {num_t::ANGLE_TRISECT, &NumEngine::compute_angle_trisect},
@@ -162,6 +175,7 @@ public:
         {num_t::LINE_BISECT, &NumEngine::compute_line_bisect},
         {num_t::LINE_PARA, &NumEngine::compute_line_para},
         {num_t::LINE_PERP, &NumEngine::compute_line_perp},
+        {num_t::LINE_AT_ANGLE, &NumEngine::compute_line_at_angle},
 
         {num_t::ANGLE_EXBISECT, &NumEngine::compute_angle_exbisect},
 

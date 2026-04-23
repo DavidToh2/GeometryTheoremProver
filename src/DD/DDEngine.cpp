@@ -1792,6 +1792,10 @@ Generator<bool> DDEngine::match(Theorem* theorem, int i, int n, GeometricGraph &
                 pred->why += why;
             }
 
+            if (pred->to_string() == "simtri c a n c a n") {
+                int debug = 0;
+            }
+
             insert_new_predicate(std::move(pred_));
             co_yield true;
 
@@ -1833,6 +1837,9 @@ void DDEngine::search(GeometricGraph &ggraph) {
         Theorem* theorem = thr.second.get();
         int n = theorem->preconditions.predicates.size();
         Generator<bool> gen = match(theorem, 0, n, ggraph);
+        if (theorem->name == "eqratio_sameclock_eqangle_ncoll_simtri") {
+            int debug = 0;
+        }
         while (gen) {
             if (gen()) {
                 matches += 1;

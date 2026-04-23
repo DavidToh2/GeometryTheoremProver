@@ -1,5 +1,5 @@
 CompileFlags:
-  Add: [-resource-dir=/usr/local/lib/clang/20]
+  Add: [-resource-dir=/usr/local/lib/clang/20, -std=c++23]
   CompilationDatabase: build/
 Documentation:
   CommentFormat: Markdown

@@ -19,7 +19,7 @@ namespace Expr {
     double fix_v(const double d);
     void fix(Expr& expr);
     void strip(Expr& expr);
-    void mod_pi(Expr& expr, const Var pi = Constants::PI);
+    int mod_pi(Expr& expr, const Var pi = Constants::PI);
     bool all_zeroes(const Expr& expr);
     void __add(Expr& expr1, const Expr& expr2);
     Expr add(const Expr& expr1, const Expr& expr2);
@@ -45,6 +45,9 @@ namespace Expr {
     form of the matrix M. See documentation of Table class for more info.
     The variable `c` is "ignored during extraction". */
     std::pair<Var, Expr> get_subject(const Expr& expr, const Var c);
+
+    /* Scales up the expression so that all coefficients are integers. */
+    Expr int_ify(const Expr& expr);
 
     std::string to_string(const Var& var);
     int len(const Expr& expr);
@@ -171,8 +174,10 @@ public:
     std::map<Expr::ExprHash, EqualGroup> eq_2s;
     std::map<Expr::ExprHash, EqualGroup> eq_3s;
     std::map<Expr::ExprHash, EqualGroup> eq_4s;
+    
+    std::map<Expr::VarPair, int> pi_offsets;
 
-    Table(Expr::Var one_var = Constants::ONE) : num_vars(0), num_eqs(0), one(one_var), A(0, 0, 4) {
+    Table(Expr::Var one_var = Constants::ONE) : num_vars(0), num_eqs(0), one(one_var), A(0, 0, 5) {
         add_free(one);
     }
 
@@ -204,7 +209,6 @@ public:
     add contain at most 4 terms. 
     Also adds new variables to `var_to_row`. */
     bool register_expr(const Expr::Expr& expr, Predicate* pred);
-
 
     bool record_eq_2_as_seen(const Expr::Var& v1, const Expr::Var& v2);
     bool record_eq_3_as_seen(const Expr::Var& v1, const Expr::Var& v2, const Frac f);
@@ -326,7 +330,7 @@ public:
     Called by `get_all_eq_Ns_and_why()`. */
     std::set<Predicate*> why(const Expr::Expr& expr);
 
-    /* Gets all pairs of distinct variables `(v1, v2)`. */
+    /* Gets all ordered pairs of distinct variables `(v1, v2)`. */
     Generator<Expr::VarPair> all_varpairs() const;
 
     /* Populate the `eq_Ns` maps. 

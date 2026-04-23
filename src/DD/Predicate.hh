@@ -71,7 +71,8 @@ public:
 	PredSet() {}
 	PredSet(Predicate* pred) : preds{pred} {}
 	PredSet(std::initializer_list<Predicate*> init_list) : preds(init_list) {}
-	PredSet(std::set<Predicate*> &&vec) : preds(std::move(vec)) {}
+	PredSet(const std::set<Predicate*> &preds) : preds(preds) {}
+	PredSet(std::set<Predicate*> &&preds) : preds(std::move(preds)) {}
 
 	/* Move constructor */
 	PredSet(PredSet&& other) : preds(std::move(other.preds)) {}
@@ -130,6 +131,7 @@ public:
 	from_global_point_map(const std::string pred_string, std::map<std::string, std::unique_ptr<Point>> &global_point_map);
 
 	std::string to_string() const;
+	std::string to_string_with_whys() const;
 };
 
 class ClauseTemplate {

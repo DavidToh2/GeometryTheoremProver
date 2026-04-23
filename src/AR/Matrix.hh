@@ -4,6 +4,8 @@
 #include <vector>
 #include <map>
 
+#include "Common/Generator.hh"
+
 /* Matrix class. This class is not used.
 
 Here, `m` is the number of rows and `n` the number of columns that are
@@ -80,6 +82,8 @@ public:
     int extend_columns(std::map<int, double>& col_data);
     int extend_columns(std::map<int, double>&& col_data);
     int extend_columns(SparseMatrix& other);
+
+    Generator<std::vector<double>> __get_columns() const;
 
     std::string __print_matrix() const;
 };

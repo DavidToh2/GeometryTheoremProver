@@ -1,4 +1,6 @@
 
+#include <numeric>
+
 #include "Table.hh"
 #include "Common/Exceptions.hh"
 #include "Matrix.hh"
@@ -28,11 +30,14 @@ void Expr::strip(Expr& expr) {
         }
     }
 }
-void Expr::mod_pi(Expr& expr, const Var pi) {
+int Expr::mod_pi(Expr& expr, const Var pi) {
+    int ret = 0;
     if (expr.contains(pi)) {
         double coeff = expr[pi];
+        ret = std::floor(coeff);
         expr[pi] = coeff - std::floor(coeff);
     }
+    return ret;
 }
 bool Expr::all_zeroes(const Expr& expr) {
     for (const auto& [var, coeff] : expr) {
@@ -141,6 +146,19 @@ std::pair<Expr::Var, Expr::Expr> Expr::get_subject(const Expr& expr, const Var c
     __div(result, -subject_c);
     return {subject, result};
 }
+Expr::Expr Expr::int_ify(const Expr& expr) {
+    int lcm = 1;
+    for (auto [var, d] : expr) {
+        Frac f = Frac(d);
+        lcm = std::lcm(lcm, f.den);
+    }
+    Expr res;
+    for (auto& [var, d] : expr) {
+        Frac f = Frac(d);
+        __add(res, {{var, f.num * (lcm / f.den)}});
+    }
+    return res;
+}
 std::string Expr::to_string(const Var& var) {
     return var;
 }
@@ -158,6 +176,7 @@ Expr::ExprHash Expr::hash(const Expr& expr) {
     ExprHash expr_hash = expr;
     return expr_hash;
 }
+
 int Expr::hashlen(const ExprHash& expr_hash) {
     return expr_hash.size();
 }
@@ -167,12 +186,13 @@ std::string Expr::to_string(const Expr& expr) {
     if (it == expr.cend()) {
         return "0";
     }
-    s += to_string(it->first) + "*" + std::to_string(it->second);
+    s += to_string(it->first) + "*" + std::to_string(it->second) + "\b\b\b\b";
     ++it;
     while(it != expr.cend()) {
         const auto& [var, coeff] = *(it++);
-        s += " + " + to_string(var) + "*" + std::to_string(coeff);
+        s += " + " + to_string(var) + "*" + std::to_string(coeff) + "\b\b\b\b";
     }
+    s += "    \b\b\b\b";
     return s;
 }
 
@@ -200,6 +220,7 @@ bool Table::add_expr(const Expr::Expr& expr) {
     Expr::Expr result;
 
     for (const auto& [var, d] : expr) {
+        if (NumUtils::is_close_2(d, 0.0)) continue;
         if (M_var_to_expr.contains(var)) {
             Expr::__add(result, Expr::mult(M_var_to_expr[var], d));
             // By the invariant, result only contains free variables
@@ -213,12 +234,12 @@ bool Table::add_expr(const Expr::Expr& expr) {
 
     if (new_vars.size() == 0) {
         if (Expr::all_zeroes(result)) {
-            LOG("Expression already known!");
+            // LOG("Expression already known!");
             return false; // Expression already known
         }
         auto [subject, expr_subj] = Expr::get_subject(result, one);
         if (subject.empty()) {
-            LOG("Table::add_expr(): No subject found in " << Expr::to_string(result) << "!");
+            // LOG("Table::add_expr(): No subject found in " << Expr::to_string(result) << "!");
             return false;
         }
         // By the invariant, subject must be a free variable, which is about to become non-free
@@ -251,7 +272,6 @@ bool Table::add_expr(const Expr::Expr& expr) {
 
         LOG("Added the expression " << Expr::to_string(dependent_var) << " = " << Expr::to_string(M_var_to_expr[dependent_var]));
     }
-
     return true;
 }
 
@@ -289,16 +309,20 @@ bool Table::register_expr(const Expr::Expr& expr, Predicate* pred) {
     if (num_vars > A.m) {
         A.extend_rows(num_vars - A.m);
     }
-    SparseMatrix new_columns = SparseMatrix(num_vars, 2, 4);
-    for (const auto& [var, coeff] : expr) {
+    SparseMatrix new_columns = SparseMatrix(num_vars, 2, 5);
+
+    Expr::Expr expr_int = Expr::int_ify(expr);
+    for (const auto& [var, coeff] : expr_int) {
         new_columns.set(var_to_idx[var], 0, coeff);
         new_columns.set(var_to_idx[var], 1, -coeff);
     }
     A.extend_columns(new_columns);
     num_eqs += 1;
+    assert(A.n == 2*num_eqs);
     c.emplace_back(1);
     c.emplace_back(-1);
     deps.emplace_back(pred);
+    LOG("Registered the expression " << Expr::to_string(expr));
     return true;
 }
 
@@ -336,11 +360,28 @@ bool Table::is_eq_4_seen(const Expr::Var var1, const Expr::Var var2, const Expr:
 
 
 bool Table::add_eq(const Expr::Expr& expr, Predicate* pred) {
-    LOG("AR: Adding the expression " << Expr::to_string(expr));
+
+#if DEBUG_ARTABLE
+    bool res = add_expr(expr) && register_expr(expr, pred);
+    if (res) {
+        for (auto [var_, expr_] : M_var_to_expr) {
+            Expr::Expr expr_to_check = Expr::minus(expr_, {{var_, 1}});
+            Expr::strip(expr_to_check);
+            if (Expr::all_zeroes(expr_to_check)) continue;
+            if (why(expr_to_check).size() == 0) {
+                std::cout << __print_A();
+                std::cout << __print_M();
+                throw ARInternalError("Why check for expression " + Expr::to_string(expr_to_check) + " failed");
+            }
+        }
+    }
+    return res;
+#else
     return (
         add_expr(expr) 
         && register_expr(expr, pred)
     );
+#endif
 }
 bool Table::add_eq_2(const Expr::Var& var1, const Expr::Var& var2, float m, float n, Predicate* pred) {
     return (
@@ -363,7 +404,7 @@ bool Table::add_eq_3(const Expr::Var& var1, const Expr::Var& var2, float f, Pred
 bool Table::add_eq_4(const Expr::Var& var1, const Expr::Var& var2, const Expr::Var& var3, const Expr::Var& var4, Predicate* pred, Expr::Expr offset) {
     std::vector<std::pair<Expr::VarPair, Expr::VarPair>> links;
     return (
-        (record_eq_4_as_seen(var1, var2, var3, var4) || record_eq_4_as_seen(var1, var3, var2, var4))
+        (record_eq_4_as_seen(var1, var2, var3, var4)) // || record_eq_4_as_seen(var1, var3, var2, var4))
         && add_eq(Expr::add_fold(Expr::Expr{{var1, 1}}, Expr::Expr{{var2, -1}}, Expr::Expr{{var3, -1}}, Expr::Expr{{var4, 1}}, offset), pred)
         // && Table::update_equal_groups(equal_groups, {{var1, var2}, {var3, var4}}, links)
         // && Table::update_equal_groups(equal_groups, {{var2, var1}, {var4, var3}}, links)
@@ -389,7 +430,12 @@ std::set<Predicate*> Table::why(const Expr::Expr& expr) {
 
     // Solve the linear program min c^T * x subject to A * x = b, x >= 0
     std::vector<double> solution;
-    if (lp_solver.solve(solution)) {
+
+    bool solved = lp_solver.solve(solution);
+    if (!solved) {
+        throw ARInternalError("Failed to solve LP For expression " + Expr::to_string(expr));
+    }
+    if (solved) {
         assert(solution.size() == 2*num_eqs);
 
         for (int i = 0; i < num_eqs; i++) {
@@ -402,7 +448,6 @@ std::set<Predicate*> Table::why(const Expr::Expr& expr) {
     // std::cout << "--- The expression " << Expr::to_string(expr) << " has result size " << result.size() << " ---\n";
     return result;
 }
-
 
 
 Generator<Expr::VarPair> Table::all_varpairs() const {
@@ -420,6 +465,7 @@ void Table::generate_all_eqs() {
     eq_2s.clear();
     eq_3s.clear();
     eq_4s.clear();
+    pi_offsets.clear();
 
     auto all_varpairs_gen = all_varpairs();
     while (all_varpairs_gen) {
@@ -429,7 +475,8 @@ void Table::generate_all_eqs() {
 
         // For the angle table specifically, since we take modulo pi, we can
         // remove all integer multiples of pi from e12
-        Expr::mod_pi(e12);
+        int i = Expr::mod_pi(e12);
+        if (i) pi_offsets[{var1, var2}] = i;
 
         Expr::strip(e12);
         Expr::fix(e12);
@@ -454,7 +501,9 @@ Generator<std::tuple<Expr::Var, Expr::Var, std::set<Predicate*>>> Table::get_all
             
             Expr::Expr e = Expr::Expr{{v1, 1}, {v2, -1}};
             Expr::strip(e);
-            Expr::fix(e);
+            if (pi_offsets.contains({v1, v2})) {
+                Expr::__add(e, {{one, -pi_offsets[{v1, v2}]}});
+            }
 
             std::set<Predicate*> _why = why(e); 
             co_yield {v1, v2, _why};
@@ -471,7 +520,9 @@ Generator<std::tuple<Expr::Var, Expr::Var, Frac, std::set<Predicate*>>> Table::g
 
             Expr::Expr e = Expr::add_fold(Expr::Expr{{v1, 1}}, Expr::Expr{{v2, -1}}, Expr::Expr{{one, -f.to_double()}});
             Expr::strip(e);
-            Expr::fix(e);
+            if (pi_offsets.contains({v1, v2})) {
+                Expr::__add(e, {{one, -pi_offsets[{v1, v2}]}});
+            }
 
             std::set<Predicate*> _why = why(e);
             co_yield {v1, v2, f, _why};
@@ -493,18 +544,20 @@ Generator<std::tuple<Expr::Var, Expr::Var, Expr::Var, Expr::Var, std::set<Predic
         auto& [v3, v4] = vp2;
         if (is_eq_4_seen(v1, v2, v3, v4)) continue;
         record_eq_4_as_seen(v1, v2, v3, v4);
+        record_eq_4_as_seen(v1, v3, v2, v4);
 
         Expr::Expr e12 = Expr::minus(M_var_to_expr[v1], M_var_to_expr[v2]);
         Expr::Expr e34 = Expr::minus(M_var_to_expr[v3], M_var_to_expr[v4]);
-        Expr::Expr em = Expr::minus(e12, e34);  // should be zero
+        Expr::Expr em = Expr::minus(e12, e34);  // should be the correct pi-offset
 
         Expr::strip(em);
-        Expr::fix(em);
 
         Expr::Expr e = Expr::add_fold(Expr::Expr{{v1, 1}}, Expr::Expr{{v2, -1}}, Expr::Expr{{v3, -1}}, Expr::Expr{{v4, 1}});
         Expr::__minus(e, em);
         std::set<Predicate*> _why = why(e);
+
         co_yield {v1, v2, v3, v4, _why};
+        co_yield {v1, v3, v2, v4, _why};
     }
     co_return;
 }
@@ -512,7 +565,21 @@ Generator<std::tuple<Expr::Var, Expr::Var, Expr::Var, Expr::Var, std::set<Predic
 
 
 std::string Table::__print_A() const {
-    return A.__print_matrix();
+
+    std::string s = "A:\n";
+    auto gen = A.__get_columns();
+    while (gen) {
+        std::vector<double> col = gen();
+        Expr::Expr col_expr;
+        for (auto [var, i] : var_to_idx) {
+            Frac f = Frac(col[i]);
+            if (f.num != 0) {
+                Expr::__add(col_expr, Expr::Expr{{var, f.to_double()}});
+            }
+        }
+        s += "  " + Expr::to_string(col_expr) + "\n";
+    }
+    return s;
 }
 
 std::string Table::__print_M() const {
@@ -526,7 +593,7 @@ std::string Table::__print_M() const {
 void Table::reset() {
     num_vars = 0;
     num_eqs = 0;
-    A = SparseMatrix(0, 0, 4);
+    A = SparseMatrix(0, 0, 5);
     var_to_idx.clear();
     c.clear();
     deps.clear();
@@ -538,4 +605,5 @@ void Table::reset() {
     eq_2s.clear();
     eq_3s.clear();
     eq_4s.clear();
+    pi_offsets.clear();
 }

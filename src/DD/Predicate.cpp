@@ -160,7 +160,7 @@ Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, PredSet
     }
 }
 Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, Frac f, PredSet &&why, pred_src src)
-: Predicate(pred_name, std::move(nodes), src) {
+: Predicate(pred_name, std::move(nodes), std::move(why), src) {
     frac_arg = f;
     hash = hash + " " + f.to_string();
 }
@@ -172,7 +172,7 @@ Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, std::se
     }
 }
 Predicate::Predicate(const pred_t pred_name, std::vector<Node*> &&nodes, Frac f, std::set<Predicate*> &&why, pred_src src)
-: Predicate(pred_name, std::move(nodes), src) {
+: Predicate(pred_name, std::move(nodes), std::move(why), src) {
     frac_arg = f;
     hash = hash + " " + f.to_string();
 }
@@ -219,6 +219,17 @@ Predicate::Predicate(PredicateTemplate &pt, pred_src src) : name(pt.name), sourc
 
 std::string Predicate::to_string() const { return hash; }
 
+std::string Predicate::to_string_with_whys() const {
+    std::string res = hash;
+    if (why.size() >= 1) {
+        auto it = why.preds.begin();
+        res += " <- " + (*it)->to_string();
+        while (++it != why.preds.end()) {
+            res += ", " + (*it)->to_string();
+        }
+    }
+    return res;
+}
 
 
 

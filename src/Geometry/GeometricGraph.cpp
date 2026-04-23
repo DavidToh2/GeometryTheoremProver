@@ -3199,7 +3199,7 @@ int GeometricGraph::synthesise_preds(DDEngine &dd, AREngine &ar) {
         }
         if (res) {
             num += 1;
-            LOG("Synthesised predicate: " << pred->to_string());
+            LOG("Synthesised predicate: " << pred->to_string_with_whys());
         }
     }
     level += 2;
@@ -3215,6 +3215,9 @@ int GeometricGraph::synthesise_ar_preds(DDEngine &dd) {
         Predicate* pred = recent_preds_gen();
 
         pred->level = level;
+
+        assert(pred->why.size() > 0);
+        assert(!(pred->why.contains(pred)));
 
         switch(pred->name) {
             case pred_t::PARA:
@@ -3244,7 +3247,7 @@ int GeometricGraph::synthesise_ar_preds(DDEngine &dd) {
 
         if (res) {
             num += 1;
-            LOG("Synthesised AR predicate: " << pred->to_string());
+            LOG("Synthesised AR predicate: " << pred->to_string_with_whys());
         }
     }
     level += 2;

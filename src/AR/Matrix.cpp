@@ -201,6 +201,16 @@ int SparseMatrix::extend_columns(SparseMatrix& other) {
     return other.n;
 }
 
+Generator<std::vector<double>> SparseMatrix::__get_columns() const {
+    for (int i=0; i<n; i++) {
+        std::vector<double> res(m, 0);
+        for (int j=0; j<m; j++) {
+            res[j] = this->get(j, i);
+        }
+        co_yield res;
+    }
+}
+
 std::string SparseMatrix::__print_matrix() const {
     std::string repr = "[";
     for (int i = 0; i < m; i++) {

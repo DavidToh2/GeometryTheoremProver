@@ -230,6 +230,8 @@ AREngine::get_all_eqratios_and_why() {
     auto gen = ratio_table.get_all_eq_4s_and_why();
     while (gen) {
         auto [var1, var2, var3, var4, _why] = gen();
+        if ((var1 == var2) && (var3 == var4)) continue;
+        if ((var1 == var3) && (var2 == var4)) continue;
         Length* l1 = __get_length(var1);
         Length* l2 = __get_length(var2);
         Length* l3 = __get_length(var3);
@@ -282,6 +284,7 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
     angle_table.generate_all_eqs();
 
     LOG("Angle table:");
+    LOG(angle_table.__print_A());
     LOG(angle_table.__print_M());
 
     auto gen_const_angle = get_all_constangles_and_why();
@@ -335,6 +338,7 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
     ratio_table.generate_all_eqs();
 
     LOG("Ratio table:");
+    LOG(ratio_table.__print_A());
     LOG(ratio_table.__print_M());
 
     auto gen_cong_1 = get_all_congs_and_why_1();
@@ -372,6 +376,7 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
     displacement_table.generate_all_eqs();
 
     LOG("Displacement table:");
+    LOG(displacement_table.__print_A());
     LOG(displacement_table.__print_M());
 
     auto gen_cong_2 = get_all_congs_and_why_2();

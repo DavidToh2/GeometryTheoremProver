@@ -243,7 +243,7 @@ void NumEngine::compute_line_at_angle(NumInstance& inst, Numeric* num) {
                         double base_angle = Cartesian::angle_of(a, b);
                         double new_angle = base_angle - angle - M_PI_2; // subtract M_PI_2 to convert to polar angles
                         CartesianPoint dir(std::cos(new_angle), std::sin(new_angle));
-                        inst.record_out(num, 0, CartesianRay(a, a + dir));
+                        inst.record_out(num, 0, CartesianLine(a, a + dir));
                     }
                 }
             }
@@ -308,6 +308,42 @@ void NumEngine::compute_diameter(NumInstance& inst, Numeric* num) {
             CartesianPoint c = Cartesian::midpoint(a, b);
             double r = Cartesian::distance(a, b) / 2;
             inst.record_out(num, 0, CartesianCircle(c, r));
+        }
+    }
+}
+
+
+void NumEngine::compute_intersections_lc(NumInstance& inst, Numeric* num) {
+    for (CartesianPoint a : inst.get_arg_coords(num, 0)) {
+        for (CartesianPoint b : inst.get_arg_coords(num, 1)) {
+            for (CartesianPoint o : inst.get_arg_coords(num, 0)) {
+                for (CartesianPoint p : inst.get_arg_coords(num, 1)) {
+                    CartesianLine l(a, b);
+                    CartesianCircle c(o, p);
+                    auto ints = Cartesian::intersect(l, c);
+                    if (ints.first && ints.second) {
+                        inst.record_out(num, 0, ints.first.value());
+                        inst.record_out(num, 1, ints.second.value());
+                    }
+                }
+            }
+        }
+    }
+}
+void NumEngine::compute_intersections_cc(NumInstance& inst, Numeric* num) {
+    for (CartesianPoint o : inst.get_arg_coords(num, 0)) {
+        for (CartesianPoint a : inst.get_arg_coords(num, 1)) {
+            for (CartesianPoint i : inst.get_arg_coords(num, 0)) {
+                for (CartesianPoint b : inst.get_arg_coords(num, 1)) {
+                    CartesianCircle c1(o, a);
+                    CartesianCircle c2(i, b);
+                    auto ints = Cartesian::intersect(c1, c2);
+                    if (ints.first && ints.second) {
+                        inst.record_out(num, 0, ints.first.value());
+                        inst.record_out(num, 1, ints.second.value());
+                    }
+                }
+            }
         }
     }
 }
