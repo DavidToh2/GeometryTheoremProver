@@ -346,7 +346,7 @@ bool Table::is_eq_2_seen(const Expr::Var var1, const Expr::Var var2) {
 bool Table::is_eq_3_seen(const Expr::Var var1, const Expr::Var var2, const Frac f) {
     return (
         eq_3s_seen.contains({var1, var2, f}) 
-        || eq_3s_seen.contains({var2, var1, Frac(1)-f})
+        || eq_3s_seen.contains({var2, var1, Frac(0)-f})
     );
 }
 bool Table::is_eq_4_seen(const Expr::Var var1, const Expr::Var var2, const Expr::Var var3, const Expr::Var var4) {

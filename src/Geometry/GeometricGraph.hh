@@ -632,6 +632,10 @@ public:
     }
     bool check_ncoll(std::set<Point*> &pts);
 
+    bool check_npara(Point* p1, Point* p2, Point* p3, Point* p4);
+    bool check_nperp(Point* p1, Point* p2, Point* p3, Point* p4);
+    bool check_ncong(Point* p1, Point* p2, Point* p3, Point* p4);
+
     /* Returns true if the vectors `a->x` and `a->y` are within 90 degrees of each other.
     This is used to check, in the cases where `a, x, y` are collinear, whether `x, y` lie on the same
     side of `a`. */

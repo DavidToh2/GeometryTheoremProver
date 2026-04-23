@@ -83,6 +83,8 @@ public:
     Generator<bool> match_diff(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> match_ncoll(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> match_npara(PredicateTemplate* pred_template, GeometricGraph &ggraph);
+    Generator<bool> match_nperp(PredicateTemplate* pred_template, GeometricGraph &ggraph);
+    Generator<bool> match_ncong(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> match_sameclock(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> match_diffclock(PredicateTemplate* pred_template, GeometricGraph &ggraph);
     Generator<bool> match_sameside_p(PredicateTemplate* pred_template, GeometricGraph &ggraph);
@@ -102,6 +104,8 @@ public:
         {pred_t::DIFF, &DDEngine::match_diff},
         {pred_t::NCOLL, &DDEngine::match_ncoll},
         {pred_t::NPARA, &DDEngine::match_npara},
+        {pred_t::NPERP, &DDEngine::match_nperp},
+        {pred_t::NCONG, &DDEngine::match_ncong},
         {pred_t::SAMECLOCK, &DDEngine::match_sameclock},
         {pred_t::DIFFCLOCK, &DDEngine::match_diffclock},
         {pred_t::SAMESIDE_P, &DDEngine::match_sameside_p},

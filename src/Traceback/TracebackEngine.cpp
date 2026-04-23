@@ -1106,6 +1106,9 @@ PredSet TracebackEngine::why_circle(Point* c, Point* p1, Point* p2, Point* p3) {
 
 
 PredSet TracebackEngine::why_para(Point* p1, Point* p2, Point* p3, Point* p4) {
+    if ((NodeUtils::same_as(p1, p3) && NodeUtils::same_as(p2, p4)) || (NodeUtils::same_as(p1, p4) && NodeUtils::same_as(p2, p3))) {
+        return {};
+    }
     PredSet res;
     std::map<std::pair<Point*, Point*>, PredSet> why_point_ancestor_cache;
     std::map<std::pair<Line*, Line*>, PredSet> why_line_ancestor_cache;
@@ -1307,6 +1310,9 @@ PredSet TracebackEngine::why_perp(Point* p1, Point* p2, Point* p3, Point* p4) {
 
 
 PredSet TracebackEngine::why_cong(Point* p1, Point* p2, Point* p3, Point* p4) {
+    if ((NodeUtils::same_as(p1, p3) && NodeUtils::same_as(p2, p4)) || (NodeUtils::same_as(p1, p4) && NodeUtils::same_as(p2, p3))) {
+        return {};
+    }
     PredSet res;
     std::map<std::pair<Point*, Point*>, PredSet> why_point_ancestor_cache;
     std::map<std::pair<Segment*, Segment*>, PredSet> why_segment_ancestor_cache;

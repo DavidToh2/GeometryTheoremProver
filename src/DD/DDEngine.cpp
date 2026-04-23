@@ -470,27 +470,95 @@ Generator<bool> DDEngine::match_para(PredicateTemplate* pred_template, Geometric
             auto gen_l1 = p1->on_lines();
             while (gen_l1) {
                 l1 = gen_l1();
-                Direction* d1 = l1->direction;
                 auto gen_point_1 = l1->all_points();
                 while (gen_point_1) {
-                    auto pt1 = gen_point_1();
-                    if (pt1 == p1) continue;
-                    pred_template->set_arg(unsets[0], pt1);
-                    
+                    auto pt2 = gen_point_1();
+                    if (pt2 == p1) continue;
+                    pred_template->set_arg(unsets[0], pt2);
+
+                    char c2 = pred_template->set_arg(2, p1);
+                    char c3 = pred_template->set_arg(3, pt2);
+                    if (c2 != Arg::UNSUCCESSFUL_SET && c3 != Arg::UNSUCCESSFUL_SET) co_yield true;
+                    if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(2);
+                    if (c3 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(3);
+
+                    if (l1->has_direction()) {
+                        Direction* d1 = l1->direction;
+                        switch(k2) {
+                            case 0b00: {
+                                for (Line* l2 : d1->root_objs) {
+                                    if (l2 == l1) continue;
+                                    auto gen_point_pairs2 = l2->all_point_pairs_ordered();
+                                    while (gen_point_pairs2) {
+                                        auto [pt3, pt4] = gen_point_pairs2();
+                                        char c2 = pred_template->set_arg(2, pt3);
+                                        if (c2 != Arg::UNSUCCESSFUL_SET) {
+                                            char c3 = pred_template->set_arg(3, pt4);
+                                            if (c3 != Arg::UNSUCCESSFUL_SET) co_yield true;
+                                            if (c3 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(3);
+                                        }
+                                        if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(2);
+                                    }
+                                }
+                            } break;
+                            case 0b01:
+                            case 0b10: {
+                                auto gen_l2 = p3->on_lines();
+                                while (gen_l2) {
+                                    l2 = gen_l2();
+                                    if (ggraph.check_para(l1, l2) && l1 != l2) {
+                                        auto gen_point_2 = l2->all_points();
+                                        while (gen_point_2) {
+                                            auto pt3 = gen_point_2();
+                                            if (pt3 != p3) {
+                                                char c2 = pred_template->set_arg(unsets[2], pt3);
+                                                if (c2 != Arg::UNSUCCESSFUL_SET) co_yield true;
+                                                if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(unsets[2]);
+                                            }
+                                        }
+                                    }
+                                }
+                            } break;
+                            case 0b11: {
+                                l2 = ggraph.try_get_line(p3, p4);
+                                if (l2) {
+                                    if (ggraph.check_para(l1, l2) && l1 != l2) {
+                                        co_yield true;
+                                    }
+                                }
+                            } break;
+                        
+                        }
+                    pred_template->clear_arg(unsets[0]);
+                    }
+                
+                }
+                
+            }
+            co_return;
+        } break;
+        case 0b11: {
+            char c2 = pred_template->set_arg(2, p1);
+            char c3 = pred_template->set_arg(3, p2);
+            if (c2 != Arg::UNSUCCESSFUL_SET && c3 != Arg::UNSUCCESSFUL_SET) co_yield true;
+            if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(2);
+            if (c3 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(3);
+
+            l1 = ggraph.try_get_line(p1, p2);
+            if (l1) {
+                if (l1->has_direction()) {
+                    Direction* d1 = l1->direction;
                     switch(k2) {
                         case 0b00: {
                             for (Line* l2 : d1->root_objs) {
-                                if (l2 == l1) continue;
                                 auto gen_point_pairs2 = l2->all_point_pairs_ordered();
                                 while (gen_point_pairs2) {
-                                    auto [pt3, pt4] = gen_point_pairs2();
-                                    char c2 = pred_template->set_arg(2, pt3);
-                                    if (c2 != Arg::UNSUCCESSFUL_SET) {
-                                        char c3 = pred_template->set_arg(3, pt4);
-                                        if (c3 != Arg::UNSUCCESSFUL_SET) co_yield true;
-                                        if (c3 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(3);
-                                    }
-                                    if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(2);
+                                    auto [pt1, pt2] = gen_point_pairs2();
+                                    pred_template->set_arg(2, pt1);
+                                    pred_template->set_arg(3, pt2);
+                                    co_yield true;
+                                    pred_template->clear_arg(2);
+                                    pred_template->clear_arg(3);
                                 }
                             }
                         } break;
@@ -499,14 +567,14 @@ Generator<bool> DDEngine::match_para(PredicateTemplate* pred_template, Geometric
                             auto gen_l2 = p3->on_lines();
                             while (gen_l2) {
                                 l2 = gen_l2();
-                                if (ggraph.check_para(l1, l2) && l1 != l2) {
+                                if (ggraph.check_para(l1, l2)) {
                                     auto gen_point_2 = l2->all_points();
                                     while (gen_point_2) {
                                         auto pt3 = gen_point_2();
                                         if (pt3 != p3) {
-                                            char c2 = pred_template->set_arg(unsets[2], pt3);
-                                            if (c2 != Arg::UNSUCCESSFUL_SET) co_yield true;
-                                            if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(unsets[2]);
+                                            pred_template->set_arg(unsets[2], pt3);
+                                            co_yield true;
+                                            pred_template->clear_arg(unsets[2]);
                                         }
                                     }
                                 }
@@ -515,64 +583,12 @@ Generator<bool> DDEngine::match_para(PredicateTemplate* pred_template, Geometric
                         case 0b11: {
                             l2 = ggraph.try_get_line(p3, p4);
                             if (l2) {
-                                if (ggraph.check_para(l1, l2) && l1 != l2) {
+                                if (ggraph.check_para(l1, l2)) {
                                     co_yield true;
                                 }
                             }
                         } break;
-                    
                     }
-                    pred_template->clear_arg(unsets[0]);
-                }
-                
-            }
-            co_return;
-        } break;
-        case 0b11: {
-            l1 = ggraph.try_get_line(p1, p2);
-            if (l1) {
-                switch(k2) {
-                    case 0b00: {
-                        Direction* d1 = l1->direction;
-                        for (Line* l2 : d1->root_objs) {
-                            if (l2 == l1) continue;
-                            auto gen_point_pairs2 = l2->all_point_pairs_ordered();
-                            while (gen_point_pairs2) {
-                                auto [pt1, pt2] = gen_point_pairs2();
-                                pred_template->set_arg(2, pt1);
-                                pred_template->set_arg(3, pt2);
-                                co_yield true;
-                                pred_template->clear_arg(2);
-                                pred_template->clear_arg(3);
-                            }
-                        }
-                    } break;
-                    case 0b01:
-                    case 0b10: {
-                        auto gen_l2 = p3->on_lines();
-                        while (gen_l2) {
-                            l2 = gen_l2();
-                            if (ggraph.check_para(l1, l2) && l1 != l2) {
-                                auto gen_point_2 = l2->all_points();
-                                while (gen_point_2) {
-                                    auto pt3 = gen_point_2();
-                                    if (pt3 != p3) {
-                                        pred_template->set_arg(unsets[2], pt3);
-                                        co_yield true;
-                                        pred_template->clear_arg(unsets[2]);
-                                    }
-                                }
-                            }
-                        }
-                    } break;
-                    case 0b11: {
-                        l2 = ggraph.try_get_line(p3, p4);
-                        if (l2) {
-                            if (ggraph.check_para(l1, l2) && l1 != l2) {
-                                co_yield true;
-                            }
-                        }
-                    } break;
                 }
             }
             co_return;
@@ -952,89 +968,103 @@ Generator<bool> DDEngine::match_cong(PredicateTemplate* pred_template, Geometric
             auto gen_s1 = p1->endpoint_of_segments();
             while (gen_s1) {
                 Segment* s1 = gen_s1();
-                if (!s1->has_length()) continue;
                 Point* pt2 = s1->other_endpoint(p1);
                 pred_template->set_arg(unsets[0], pt2);
-                Length* l = s1->get_length();
-                switch(k2) {
-                    case 0b00: {
-                        for (Segment* s2 : l->root_objs) {
-                            if (s2 == s1) continue;
-                            auto [p3, p4] = s2->endpoints;
-                            std::array<std::array<Point*, 2>, 2> s2p{{{p3, p4}, {p4, p3}}};
-                            for (auto [pt3, pt4] : s2p) {
-                                char c2 = pred_template->set_arg(2, pt3);
-                                if (c2 != Arg::UNSUCCESSFUL_SET) {
-                                    char c3 = pred_template->set_arg(3, pt4);
-                                    if (c3 != Arg::UNSUCCESSFUL_SET) co_yield true;
-                                    if (c3 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(3);
+
+                char c2 = pred_template->set_arg(2, p1);
+                char c3 = pred_template->set_arg(3, pt2);
+                if (c2 != Arg::UNSUCCESSFUL_SET && c3 != Arg::UNSUCCESSFUL_SET) co_yield true;
+                if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(2);
+                if (c3 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(3);
+
+                if (s1->has_length()) {
+                    Length* l = s1->get_length();
+                    switch(k2) {
+                        case 0b00: {
+                            for (Segment* s2 : l->root_objs) {
+                                if (s2 == s1) continue;
+                                auto [p3, p4] = s2->endpoints;
+                                std::array<std::array<Point*, 2>, 2> s2p{{{p3, p4}, {p4, p3}}};
+                                for (auto [pt3, pt4] : s2p) {
+                                    char c2 = pred_template->set_arg(2, pt3);
+                                    if (c2 != Arg::UNSUCCESSFUL_SET) {
+                                        char c3 = pred_template->set_arg(3, pt4);
+                                        if (c3 != Arg::UNSUCCESSFUL_SET) co_yield true;
+                                        if (c3 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(3);
+                                    }
+                                    if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(2);
                                 }
-                                if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(2);
                             }
-                        }
-                    } break;
-                    case 0b01:
-                    case 0b10: {
-                        for (Segment* s2 : l->root_objs) {
-                            if (s2 == s1) continue;
-                            if (Point* pt4 = s2->other_endpoint(p3)) {
-                                char c2 = pred_template->set_arg(unsets[2], pt4);
-                                if (c2 != Arg::UNSUCCESSFUL_SET) co_yield true;
-                                if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(unsets[2]);
+                        } break;
+                        case 0b01:
+                        case 0b10: {
+                            for (Segment* s2 : l->root_objs) {
+                                if (Point* pt4 = s2->other_endpoint(p3)) {
+                                    char c2 = pred_template->set_arg(unsets[2], pt4);
+                                    if (c2 != Arg::UNSUCCESSFUL_SET) co_yield true;
+                                    if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(unsets[2]);
+                                }
                             }
-                        }
-                    } break;
-                    case 0b11: {
-                        s2 = ggraph.try_get_segment(p3, p4);
-                        if (s2) {
-                            if (s2 != s1 && ggraph.check_cong(s1, s2)) {
-                                co_yield true;
+                        } break;
+                        case 0b11: {
+                            s2 = ggraph.try_get_segment(p3, p4);
+                            if (s2) {
+                                if (ggraph.check_cong(s1, s2)) {
+                                    co_yield true;
+                                }
                             }
-                        }
-                    } break;
+                        } break;
+                    }
                 }
                 pred_template->clear_arg(unsets[0]);
             }
         } break;
         case 0b11: {
+            char c2 = pred_template->set_arg(2, p1);
+            char c3 = pred_template->set_arg(3, p2);
+            if (c2 != Arg::UNSUCCESSFUL_SET && c3 != Arg::UNSUCCESSFUL_SET) co_yield true;
+            if (c2 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(2);
+            if (c3 == Arg::SUCCESSFUL_SET) pred_template->clear_arg(3);
+
             Segment* s1 = ggraph.try_get_segment(p1, p2);
             if (s1) {
-                if (!s1->has_length()) co_return;
-                Length* l = s1->get_length();
-                switch(k2) {
-                    case 0b00: {
-                        for (Segment* s2 : l->root_objs) {
-                            if (s2 == s1) continue;
-                            auto [p3, p4] = s2->endpoints;
-                            std::array<std::array<Point*, 2>, 2> s2p{{{p3, p4}, {p4, p3}}};
-                            for (auto [pt3, pt4] : s2p) {
-                                pred_template->set_arg(2, pt3);
-                                pred_template->set_arg(3, pt4);
-                                co_yield true;
-                                pred_template->clear_arg(2);
-                                pred_template->clear_arg(3);
+                if (s1->has_length()) {
+                    Length* l = s1->get_length();
+                    switch(k2) {
+                        case 0b00: {
+                            for (Segment* s2 : l->root_objs) {
+                                if (s2 == s1) continue;
+                                auto [p3, p4] = s2->endpoints;
+                                std::array<std::array<Point*, 2>, 2> s2p{{{p3, p4}, {p4, p3}}};
+                                for (auto [pt3, pt4] : s2p) {
+                                    pred_template->set_arg(2, pt3);
+                                    pred_template->set_arg(3, pt4);
+                                    co_yield true;
+                                    pred_template->clear_arg(2);
+                                    pred_template->clear_arg(3);
+                                }
                             }
-                        }
-                    } break;
-                    case 0b01:
-                    case 0b10: {
-                        for (Segment* s2 : l->root_objs) {
-                            if (s2 == s1) continue;
-                            if (Point* pt4 = s2->other_endpoint(p3)) {
-                                pred_template->set_arg(unsets[2], pt4);
-                                co_yield true;
-                                pred_template->clear_arg(unsets[2]);
+                        } break;
+                        case 0b01:
+                        case 0b10: {
+                            for (Segment* s2 : l->root_objs) {
+                                if (s2 == s1) continue;
+                                if (Point* pt4 = s2->other_endpoint(p3)) {
+                                    pred_template->set_arg(unsets[2], pt4);
+                                    co_yield true;
+                                    pred_template->clear_arg(unsets[2]);
+                                }
                             }
-                        }
-                    } break;
-                    case 0b11: {
-                        Segment* s2 = ggraph.try_get_segment(p3, p4);
-                        if (s2) {
-                            if (s2 != s1 && ggraph.check_cong(s1, s2)) {
-                                co_yield true;
+                        } break;
+                        case 0b11: {
+                            Segment* s2 = ggraph.try_get_segment(p3, p4);
+                            if (s2) {
+                                if (s2 != s1 && ggraph.check_cong(s1, s2)) {
+                                    co_yield true;
+                                }
                             }
-                        }
-                    } break;
+                        } break;
+                    }
                 }
             }
         } break;
@@ -1182,6 +1212,7 @@ Generator<bool> DDEngine::match_eqangle(PredicateTemplate* pred_template, Geomet
 
         if (ggraph.root_measures.size() > 0) {
             for (Measure* m : ggraph.root_measures) {
+                if (m->val == Frac(0)) continue;
                 auto gen_angle_pairs = m->all_eq_pairs_ordered();
                 while (gen_angle_pairs) {
                     auto [angle1, angle2] = gen_angle_pairs();
@@ -1353,6 +1384,7 @@ Generator<bool> DDEngine::match_eqratio(PredicateTemplate* pred_template, Geomet
     } else {
 
         for (Fraction* f : ggraph.root_fractions) {
+            if (f->val == Frac(0)) continue;
             auto gen_segment_pairs = f->all_eq_pairs_ordered();
             while (gen_segment_pairs) {
                 auto [ratio1, ratio2] = gen_segment_pairs();
@@ -1716,13 +1748,31 @@ Generator<bool> DDEngine::match_npara(PredicateTemplate* pred_template, Geometri
     Point* p2 = pred_template->args[1]->get_point();
     Point* p3 = pred_template->args[2]->get_point();
     Point* p4 = pred_template->args[3]->get_point();
-    Line* l1 = ggraph.try_get_line(p1, p2);
-    Line* l2 = ggraph.try_get_line(p3, p4);
-    if (!l1 || !l2) {
-        co_yield true;
-        co_return;
+    co_yield ggraph.check_npara(p1, p2, p3, p4);
+    co_return;
+}
+
+Generator<bool> DDEngine::match_nperp(PredicateTemplate* pred_template, GeometricGraph &ggraph) {
+    if (!pred_template->args[0]->filled() || !pred_template->args[1]->filled() || !pred_template->args[2]->filled() || !pred_template->args[3]->filled()) {
+        throw DDInternalError("NPERP predicate requires all four arguments to be set for matching.");
     }
-    co_yield !(ggraph.check_para(l1, l2));
+    Point* p1 = pred_template->args[0]->get_point();
+    Point* p2 = pred_template->args[1]->get_point();
+    Point* p3 = pred_template->args[2]->get_point();
+    Point* p4 = pred_template->args[3]->get_point();
+    co_yield ggraph.check_nperp(p1, p2, p3, p4);
+    co_return;
+}
+
+Generator<bool> DDEngine::match_ncong(PredicateTemplate* pred_template, GeometricGraph &ggraph) {
+    if (!pred_template->args[0]->filled() || !pred_template->args[1]->filled() || !pred_template->args[2]->filled() || !pred_template->args[3]->filled()) {
+        throw DDInternalError("NCONG predicate requires all four arguments to be set for matching.");
+    }
+    Point* p1 = pred_template->args[0]->get_point();
+    Point* p2 = pred_template->args[1]->get_point();
+    Point* p3 = pred_template->args[2]->get_point();
+    Point* p4 = pred_template->args[3]->get_point();
+    co_yield ggraph.check_ncong(p1, p2, p3, p4);
     co_return;
 }
 
@@ -1777,7 +1827,7 @@ Generator<bool> DDEngine::match_diffside_p(PredicateTemplate* pred_template, Geo
 }
 
 Generator<bool> DDEngine::match(Theorem* theorem, int i, int n, GeometricGraph &ggraph) {
-    
+
     if (i == n) {
         if (!ggraph.check(theorem->postcondition.get())) {
 
@@ -1790,10 +1840,6 @@ Generator<bool> DDEngine::match(Theorem* theorem, int i, int n, GeometricGraph &
                 Predicate* why = insert_predicate(std::move(whys_()));
                 if (new_predicate) why->source = pred_src::GGRAPH;
                 pred->why += why;
-            }
-
-            if (pred->to_string() == "simtri c a n c a n") {
-                int debug = 0;
             }
 
             insert_new_predicate(std::move(pred_));
@@ -1836,10 +1882,8 @@ void DDEngine::search(GeometricGraph &ggraph) {
         int matches = 0;
         Theorem* theorem = thr.second.get();
         int n = theorem->preconditions.predicates.size();
+
         Generator<bool> gen = match(theorem, 0, n, ggraph);
-        if (theorem->name == "eqratio_sameclock_eqangle_ncoll_simtri") {
-            int debug = 0;
-        }
         while (gen) {
             if (gen()) {
                 matches += 1;

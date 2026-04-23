@@ -316,14 +316,16 @@ void NumEngine::compute_diameter(NumInstance& inst, Numeric* num) {
 void NumEngine::compute_intersections_lc(NumInstance& inst, Numeric* num) {
     for (CartesianPoint a : inst.get_arg_coords(num, 0)) {
         for (CartesianPoint b : inst.get_arg_coords(num, 1)) {
-            for (CartesianPoint o : inst.get_arg_coords(num, 0)) {
-                for (CartesianPoint p : inst.get_arg_coords(num, 1)) {
+            for (CartesianPoint o : inst.get_arg_coords(num, 2)) {
+                for (CartesianPoint p : inst.get_arg_coords(num, 3)) {
                     CartesianLine l(a, b);
                     CartesianCircle c(o, p);
                     auto ints = Cartesian::intersect(l, c);
                     if (ints.first && ints.second) {
                         inst.record_out(num, 0, ints.first.value());
                         inst.record_out(num, 1, ints.second.value());
+                    } else {
+                        throw NumericsInternalError("Error: compute_intersections_lc failed to find intersection points");
                     }
                 }
             }
@@ -333,14 +335,16 @@ void NumEngine::compute_intersections_lc(NumInstance& inst, Numeric* num) {
 void NumEngine::compute_intersections_cc(NumInstance& inst, Numeric* num) {
     for (CartesianPoint o : inst.get_arg_coords(num, 0)) {
         for (CartesianPoint a : inst.get_arg_coords(num, 1)) {
-            for (CartesianPoint i : inst.get_arg_coords(num, 0)) {
-                for (CartesianPoint b : inst.get_arg_coords(num, 1)) {
+            for (CartesianPoint i : inst.get_arg_coords(num, 2)) {
+                for (CartesianPoint b : inst.get_arg_coords(num, 3)) {
                     CartesianCircle c1(o, a);
                     CartesianCircle c2(i, b);
                     auto ints = Cartesian::intersect(c1, c2);
                     if (ints.first && ints.second) {
                         inst.record_out(num, 0, ints.first.value());
                         inst.record_out(num, 1, ints.second.value());
+                    } else {
+                        throw NumericsInternalError("Error: compute_intersections_cc failed to find intersection points");
                     }
                 }
             }

@@ -191,12 +191,20 @@ AREngine::get_all_eqangles_and_why() {
     auto gen = angle_table.get_all_eq_4s_and_why();
     while (gen) {
         auto [var1, var2, var3, var4, _why] = gen();
+        if ((var1 == var2) && (var3 == var4)) continue;
+        if ((var1 == var3) && (var2 == var4)) continue;
         Direction* d1 = __get_direction(var1);
         Direction* d2 = __get_direction(var2);
         Direction* d3 = __get_direction(var3);
         Direction* d4 = __get_direction(var4);
-        co_yield {d1, d2, d3, d4, _why};
-        co_yield {d2, d1, d4, d3, _why};
+        if (var1 == var2) {
+            co_yield {d1, d2, d3, d4, _why};
+        } else if (var3 == var4) {
+            co_yield {d3, d4, d1, d2, _why};
+        } else {
+            co_yield {d1, d2, d3, d4, _why};
+            co_yield {d2, d1, d4, d3, _why};
+        }
     }
     co_return;
 }
@@ -236,8 +244,14 @@ AREngine::get_all_eqratios_and_why() {
         Length* l2 = __get_length(var2);
         Length* l3 = __get_length(var3);
         Length* l4 = __get_length(var4);
-        co_yield {l1, l2, l3, l4, _why};
-        co_yield {l2, l1, l4, l3, _why};
+        if (var1 == var2) {
+            co_yield {l1, l2, l3, l4, _why};
+        } else if (var3 == var4) {
+            co_yield {l3, l4, l1, l2, _why};
+        } else {
+            co_yield {l1, l2, l3, l4, _why};
+            co_yield {l2, l1, l4, l3, _why};
+        }
     }
     co_return;
 }
@@ -316,11 +330,25 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
     auto gen_eqangle = get_all_eqangles_and_why();
     while (gen_eqangle) {
         auto [d1, d2, d3, d4, why] = gen_eqangle();
-        dd.insert_new_predicate(
-            std::make_unique<Predicate>(
-                pred_t::EQANGLE, std::vector<Node*>{d1, d2, d3, d4}, 
-                std::move(why), pred_src::AR)
-        );
+        if (d1 == d2) {
+            dd.insert_new_predicate(
+                std::make_unique<Predicate>(
+                    pred_t::PARA, std::vector<Node*>{d3, d4}, 
+                    std::move(why), pred_src::AR)
+            );
+        } else if (d3 == d4) {
+            dd.insert_new_predicate(
+                std::make_unique<Predicate>(
+                    pred_t::PARA, std::vector<Node*>{d1, d2}, 
+                    std::move(why), pred_src::AR)
+            );
+        } else {
+            dd.insert_new_predicate(
+                std::make_unique<Predicate>(
+                    pred_t::EQANGLE, std::vector<Node*>{d1, d2, d3, d4}, 
+                    std::move(why), pred_src::AR)
+            );
+        }
     }
 
     auto gen_para = get_all_paras_and_why();
@@ -364,11 +392,25 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
     auto gen_eqratio = get_all_eqratios_and_why();
     while (gen_eqratio) {
         auto [l1, l2, l3, l4, why] = gen_eqratio();
-        dd.insert_new_predicate(
-            std::make_unique<Predicate>(
-                pred_t::EQRATIO, std::vector<Node*>{l1, l2, l3, l4}, 
-                std::move(why), pred_src::AR)
-        );
+        if (l1 == l2) {
+            dd.insert_new_predicate(
+                std::make_unique<Predicate>(
+                    pred_t::CONG, std::vector<Node*>{l3, l4}, 
+                    std::move(why), pred_src::AR)
+            );
+        } else if (l3 == l4) {
+            dd.insert_new_predicate(
+                std::make_unique<Predicate>(
+                    pred_t::CONG, std::vector<Node*>{l1, l2}, 
+                    std::move(why), pred_src::AR)
+            );
+        } else {
+            dd.insert_new_predicate(
+                std::make_unique<Predicate>(
+                    pred_t::EQRATIO, std::vector<Node*>{l1, l2, l3, l4}, 
+                    std::move(why), pred_src::AR)
+            );
+        }
     }
 
 

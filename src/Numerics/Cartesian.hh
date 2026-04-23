@@ -228,8 +228,17 @@ namespace Cartesian {
         // Check if the area of triangle p1p2p3 is close to 0
         return NumUtils::is_close(0.5 * std::abs(p1.x * (p2.y - p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y)), 0.0);
     }
+    constexpr bool is_para(const CartesianPoint &p1, const CartesianPoint &p2, const CartesianPoint &p3, const CartesianPoint &p4) {
+        return NumUtils::is_close((p2.x - p1.x) * (p4.y - p3.y), (p4.x - p3.x) * (p2.y - p1.y));
+    }
+    constexpr bool is_perp(const CartesianPoint &p1, const CartesianPoint &p2, const CartesianPoint &p3, const CartesianPoint &p4) {
+        return NumUtils::is_close((p2.x - p1.x) * (p4.x - p3.x), (p2.y - p1.y) * (p3.y - p4.y));
+    }
+    constexpr bool is_cong(const CartesianPoint &p1, const CartesianPoint &p2, const CartesianPoint &p3, const CartesianPoint &p4) {
+        return NumUtils::is_close(distance2(p1, p2), distance2(p3, p4));
+    }
 
-    /* Given three points A, B, C: determines if the rotation from AB to BC is clockwise or anticlockwise 
+    /* Given three points A, B, C: determines if the rotation from AB to BC is clockwise or anticlockwise.
     This uses Fleming's right-hand rule. */
     constexpr bool orientation_of(const CartesianPoint &p1, const CartesianPoint &p2, const CartesianPoint &p3) {
         return (p1.x - p2.x) * (p3.y - p2.y) - (p1.y - p2.y) * (p3.x - p2.x) > 0;

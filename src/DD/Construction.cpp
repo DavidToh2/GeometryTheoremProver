@@ -151,7 +151,13 @@ void Construction::construct_no_checks(
     StrUtils::trim(_ps);
     StrUtils::trim(_cs);
 
-    std::vector<std::string> c_new_nodes_all = StrUtils::split(_ps, " ");   // unused
+    std::vector<std::string> c_new_nodes_all = StrUtils::split(_ps, " ");
+    for (std::string obj_ : c_new_nodes_all) {
+        if (ggraph.points.contains(obj_)) {
+            throw InvalidTextualInputError("Error: Invalid construction stage string [" + cstage_string 
+                + "]: Construction stage new node " + obj_ + " already exists");
+        }
+    }
 
     // Text processing of construction stages
 
@@ -161,6 +167,11 @@ void Construction::construct_no_checks(
         StrUtils::trim(_c);
         auto [c_name, c_new_nodes_str, c_existing_nodes_str] = parse_decl_string(_c);
 
+        if (!dd.constructions.contains(c_name)) {
+            throw InvalidTextualInputError("Error: Invalid construction stage string [" + cstage_string 
+                + "]: Construction step " + c_name + " not found in construction library");
+        }
+
         std::vector<std::string> c_existing_nodes = StrUtils::split(c_existing_nodes_str, " ");
         std::vector<std::string> c_new_nodes = StrUtils::split(c_new_nodes_str, " ");
         
@@ -168,9 +179,17 @@ void Construction::construct_no_checks(
         std::vector<Node*> nodes_existing;
         std::vector<Node*> nodes_new;
         for (std::string obj_ : c_existing_nodes) {
+            if (!ggraph.points.contains(obj_)) {
+                throw InvalidTextualInputError("Error: Invalid construction stage string [" + cstage_string 
+                    + "]: Construction stage argument " + obj_ + " does not exist");
+            }
             nodes_existing.push_back(ggraph.get_or_add_point(obj_));
         }
         for (std::string obj_ : c_new_nodes) {
+            if (c_new_nodes_all.end() == std::find(c_new_nodes_all.begin(), c_new_nodes_all.end(), obj_)) {
+                throw InvalidTextualInputError("Error: Invalid construction stage string [" + cstage_string 
+                    + "]: The new node " + obj_ + " was not declared in the initial new node list");
+            }
             nodes_new.push_back(ggraph.get_or_add_point(obj_));
         }
 

@@ -23,8 +23,8 @@ int main(int argc, char** argv) {
 
     std::string input_filepath="", 
         problem_name="", 
-        rule_filepath="rules.txt", 
-        construction_filepath="constructions.txt", 
+        rule_filepath="problems/rules.txt", 
+        construction_filepath="problems/constructions.txt", 
         output_filepath="";
 
     int opt, optindex;

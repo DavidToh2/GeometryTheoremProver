@@ -1935,7 +1935,7 @@ bool GeometricGraph::check_cong(Point* p1, Point* p2, Point* p3, Point* p4) {
 }
 
 bool GeometricGraph::check_cong(Segment* s1, Segment* s2) {
-    if (s1 == s2) return true;
+    if (NodeUtils::same_as(s1, s2)) return true;
     if (!s1->has_length() || !s2->has_length()) { return false; }
     return check_cong(s1->get_length(), s2->get_length());
 }
@@ -2102,6 +2102,21 @@ bool GeometricGraph::check_ncoll(std::set<Point*> &pts) {
         }
     }
     return true;
+}
+
+
+bool GeometricGraph::check_npara(Point* p1, Point* p2, Point* p3, Point* p4) {
+    return !Cartesian::is_para(point_nums[p1], point_nums[p2], point_nums[p3], point_nums[p4]);
+}
+
+
+bool GeometricGraph::check_nperp(Point* p1, Point* p2, Point* p3, Point* p4) {
+    return !Cartesian::is_perp(point_nums[p1], point_nums[p2], point_nums[p3], point_nums[p4]);
+}
+
+
+bool GeometricGraph::check_ncong(Point* p1, Point* p2, Point* p3, Point* p4) {
+    return !Cartesian::is_cong(point_nums[p1], point_nums[p2], point_nums[p3], point_nums[p4]);
 }
 
 

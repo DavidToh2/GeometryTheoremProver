@@ -69,7 +69,7 @@ bool PredicateTemplate::args_filled() const {
     for (auto& argptr : args) {
         if (argptr->empty()) {
             return false;
-        }
+        } 
     }
     return true;
 }
