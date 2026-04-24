@@ -186,8 +186,8 @@ TEST_SUITE("NumEngine Computation") {
             Numeric num("f = line_at_angle a b c d e", point_map);
             inst.next_outs(&num);
             ne.compute_line_at_angle(inst, &num);
-            CartesianRay ray = std::get<CartesianRay>(inst.__get_obj(f));
-            CartesianPoint pf = Cartesian::get_random_point_on_ray(ray, 0.8);
+            CartesianLine line = std::get<CartesianLine>(inst.__get_obj(f));
+            CartesianPoint pf = Cartesian::get_random_point_on_line(line, 0.8);
             CartesianPoint pa = inst.__get_coord(a);
             CartesianPoint pb = inst.__get_coord(b);
             CartesianPoint pc = inst.__get_coord(c);
@@ -196,7 +196,10 @@ TEST_SUITE("NumEngine Computation") {
 
             double ang_fab = Cartesian::angle_between(pf, pa, pb);
             double ang_cde = Cartesian::angle_between(pc, pd, pe);
-            CHECK(NumUtils::is_close(ang_fab, ang_cde));
+            CHECK((
+                NumUtils::is_close(ang_fab, ang_cde)
+                || NumUtils::is_close(std::abs(ang_fab - ang_cde), M_PI)
+            ));
         }
         SUBCASE("line_bisect") {
             Numeric num("c = line_bisect a b", point_map);

@@ -2076,7 +2076,61 @@ bool GeometricGraph::check_constangle(Angle* a, Frac f) { return Angle::is_equal
 bool GeometricGraph::check_constratio(Ratio* r, Frac f) { return Ratio::is_equal(r, f); }
 
 
-bool GeometricGraph::check_diff(std::set<Point*> &pts) {
+bool GeometricGraph::num_check_coll(Point* p1, Point* p2, Point* p3) {
+    return Cartesian::is_coll(point_nums[p1], point_nums[p2], point_nums[p3]);
+}
+bool GeometricGraph::num_check_cyclic(Point* p1, Point* p2, Point* p3, Point* p4) {
+    return CartesianCircle(point_nums[p1], point_nums[p2], point_nums[p3]).contains(point_nums[p4]);
+}
+bool GeometricGraph::num_check_para(Point* p1, Point* p2, Point* p3, Point* p4) {
+    return Cartesian::is_para(point_nums[p1], point_nums[p2], point_nums[p3], point_nums[p4]);
+}
+bool GeometricGraph::num_check_perp(Point* p1, Point* p2, Point* p3, Point* p4) {
+    return Cartesian::is_perp(point_nums[p1], point_nums[p2], point_nums[p3], point_nums[p4]);
+}
+bool GeometricGraph::num_check_cong(Point* p1, Point* p2, Point* p3, Point* p4) {
+    return Cartesian::is_cong(point_nums[p1], point_nums[p2], point_nums[p3], point_nums[p4]);
+}
+bool GeometricGraph::num_check_midp(Point* m, Point* p1, Point* p2) {
+    return Cartesian::is_midp(point_nums[m], point_nums[p1], point_nums[p2]);
+}
+bool GeometricGraph::num_check_circle(Point* c, Point* p1, Point* p2, Point* p3) {
+    return Cartesian::is_circle(point_nums[c], point_nums[p1], point_nums[p2], point_nums[p3]);
+}
+bool GeometricGraph::num_check_eqangle(Point* p1, Point* p2, Point* p3, Point* p4,
+                                      Point* p5, Point* p6, Point* p7, Point* p8) {
+    return Cartesian::is_eqangle(
+        point_nums[p1], point_nums[p2], point_nums[p3], point_nums[p4],
+        point_nums[p5], point_nums[p6], point_nums[p7], point_nums[p8]
+    );
+}
+bool GeometricGraph::num_check_eqratio(Point* p1, Point* p2, Point* p3, Point* p4,
+                                      Point* p5, Point* p6, Point* p7, Point* p8) {
+    return Cartesian::is_eqratio(
+        point_nums[p1], point_nums[p2], point_nums[p3], point_nums[p4],
+        point_nums[p5], point_nums[p6], point_nums[p7], point_nums[p8]
+    );
+}
+bool GeometricGraph::num_check_contri(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6) {
+    return (
+        Cartesian::is_cong(point_nums[p1], point_nums[p2], point_nums[p4], point_nums[p5])
+        && Cartesian::is_cong(point_nums[p2], point_nums[p3], point_nums[p5], point_nums[p6])
+        && Cartesian::is_cong(point_nums[p3], point_nums[p1], point_nums[p6], point_nums[p4])
+    );
+}
+bool GeometricGraph::num_check_simtri(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6) {
+    return (
+        Cartesian::is_eqratio(point_nums[p1], point_nums[p2], point_nums[p2], point_nums[p3],
+                                 point_nums[p4], point_nums[p5], point_nums[p5], point_nums[p6])
+        && Cartesian::is_eqratio(point_nums[p2], point_nums[p3], point_nums[p3], point_nums[p1],
+                                 point_nums[p5], point_nums[p6], point_nums[p6], point_nums[p4])
+        && Cartesian::is_eqratio(point_nums[p3], point_nums[p1], point_nums[p1], point_nums[p2],
+                                 point_nums[p6], point_nums[p4], point_nums[p4], point_nums[p5])                                                  
+    );
+}
+
+
+bool GeometricGraph::num_check_diff(std::set<Point*> &pts) {
     std::set<int> s;
     for (Point* p : pts) {
         if (point_to_num_eq_set.contains(p) && !s.insert(point_to_num_eq_set[p]).second) {
@@ -2087,7 +2141,7 @@ bool GeometricGraph::check_diff(std::set<Point*> &pts) {
 }
 
 
-bool GeometricGraph::check_ncoll(std::set<Point*> &pts) {
+bool GeometricGraph::num_check_ncoll(std::set<Point*> &pts) {
     for (auto it1 = pts.begin(); it1 != pts.end(); ++it1) {
         for (auto it2 = std::next(it1); it2 != pts.end(); ++it2) {
             for (auto it3 = std::next(it2); it3 != pts.end(); ++it3) {
@@ -2105,22 +2159,22 @@ bool GeometricGraph::check_ncoll(std::set<Point*> &pts) {
 }
 
 
-bool GeometricGraph::check_npara(Point* p1, Point* p2, Point* p3, Point* p4) {
+bool GeometricGraph::num_check_npara(Point* p1, Point* p2, Point* p3, Point* p4) {
     return !Cartesian::is_para(point_nums[p1], point_nums[p2], point_nums[p3], point_nums[p4]);
 }
 
 
-bool GeometricGraph::check_nperp(Point* p1, Point* p2, Point* p3, Point* p4) {
+bool GeometricGraph::num_check_nperp(Point* p1, Point* p2, Point* p3, Point* p4) {
     return !Cartesian::is_perp(point_nums[p1], point_nums[p2], point_nums[p3], point_nums[p4]);
 }
 
 
-bool GeometricGraph::check_ncong(Point* p1, Point* p2, Point* p3, Point* p4) {
+bool GeometricGraph::num_check_ncong(Point* p1, Point* p2, Point* p3, Point* p4) {
     return !Cartesian::is_cong(point_nums[p1], point_nums[p2], point_nums[p3], point_nums[p4]);
 }
 
 
-bool GeometricGraph::check_sameside(Point* a, Point* x, Point* y) {
+bool GeometricGraph::num_check_sameside(Point* a, Point* x, Point* y) {
     return Cartesian::acute_angle(point_nums[a], point_nums[x], point_nums[y]);
 }
 
@@ -2208,6 +2262,91 @@ bool GeometricGraph::check(PredicateTemplate* pred) {
             break;
         default:
             return false;
+    }
+}
+
+
+bool GeometricGraph::num_check(Predicate* pred) {
+
+    switch(pred->name) {
+        case pred_t::COLL:
+            return num_check_coll(static_cast<Point*>(pred->args[0]),
+                                 static_cast<Point*>(pred->args[1]),
+                                 static_cast<Point*>(pred->args[2]));
+            break;
+        case pred_t::CYCLIC:
+            return num_check_cyclic(static_cast<Point*>(pred->args[0]),
+                                 static_cast<Point*>(pred->args[1]),
+                                 static_cast<Point*>(pred->args[2]),
+                                 static_cast<Point*>(pred->args[3]));
+            break;
+        case pred_t::PARA:
+            return num_check_para(static_cast<Point*>(pred->args[0]),
+                                static_cast<Point*>(pred->args[1]),
+                                static_cast<Point*>(pred->args[2]),
+                                static_cast<Point*>(pred->args[3]));
+            break;
+        case pred_t::PERP:
+            return num_check_perp(static_cast<Point*>(pred->args[0]),
+                                static_cast<Point*>(pred->args[1]),
+                                static_cast<Point*>(pred->args[2]),
+                                static_cast<Point*>(pred->args[3]));
+            break;
+        case pred_t::CONG:
+            return num_check_cong(static_cast<Point*>(pred->args[0]),
+                                 static_cast<Point*>(pred->args[1]),
+                                 static_cast<Point*>(pred->args[2]),
+                                 static_cast<Point*>(pred->args[3]));
+            break;
+        case pred_t::EQANGLE:
+            return num_check_eqangle(static_cast<Point*>(pred->args[0]),
+                                    static_cast<Point*>(pred->args[1]),
+                                    static_cast<Point*>(pred->args[2]),
+                                    static_cast<Point*>(pred->args[3]),
+                                    static_cast<Point*>(pred->args[4]),
+                                    static_cast<Point*>(pred->args[5]),
+                                    static_cast<Point*>(pred->args[6]),
+                                    static_cast<Point*>(pred->args[7]));
+            break;
+        case pred_t::EQRATIO:
+            return num_check_eqratio(static_cast<Point*>(pred->args[0]),
+                                    static_cast<Point*>(pred->args[1]),
+                                    static_cast<Point*>(pred->args[2]),
+                                    static_cast<Point*>(pred->args[3]),
+                                    static_cast<Point*>(pred->args[4]),
+                                    static_cast<Point*>(pred->args[5]),
+                                    static_cast<Point*>(pred->args[6]),
+                                    static_cast<Point*>(pred->args[7]));
+            break;
+        case pred_t::CONTRI:
+            return num_check_contri(static_cast<Point*>(pred->args[0]),
+                                    static_cast<Point*>(pred->args[1]),
+                                    static_cast<Point*>(pred->args[2]),
+                                    static_cast<Point*>(pred->args[3]),
+                                    static_cast<Point*>(pred->args[4]),
+                                    static_cast<Point*>(pred->args[5]));
+            break;
+        case pred_t::SIMTRI:
+            return num_check_simtri(static_cast<Point*>(pred->args[0]),
+                                    static_cast<Point*>(pred->args[1]),
+                                    static_cast<Point*>(pred->args[2]),
+                                    static_cast<Point*>(pred->args[3]),
+                                    static_cast<Point*>(pred->args[4]),
+                                    static_cast<Point*>(pred->args[5]));
+            break;
+        case pred_t::MIDP:
+            return num_check_midp(static_cast<Point*>(pred->args[0]),
+                                  static_cast<Point*>(pred->args[1]),
+                                  static_cast<Point*>(pred->args[2]));
+            break;
+        case pred_t::CIRCLE:
+            return num_check_circle(static_cast<Point*>(pred->args[0]),
+                                    static_cast<Point*>(pred->args[1]),
+                                    static_cast<Point*>(pred->args[2]),
+                                    static_cast<Point*>(pred->args[3]));
+            break;
+        default:
+            return true;
     }
 }
 
@@ -3168,6 +3307,10 @@ int GeometricGraph::synthesise_preds(DDEngine &dd, AREngine &ar) {
 
         pred->level = level;
         pred->why.set_level(level - 1);
+
+        if (!num_check(pred)) {
+            throw GGraphInternalError("The following predicate failed num_check: " + pred->to_string_with_whys());
+        }
 
         switch(pred->name) {
             case pred_t::COLL:

@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
                 output_filepath
             )
             && gtp.draw()
-            && gtp.solve(10)
+            && gtp.solve(20)
             && gtp.get_problem_solution();
 
             if (res) {
@@ -113,7 +113,7 @@ int main(int argc, char** argv) {
             output_filepath
         )
         && gtp.draw()
-        && gtp.solve(10)
+        && gtp.solve(20)
         && gtp.get_problem_solution();
 
         gtp.clear_problem();

@@ -1705,7 +1705,7 @@ Generator<bool> DDEngine::match_diff(PredicateTemplate* pred_template, Geometric
         if (pts.contains(p)) co_return;
         pts.insert(p);
     }
-    co_yield ggraph.check_diff(pts);
+    co_yield ggraph.num_check_diff(pts);
     co_return;
 }
 
@@ -1736,7 +1736,7 @@ Generator<bool> DDEngine::match_ncoll(PredicateTemplate* pred_template, Geometri
         }
         pts.insert(p);
     }
-    co_yield ggraph.check_ncoll(pts);
+    co_yield ggraph.num_check_ncoll(pts);
     co_return;
 }
 
@@ -1748,7 +1748,7 @@ Generator<bool> DDEngine::match_npara(PredicateTemplate* pred_template, Geometri
     Point* p2 = pred_template->args[1]->get_point();
     Point* p3 = pred_template->args[2]->get_point();
     Point* p4 = pred_template->args[3]->get_point();
-    co_yield ggraph.check_npara(p1, p2, p3, p4);
+    co_yield ggraph.num_check_npara(p1, p2, p3, p4);
     co_return;
 }
 
@@ -1760,7 +1760,7 @@ Generator<bool> DDEngine::match_nperp(PredicateTemplate* pred_template, Geometri
     Point* p2 = pred_template->args[1]->get_point();
     Point* p3 = pred_template->args[2]->get_point();
     Point* p4 = pred_template->args[3]->get_point();
-    co_yield ggraph.check_nperp(p1, p2, p3, p4);
+    co_yield ggraph.num_check_nperp(p1, p2, p3, p4);
     co_return;
 }
 
@@ -1772,7 +1772,7 @@ Generator<bool> DDEngine::match_ncong(PredicateTemplate* pred_template, Geometri
     Point* p2 = pred_template->args[1]->get_point();
     Point* p3 = pred_template->args[2]->get_point();
     Point* p4 = pred_template->args[3]->get_point();
-    co_yield ggraph.check_ncong(p1, p2, p3, p4);
+    co_yield ggraph.num_check_ncong(p1, p2, p3, p4);
     co_return;
 }
 
@@ -1811,7 +1811,7 @@ Generator<bool> DDEngine::match_sameside_p(PredicateTemplate* pred_template, Geo
     Point* p1 = pred_template->args[0]->get_point();
     Point* p2 = pred_template->args[1]->get_point();
     Point* p3 = pred_template->args[2]->get_point();
-    co_yield ggraph.check_sameside(p1, p2, p3);
+    co_yield ggraph.num_check_sameside(p1, p2, p3);
     co_return;
 }
 
@@ -1822,7 +1822,7 @@ Generator<bool> DDEngine::match_diffside_p(PredicateTemplate* pred_template, Geo
     Point* p1 = pred_template->args[0]->get_point();
     Point* p2 = pred_template->args[1]->get_point();
     Point* p3 = pred_template->args[2]->get_point();
-    co_yield !(ggraph.check_sameside(p1, p2, p3));
+    co_yield !(ggraph.num_check_sameside(p1, p2, p3));
     co_return;
 }
 

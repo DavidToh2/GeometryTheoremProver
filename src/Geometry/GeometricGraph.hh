@@ -616,34 +616,54 @@ public:
 
     bool check_constratio(Ratio* r, Frac f);
 
+
+
+
+
+    bool num_check_coll(Point* p1, Point* p2, Point* p3);
+    bool num_check_cyclic(Point* p1, Point* p2, Point* p3, Point* p4);
+    bool num_check_para(Point* p1, Point* p2, Point* p3, Point* p4);
+    bool num_check_perp(Point* p1, Point* p2, Point* p3, Point* p4);
+    bool num_check_cong(Point* p1, Point* p2, Point* p3, Point* p4);
+    bool num_check_eqangle(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Point* p7, Point* p8);
+    bool num_check_eqratio(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6, Point* p7, Point* p8);
+    bool num_check_midp(Point* m, Point* p1, Point* p2);
+    bool num_check_circle(Point* c, Point* p1, Point* p2, Point* p3);
+    bool num_check_contri(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6);
+    bool num_check_simtri(Point* p1, Point* p2, Point* p3, Point* p4, Point* p5, Point* p6);
+
+
     template<typename... T>
     requires (std::same_as<T, Point> && ...)
-    bool check_diff(T*... pts) {
+    bool num_check_diff(T*... pts) {
         std::set<int> s;
         return ((point_to_num_eq_set.contains(pts) ? s.insert(point_to_num_eq_set[pts]) : true) && ...);
     }
-    bool check_diff(std::set<Point*> &pts);
+    bool num_check_diff(std::set<Point*> &pts);
 
     template<typename... T>
     requires (std::same_as<T, Point> && ...)
-    bool check_ncoll(T*... pts) {
+    bool num_check_ncoll(T*... pts) {
         std::set<Point*> p{pts...};
-        check_ncoll(p);
+        num_check_ncoll(p);
     }
-    bool check_ncoll(std::set<Point*> &pts);
+    bool num_check_ncoll(std::set<Point*> &pts);
 
-    bool check_npara(Point* p1, Point* p2, Point* p3, Point* p4);
-    bool check_nperp(Point* p1, Point* p2, Point* p3, Point* p4);
-    bool check_ncong(Point* p1, Point* p2, Point* p3, Point* p4);
+    bool num_check_npara(Point* p1, Point* p2, Point* p3, Point* p4);
+    bool num_check_nperp(Point* p1, Point* p2, Point* p3, Point* p4);
+    bool num_check_ncong(Point* p1, Point* p2, Point* p3, Point* p4);
 
     /* Returns true if the vectors `a->x` and `a->y` are within 90 degrees of each other.
     This is used to check, in the cases where `a, x, y` are collinear, whether `x, y` lie on the same
     side of `a`. */
-    bool check_sameside(Point* a, Point* x, Point* y);
+    bool num_check_sameside(Point* a, Point* x, Point* y);
+
+
+
 
     /* Used to check the validity of theorem postconditions, as well as the conclusion. */
     bool check(PredicateTemplate* pred);
-
+    bool num_check(Predicate* pred);
 
 
 

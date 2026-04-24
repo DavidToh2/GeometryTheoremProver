@@ -237,6 +237,31 @@ namespace Cartesian {
     constexpr bool is_cong(const CartesianPoint &p1, const CartesianPoint &p2, const CartesianPoint &p3, const CartesianPoint &p4) {
         return NumUtils::is_close(distance2(p1, p2), distance2(p3, p4));
     }
+    constexpr bool is_midp(const CartesianPoint &p1, const CartesianPoint &p2, const CartesianPoint &p3) {
+        return CartesianPoint::is_close(midpoint(p2, p3), p1);
+    }
+    constexpr bool is_circle(const CartesianPoint &c, const CartesianPoint &p1, const CartesianPoint &p2, const CartesianPoint &p3) {
+        // Check if p1, p2, p3 are on the same circle with center c
+        return NumUtils::is_close(distance2(c, p1), distance2(c, p2)) && NumUtils::is_close(distance2(c, p1), distance2(c, p3));
+    }
+    constexpr bool is_eqangle(
+        const CartesianPoint &a1, const CartesianPoint &b1, const CartesianPoint &c1, const CartesianPoint &d1,
+        const CartesianPoint &a2, const CartesianPoint &b2, const CartesianPoint &c2, const CartesianPoint &d2
+    ) {
+        return NumUtils::is_close(
+            angle_between(CartesianLine(a1, b1), CartesianLine(c1, d1)),
+            angle_between(CartesianLine(a2, b2), CartesianLine(c2, d2))
+        );
+    }
+    constexpr bool is_eqratio(
+        const CartesianPoint &a1, const CartesianPoint &b1, const CartesianPoint &c1, const CartesianPoint &d1,
+        const CartesianPoint &a2, const CartesianPoint &b2, const CartesianPoint &c2, const CartesianPoint &d2
+    ) {
+        return NumUtils::is_close(
+            distance2(a1, b1) * distance2(c2, d2), 
+            distance2(a2, b2) * distance2(c1, d1)
+        );
+    }
 
     /* Given three points A, B, C: determines if the rotation from AB to BC is clockwise or anticlockwise.
     This uses Fleming's right-hand rule. */

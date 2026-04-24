@@ -1458,16 +1458,39 @@ PredSet TracebackEngine::why_eqangle(Point* p1, Point* p2, Point* p3, Point* p4,
                     PredSet res_0;
                     for (const auto& [cd1, cd2] : dir_pairs_12) {
                         for (const auto& [cd3, cd4] : dir_pairs_34) {
-                            PredSet res_0_;
+
+                            auto [ad1, x1] = TracebackUtils::lowest_common_ancestor(d1, cd1);
+                            auto [ad2, x2] = TracebackUtils::lowest_common_ancestor(d2, cd2);
+                            auto [ad3, x3] = TracebackUtils::lowest_common_ancestor(d3, cd3);
+                            auto [ad4, x4] = TracebackUtils::lowest_common_ancestor(d4, cd4);
+
+                            PredSet res_0_ = (
+                                TracebackUtils::why_ancestor_with_cache(d1, ad1, why_direction_ancestor_cache)
+                                    + TracebackUtils::why_ancestor_with_cache(cd1, ad1, why_direction_ancestor_cache)
+                                    + TracebackUtils::why_ancestor_with_cache(d2, ad2, why_direction_ancestor_cache)
+                                    + TracebackUtils::why_ancestor_with_cache(cd2, ad2, why_direction_ancestor_cache)
+                                    + TracebackUtils::why_ancestor_with_cache(d3, ad3, why_direction_ancestor_cache)
+                                    + TracebackUtils::why_ancestor_with_cache(cd3, ad3, why_direction_ancestor_cache)
+                                    + TracebackUtils::why_ancestor_with_cache(d4, ad4, why_direction_ancestor_cache)
+                                    + TracebackUtils::why_ancestor_with_cache(cd4, ad4, why_direction_ancestor_cache)
+                            );
 
                             /* Step 9-10: For each defined angle `ai`, extract its earliest measure `mi` as well as the
                             ancestor angle `aai` for which it was defined */
                             Angle* a1 = directions_of_angles[{cd1, cd2}], *a2 = directions_of_angles[{cd3, cd4}];
 
+                            // std::cout << "For lines " << lca1->to_string() << ", " << lca2->to_string() << ", " 
+                            //     << lca3->to_string() << ", " << lca4->to_string() 
+                            //     << " with directions " << d1->to_string() << ", " << d2->to_string() << ", " 
+                            //     << d3->to_string() << ", " << d4->to_string() 
+                            //     << " and angle directions " << cd1->to_string() << ", " << cd2->to_string() << ", " 
+                            //     << cd3->to_string() << ", " << cd4->to_string() 
+                            //     << " and angles (" << a1->to_string() << ", " << a2->to_string() << ")";
+
                             if (NodeUtils::same_as(a1, a2)) {
                                 auto a = TracebackUtils::lowest_common_ancestor(a1, a2).first;
 
-                                res_0_ = (
+                                res_0_ += (
                                     TracebackUtils::why_ancestor_with_cache(a1, a, why_angle_ancestor_cache)
                                     + TracebackUtils::why_ancestor_with_cache(a2, a, why_angle_ancestor_cache)
                                 );
@@ -1483,7 +1506,7 @@ PredSet TracebackEngine::why_eqangle(Point* p1, Point* p2, Point* p3, Point* p4,
                                     aa2, m2, why_measure_ancestor_cache, why_angle_ancestor_cache
                                 );
 
-                                res_0_ = (std::move(res_a1) + std::move(res_a2));
+                                res_0_ += (std::move(res_a1) + std::move(res_a2));
 
                                 /* Step 11: Find ancestors `a1_a` and `a2_a` which had the same measure `m` at some point
                                 in time
@@ -1508,37 +1531,19 @@ PredSet TracebackEngine::why_eqangle(Point* p1, Point* p2, Point* p3, Point* p4,
                                     }
                                 }
 
-                                auto [ad1, x1] = TracebackUtils::lowest_common_ancestor(d1, cd1);
-                                auto [ad2, x2] = TracebackUtils::lowest_common_ancestor(d2, cd2);
-                                auto [ad3, x3] = TracebackUtils::lowest_common_ancestor(d3, cd3);
-                                auto [ad4, x4] = TracebackUtils::lowest_common_ancestor(d4, cd4);
-
                                 res_0_ += (
-                                    TracebackUtils::why_ancestor_with_cache(d1, ad1, why_direction_ancestor_cache)
-                                    + TracebackUtils::why_ancestor_with_cache(cd1, ad1, why_direction_ancestor_cache)
-                                    + TracebackUtils::why_ancestor_with_cache(d2, ad2, why_direction_ancestor_cache)
-                                    + TracebackUtils::why_ancestor_with_cache(cd2, ad2, why_direction_ancestor_cache)
-                                    + TracebackUtils::why_ancestor_with_cache(d3, ad3, why_direction_ancestor_cache)
-                                    + TracebackUtils::why_ancestor_with_cache(cd3, ad3, why_direction_ancestor_cache)
-                                    + TracebackUtils::why_ancestor_with_cache(d4, ad4, why_direction_ancestor_cache)
-                                    + TracebackUtils::why_ancestor_with_cache(cd4, ad4, why_direction_ancestor_cache)
-                                    + TracebackUtils::why_ancestor_with_cache(a1, a1_a, why_angle_ancestor_cache)
+                                    TracebackUtils::why_ancestor_with_cache(a1, a1_a, why_angle_ancestor_cache)
                                     + TracebackUtils::why_ancestor_with_cache(a2, a2_a, why_angle_ancestor_cache)
                                     + TracebackUtils::why_ancestor_with_cache(m1, m, why_measure_ancestor_cache)
                                     + TracebackUtils::why_ancestor_with_cache(m2, m, why_measure_ancestor_cache)
                                 );
+
+                                
+                                // std::cout << ", (" << a1_a->to_string() << ", " << a2_a->to_string() << ")"
+                                    // << " and measures " << m1->to_string() << ", " << m2->to_string() << " | " << m->to_string();
                             }
 
-                            // std::cout << "For lines " << lca1->to_string() << ", " << lca2->to_string() << ", " 
-                            //     << lca3->to_string() << ", " << lca4->to_string() 
-                            //     << " with directions " << d1->to_string() << ", " << d2->to_string() << ", " 
-                            //     << d3->to_string() << ", " << d4->to_string() 
-                            //     << " and angle directions " << cd1->to_string() << ", " << cd2->to_string() << ", " 
-                            //     << cd3->to_string() << ", " << cd4->to_string() 
-                            //     << " and angles (" << a1->to_string() << ", " << a1_a->to_string() 
-                            //         << "), (" << a2->to_string() << ", " << a2_a->to_string() << ")"
-                            //     << " and measures " << m1->to_string() << ", " << m2->to_string() << " | " << m->to_string()
-                            //     << " | res_0_: " << res_0_.to_string()
+                            // std::cout << " | res_0_: " << res_0_.to_string()
                             //     << " | res_: " << res_.to_string() << std::endl;
 
                             if (res_0_ < res_0) {
@@ -1625,7 +1630,22 @@ PredSet TracebackEngine::why_eqratio(Point* p1, Point* p2, Point* p3, Point* p4,
                     PredSet res_0;
                     for (const auto& [clen1, clen2] : length_pairs_12) {
                         for (const auto& [clen3, clen4] : length_pairs_34) {
-                            PredSet res_0_;
+
+                            auto [alen1, x1] = TracebackUtils::lowest_common_ancestor(len1, clen1);
+                            auto [alen2, x2] = TracebackUtils::lowest_common_ancestor(len2, clen2);
+                            auto [alen3, x3] = TracebackUtils::lowest_common_ancestor(len3, clen3);
+                            auto [alen4, x4] = TracebackUtils::lowest_common_ancestor(len4, clen4);
+                            
+                            PredSet res_0_ = (
+                                TracebackUtils::why_ancestor_with_cache(len1, alen1, why_length_ancestor_cache)
+                                    + TracebackUtils::why_ancestor_with_cache(clen1, alen1, why_length_ancestor_cache)
+                                    + TracebackUtils::why_ancestor_with_cache(len2, alen2, why_length_ancestor_cache)
+                                    + TracebackUtils::why_ancestor_with_cache(clen2, alen2, why_length_ancestor_cache)
+                                    + TracebackUtils::why_ancestor_with_cache(len3, alen3, why_length_ancestor_cache)
+                                    + TracebackUtils::why_ancestor_with_cache(clen3, alen3, why_length_ancestor_cache)
+                                    + TracebackUtils::why_ancestor_with_cache(len4, alen4, why_length_ancestor_cache)
+                                    + TracebackUtils::why_ancestor_with_cache(clen4, alen4, why_length_ancestor_cache)
+                            );
 
                             /* Step 9-10: For each defined ratio `ri`, extract its earliest fraction `fi` as well as the
                             ancestor ratio `rai` for which it was defined */
@@ -1634,7 +1654,7 @@ PredSet TracebackEngine::why_eqratio(Point* p1, Point* p2, Point* p3, Point* p4,
                             if (NodeUtils::same_as(r1, r2)) {
                                 auto r = TracebackUtils::lowest_common_ancestor(r1, r2).first;
 
-                                res_0_ = (
+                                res_0_ += (
                                     TracebackUtils::why_ancestor_with_cache(r1, r, why_ratio_ancestor_cache)
                                     + TracebackUtils::why_ancestor_with_cache(r2, r, why_ratio_ancestor_cache)
                                 );
@@ -1649,7 +1669,7 @@ PredSet TracebackEngine::why_eqratio(Point* p1, Point* p2, Point* p3, Point* p4,
                                     ra2, f2, why_fraction_ancestor_cache, why_ratio_ancestor_cache
                                 );
 
-                                res_0_ = (std::move(res_r1) + std::move(res_r2));
+                                res_0_ += (std::move(res_r1) + std::move(res_r2));
 
                                 /* Step 11: Find ancestors `r1_a` and `r2_a` which had the same fraction `f` at some point
                                 in time
@@ -1673,22 +1693,9 @@ PredSet TracebackEngine::why_eqratio(Point* p1, Point* p2, Point* p3, Point* p4,
                                         }
                                     }
                                 }
-
-                                auto [alen1, x1] = TracebackUtils::lowest_common_ancestor(len1, clen1);
-                                auto [alen2, x2] = TracebackUtils::lowest_common_ancestor(len2, clen2);
-                                auto [alen3, x3] = TracebackUtils::lowest_common_ancestor(len3, clen3);
-                                auto [alen4, x4] = TracebackUtils::lowest_common_ancestor(len4, clen4);
                                 
                                 res_0_ += (
-                                    TracebackUtils::why_ancestor_with_cache(len1, alen1, why_length_ancestor_cache)
-                                    + TracebackUtils::why_ancestor_with_cache(clen1, alen1, why_length_ancestor_cache)
-                                    + TracebackUtils::why_ancestor_with_cache(len2, alen2, why_length_ancestor_cache)
-                                    + TracebackUtils::why_ancestor_with_cache(clen2, alen2, why_length_ancestor_cache)
-                                    + TracebackUtils::why_ancestor_with_cache(len3, alen3, why_length_ancestor_cache)
-                                    + TracebackUtils::why_ancestor_with_cache(clen3, alen3, why_length_ancestor_cache)
-                                    + TracebackUtils::why_ancestor_with_cache(len4, alen4, why_length_ancestor_cache)
-                                    + TracebackUtils::why_ancestor_with_cache(clen4, alen4, why_length_ancestor_cache)
-                                    + TracebackUtils::why_ancestor_with_cache(r1, r1_a, why_ratio_ancestor_cache)
+                                    TracebackUtils::why_ancestor_with_cache(r1, r1_a, why_ratio_ancestor_cache)
                                     + TracebackUtils::why_ancestor_with_cache(r2, r2_a, why_ratio_ancestor_cache)
                                     + TracebackUtils::why_ancestor_with_cache(f1, f, why_fraction_ancestor_cache)
                                     + TracebackUtils::why_ancestor_with_cache(f2, f, why_fraction_ancestor_cache)
