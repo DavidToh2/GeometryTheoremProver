@@ -1,0 +1,10 @@
+problem imo-2010-4 {
+    a b c = triangle a b c; 
+    o = circumcenter o : a b c; 
+    s = on_line s : a b, lc_tangent s : c o;
+    m = on_circle m : o c;
+    p = on_circle p : s c, on_line p : c m;
+    k = intersection_lc k : p o a;
+    l = intersection_lc l : p o b;
+    ? cong m k m l
+}

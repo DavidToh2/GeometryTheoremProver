@@ -1,0 +1,13 @@
+# Added excenter Ia of triangle ABC
+problem imo-2010-2 {
+    a b c = triangle a b c; 
+    o = circumcenter o : a b c; 
+    i = incenter i : a b c; 
+    d = intersection_lc d : i o a;
+    f = on_line f : b c; 
+    e = on_line_at_angle e : a c b a f, on_circle e : o a; 
+    g = midpoint g : i f; 
+    k = intersection_ll k : d g e i ;
+    ia = excenter ia : a b c
+    ? cong o k o a
+}

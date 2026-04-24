@@ -1,3 +1,5 @@
+# 26 problems
+
 problem p1a {
     a d e = triangle a d e;
     b = on_line b : a d;

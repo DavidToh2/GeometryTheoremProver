@@ -1,0 +1,12 @@
+problem imo-2013-4 {
+    a b c = triangle a b c; 
+    h = orthocenter h : a b c; 
+    m = intersection_ll m : h b a c; 
+    n = intersection_ll n : h c a b; 
+    w = on_line w : b c; 
+    o1 = circumcenter o1 : b n w; 
+    o2 = circumcenter o2 : c m w; 
+    x = intersection_lc x : o1 o1 w; 
+    y = intersection_lc y : o2 o2 w 
+    ? coll x h y
+}

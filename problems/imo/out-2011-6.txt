@@ -1,0 +1,65 @@
+=======================================
+Problem: imo-2011-6
+
+    a b c = triangle a b c; 
+    o = circumcenter o : a b c; 
+    p = on_circle p : o a; 
+    q = on_line_perp q : p o p; 
+    pa = reflect pa : p b c; 
+    pb = reflect pb : p c a; 
+    pc = reflect pc : p a b; 
+    qa = reflect qa : q b c; 
+    qb = reflect qb : q c a; 
+    qc = reflect qc : q a b; 
+    a1 = intersection_ll a1 : pb qb pc qc; 
+    b1 = intersection_ll b1 : pa qa pc qc; 
+    c1 = intersection_ll c1 : pa qa pb qb; 
+    o1 = circumcenter o1 : a1 b1 c1; 
+    x = on_circle x : o a, on_circle x : o1 a1;
+    i = incenter i : a1 b1 c1;
+    a0 = intersection_ll a0 : p q b c;
+    b0 = intersection_ll b0 : p q a c;
+    c0 = intersection_ll c0 : p q a b
+    ? coll x o o1
+
+---------------------------------------
+    c = (-0.756813, 0.541622)    o = (-0.733531, -0.123006)    p = (-1.105429, 0.428323)
+    a = (-0.999669, -0.732467)    b = (-0.382636, 0.441923)    q = (-0.905650, 0.563083)
+    pa = (-1.002836, 0.813360)    pb = (-0.474319, 0.308026)    pc = (0.016229, -0.161005)
+    qa = (-0.896597, 0.597062)    qb = (-0.610517, 0.506827)    qc = (0.013862, 0.079964)
+    a1 = (0.018691, -0.411596)    b1 = (0.027261, -1.283859)    c1 = (-1.464608, 1.753502)
+    o1 = (-2.982804, -0.877258)    x = (-0.103002, 0.088430)    i = (-0.166085, -0.469817)
+    a0 = (-0.886314, 0.576127)    b0 = (-0.730158, 0.681461)    c0 = (0.003093, 1.176074)
+
+    Loss: 0
+
+Loading problem imo-2011-6
+Drawing numeric diagram for problem imo-2011-6
+Time to draw numeric diagram: 939 us
+Numeric diagram drawn successfully!
+Solving problem imo-2011-6
+-------- Iteration 0: --------
+Derived 149 new predicates from DD and 463 new predicates from AR.
+-------- Iteration 1: --------
+Derived 76 new predicates from DD and 411 new predicates from AR.
+-------- Iteration 2: --------
+Derived 51 new predicates from DD and 6 new predicates from AR.
+-------- Iteration 3: --------
+Derived 36 new predicates from DD and 11 new predicates from AR.
+-------- Iteration 4: --------
+Derived 3 new predicates from DD and 0 new predicates from AR.
+-------- Iteration 5: --------
+Derived 1 new predicates from DD and 0 new predicates from AR.
+-------- Iteration 6: --------
+Derived 32 new predicates from DD and 31 new predicates from AR.
+-------- Iteration 7: --------
+Derived 10 new predicates from DD and 36 new predicates from AR.
+-------- Iteration 8: --------
+Derived 5 new predicates from DD and 0 new predicates from AR.
+-------- Iteration 9: --------
+Derived 0 new predicates from DD and 0 new predicates from AR.
+UNSOLVED!! No new predicates derived.
+Time to solve problem: 247991624 us
+
+Solved 0 out of 1 problems.
+Unsolved problems: imo-2011-6 

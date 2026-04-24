@@ -1,0 +1,48 @@
+=======================================
+Problem: imo-2009-2
+
+    m l k = triangle m l k; 
+    w = circumcenter w : m l k; 
+    q = on_line_perp q : m w m; 
+    p = mirror p : q m; b = mirror b : p k; c = mirror c : q l; 
+    a = intersection_ll a : b q c p;
+    # o = circumcenter o : a b c
+    ? eqratio a p a q q b p c
+
+---------------------------------------
+    c = (-2.003101, 1.238540)    a = (1.051971, -0.958707)    l = (-0.702306, 0.244048)
+    w = (2.292735, 2.834990)    q = (0.598488, -0.750443)    m = (0.789327, -0.828754)
+    p = (0.980166, -0.907064)    b = (0.006609, -0.478621)    k = (0.493388, -0.692842)
+    o = (3.395403, 5.522145)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] qm ⊥ wm => wm ⊥ mq
+[   3 | gr ] w center of ⦿mlk => w center of ⦿mkl
+[   3 | dd ] m midpoint of qp && l midpoint of qc && diff p c m l && ncoll q p c => ml ∥ pc
+[   3 | gr ] mq = mp && p, q, m collinear => m midpoint of qp
+[   3 | gr ] c, q, l collinear && lq = lc => l midpoint of qc
+[   3 | gr ] diff p c m l
+[   3 | gr ] ncoll q p c
+[   3 | dd ] m midpoint of pq && k midpoint of pb && diff q b m k && ncoll p q b => mk ∥ qb
+[   3 | gr ] mq = mp && p, q, m collinear => m midpoint of pq
+[   3 | gr ] b, p, k collinear && kp = kb => k midpoint of pb
+[   3 | gr ] diff q b m k
+[   3 | gr ] ncoll p q b
+[   4 | dd ] w center of ⦿mlk && wm ⊥ mq => ∠qml = ∠mkl
+[   4 | dd ] wm ⊥ mq && w center of ⦿mkl => ∠qmk = ∠mlk
+[   7 | gr ] p, q, m collinear && a, c, p collinear && ∠qml = ∠mkl && ml ∥ pc => ∠mkl = ∠qpa
+[   7 | gr ] a, c, p collinear && ml ∥ pc => cp ∥ lm
+[   7 | gr ] c, q, l collinear => q, c, l collinear
+[   7 | gr ] p, q, m collinear => q, p, m collinear
+[   7 | gr ] ncoll c p l
+[   7 | gr ] a, b, q collinear && mk ∥ qb => qb ∥ mk
+[   7 | gr ] b, p, k collinear => p, b, k collinear
+[   7 | gr ] ncoll q b m
+[   7 | gr ] diffclock m k l a p q
+[   7 | gr ] a, b, q collinear && p, q, m collinear && ∠qmk = ∠mlk && mk ∥ qb => ∠mlk = ∠pqa
+[   7 | gr ] ncoll m k l
+[   8 | dd ] cp ∥ lm && q, c, l collinear && q, p, m collinear && ncoll c p l => △qcp ~ △qlm
+[   8 | dd ] p, q, m collinear && qb ∥ mk && p, b, k collinear && ncoll q b m => △pqb ~ △pmk
+[   8 | dd ] ∠mkl = ∠qpa && diffclock m k l a p q && ∠mlk = ∠pqa && ncoll m k l => △mkl ~ △apq
+[  10 | ar ] △qcp ~ △qlm && △pqb ~ △pmk && △mkl ~ △apq => pa / qa = bq / cp
+[ 511 | dd ] △mkl ~ △apq && pa / qa = bq / cp => ap / aq = qb / pc

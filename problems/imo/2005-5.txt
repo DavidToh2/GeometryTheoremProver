@@ -1,0 +1,12 @@
+# Auxiliary point x supplied to problem
+problem imo-2005-5 {
+    a b c = triangle a b c; 
+    d = eqdistance d : a b c; 
+    e = on_ray e : b c; 
+    f = eqdistance f : d e b, on_ray f : d a;
+    p = intersection_ll p : a c b d; 
+    q = intersection_ll q : e f b d; 
+    r = intersection_ll r : a c e f; 
+    x = on_circum x : p a d, on_circum x : p b c
+    ? cyclic p q r x
+}

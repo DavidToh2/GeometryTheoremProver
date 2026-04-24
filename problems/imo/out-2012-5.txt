@@ -1,0 +1,176 @@
+=======================================
+Problem: imo-2012-5
+
+    c a b = r_triangle c a b; 
+    d = foot d : c a b; 
+    x = on_line x : c d; 
+    k = on_ray k : x a, on_circle k : b c; 
+    l = on_ray l : x b, on_circle l : a c; 
+    m = intersection_ll m : a l b k;
+    c0 = on_circle c0 : a c, on_circle c0 : b c;
+    k0 = on_line k0 : k x, on_circle k0 : b c;
+    l0 = on_line l0 : l x, on_circle l0 : a c;
+    o = on_line_perp o : l l m, on_line_perp o : k k m
+    ? cong m k m l
+
+---------------------------------------
+    l = (1.079678, 0.400896)    b = (1.595941, 0.142866)    c = (0.660749, 0.903327)
+    a = (-0.414765, -0.419308)    d = (0.925756, -0.044511)    x = (0.755992, 0.562675)
+    k = (0.396393, 0.261058)    m = (0.759670, 0.225264)    c0 = (1.190762, -0.992349)
+    k0 = (1.688324, 1.344677)    l0 = (-0.655799, 1.268293)    o = (0.512072, 1.435096)
+
+    Loss: 0
+---------------------------------------
+[   3 | dd ] bc = bc0 && ca = c0a && ab = ab && ncoll b c a => △bca ≅ △bc0a
+[   3 | gr ] bk = bc && bc0 = bc => bc = bc0
+[   3 | gr ] diff l k
+[   3 | gr ] ncoll b k c
+[   3 | gr ] bk = bc && bc0 = bc && bk0 = bc => bc = bk0
+[   3 | gr ] al = ac && ac0 = ac => ca = c0a
+[   3 | gr ] ab = ab
+[   3 | gr ] ncoll b c a
+[   3 | gr ] bk = bc && bc0 = bc => cb = c0b
+[   3 | gr ] bk = bc && bc0 = bc => bk = bc0
+[   3 | gr ] bk = bc && bc0 = bc && bk0 = bc => bk = bk0
+[   3 | gr ] bk = bc && bc0 = bc && bk0 = bc => bc0 = bk0
+[   3 | gr ] al = ac && ac0 = ac && al0 = ac => ac = al0
+[   3 | gr ] al = ac && ac0 = ac => al = ac0
+[   3 | gr ] al = ac && ac0 = ac && al0 = ac => al = al0
+[   3 | gr ] al = ac && ac0 = ac && al0 = ac => ac0 = al0
+[   3 | gr ] diff b a
+[   3 | gr ] ncoll b k c0
+[   3 | gr ] ncoll b k k0
+[   3 | gr ] ncoll b c0 c
+[   3 | gr ] ncoll b c k0
+[   3 | gr ] ncoll b c0 k0
+[   3 | gr ] ncoll a l c
+[   3 | gr ] ncoll a l c0
+[   3 | gr ] ncoll a l l0
+[   3 | gr ] ncoll a c l0
+[   3 | gr ] ncoll a c0 l0
+[   4 | dd ] ol ⊥ lm && ok ⊥ km && diff l k => o, l, m, k cyclic
+[   4 | dd ] ca = c0a && cb = c0b && diff b a => cc0 ⊥ ba
+[   4 | dd ] bk = bc && ncoll b k c => ∠bkc = ∠kcb
+[   4 | dd ] bk = bc0 && ncoll b k c0 => ∠bkc0 = ∠kc0b
+[   4 | dd ] bk = bk0 && ncoll b k k0 => ∠bkk0 = ∠kk0b
+[   4 | dd ] bc0 = bc && ncoll b c0 c => ∠bc0c = ∠c0cb
+[   4 | dd ] bc = bk0 && ncoll b c k0 => ∠bck0 = ∠ck0b
+[   4 | dd ] bc0 = bk0 && ncoll b c0 k0 => ∠bc0k0 = ∠c0k0b
+[   4 | dd ] al = ac && ncoll a l c => ∠alc = ∠lca
+[   4 | dd ] al = ac0 && ncoll a l c0 => ∠alc0 = ∠lc0a
+[   4 | dd ] al = al0 && ncoll a l l0 => ∠all0 = ∠ll0a
+[   4 | dd ] ac = al0 && ncoll a c l0 => ∠acl0 = ∠cl0a
+[   4 | dd ] ac0 = al0 && ncoll a c0 l0 => ∠ac0l0 = ∠c0l0a
+[   6 | ar ] ca ⊥ cb && cc0 ⊥ ba => ∠bac = ∠dcb
+[   6 | ar ] ca ⊥ cb && cc0 ⊥ ba => ∠bca = ∠(cd, ba)
+[   6 | ar ] ca ⊥ cb && △bca ≅ △bc0a && cc0 ⊥ ba && ∠alc = ∠lca && ∠alc0 = ∠lc0a => ∠bcl = ∠(cd, lc0)
+[   6 | ar ] ca ⊥ cb && △bca ≅ △bc0a => ∠acb = ∠ac0b
+[   6 | ar ] ca ⊥ cb && cc0 ⊥ ba => ∠acb = ∠(ba, cd)
+[   6 | ar ] dc ⊥ ab && △bca ≅ △bc0a && ∠bkc = ∠kcb && ∠bkk0 = ∠kk0b && ∠bc0k0 = ∠c0k0b => ∠kcd = ∠(ax, c0k0)
+[   6 | ar ] dc ⊥ ab && △bca ≅ △bc0a && ∠bkc = ∠kcb && ∠bkk0 = ∠kk0b && ∠bc0k0 = ∠c0k0b => ∠(c0k0, cd) = ∠(ax, ck)
+[   6 | ar ] ca ⊥ cb && dc ⊥ ab && △bca ≅ △bc0a && ∠bkc = ∠kcb && ∠bkc0 = ∠kc0b => ∠kcd = ∠kc0a
+[   6 | ar ] ca ⊥ cb && △bca ≅ △bc0a && cc0 ⊥ ba && ∠acl0 = ∠cl0a && ∠ac0l0 = ∠c0l0a => ∠l0c0b = ∠l0cd
+[   6 | ar ] dc ⊥ ab && △bca ≅ △bc0a && ∠alc0 = ∠lc0a && ∠all0 = ∠ll0a && ∠acl0 = ∠cl0a => ∠l0cd = ∠blc0
+[   6 | ar ] dc ⊥ ab && △bca ≅ △bc0a && ∠alc = ∠lca && ∠all0 = ∠ll0a && ∠ac0l0 = ∠c0l0a => ∠(c0l0, cd) = ∠blc
+[   6 | ar ] dc ⊥ ab && △bca ≅ △bc0a && ∠alc = ∠lca && ∠all0 = ∠ll0a && ∠ac0l0 = ∠c0l0a => ∠dcl = ∠(c0l0, lb)
+[   6 | ar ] ok ⊥ km && ∠bkc = ∠kcb && ∠bkk0 = ∠kk0b && ∠bck0 = ∠ck0b => ∠cko = ∠(ck0, ax)
+[   6 | ar ] dc ⊥ ab && △bca ≅ △bc0a && ∠bkc0 = ∠kc0b && ∠bkk0 = ∠kk0b && ∠bck0 = ∠ck0b => ∠k0cd = ∠(ax, kc0)
+[   6 | ar ] ca ⊥ cb && △bca ≅ △bc0a && cc0 ⊥ ba && ∠bkc = ∠kcb && ∠bkc0 = ∠kc0b => ∠ack = ∠(cd, kc0)
+[   6 | ar ] ca ⊥ cb && △bca ≅ △bc0a && cc0 ⊥ ba && ∠bck0 = ∠ck0b && ∠bc0k0 = ∠c0k0b => ∠k0ca = ∠(c0k0, cd)
+[   6 | ar ] ca ⊥ cb && dc ⊥ ab && △bca ≅ △bc0a && ∠alc = ∠lca && ∠alc0 = ∠lc0a => ∠dcl = ∠bc0l
+[   6 | ar ] ca ⊥ cb && △bca ≅ △bc0a && cc0 ⊥ ba && ∠bck0 = ∠ck0b && ∠bc0k0 = ∠c0k0b => ∠ac0k0 = ∠dck0
+[   6 | ar ] dc ⊥ ab && △bca ≅ △bc0a && ∠bkc = ∠kcb && ∠bkk0 = ∠kk0b && ∠bc0k0 = ∠c0k0b => ∠dck = ∠(c0k0, ax)
+[   6 | ar ] ol ⊥ lm && ∠alc = ∠lca && ∠all0 = ∠ll0a && ∠acl0 = ∠cl0a => ∠clo = ∠(cl0, lb)
+[   6 | ar ] ca ⊥ cb && △bca ≅ △bc0a && cc0 ⊥ ba && ∠bck0 = ∠ck0b && ∠bc0k0 = ∠c0k0b => ∠k0c0a = ∠k0cd
+[   6 | ar ] dc ⊥ ab && △bca ≅ △bc0a && ∠bkc0 = ∠kc0b && ∠bkk0 = ∠kk0b && ∠bck0 = ∠ck0b => ∠dck0 = ∠(kc0, ax)
+[   6 | ar ] dc ⊥ ab && ol ⊥ lm && △bca ≅ △bc0a && ∠alc = ∠lca && ∠alc0 = ∠lc0a => ∠(cd, lc0) = ∠clo
+[   6 | ar ] ca ⊥ cb && △bca ≅ △bc0a && cc0 ⊥ ba && ∠acl0 = ∠cl0a && ∠ac0l0 = ∠c0l0a => ∠l0cb = ∠(c0l0, cd)
+[   6 | ar ] dc ⊥ ab && ok ⊥ km && △bca ≅ △bc0a && ∠bkc = ∠kcb && ∠bkc0 = ∠kc0b => ∠(cd, kc0) = ∠cko
+[   7 | gr ] o, l, m, k cyclic => l, m, k, o cyclic
+[   7 | gr ] o, l, m, k cyclic => m, k, l, o cyclic
+[   7 | gr ] dc ⊥ ab && d, a, b collinear && △bca ≅ △bc0a && cc0 ⊥ ba && ∠acb = ∠ac0b && ∠acb = ∠(ba, cd) => ∠bca = ∠adc
+[   7 | gr ] diffclock b c a c d a
+[   7 | gr ] d, a, b collinear => ∠bac = ∠dac
+[   7 | gr ] dc ⊥ ab && d, a, b collinear && △bca ≅ △bc0a && cc0 ⊥ ba && ∠bca = ∠(cd, ba) && ∠acb = ∠ac0b => ∠bca = ∠cdb
+[   7 | gr ] diffclock b c a b d c
+[   7 | gr ] dc ⊥ ab && cc0 ⊥ ba && ∠bc0c = ∠c0cb && ∠bac = ∠dcb => ∠bac = ∠dcb
+[   7 | gr ] l, x, b collinear && l0, l, x collinear && ∠dcl = ∠(c0l0, lb) && ∠dcl = ∠bc0l => ∠bc0l = ∠c0l0b
+[   7 | gr ] diffclock b c0 l b l0 c0
+[   7 | gr ] l, x, b collinear && ∠l0c0b = ∠l0cd && ∠l0cd = ∠blc0 => ∠blc0 = ∠l0c0b
+[   7 | gr ] ncoll b c0 l
+[   7 | gr ] k, x, a collinear && ∠(c0k0, cd) = ∠(ax, ck) && ∠k0ca = ∠(c0k0, cd) => ∠akc = ∠k0ca
+[   7 | gr ] diffclock a k c a c k0
+[   7 | gr ] k, x, a collinear && k0, k, x collinear && ∠cko = ∠(ck0, ax) && ∠ack = ∠(cd, kc0) && ∠(cd, kc0) = ∠cko => ∠ack = ∠ck0a
+[   7 | gr ] ncoll a k c
+[   7 | gr ] k, x, a collinear && k0, k, x collinear && ∠kcd = ∠(ax, c0k0) && ∠kcd = ∠kc0a => ∠ak0c0 = ∠kc0a
+[   7 | gr ] diffclock a k0 c0 a c0 k
+[   7 | gr ] k, x, a collinear && ∠ac0k0 = ∠dck0 && ∠dck0 = ∠(kc0, ax) => ∠ac0k0 = ∠c0ka
+[   7 | gr ] ncoll a k0 c0
+[   7 | gr ] l, x, b collinear && l0, l, x collinear && ∠bcl = ∠(cd, lc0) && ∠clo = ∠(cl0, lb) && ∠(cd, lc0) = ∠clo => ∠bcl = ∠cl0b
+[   7 | gr ] diffclock b c l b l0 c
+[   7 | gr ] l, x, b collinear && ∠(c0l0, cd) = ∠blc && ∠l0cb = ∠(c0l0, cd) => ∠blc = ∠l0cb
+[   7 | gr ] ncoll b c l
+[   7 | dd ] cd ∥ cc0 && diff d c0 => c, d, c0 collinear
+[   7 | gr ] dc ⊥ ab && cc0 ⊥ ba => cd ∥ cc0
+[   7 | gr ] diff d c0
+[   8 | dd ] l, m, k, o cyclic => ∠lkm = ∠lom
+[   8 | dd ] m, k, l, o cyclic => ∠mlk = ∠mok
+[   8 | dd ] ncoll b c a && ∠bca = ∠adc && diffclock b c a c d a && ∠bac = ∠dac => △bca ~ △cda
+[   8 | dd ] ncoll b c a && ∠bca = ∠cdb && diffclock b c a b d c && ∠bac = ∠dcb => △bca ~ △bdc
+[   8 | dd ] ∠bc0l = ∠c0l0b && diffclock b c0 l b l0 c0 && ∠blc0 = ∠l0c0b && ncoll b c0 l => △bc0l ~ △bl0c0
+[   8 | dd ] ∠akc = ∠k0ca && diffclock a k c a c k0 && ∠ack = ∠ck0a && ncoll a k c => △akc ~ △ack0
+[   8 | dd ] ∠ak0c0 = ∠kc0a && diffclock a k0 c0 a c0 k && ∠ac0k0 = ∠c0ka && ncoll a k0 c0 => △ak0c0 ~ △ac0k
+[   8 | dd ] ∠bcl = ∠cl0b && diffclock b c l b l0 c && ∠blc = ∠l0cb && ncoll b c l => △bcl ~ △bl0c
+[  11 | gr ] dc ⊥ ab && x, c, d collinear && l0, l, x collinear && cc0 ⊥ ba && ∠dcl = ∠(c0l0, lb) => ∠xcl = ∠c0l0x
+[  11 | gr ] dc ⊥ ab && x, c, d collinear && cc0 ⊥ ba && ∠l0c0b = ∠l0cd && ∠l0cd = ∠blc0 => ∠xlc0 = ∠l0cx
+[  11 | gr ] dc ⊥ ab && x, c, d collinear && cc0 ⊥ ba && ∠(c0k0, cd) = ∠(ax, ck) && ∠k0ca = ∠(c0k0, cd) && c, d, c0 collinear => ∠xkc = ∠k0c0x
+[  11 | gr ] diffclock x k c0 x c k0
+[  11 | gr ] dc ⊥ ab && x, c, d collinear && k0, k, x collinear && cc0 ⊥ ba && ∠cko = ∠(ck0, ax) && ∠ack = ∠(cd, kc0) && ∠(cd, kc0) = ∠cko && c, d, c0 collinear => ∠xc0k = ∠ck0x
+[  11 | gr ] ncoll x k c
+[  11 | gr ] d, a, b collinear => ∠abk = ∠dbk
+[  11 | gr ] ncoll a b k
+[  11 | gr ] diffclock x c l x l0 c0
+[  11 | gr ] diffclock x c0 l x l0 c
+[  11 | gr ] dc ⊥ ab && x, c, d collinear && k0, k, x collinear && cc0 ⊥ ba && ∠dck = ∠(c0k0, ax) => ∠xck = ∠c0k0x
+[  11 | gr ] bk = bc && bc0 = bc && bk0 = bc && △bca ~ △bdc => ba / bk = bk / bd
+[  11 | gr ] diffclock a b k k b d
+[  11 | gr ] bk ∥ bk
+[  11 | gr ] ncoll x c l
+[  11 | gr ] dc ⊥ ab && x, c, d collinear && cc0 ⊥ ba && ∠(c0l0, cd) = ∠blc && ∠l0cb = ∠(c0l0, cd) && c, d, c0 collinear => ∠xlc = ∠l0c0x
+[  11 | gr ] ncoll x k c0
+[  11 | gr ] dc ⊥ ab && x, c, d collinear && l0, l, x collinear && cc0 ⊥ ba && ∠bcl = ∠(cd, lc0) && ∠clo = ∠(cl0, lb) && ∠(cd, lc0) = ∠clo && c, d, c0 collinear => ∠xc0l = ∠cl0x
+[  11 | gr ] d, a, b collinear => ab ∥ ad
+[  11 | gr ] ncoll l0 a b
+[  11 | gr ] dc ⊥ ab && x, c, d collinear && cc0 ⊥ ba && ∠k0cd = ∠(ax, kc0) && ∠k0c0a = ∠k0cd => ∠xkc0 = ∠k0cx
+[  11 | gr ] bk = bc && bc0 = bc && bk0 = bc && △bc0l ~ △bl0c0 => bl / bk = bk / bl0
+[  11 | gr ] l, x, b collinear && l0, l, x collinear => bl ∥ bl0
+[  11 | gr ] diffclock l b k k b l0
+[  11 | gr ] ncoll l b k
+[  11 | gr ] diffclock x k c x c0 k0
+[  11 | gr ] ncoll x c0 l
+[  11 | gr ] al ∥ al
+[  11 | gr ] △bca ~ △cda => al0 / ab = ad / al0
+[  11 | gr ] al0 ∥ al0
+[  11 | gr ] diffclock l0 a b d a l0
+[  11 | gr ] al = ac && ac0 = ac && al0 = ac && △akc ~ △ack0 => al / ak = ak0 / al
+[  11 | gr ] k, x, a collinear && k0, k, x collinear => ak ∥ ak0
+[  11 | gr ] diffclock l a k k0 a l
+[  11 | gr ] ncoll l a k
+[  12 | dd ] ∠xcl = ∠c0l0x && diffclock x c l x l0 c0 && ncoll x c l && ∠xlc = ∠l0c0x => △xcl ~ △xl0c0
+[  12 | dd ] ∠abk = ∠dbk && ncoll a b k && ba / bk = bk / bd && diffclock a b k k b d => △abk ~ △kbd
+[  12 | dd ] ab ∥ ad && ncoll l0 a b && al0 / ab = ad / al0 && al0 ∥ al0 && diffclock l0 a b d a l0 => △l0ab ~ △dal0
+[  12 | dd ] diffclock x k c0 x c k0 && ∠xc0k = ∠ck0x && ncoll x k c0 && ∠xkc0 = ∠k0cx => △xkc0 ~ △xck0
+[  12 | dd ] bk ∥ bk && bl / bk = bk / bl0 && bl ∥ bl0 && diffclock l b k k b l0 && ncoll l b k => △lbk ~ △kbl0
+[  12 | dd ] ∠xlc0 = ∠l0cx && diffclock x c0 l x l0 c && ∠xc0l = ∠cl0x && ncoll x c0 l => △xc0l ~ △xl0c
+[  12 | dd ] ∠xkc = ∠k0c0x && ncoll x k c && ∠xck = ∠c0k0x && diffclock x k c x c0 k0 => △xkc ~ △xc0k0
+[  12 | dd ] al ∥ al && al / ak = ak0 / al && ak ∥ ak0 && diffclock l a k k0 a l && ncoll l a k => △lak ~ △k0al
+[  14 | ar ] △bca ~ △cda && △bca ~ △bdc && △bc0l ~ △bl0c0 && △akc ~ △ack0 && △ak0c0 ~ △ac0k && △bcl ~ △bl0c && △xcl ~ △xl0c0 && △abk ~ △kbd && △l0ab ~ △dal0 && △xkc0 ~ △xck0 && △xc0l ~ △xl0c && △xkc ~ △xc0k0 => xk0 / xl = l0d / kd
+[  14 | ar ] △bc0l ~ △bl0c0 && △akc ~ △ack0 && △ak0c0 ~ △ac0k && △bcl ~ △bl0c && △xcl ~ △xl0c0 && △xkc0 ~ △xck0 && △lbk ~ △kbl0 && △xc0l ~ △xl0c && △xkc ~ △xc0k0 && △lak ~ △k0al => l0k / kx = lk0 / xl
+[  14 | ar ] △bca ~ △cda && △bca ~ △bdc && △bc0l ~ △bl0c0 && △akc ~ △ack0 && △ak0c0 ~ △ac0k && △bcl ~ △bl0c && △xcl ~ △xl0c0 && △abk ~ △kbd && △l0ab ~ △dal0 && △xkc0 ~ △xck0 && △xc0l ~ △xl0c && △xkc ~ △xc0k0 => l0x / kx = l0d / kd
+[  15 | gr ] xk0 / xl = l0d / kd && l0x / kx = l0d / kd => xl0 / xk = xk0 / xl
+[  15 | dd ] xl0 / xk = xk0 / xl && kl0 / kx = lk0 / lx && ncoll l0 x k => △l0xk ~ △k0xl
+[  15 | gr ] l0k / kx = lk0 / xl => kl0 / kx = lk0 / lx
+[  15 | gr ] ncoll l0 x k
+[  19 | gr ] ∠lkm = ∠lom && ∠mlk = ∠mok && △lbk ~ △kbl0 && △lak ~ △k0al && △l0xk ~ △k0xl => ∠lom = ∠mok
+[  20 | dd ] o, l, m, k cyclic && ∠lom = ∠mok => lm = mk
+[ 511 | dd ] lm = mk => mk = ml

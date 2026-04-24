@@ -1,0 +1,11 @@
+# Auxiliary point p added to diagram
+problem imo-2008-1 {
+    a b c = triangle a b c; 
+    h = orthocenter h : a b c; 
+    d = midpoint d : b c; e = midpoint e : a c; f = midpoint f : a b; 
+    # a1 a2 = intersections_lc a1 a2 : b c d h; 
+    b1 b2 = intersections_lc b1 b2 : a c e h; 
+    c1 c2 = intersections_lc c1 c2 : a b f h;
+    p = reflect p : h e f 
+    ? cyclic c1 c2 b1 b2
+}

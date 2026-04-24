@@ -1,0 +1,78 @@
+=======================================
+Problem: imo-2005-5
+
+    a b c = triangle a b c; 
+    d = eqdistance d : a b c; 
+    e = on_ray e : b c; 
+    f = eqdistance f : d e b, on_ray f : d a;
+    p = intersection_ll p : a c b d; 
+    q = intersection_ll q : e f b d; 
+    r = intersection_ll r : a c e f; 
+    x = on_circum x : p a d, on_circum x : p b c
+    ? cyclic p q r x
+
+---------------------------------------
+    p = (0.265715, -0.216290)    q = (0.172148, -0.146586)    b = (0.998333, -0.762060)
+    c = (0.303306, -0.491310)    d = (-0.400116, 0.279728)    e = (0.594646, -0.604803)
+    f = (-0.023497, 0.065600)    a = (0.248308, -0.088936)    r = (0.270814, -0.253593)
+    x = (0.261144, -0.292128)
+    Loss: 0
+---------------------------------------
+[   2 | gr ] f, d, a collinear => eq l_a_d l_d_f
+[   3 | gr ] p, a, d, x cyclic => p, d, a, x cyclic
+[   3 | gr ] p, a, d, x cyclic => d, a, p, x cyclic
+[   3 | gr ] p, a, d, x cyclic => d, x, p, a cyclic
+[   3 | gr ] p, a, d, x cyclic => a, x, p, d cyclic
+[   3 | gr ] p, b, c, x cyclic => p, c, b, x cyclic
+[   3 | gr ] p, b, c, x cyclic => b, c, p, x cyclic
+[   3 | gr ] p, b, c, x cyclic => b, x, p, c cyclic
+[   3 | gr ] p, b, c, x cyclic => c, x, p, b cyclic
+[   4 | dd ] p, d, a, x cyclic => ∠pad = ∠pxd
+[   4 | dd ] d, a, p, x cyclic => ∠dpa = ∠dxa
+[   4 | dd ] d, x, p, a cyclic => ∠dpx = ∠dax
+[   4 | dd ] a, x, p, d cyclic => ∠apx = ∠adx
+[   4 | dd ] p, b, c, x cyclic => ∠pcb = ∠pxb
+[   4 | dd ] p, c, b, x cyclic => ∠pbc = ∠pxc
+[   4 | dd ] b, c, p, x cyclic => ∠bpc = ∠bxc
+[   4 | dd ] b, x, p, c cyclic => ∠bpx = ∠bcx
+[   4 | dd ] c, x, p, b cyclic => ∠cpx = ∠cbx
+[   6 | ar ] da = bc && fd = eb && eq l_a_d l_d_f => fa = ce
+[   7 | dd ] da = bc && sameclock d a x b c x && ∠dxa = ∠bxc && ncoll d a x && ∠dax = ∠bcx => △dax ≅ △bcx
+[   7 | gr ] sameclock d a x b c x
+[   7 | gr ] ∠dpa = ∠dxa && ∠bpc = ∠bxc => ∠dxa = ∠bxc
+[   7 | gr ] ncoll d a x
+[   7 | gr ] ncoll x d b
+[   7 | gr ] ∠dpx = ∠dax && ∠bpx = ∠bcx => ∠dax = ∠bcx
+[  11 | gr ] sameclock f a x e c x
+[  11 | gr ] fa = ce => fa = ec
+[  11 | gr ] △dax ≅ △bcx => xd = xb
+[  11 | gr ] e, b, c collinear && f, d, a collinear && ∠dpx = ∠dax && ∠bpx = ∠bcx => ∠fax = ∠ecx
+[  11 | gr ] △dax ≅ △bcx => dx = bx
+[  11 | gr ] ncoll f a x
+[  11 | gr ] sameclock f d x e b x
+[  11 | gr ] △dax ≅ △bcx => ax = cx
+[  11 | dd ] ncoll x d b && xd = xb => ∠xdb = ∠dbx
+[  11 | gr ] e, b, c collinear && ∠apx = ∠adx && ∠cpx = ∠cbx => ∠fdx = ∠ebx
+[  11 | gr ] ncoll f d x
+[  11 | dd ] fd = eb && dx = bx && sameclock f d x e b x && ∠fdx = ∠ebx && ncoll f d x => △fdx ≅ △ebx
+[  11 | dd ] sameclock f a x e c x && fa = ec && ∠fax = ∠ecx && ncoll f a x && ax = cx => △fax ≅ △ecx
+[  15 | gr ] △fdx ≅ △ebx => xe = xf
+[  15 | gr ] ncoll x e f
+[  16 | dd ] xe = xf && ncoll x e f => ∠xef = ∠efx
+[  18 | ar ] ∠xdb = ∠dbx && ∠xef = ∠efx && △fdx ≅ △ebx => ∠exb = ∠eqp
+[  18 | ar ] ∠pcb = ∠pxb && ∠pbc = ∠pxc && ∠xdb = ∠dbx && ∠xef = ∠efx && △fdx ≅ △ebx => ∠cxe = ∠(pc, qe)
+[  19 | gr ] diff f d q x
+[  19 | gr ] p, b, d collinear && q, b, d collinear && q, e, f collinear && △fdx ≅ △ebx && ∠exb = ∠eqp => ∠fqd = ∠fxd
+[  19 | gr ] diff c e x r
+[  19 | gr ] p, a, c collinear && r, a, c collinear && r, e, f collinear && △fax ≅ △ecx && ∠cxe = ∠(pc, qe) => ∠cxe = ∠cre
+[  20 | dd ] diff f d q x && ∠fqd = ∠fxd => f, d, q, x cyclic
+[  20 | dd ] diff c e x r && ∠cxe = ∠cre => c, e, x, r cyclic
+[  23 | gr ] f, d, q, x cyclic => q, d, f, x cyclic
+[  23 | gr ] c, e, x, r cyclic => c, r, e, x cyclic
+[  24 | dd ] q, d, f, x cyclic => ∠qfd = ∠qxd
+[  24 | dd ] c, r, e, x cyclic => ∠cer = ∠cxr
+[  26 | ar ] ∠pad = ∠pxd && ∠pcb = ∠pxb && ∠qfd = ∠qxd && ∠cer = ∠cxr => ∠qxr = ∠bxc
+[  27 | gr ] diff q r p x
+[  27 | gr ] q, b, d collinear && r, a, c collinear && ∠bpc = ∠bxc && ∠qxr = ∠bxc => ∠qpr = ∠qxr
+[  28 | dd ] diff q r p x && ∠qpr = ∠qxr => q, r, p, x cyclic
+[ 511 | dd ] q, r, p, x cyclic => p, q, r, x cyclic

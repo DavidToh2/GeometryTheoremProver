@@ -1,0 +1,11 @@
+problem imo-2007-4 {
+    a b c = triangle a b c; 
+    o = circumcenter o : a b c; 
+    r = on_circle r : o a, on_angle_bisect r : a c b; 
+    l = midpoint l : c a; 
+    k = midpoint k : c b; 
+    p = intersection_ll p : o k c r; 
+    q = intersection_ll q : o l c r; 
+    l1 = foot l1 : l c r; k1 = foot k1 : k c r 
+    ? eqratio k k1 l l1 r q r p
+}

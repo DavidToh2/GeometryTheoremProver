@@ -1,0 +1,111 @@
+=======================================
+Problem: imo-2013-4
+
+    a b c = triangle a b c; 
+    h = orthocenter h : a b c; 
+    m = intersection_ll m : h b a c; 
+    n = intersection_ll n : h c a b; 
+    w = on_line w : b c; 
+    o1 = circumcenter o1 : b n w; 
+    o2 = circumcenter o2 : c m w; 
+    x = intersection_lc x : o1 o1 w; 
+    y = intersection_lc y : o2 o2 w 
+    ? coll x h y
+
+---------------------------------------
+    n = (-0.200303, -0.536824)    w = (-0.702354, -0.456204)    b = (-0.203390, -0.551492)
+    c = (0.583547, -0.701776)    h = (-0.178935, -0.541321)    m = (0.414197, -0.294618)
+    a = (0.039992, 0.605059)    o1 = (-0.450574, -0.491816)    o2 = (-0.090814, -0.743466)
+    x = (-0.198795, -0.527429)    y = (0.520726, -1.030728)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] o1n = o1w && o1b = o1n && o1w = o1x => o1n = o1x
+[   3 | gr ] ncoll o1 b n
+[   3 | gr ] o1n = o1w && o1b = o1n && o1w = o1x => o1b = o1x
+[   3 | gr ] o1n = o1w && o1b = o1n => o1b = o1w
+[   3 | gr ] o2c = o2m && o2m = o2w && o2w = o2y => o2m = o2y
+[   3 | gr ] o2c = o2m && o2m = o2w && o2w = o2y => o2c = o2y
+[   3 | gr ] o2c = o2m && o2m = o2w => o2c = o2w
+[   3 | gr ] ncoll o1 b w
+[   3 | gr ] ncoll o1 b x
+[   3 | gr ] ncoll o1 n w
+[   3 | gr ] ncoll o1 n x
+[   3 | gr ] ncoll o2 c m
+[   3 | gr ] ncoll o2 c w
+[   3 | gr ] ncoll o2 c y
+[   3 | gr ] ncoll o2 m w
+[   3 | gr ] ncoll o2 m y
+[   4 | dd ] o1b = o1n && ncoll o1 b n => ∠o1bn = ∠bno1
+[   4 | dd ] o1b = o1w && ncoll o1 b w => ∠o1bw = ∠bwo1
+[   4 | dd ] o1b = o1x && ncoll o1 b x => ∠o1bx = ∠bxo1
+[   4 | dd ] o1n = o1w && ncoll o1 n w => ∠o1nw = ∠nwo1
+[   4 | dd ] o1n = o1x && ncoll o1 n x => ∠o1nx = ∠nxo1
+[   4 | dd ] o2c = o2m && ncoll o2 c m => ∠o2cm = ∠cmo2
+[   4 | dd ] o2c = o2w && ncoll o2 c w => ∠o2cw = ∠cwo2
+[   4 | dd ] o2c = o2y && ncoll o2 c y => ∠o2cy = ∠cyo2
+[   4 | dd ] o2m = o2w && ncoll o2 m w => ∠o2mw = ∠mwo2
+[   4 | dd ] o2m = o2y && ncoll o2 m y => ∠o2my = ∠myo2
+[   6 | ar ] hc ⊥ ab && ∠o2mw = ∠mwo2 && ∠o2my = ∠myo2 => ∠cnb = ∠wmy
+[   6 | ar ] ∠o2cw = ∠cwo2 && ∠o2cy = ∠cyo2 => wb ⊥ cy
+[   6 | ar ] hc ⊥ ab && ∠o1bn = ∠bno1 && ∠o1bx = ∠bxo1 && ∠o1nx = ∠nxo1 => ∠(wo1, ha) = ∠xnc
+[   6 | ar ] ha ⊥ bc && ∠o1bn = ∠bno1 && ∠o1bw = ∠bwo1 && ∠o1nw = ∠nwo1 => ∠wnb = ∠(wo1, ha)
+[   6 | ar ] ha ⊥ bc && hb ⊥ ca && ∠o2cm = ∠cmo2 && ∠o2cw = ∠cwo2 && ∠o2my = ∠myo2 => ∠(wo2, ha) = ∠(my, bh)
+[   6 | ar ] hb ⊥ ca && ∠o2cm = ∠cmo2 && ∠o2cw = ∠cwo2 && ∠o2mw = ∠mwo2 => ∠(bh, mo2) = ∠bwm
+[   6 | ar ] hb ⊥ ca && ∠o1nw = ∠nwo1 && ∠o1nx = ∠nxo1 => ∠(bh, cm) = ∠wnx
+[   6 | ar ] hc ⊥ ab && ∠o2mw = ∠mwo2 && ∠o2my = ∠myo2 => ∠bnc = ∠wmy
+[   6 | ar ] hb ⊥ ca && ∠o2cw = ∠cwo2 && ∠o2cy = ∠cyo2 => ∠(cm, bh) = ∠(ha, wb)
+[   6 | ar ] ∠o1bw = ∠bwo1 && ∠o1bx = ∠bxo1 => wb ⊥ bx
+[   6 | ar ] hc ⊥ ab && ∠o1bn = ∠bno1 && ∠o1bw = ∠bwo1 && ∠o1nw = ∠nwo1 => ∠cno1 = ∠bwn
+[   6 | ar ] hb ⊥ ca && ∠o1nw = ∠nwo1 && ∠o1nx = ∠nxo1 => ∠(cm, bh) = ∠wnx
+[   6 | ar ] ∠o1bn = ∠bno1 && ∠o1bw = ∠bwo1 && ∠o1nx = ∠nxo1 => ∠bnx = ∠bwo1
+[   6 | ar ] hb ⊥ ca && hc ⊥ ab => ∠(cm, nb) = ∠(bh, nc)
+[   6 | ar ] hb ⊥ ca && ∠o2cm = ∠cmo2 && ∠o2cy = ∠cyo2 && ∠o2my = ∠myo2 => ∠(bh, mo2) = ∠(ha, my)
+[   6 | ar ] hb ⊥ ca && ∠o2cm = ∠cmo2 && ∠o2cw = ∠cwo2 && ∠o2mw = ∠mwo2 => ∠bwo2 = ∠(bh, wm)
+[   6 | ar ] hc ⊥ ab && ∠o1bn = ∠bno1 && ∠o1bw = ∠bwo1 && ∠o1nw = ∠nwo1 => ∠o1bw = ∠cnw
+[   6 | ar ] ∠o2cm = ∠cmo2 && ∠o2cw = ∠cwo2 && ∠o2my = ∠myo2 => ∠cmy = ∠bwo2
+[   6 | ar ] hc ⊥ ab && ∠o2cw = ∠cwo2 && ∠o2cy = ∠cyo2 => ∠bnc = ∠(ha, wb)
+[   6 | ar ] ha ⊥ bc && ∠o2cm = ∠cmo2 && ∠o2cw = ∠cwo2 && ∠o2mw = ∠mwo2 => ∠wmc = ∠(wo2, ha)
+[   6 | ar ] hc ⊥ ab && ∠o1bn = ∠bno1 && ∠o1bw = ∠bwo1 && ∠o1nx = ∠nxo1 && ∠o2cw = ∠cwo2 && ∠o2cy = ∠cyo2 => ∠cno1 = ∠(ha, nx)
+[   6 | ar ] hb ⊥ ca && hc ⊥ ab => ∠hbn = ∠mcn
+[   7 | dd ] ∠cna = ∠amb && diffclock c n a b m a && ∠can = ∠mab && ncoll c n a => △cna ~ △bma
+[   7 | gr ] m, a, c collinear && n, a, b collinear && m, h, b collinear && n, h, c collinear && ∠cnb = ∠wmy && ∠bnc = ∠wmy && ∠(cm, bh) = ∠(ha, wb) && ∠bnc = ∠(ha, wb) => ∠cna = ∠amb
+[   7 | gr ] diffclock c n a b m a
+[   7 | gr ] m, a, c collinear && n, a, b collinear => ∠can = ∠mab
+[   7 | gr ] ncoll c n a
+[   7 | dd ] ∠hnb = ∠cmh && diffclock h n b h m c && ∠hbn = ∠mch && ncoll h n b => △hnb ~ △hmc
+[   7 | gr ] m, a, c collinear && n, a, b collinear && m, h, b collinear && n, h, c collinear && ∠cnb = ∠wmy && ∠bnc = ∠wmy && ∠(cm, bh) = ∠(ha, wb) && ∠bnc = ∠(ha, wb) => ∠hnb = ∠cmh
+[   7 | gr ] diffclock h n b h m c
+[   7 | gr ] m, a, c collinear && n, a, b collinear && ∠hbn = ∠mcn => ∠hbn = ∠mch
+[   7 | gr ] ncoll h n b
+[   7 | dd ] ncoll c n a && ∠cna = ∠hmc && diffclock c n a c m h && ∠can = ∠mhc => △cna ~ △cmh
+[   7 | gr ] m, a, c collinear && n, a, b collinear && m, h, b collinear && n, h, c collinear && ∠cnb = ∠wmy && ∠(bh, cm) = ∠wnx && ∠bnc = ∠wmy && ∠(cm, bh) = ∠(ha, wb) && ∠(cm, bh) = ∠wnx && ∠bnc = ∠(ha, wb) => ∠cna = ∠hmc
+[   7 | gr ] diffclock c n a c m h
+[   7 | gr ] n, a, b collinear && m, h, b collinear && ∠(cm, nb) = ∠(bh, nc) => ∠can = ∠mhc
+[   7 | gr ] n, a, b collinear && n, h, c collinear && ∠o1bw = ∠bwo1 && ∠bnx = ∠bwo1 && ∠o1bw = ∠cnw => ∠bnx = ∠cnw
+[   7 | gr ] sameclock b n x c n w
+[   7 | gr ] w, b, c collinear && ha ⊥ bc && wb ⊥ cy && wb ⊥ bx && ∠cno1 = ∠bwn && ∠cno1 = ∠(ha, nx) => ∠bxn = ∠cwn
+[   7 | gr ] ncoll b n x
+[   7 | gr ] m, a, c collinear && m, h, b collinear && ∠o2cw = ∠cwo2 && ∠bwo2 = ∠(bh, wm) && ∠cmy = ∠bwo2 => ∠bmw = ∠cmy
+[   7 | gr ] sameclock b m w c m y
+[   7 | gr ] w, b, c collinear && ∠(bh, mo2) = ∠bwm && ∠(bh, mo2) = ∠(ha, my) => ∠bwm = ∠cym
+[   7 | gr ] ncoll b m w
+[   8 | dd ] ∠bnx = ∠cnw && sameclock b n x c n w && ∠bxn = ∠cwn && ncoll b n x => △bnx ~ △cnw
+[   8 | dd ] ∠bmw = ∠cmy && sameclock b m w c m y && ∠bwm = ∠cym && ncoll b m w => △bmw ~ △cmy
+[  10 | ar ] △cna ~ △bma && △cna ~ △cmh && △bmw ~ △cmy => my / hm = wm / am
+[  10 | ar ] △hnb ~ △hmc && △cna ~ △cmh && △bnx ~ △cnw => nx / nh = wn / na
+[  11 | gr ] nx / nh = wn / na => nx / nh = nw / na
+[  11 | gr ] sameclock x n h w n a
+[  11 | gr ] n, a, b collinear && n, h, c collinear && ∠(wo1, ha) = ∠xnc && ∠wnb = ∠(wo1, ha) => ∠xnh = ∠wna
+[  11 | gr ] ncoll x n h
+[  11 | gr ] my / hm = wm / am => mw / ma = my / mh
+[  11 | gr ] sameclock w m a y m h
+[  11 | gr ] m, a, c collinear && m, h, b collinear && ∠(wo2, ha) = ∠(my, bh) && ∠wmc = ∠(wo2, ha) => ∠wma = ∠ymh
+[  11 | gr ] ncoll w m a
+[  12 | dd ] nx / nh = nw / na && sameclock x n h w n a && ∠xnh = ∠wna && ncoll x n h => △xnh ~ △wna
+[  12 | dd ] mw / ma = my / mh && sameclock w m a y m h && ∠wma = ∠ymh && ncoll w m a => △wma ~ △ymh
+[  14 | ar ] hb ⊥ ca && △wma ~ △ymh => wa ⊥ hy
+[  14 | ar ] hc ⊥ ab && △xnh ~ △wna => wa ⊥ hx
+[  15 | gr ] diff x y
+[  15 | dd ] diff x y && hx ∥ hy => h, x, y collinear
+[  15 | gr ] wa ⊥ hy && wa ⊥ hx => hx ∥ hy
+[ 511 | dd ] h, x, y collinear => x, h, y collinear

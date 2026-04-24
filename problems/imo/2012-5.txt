@@ -1,0 +1,14 @@
+# Addition of points c0, k0, l0 and o
+problem imo-2012-5 {
+    c a b = r_triangle c a b; 
+    d = foot d : c a b; 
+    x = on_line x : c d; 
+    k = on_ray k : x a, on_circle k : b c; 
+    l = on_ray l : x b, on_circle l : a c; 
+    m = intersection_ll m : a l b k;
+    c0 = on_circle c0 : a c, on_circle c0 : b c;
+    k0 = on_line k0 : k x, on_circle k0 : b c;
+    l0 = on_line l0 : l x, on_circle l0 : a c;
+    o = on_line_perp o : l l m, on_line_perp o : k k m
+    ? cong m k m l
+}

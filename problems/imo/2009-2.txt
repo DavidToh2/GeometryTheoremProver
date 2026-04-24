@@ -1,0 +1,10 @@
+# Simplification required to avoid power-of-a-point using circle center
+problem imo-2009-2 {
+    m l k = triangle m l k; 
+    w = circumcenter w : m l k; 
+    q = on_line_perp q : m w m; 
+    p = mirror p : q m; b = mirror b : p k; c = mirror c : q l; 
+    a = intersection_ll a : b q c p;
+    # o = circumcenter o : a b c
+    ? eqratio a p a q q b p c
+}

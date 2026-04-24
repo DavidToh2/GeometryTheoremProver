@@ -1,0 +1,7 @@
+problem imo-2004-5 {
+    a b c = triangle a b c; 
+    o = circumcenter o : a b c; 
+    d = on_circle d : o a; 
+    p = on_line_at_angle p : b c a b d, on_line_at_angle p : d c a d b 
+    ? cong a p c p
+}

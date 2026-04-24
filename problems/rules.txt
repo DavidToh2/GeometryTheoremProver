@@ -14,7 +14,7 @@ A B C D O : para A B C D, coll A C O, ncoll A B C D => eqangle B A A O D C C O
 A B P Q : cyclic A B P Q => eqangle P A P B Q A Q B
 
 #eqangle_cyclic
-A B P Q : eqangle P A P B Q A Q B, diff A B P Q => cyclic A B P Q
+A B P Q : eqangle P A P B Q A Q B, ncoll A B P Q => cyclic A B P Q
 
 #perp_perp_cyclic
 A B C D : perp A B B C, perp A D D C, diff B D => cyclic A B C D
@@ -34,17 +34,17 @@ A B C D : cyclic A B C D, cong B C C D => eqangle B A A C C A A D
 A B C D : cyclic A B C D, cong A B C D, sameclock A B C C D A => para B C D A
 
 #angle_bisector_cong_cyclic (advanced)
-A B C D : cong A B B C, eqangle A D D B B D D C, diff A B C D, ncong A D D C => cyclic A B C D
+A B C D : cong A B B C, eqangle A D D B B D D C, ncoll A B C D, ncong A D D C => cyclic A B C D
 
 #midpoint_theorem
 A B C E F : midp E A B, midp F A C, diff B C E F, ncoll A B C => para E F B C
 
 #midp_midp_parallelogram (necessary as midp, cong and eqratio have separate matching rules)
-A B C D M : midp M A B, midp M C D, diff A B C D => para A C B D
-A B C D M : midp M A B, midp M C D, diff A B C D => para A D B C
+A B C D M : midp M A B, midp M C D, ncoll A B C D => para A C B D
+A B C D M : midp M A B, midp M C D, ncoll A B C D => para A D B C
 
 #midp_parallelogram_midp (necessary as midp, cong and eqratio have separate matching rules)
-A B C D M : midp M A B, para A C B D, para A D B C, diff A B C D => midp M C D
+A B C D M : midp M A B, para A C B D, para A D B C, ncoll A B C D => midp M C D
 
 #angle_bisector_theorem
 A B C D : eqratio D B D C A B A C, coll D B C, ncoll A B C => eqangle A B A D A D A C
@@ -53,7 +53,7 @@ A B C D : eqratio D B D C A B A C, coll D B C, ncoll A B C => eqangle A B A D A 
 A B C D : eqangle A B A D A D A C, coll D B C, ncoll A B C => eqratio D B D C A B A C
 
 #parallelogram_cong
-A B C D : para A B C D, para B C D A, diff A B C D => cong A B C D
+A B C D : para A B C D, para B C D A, ncoll A B C D => cong A B C D
 
 #isosceles_cong_eqangle
 A B O : cong O A O B, ncoll O A B => eqangle O A A B A B O B
@@ -116,6 +116,7 @@ A B C P Q R : eqratio B A B C Q P Q R, diffclock A B C P Q R, eqangle B A B C Q 
 
 #SAS (simtri, para version)
 A B C P Q R : eqratio B A B C Q P Q R, para B A Q P, para B C Q R, sameclock A B C P Q R, ncoll A B C => simtri A B C P Q R
+A B C P Q R : eqratio B A B C Q P Q R, para B C Q P, para B A Q R, diffclock A B C P Q R, ncoll A B C => simtri A B C P Q R
 
 #AAA (simtri)
 A B C P Q R : eqangle B A B C Q P Q R, sameclock A B C P Q R, eqangle C A C B R P R Q, ncoll A B C => simtri A B C P Q R

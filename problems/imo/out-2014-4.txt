@@ -1,0 +1,39 @@
+=======================================
+Problem: imo-2014-4
+
+    a b c = triangle a b c; 
+    p = on_line p : b c, on_line_at_angle p : a b b c a; 
+    q = on_line q : b c, on_line_at_angle q : a c c b a; 
+    m = mirror m : a p; 
+    n = mirror n : a q; 
+    x = intersection_ll x : b m c n; 
+    o = circumcenter o : a b c 
+    ? cong o x o a
+
+---------------------------------------
+    x = (-0.194097, 0.294076)    c = (0.067428, 0.164513)    p = (1.002500, 0.161717)
+    q = (-0.337031, 0.165722)    m = (1.673845, 0.687903)    n = (-1.005217, 0.695913)
+    a = (0.331156, -0.364468)    b = (-0.796369, 0.167096)    o = (-0.366108, -0.381861)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] diffclock p a b a c b
+[   3 | gr ] p, b, c collinear => ∠pba = ∠cba
+[   3 | gr ] ncoll p a b
+[   3 | gr ] diffclock q a c a b c
+[   3 | gr ] p, b, c collinear && q, b, c collinear => ∠qca = ∠bca
+[   3 | gr ] ncoll q a c
+[   4 | dd ] ∠pab = ∠bca && diffclock p a b a c b && ∠pba = ∠cba && ncoll p a b => △pab ~ △acb
+[   4 | dd ] ∠qac = ∠cba && diffclock q a c a b c && ∠qca = ∠bca && ncoll q a c => △qac ~ △abc
+[   7 | gr ] sameclock b p m n q c
+[   7 | gr ] m, a, p collinear && p, b, c collinear && n, a, q collinear && q, b, c collinear && △pab ~ △acb && △qac ~ △abc => ∠bpm = ∠nqc
+[   7 | gr ] qa = qn && pa = pm => pb / pm = qn / qc
+[   7 | gr ] ncoll b p m
+[   8 | dd ] sameclock b p m n q c && ∠bpm = ∠nqc && pb / pm = qn / qc && ncoll b p m => △bpm ~ △nqc
+[  10 | ar ] ∠pab = ∠bca && △bpm ~ △nqc => ∠cxm = ∠cab
+[  11 | gr ] △pab ~ △acb && ∠cxm = ∠cab => ∠cab = ∠cxb
+[  11 | gr ] diff c b a x
+[  12 | dd ] ∠cab = ∠cxb && diff c b a x => c, b, a, x cyclic
+[  15 | dd ] o center of ⦿xca => ox = oc
+[  15 | gr ] o center of ⦿abc && c, b, a, x cyclic => o center of ⦿xca
+[ 511 | dd ] oa = ob && ob = oc && ox = oc => ox = oa

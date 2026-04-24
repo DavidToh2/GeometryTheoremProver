@@ -1,0 +1,22 @@
+problem imo-2011-6 {
+    a b c = triangle a b c; 
+    o = circumcenter o : a b c; 
+    p = on_circle p : o a; 
+    q = on_line_perp q : p o p; 
+    pa = reflect pa : p b c; 
+    pb = reflect pb : p c a; 
+    pc = reflect pc : p a b; 
+    qa = reflect qa : q b c; 
+    qb = reflect qb : q c a; 
+    qc = reflect qc : q a b; 
+    a1 = intersection_ll a1 : pb qb pc qc; 
+    b1 = intersection_ll b1 : pa qa pc qc; 
+    c1 = intersection_ll c1 : pa qa pb qb; 
+    o1 = circumcenter o1 : a1 b1 c1; 
+    x = on_circle x : o a, on_circle x : o1 a1;
+    i = incenter i : a1 b1 c1;
+    a0 = intersection_ll a0 : p q b c;
+    b0 = intersection_ll b0 : p q a c;
+    c0 = intersection_ll c0 : p q a b
+    ? coll x o o1
+}

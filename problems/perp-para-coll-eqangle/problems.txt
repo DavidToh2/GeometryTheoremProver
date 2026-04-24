@@ -1,3 +1,5 @@
+# 6 problems
+
 problem p1 {
     a b c = r_triangle b a c;
     d = on_line_perp d : c c b;

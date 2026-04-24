@@ -1,0 +1,9 @@
+problem imo-2012-1 {
+    a b c = triangle a b c; 
+    m l k j = excenter2 m l k j : a b c; 
+    f = intersection_ll f : m l b j; 
+    g = intersection_ll g : m k c j; 
+    s = intersection_ll s : f a b c; 
+    t = intersection_ll t : g a c b 
+    ? cong m s m t
+}

@@ -1,0 +1,96 @@
+=======================================
+Problem: imo-2007-4
+
+    a b c = triangle a b c; 
+    o = circumcenter o : a b c; 
+    r = on_circle r : o a, on_angle_bisect r : a c b; 
+    l = midpoint l : c a; 
+    k = midpoint k : c b; 
+    p = intersection_ll p : o k c r; 
+    q = intersection_ll q : o l c r; 
+    l1 = foot l1 : l c r; k1 = foot k1 : k c r 
+    ? eqratio k k1 l l1 r q r p
+
+---------------------------------------
+    k = (0.408376, 0.838946)    p = (0.498847, 0.540250)    b = (0.029825, 0.724289)
+    c = (0.786928, 0.953603)    o = (0.625480, 0.122157)    r = (-0.098681, -0.317113)
+    l = (0.835599, 0.134645)    a = (0.884271, -0.684314)    q = (0.189400, 0.096240)
+    l1 = (0.418675, 0.425215)    k1 = (0.609385, 0.698856)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] oa = ob && ob = oc => oa = oc
+[   3 | gr ] oa = ob && or = oa => ob = or
+[   3 | gr ] ac = ca
+[   3 | gr ] oa = ob && ob = oc => co = ao
+[   3 | gr ] ncoll o a c
+[   3 | dd ] oa = oc && al = cl && lo = lo && ncoll o a l => △oal ≅ △ocl
+[   3 | gr ] l midpoint of ca => al = cl
+[   3 | gr ] lo = lo
+[   3 | gr ] ncoll o a l
+[   3 | gr ] oa = ob && ob = oc => ao = co
+[   3 | gr ] bc = cb
+[   3 | gr ] oa = ob && ob = oc => co = bo
+[   3 | gr ] ncoll o b c
+[   3 | dd ] ob = oc && bk = ck && ko = ko && ncoll o b k => △obk ≅ △ock
+[   3 | gr ] k midpoint of cb => bk = ck
+[   3 | gr ] ko = ko
+[   3 | gr ] ncoll o b k
+[   3 | gr ] oa = ob && ob = oc => bo = co
+[   3 | gr ] or = oa => oa = or
+[   3 | gr ] oa = ob && ob = oc && or = oa => oc = or
+[   3 | gr ] oa = ob && or = oa => or = ob
+[   3 | gr ] ncoll o a r
+[   3 | gr ] ncoll o r a
+[   3 | gr ] ncoll o b r
+[   3 | gr ] ncoll o r b
+[   3 | gr ] ncoll o c r
+[   4 | dd ] oa = oc && ac = ca && co = ao && ncoll o a c => △oac ≅ △oca
+[   4 | dd ] ob = oc && bc = cb && co = bo && ncoll o b c => △obc ≅ △ocb
+[   4 | dd ] oa = or && ncoll o a r => ∠oar = ∠aro
+[   4 | dd ] or = oa && ncoll o r a => ∠ora = ∠rao
+[   4 | dd ] ob = or && ncoll o b r => ∠obr = ∠bro
+[   4 | dd ] or = ob && ncoll o r b => ∠orb = ∠rbo
+[   4 | dd ] oc = or && ncoll o c r => ∠ocr = ∠cro
+[   6 | ar ] ∠acr = ∠rcb && l1l ⊥ cr && △oac ≅ △oca && ∠oar = ∠aro && ∠ocr = ∠cro => ∠oar = ∠(ll1, kb)
+[   6 | ar ] ∠acr = ∠rcb && △oac ≅ △oca && △obc ≅ △ocb && ∠oar = ∠aro && ∠obr = ∠bro && ∠ocr = ∠cro => ∠oar = ∠rbo
+[   6 | ar ] ∠acr = ∠rcb && △oal ≅ △ocl && △obc ≅ △ocb && ∠obr = ∠bro && ∠ocr = ∠cro => ∠(pc, ol) = ∠obr
+[   6 | ar ] ∠acr = ∠rcb && △oal ≅ △ocl && △obc ≅ △ocb && ∠obr = ∠bro && ∠ocr = ∠cro => ∠(ol, pc) = ∠rbo
+[   6 | ar ] ∠acr = ∠rcb && △oac ≅ △oca && △obk ≅ △ock && ∠oar = ∠aro && ∠ocr = ∠cro => ∠oar = ∠cpk
+[   6 | ar ] k1k ⊥ cr && △oal ≅ △ocl => ∠(pc, ll1) = ∠clo
+[   6 | ar ] ∠acr = ∠rcb && k1k ⊥ cr && △obc ≅ △ocb && ∠obr = ∠bro && ∠ocr = ∠cro => ∠cll1 = ∠rbo
+[   6 | ar ] ∠acr = ∠rcb && △oac ≅ △oca && △obc ≅ △ocb && ∠oar = ∠aro && ∠obr = ∠bro && ∠ocr = ∠cro => ∠rao = ∠obr
+[   6 | ar ] k1k ⊥ cr && △obk ≅ △ock => ∠(pc, ll1) = ∠bkp
+[   6 | ar ] ∠acr = ∠rcb && △oac ≅ △oca && △obk ≅ △ock && ∠oar = ∠aro && ∠ocr = ∠cro => ∠rao = ∠kpc
+[   7 | gr ] ncoll b o p
+[   7 | dd ] bo = co && ncoll b o p && ∠bop = ∠poc && op = op && diffclock b o p c o p => △bop ≅ △cop
+[   7 | gr ] △obk ≅ △ock => ∠bop = ∠poc
+[   7 | gr ] diffclock a o q c o q
+[   7 | gr ] oq = oq
+[   7 | gr ] △oal ≅ △ocl => ∠aoq = ∠qoc
+[   7 | dd ] oc = or && ∠ocp = ∠qro && diffclock o c p o r q && ∠opc = ∠rqo && ncoll o c p => △ocp ≅ △orq
+[   7 | gr ] p, c, r collinear && q, c, r collinear && ∠ocr = ∠cro => ∠ocp = ∠qro
+[   7 | gr ] diffclock o c p o r q
+[   7 | gr ] p, c, r collinear && q, c, r collinear && ∠ora = ∠rao && ∠(pc, ol) = ∠obr && ∠rao = ∠obr && ∠rao = ∠kpc => ∠opc = ∠rqo
+[   7 | gr ] ncoll o c p
+[   7 | dd ] oc = or && ∠ocq = ∠pro && diffclock o c q o r p && ∠oqc = ∠rpo && ncoll o c q => △ocq ≅ △orp
+[   7 | gr ] p, c, r collinear && q, c, r collinear && ∠ocr = ∠cro => ∠ocq = ∠pro
+[   7 | gr ] diffclock o c q o r p
+[   7 | gr ] p, c, r collinear && q, c, r collinear && ∠orb = ∠rbo && ∠oar = ∠rbo && ∠(ol, pc) = ∠rbo && ∠oar = ∠cpk => ∠oqc = ∠rpo
+[   7 | gr ] ncoll o c q
+[   7 | gr ] op = op
+[   7 | gr ] diffclock b o p c o p
+[   7 | gr ] ncoll a o q
+[   7 | dd ] ao = co && diffclock a o q c o q && oq = oq && ∠aoq = ∠qoc && ncoll a o q => △aoq ≅ △coq
+[   7 | gr ] ∠acr = ∠rcb && p, c, r collinear && k midpoint of cb && l midpoint of ca && q, c, r collinear => ∠pck = ∠lcq
+[   7 | gr ] diffclock p c k q c l
+[   7 | gr ] p, o, k collinear && k midpoint of cb && l midpoint of ca && q, o, l collinear && △obk ≅ △ock && ∠(pc, ll1) = ∠clo && ∠(pc, ll1) = ∠bkp => ∠pkc = ∠clq
+[   7 | gr ] ncoll p c k
+[   7 | dd ] ∠k1ck = ∠lcl1 && diffclock k1 c k l1 c l && ∠k1kc = ∠cll1 && ncoll k1 c k => △k1ck ~ △l1cl
+[   7 | gr ] ∠acr = ∠rcb && k midpoint of cb && l midpoint of ca && l1, c, r collinear && k1, c, r collinear => ∠k1ck = ∠lcl1
+[   7 | gr ] diffclock k1 c k l1 c l
+[   7 | gr ] k midpoint of cb && l midpoint of ca && l1l ⊥ cr && k1k ⊥ cr && ∠orb = ∠rbo && ∠oar = ∠(ll1, kb) && ∠oar = ∠rbo && ∠cll1 = ∠rbo => ∠k1kc = ∠cll1
+[   7 | gr ] ncoll k1 c k
+[   8 | dd ] ∠pck = ∠lcq && diffclock p c k q c l && ∠pkc = ∠clq && ncoll p c k => △pck ~ △qcl
+[  10 | ar ] k midpoint of cb && l midpoint of ca && △k1ck ~ △l1cl => bc / ca = kk1 / l1l
+[  10 | ar ] k midpoint of cb && l midpoint of ca && △pck ~ △qcl => bc / ca = bp / qa
+[ 511 | dd ] △bop ≅ △cop && △ocp ≅ △orq && △ocq ≅ △orp && △aoq ≅ △coq && bc / ca = kk1 / l1l && bc / ca = bp / qa => kk1 / ll1 = rq / rp

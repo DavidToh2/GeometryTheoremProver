@@ -1,0 +1,17 @@
+# Added points a0, q0, d, p
+problem imo-2015-3 {
+    a b c = triangle a b c; 
+    h = orthocenter h : a b c; 
+    f = intersection_ll f : a h b c; 
+    m = midpoint m : b c; 
+    o = circumcenter o : a b c; 
+    q = on_diameter q : a h, on_circle q : o a; 
+    k = on_diameter k : h q, on_circle k : o a; 
+    o1 = circumcenter o1 : k q h; 
+    o2 = circumcenter o2 : f k m;
+    a0 = intersection_lc a0 : o o a;
+    q0 = intersection_lc q0 : o o q;
+    d = reflect d : h b c;
+    p = circumcenter p : d h k
+    ? coll o1 o2 k
+}

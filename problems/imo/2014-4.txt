@@ -1,0 +1,10 @@
+problem imo-2014-4 {
+    a b c = triangle a b c; 
+    p = on_line p : b c, on_line_at_angle p : a b b c a; 
+    q = on_line q : b c, on_line_at_angle q : a c c b a; 
+    m = mirror m : a p; 
+    n = mirror n : a q; 
+    x = intersection_ll x : b m c n; 
+    o = circumcenter o : a b c 
+    ? cong o x o a
+}
