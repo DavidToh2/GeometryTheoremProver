@@ -1,0 +1,72 @@
+# Added points a0, a2; UNSOLVED
+problem MO-TG-225-1 {
+    c b a = triangle c b a;
+    e = foot e : b c a;
+    f = foot f : c b a;
+    h = intersection_ll h : b e c f;
+    i = circumcenter i : a b c;
+    m = midpoint m : b c;
+    d = intersection_lc d : m i a;
+    p = circumcenter p : e f d;
+    a1 = foot a1 : d i p;
+    g = mirror g : d a1;
+    n = foot n : h a m;
+    k = intersection_ll k : n h b c;
+    d0 = intersection_lc d0 : i i d;
+    a0 = intersection_lc a0 : i i a;
+    a2 = intersection_lc a2 : h i a0
+    ?
+    perp d g g h
+}
+
+problem MO-TG-225-2 {
+    b c a = triangle b c a;
+    o = circumcenter o : a b c;
+    s0 = on_circum s0 : a b c, on_angle_bisect s0 : b a c;
+    s = on_circum s : a b c, on_line_perp s : a a s0;
+    f = foot f : a b c;
+    d = intersection_ll d : a f b s;
+    e = intersection_lc e : f o a;
+    l = on_line l : b e, on_line_para l : d b c;
+    m = circumcenter m : d b l;
+    a1 = foot a1 : b o m;
+    p = mirror p : b a1;
+    h = intersection_ll h : a s0 b s;
+    k = mirror k : a o;
+    t = intersection_ll t : s k a e;
+    x = intersection_ll x : p k a s0
+    ?
+    perp h p p m
+}
+
+problem MO-TG-225-3 {
+    c b a = triangle c b a;
+    f = midpoint f : a b;
+    e = midpoint e : a c;
+    d = midpoint d : b c;
+    g = midpoint g : d e;
+    h = intersection_ll h : a g f d
+    ?
+    para c g b h
+}
+
+problem MO-TG-225-4 {
+    c b a = triangle c b a;
+    b1 = midpoint b1 : a c;
+    d = mirror d : b b1;
+    e = foot e : b a c;
+    f = foot f : d a c;
+    g = midpoint g : a b;
+    h = midpoint h : c d
+    ?
+    para e g f h
+}
+
+problem MO-TG-225-5 {
+    b a n = triangle b a n;
+    c = foot c : b a n;
+    d = foot d : a b n;
+    m = foot m : n a b
+    ?
+    simtri c a m b d m
+}

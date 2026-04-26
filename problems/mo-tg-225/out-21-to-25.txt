@@ -1,0 +1,313 @@
+=======================================
+Problem: MO-TG-225-22
+
+    d b a = triangle d b a;
+    o = circumcenter o : d b a;
+    c = on_circum c : d b a;
+    e = on_circum e : d b a;
+    f = on_circum f : d b a;
+    g = intersection_ll g : b f c e;
+    h = intersection_ll h : e d a f;
+    i = intersection_ll i : a c b d;
+    j_c = on_line_at_angle j_c : c i g c b;
+    j_b = on_line_at_angle j_b : b i g b c;
+    j = intersection_ll j : c j_c b j_b
+    ?
+    cong g h h i
+
+---------------------------------------
+    f = (-0.071459, -0.730044)    j = (-0.176164, -0.790577)    e = (0.040470, -0.391368)
+    b = (0.228133, -0.416756)    a = (-0.107234, -0.650990)    c = (0.185772, -0.807560)
+    i = (0.163319, -0.795561)    d = (0.159891, -0.815591)    o = (0.107606, -0.601389)
+    j_c = (0.300277, -0.812932)    j_b = (0.064817, -0.567761)    g = (0.097152, -0.553724)
+    h = (0.476968, -1.941948)
+    Loss: 0
+=======================================
+Problem: MO-TG-225-25
+
+    c b a = triangle c b a;
+    o = circumcenter o : a b c;
+    i = incenter i : a b c;
+    y = intersection_ll y : b i a c;
+    z = intersection_ll z : c i a b;
+    e = foot e : b a c;
+    f = foot f : c a b;
+    v = on_line_perp v : b b i, on_line v : i c;
+    u = on_line_perp u : c c i, on_line u : i b;
+    p = intersection_ll p : f u v e;
+    x = circumcenter x : u v i;
+    h = intersection_ll h : x o z y;
+    d = midpoint d : i u;
+    g = midpoint g : i v;
+    w = intersection_ll w : u c b v;
+    r = intersection_lc r : f u x;
+    s = intersection_lc s : e v x;
+    m = circumcenter m : w u r;
+    n = circumcenter n : w v s
+    ?
+    perp p h h y
+
+---------------------------------------
+    h = (0.465439, -0.827044)    w = (2.286266, -0.940847)    f = (0.335835, -0.425192)
+    p = (0.232533, -0.812487)    d = (0.257568, -1.174078)    r = (-0.173480, -0.590365)
+    g = (0.483529, -0.299187)    s = (1.672976, -0.013610)    m = (1.007587, -1.108133)
+    u = (-0.045033, -1.853112)    x = (-0.682120, -0.755320)    o = (0.802073, -0.848083)
+    c = (0.940664, -1.467397)    i = (0.560170, -0.495043)    a = (0.321631, -0.433435)
+    y = (0.474121, -0.688137)    b = (0.680411, -0.225223)    z = (0.496378, -0.332024)
+    e = (0.324535, -0.438286)    v = (0.406888, -0.103331)    n = (1.110351, -1.052177)
+
+    Loss: 0
+=======================================
+Problem: MO-TG-225-21
+
+    a c b = triangle a c b;
+    o = circumcenter o : a b c;
+    p = on_circum p : a b c;
+    d = foot d : p b a;
+    e = foot e : p b c;
+    f = foot f : p a c
+    ?
+    coll d e f
+
+---------------------------------------
+    f = (-0.439561, 0.307711)    a = (-1.163322, 0.272383)    o = (-0.790554, 0.347303)
+    p = (-0.434926, 0.212773)    c = (-0.412261, 0.309044)    b = (-0.602386, 0.677700)
+    d = (-0.713077, 0.597717)    e = (-0.377804, 0.242232)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] a, b, c, p cyclic => a, p, c, b cyclic
+[   3 | gr ] a, b, c, p cyclic => a, c, p, b cyclic
+[   3 | gr ] d, b, a collinear && dp ⊥ ba => pd ⊥ da
+[   3 | gr ] fp ⊥ ac && f, a, c collinear => pf ⊥ fa
+[   3 | gr ] diff d f
+[   3 | gr ] d, b, a collinear && dp ⊥ ba => pd ⊥ db
+[   3 | gr ] e, b, c collinear && ep ⊥ bc => pe ⊥ eb
+[   3 | gr ] diff d e
+[   3 | gr ] diff f e
+[   4 | dd ] a, p, c, b cyclic => ∠acp = ∠abp
+[   4 | dd ] a, c, p, b cyclic => ∠apc = ∠abc
+[   4 | dd ] pd ⊥ da && pf ⊥ fa && diff d f => p, d, a, f cyclic
+[   4 | dd ] pd ⊥ db && pe ⊥ eb && diff d e => p, d, b, e cyclic
+[   7 | gr ] p, d, a, f cyclic => f, a, p, d cyclic
+[   8 | dd ] f, a, p, d cyclic => ∠fpa = ∠fda
+[   8 | dd ] p, d, b, e cyclic => ∠pbd = ∠ped
+[  10 | ar ] fp ⊥ ac && ep ⊥ bc && ∠acp = ∠abp && ∠apc = ∠abc && ∠fpa = ∠fda && ∠pbd = ∠ped => de ∥ fd
+[  11 | gr ] de ∥ fd => df ∥ de
+[  11 | dd ] diff f e && df ∥ de => d, f, e collinear
+[ 511 | dd ] d, f, e collinear => d, e, f collinear
+=======================================
+Problem: MO-TG-225-23
+
+    b a c = triangle b a c;
+    m = on_line m : a c;
+    n = on_line n : b c;
+    p = on_line p : m n;
+    a1 = foot a1 : p b c;
+    b1 = foot b1 : p a c;
+    c1 = foot c1 : p a b;
+    d = mirror d : p a1;
+    e = mirror e : p b1;
+    f = mirror f : p c1;
+    o = circumcenter o : d e f;
+    g = on_circum g : d e f;
+    h = midpoint h : g p;
+    i = on_line_perp i : h h p, on_line i : p a;
+    j = intersection_ll j : h i a b;
+    k = intersection_ll k : h i a c
+    ?
+    eqangle p j p b p k p c
+
+---------------------------------------
+    n = (0.923054, -0.455287)    p = (0.974488, -0.025472)    a1 = (1.089746, -0.404613)
+    c = (0.773289, -0.500815)    m = (0.847317, -1.088208)    b = (0.999211, -0.432135)
+    a = (0.620788, 0.709241)    b1 = (0.717465, -0.057864)    c1 = (0.875287, -0.058362)
+    d = (1.205004, -0.783753)    e = (0.460442, -0.090256)    f = (0.776086, -0.091252)
+    o = (0.616439, -0.669214)    g = (0.181782, -1.082253)    h = (0.578135, -0.553863)
+    i = (1.596666, -1.317877)    j = (1.192317, -1.014569)    k = (0.801047, -0.721073)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] o center of ⦿def && d, e, f, g cyclic => o center of ⦿egd
+[   3 | gr ] o center of ⦿def && d, e, f, g cyclic => o center of ⦿fgd
+[   3 | gr ] od = oe && oe = of => od = of
+[   3 | gr ] d, p, a1 collinear && a1p = a1d => a1 midpoint of pd
+[   3 | gr ] e, p, b1 collinear && b1p = b1e => b1 midpoint of pe
+[   3 | gr ] f, p, c1 collinear && c1p = c1f => c1 midpoint of pf
+[   3 | gr ] a1p ⊥ bc && a1, b, c collinear && n, b, c collinear && d, p, a1 collinear => ca1 ⊥ pd
+[   3 | gr ] a1p ⊥ bc && a1, b, c collinear && d, p, a1 collinear => ba1 ⊥ pd
+[   3 | gr ] b1, a, c collinear && m, a, c collinear && b1p ⊥ ac && e, p, b1 collinear => cb1 ⊥ pe
+[   3 | gr ] b1, a, c collinear && b1p ⊥ ac && e, p, b1 collinear && k, a, c collinear => kb1 ⊥ pe
+[   3 | gr ] c1p ⊥ ab && c1, a, b collinear && f, p, c1 collinear => bc1 ⊥ pf
+[   3 | gr ] c1p ⊥ ab && c1, a, b collinear && f, p, c1 collinear && j, a, b collinear => jc1 ⊥ pf
+[   3 | dd ] h midpoint of gp && jh ⊥ gp => jg = jp
+[   3 | gr ] h midpoint of gp && ih ⊥ hp && j, h, i collinear => jh ⊥ gp
+[   3 | dd ] h midpoint of gp && kh ⊥ gp => kg = kp
+[   3 | gr ] h midpoint of gp && ih ⊥ hp && k, h, i collinear => kh ⊥ gp
+[   4 | dd ] o center of ⦿egd => oe = og
+[   4 | dd ] o center of ⦿fgd => of = og
+[   4 | dd ] a1 midpoint of pd && ca1 ⊥ pd => cp = cd
+[   4 | dd ] a1 midpoint of pd && ba1 ⊥ pd => bp = bd
+[   4 | dd ] b1 midpoint of pe && cb1 ⊥ pe => cp = ce
+[   4 | dd ] b1 midpoint of pe && kb1 ⊥ pe => kp = ke
+[   4 | dd ] c1 midpoint of pf && bc1 ⊥ pf => bp = bf
+[   4 | dd ] c1 midpoint of pf && jc1 ⊥ pf => jp = jf
+[   7 | gr ] cb1 = cb1
+[   7 | gr ] cp = ce => pc = ec
+[   7 | dd ] c1p = c1f && pb = fb && bc1 = bc1 && ncoll c1 p b => △c1pb ≅ △c1fb
+[   7 | gr ] ncoll b1 p k
+[   7 | gr ] bp = bd => pb = db
+[   7 | dd ] a1p = a1d && pb = db && ncoll a1 p b && ba1 = ba1 => △a1pb ≅ △a1db
+[   7 | gr ] ncoll a1 p c
+[   7 | dd ] cp = ce && kc = kc && ncoll c p k && pk = ek => △cpk ≅ △cek
+[   7 | gr ] kc = kc
+[   7 | gr ] ncoll c p k
+[   7 | dd ] od = of && db = fb && bo = bo && ncoll o d b => △odb ≅ △ofb
+[   7 | gr ] bp = bf => pb = fb
+[   7 | gr ] bc1 = bc1
+[   7 | dd ] oe = og && ek = gk && ko = ko && ncoll o e k => △oek ≅ △ogk
+[   7 | gr ] kp = ke && kg = kp => ek = gk
+[   7 | gr ] ko = ko
+[   7 | gr ] bp = bd && bp = bf => db = fb
+[   7 | gr ] bo = bo
+[   7 | gr ] ncoll o d b
+[   7 | gr ] jc1 = jc1
+[   7 | gr ] ncoll c1 p j
+[   7 | dd ] b1p = b1e && cb1 = cb1 && pc = ec && ncoll b1 p c => △b1pc ≅ △b1ec
+[   7 | gr ] kb1 = kb1
+[   7 | dd ] b1p = b1e && ncoll b1 p k && kb1 = kb1 && pk = ek => △b1pk ≅ △b1ek
+[   7 | gr ] cp = cd => pc = dc
+[   7 | gr ] cp = cd && cp = ce => dc = ec
+[   7 | gr ] co = co
+[   7 | gr ] ncoll o d c
+[   7 | dd ] od = oe && dc = ec && co = co && ncoll o d c => △odc ≅ △oec
+[   7 | dd ] gj = pj && jh = jh && ncoll h g j && hg = hp => △hgj ≅ △hpj
+[   7 | gr ] jg = jp => gj = pj
+[   7 | gr ] jh = jh
+[   7 | gr ] ncoll h g j
+[   7 | dd ] gk = pk && hg = hp && kh = kh && ncoll h g k => △hgk ≅ △hpk
+[   7 | gr ] kg = kp => gk = pk
+[   7 | gr ] ncoll b1 p c
+[   7 | gr ] ncoll o e k
+[   7 | dd ] of = og && fj = gj && jo = jo && ncoll o f j => △ofj ≅ △ogj
+[   7 | gr ] jp = jf && jg = jp => fj = gj
+[   7 | gr ] jo = jo
+[   7 | gr ] ncoll a1 p b
+[   7 | gr ] ba1 = ba1
+[   7 | dd ] a1p = a1d && ncoll a1 p c && pc = dc && ca1 = ca1 => △a1pc ≅ △a1dc
+[   7 | gr ] ca1 = ca1
+[   7 | dd ] c1p = c1f && jc1 = jc1 && ncoll c1 p j && pj = fj => △c1pj ≅ △c1fj
+[   7 | gr ] jp = jf => pj = fj
+[   7 | gr ] ncoll o f j
+[   7 | gr ] h midpoint of gp => hg = hp
+[   7 | gr ] kh = kh
+[   7 | gr ] ncoll h g k
+[   7 | gr ] ncoll c1 p b
+[   7 | gr ] kp = ke => pk = ek
+[  10 | ar ] △c1pb ≅ △c1fb && △a1pb ≅ △a1db && △odb ≅ △ofb && △oek ≅ △ogk && △b1pc ≅ △b1ec && △b1pk ≅ △b1ek && △odc ≅ △oec && △hgj ≅ △hpj && △hgk ≅ △hpk && △ofj ≅ △ogj && △a1pc ≅ △a1dc && △c1pj ≅ △c1fj => ∠cek = ∠jpb
+[ 511 | dd ] △cpk ≅ △cek && ∠cek = ∠jpb => ∠jpb = ∠kpc
+=======================================
+Problem: MO-TG-225-24
+
+    c b a = triangle c b a;
+    o = circumcenter o : a b c;
+    d = foot d : a b c;
+    e = foot e : b a c;
+    f = foot f : c a b;
+    h = intersection_ll h : a d b e;
+    i = midpoint i : b c;
+    j = midpoint j : a c;
+    k = midpoint k : a b;
+    l = midpoint l : a h;
+    m = midpoint m : b h;
+    n = midpoint n : c h;
+    v = midpoint v : o h
+    ?
+    cyclic d e f i j k l m n
+
+---------------------------------------
+    e = (0.763396, 0.230279)    f = (0.962311, -0.385918)    b = (0.192645, -1.036663)
+    c = (0.243176, 0.464635)    a = (1.368632, -0.042377)    o = (0.576506, -0.298083)
+    d = (0.227404, -0.003965)    h = (0.651441, -0.018238)    i = (0.217911, -0.286014)
+    j = (0.805904, 0.211129)    k = (0.780638, -0.539520)    l = (1.010036, -0.030307)
+    m = (0.422043, -0.527450)    n = (0.447308, 0.223199)    v = (0.613973, -0.158160)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] ab = ba
+[   3 | gr ] oa = ob => bo = ao
+[   3 | gr ] ncoll o a b
+[   3 | dd ] oa = ob && ak = bk && ko = ko && ncoll o a k => △oak ≅ △obk
+[   3 | gr ] k midpoint of ab => ak = bk
+[   3 | gr ] ko = ko
+[   3 | gr ] ncoll o a k
+[   3 | gr ] oa = ob && ob = oc => oa = oc
+[   3 | gr ] ac = ca
+[   3 | gr ] oa = ob && ob = oc => co = ao
+[   3 | gr ] ncoll o a c
+[   3 | gr ] j midpoint of ac => aj = cj
+[   3 | gr ] oa = ob && ob = oc => ao = co
+[   3 | gr ] bc = cb
+[   3 | gr ] oa = ob && ob = oc => co = bo
+[   3 | gr ] ncoll o b c
+[   3 | dd ] ob = oc && bi = ci && io = io && ncoll o b i => △obi ≅ △oci
+[   3 | gr ] i midpoint of bc => bi = ci
+[   3 | gr ] io = io
+[   3 | gr ] ncoll o b i
+[   3 | gr ] oa = ob && ob = oc => bo = co
+[   3 | gr ] diff o j
+[   3 | gr ] diff o i
+[   3 | gr ] k midpoint of ab => k midpoint of ba
+[   3 | gr ] diff c a i k
+[   3 | gr ] ncoll b c a
+[   3 | gr ] i midpoint of bc => i midpoint of cb
+[   3 | gr ] j midpoint of ac => j midpoint of ca
+[   3 | gr ] diff b h i n
+[   3 | gr ] ncoll c b h
+[   3 | gr ] diff c b j k
+[   3 | gr ] ncoll a c b
+[   3 | gr ] diff a h j n
+[   3 | gr ] ncoll c a h
+[   3 | gr ] diff b h k l
+[   3 | gr ] ncoll a b h
+[   3 | gr ] diff a h k m
+[   3 | gr ] ncoll b a h
+[   3 | gr ] h, b, e collinear && m midpoint of bh => m midpoint of hb
+[   3 | gr ] n midpoint of ch => n midpoint of hc
+[   3 | gr ] diff b c m n
+[   3 | gr ] ncoll h b c
+[   4 | dd ] oa = ob && ab = ba && bo = ao && ncoll o a b => △oab ≅ △oba
+[   4 | dd ] oa = oc && ac = ca && co = ao && ncoll o a c => △oac ≅ △oca
+[   4 | dd ] ob = oc && bc = cb && co = bo && ncoll o b c => △obc ≅ △ocb
+[   4 | dd ] aj = cj && ao = co && diff o j => ac ⊥ oj
+[   4 | dd ] bi = ci && bo = co && diff o i => bc ⊥ oi
+[   4 | dd ] i midpoint of bc && k midpoint of ba && diff c a i k && ncoll b c a => ik ∥ ca
+[   4 | dd ] n midpoint of ch && i midpoint of cb && diff b h i n && ncoll c b h => in ∥ bh
+[   4 | dd ] j midpoint of ac && k midpoint of ab && diff c b j k && ncoll a c b => jk ∥ cb
+[   4 | dd ] n midpoint of ch && j midpoint of ca && diff a h j n && ncoll c a h => jn ∥ ah
+[   4 | dd ] k midpoint of ab && l midpoint of ah && diff b h k l && ncoll a b h => kl ∥ bh
+[   4 | dd ] m midpoint of bh && k midpoint of ba && diff a h k m && ncoll b a h => km ∥ ah
+[   4 | dd ] m midpoint of hb && n midpoint of hc && diff b c m n && ncoll h b c => mn ∥ bc
+[   6 | ar ] fc ⊥ ab && △oab ≅ △oba && △oac ≅ △oca && △obc ≅ △ocb => ∠(fc, ao) = ∠bce
+[   6 | ar ] da ⊥ bc && △oab ≅ △oba && △oac ≅ △oca && △obc ≅ △ocb => ∠(ec, ad) = ∠(ao, fb)
+[   6 | ar ] eb ⊥ ac && △oab ≅ △oba && △oac ≅ △oca && △obc ≅ △ocb => ∠(ao, fb) = ∠ebc
+[   6 | ar ] eb ⊥ ac && fc ⊥ ab && △oab ≅ △oba && △oac ≅ △oca && △obc ≅ △ocb && △obi ≅ △oci => ∠(bo, fc) = ∠(ad, eb)
+[   7 | dd ] ∠emn = ∠ejn && ncoll e n m j => e, n, m, j cyclic
+[   7 | gr ] eb ⊥ ac && e, a, c collinear && da ⊥ bc && j midpoint of ac && m midpoint of bh && ac ⊥ oj && bc ⊥ oi && jn ∥ ah && mn ∥ bc && ∠(ec, ad) = ∠(ao, fb) && ∠(ao, fb) = ∠ebc => ∠emn = ∠ejn
+[   7 | gr ] ncoll e n m j
+[   7 | dd ] ∠dik = ∠dlk && ncoll d k i l => d, k, i, l cyclic
+[   7 | gr ] eb ⊥ ac && da ⊥ bc && d, b, c collinear && i midpoint of bc && l midpoint of ah && △oak ≅ △obk && ac ⊥ oj && bc ⊥ oi && ik ∥ ca && kl ∥ bh && ∠(fc, ao) = ∠bce && ∠(bo, fc) = ∠(ad, eb) => ∠dik = ∠dlk
+[   7 | gr ] ncoll d k i l
+[   7 | dd ] ∠kje = ∠kme && ncoll k e j m => k, e, j, m cyclic
+[   7 | gr ] eb ⊥ ac && e, a, c collinear && da ⊥ bc && j midpoint of ac && m midpoint of bh && △oak ≅ △obk && ac ⊥ oj && bc ⊥ oi && jk ∥ cb && km ∥ ah && ∠(fc, ao) = ∠bce && ∠(bo, fc) = ∠(ad, eb) => ∠kje = ∠kme
+[   7 | gr ] ncoll k e j m
+[   7 | dd ] ∠jki = ∠jni && ncoll j i k n => j, i, k, n cyclic
+[   7 | gr ] eb ⊥ ac && da ⊥ bc && △oak ≅ △obk && ac ⊥ oj && bc ⊥ oi && ik ∥ ca && in ∥ bh && jk ∥ cb && jn ∥ ah && ∠(fc, ao) = ∠bce && ∠(bo, fc) = ∠(ad, eb) => ∠jki = ∠jni
+[   7 | gr ] ncoll j i k n
+[  11 | gr ] l midpoint of ah => d, a, l collinear
+[  11 | gr ] f, a, b collinear && k midpoint of ab => f, a, k collinear
+[  11 | gr ] ncoll d f l
+[  11 | gr ] sameside_p a d l
+[  11 | gr ] sameside_p a f k
+[  11 | gr ] ad / af = ak / al
+[  12 | dd ] d, a, l collinear && f, a, k collinear && ncoll d f l && sameside_p a d l && sameside_p a f k && ad / af = ak / al => d, f, l, k cyclic
+[ 511 | dd ] e, n, m, j cyclic && d, k, i, l cyclic && k, e, j, m cyclic && j, i, k, n cyclic && d, f, l, k cyclic => d, e, f, i cyclic

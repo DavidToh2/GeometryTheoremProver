@@ -1,0 +1,131 @@
+=======================================
+Problem: MO-TG-225-16
+
+    d b a = triangle d b a;
+    o = circumcenter o : d b a;
+    c = on_circum c : d b a;
+    g = intersection_ll g : d a b c;
+    e = intersection_ll e : a c b d;
+    f = intersection_ll f : a b c d;
+    h = circumcenter h : a b e;
+    i = circumcenter i : a d e;
+    p = intersection_lc p : c b h;
+    q = intersection_lc q : c d i;
+    m = intersection_ll m : f p g q;
+    x = intersection_ll x : b q d p
+    ?
+    perp m a a c
+
+---------------------------------------
+    g = (-0.676932, -0.253923)    e = (-0.725910, -0.565225)    a = (-0.554971, -0.868978)
+    d = (-0.626657, -0.507459)    b = (-1.198263, -0.840137)    o = (-0.871656, -0.743908)
+    c = (-0.814221, -0.408299)    f = (0.113884, -0.898966)    h = (-0.876408, -0.849894)
+    i = (-0.588193, -0.687699)    p = (-0.886230, -0.919646)    q = (-0.794888, -0.432197)
+    m = (-1.120616, -0.924492)    x = (-0.201084, 0.168326)
+    Loss: 0
+=======================================
+Problem: MO-TG-225-17
+
+    c b a = triangle c b a;
+    o = circumcenter o : a b c;
+    i = incenter i : a b c;
+    d = intersection_ll d : a i b c;
+    m = intersection_lc m : i a o;
+    e = midpoint e : d m;
+    a1 = foot a1 : m e o;
+    s = intersection_ll s : m a1 b c;
+    t = mirror t : m o;
+    u = mirror u : i m;
+    l = foot l : t s u;
+    r = midpoint r : i l
+    ?
+    cong o a o r
+
+---------------------------------------
+    a1 = (-0.486211, -0.687385)    t = (-0.422013, -0.522719)    a = (-0.677014, -0.582524)
+    c = (-0.548574, -0.790798)    o = (-0.476250, -0.602455)    i = (-0.523907, -0.672517)
+    b = (-0.274509, -0.600476)    d = (-0.445020, -0.718885)    m = (-0.530488, -0.682192)
+    l = (-0.427827, -0.695542)    r = (-0.475867, -0.684030)    u = (-0.537069, -0.691867)
+    s = (-0.412164, -0.696069)    e = (-0.487754, -0.700539)
+    Loss: 0
+=======================================
+Problem: MO-TG-225-18
+
+    c b a = triangle c b a;
+    o = circumcenter o : a b c;
+    d = foot d : a b c;
+    e = foot e : b a c;
+    h = intersection_ll h : a d b e;
+    i = circumcenter i : a h c;
+    z = incenter z : a b c;
+    p = intersection_lc p : z a i;
+    x = circumcenter x : a p b;
+    k = foot k : c a z;
+    l = foot l : p a c;
+    y = intersection_ll y : p l k c
+    ?
+    cong x y o y
+
+---------------------------------------
+    i = (-0.969668, -0.954236)    h = (-0.713362, -0.998214)    d = (-0.709070, -1.004723)
+    l = (-0.778013, -0.909526)    k = (-0.633830, -0.889607)    b = (-0.398559, -0.799993)
+    a = (-0.909103, -0.701336)    e = (-0.719669, -1.002185)    o = (-0.654865, -0.756016)
+    c = (-0.715430, -1.008916)    z = (-0.682440, -0.856360)    x = (-0.613520, -0.542060)
+    p = (-0.706714, -0.864632)    y = (-0.548697, -0.765134)
+    Loss: 0
+=======================================
+Problem: MO-TG-225-19
+
+    c b a = triangle c b a;
+    r = on_line r : a b;
+    q = on_line q : a c;
+    p = on_line p : b c;
+    u = circumcenter u : a r q;
+    v = circumcenter v : b r p;
+    w = circumcenter w : c p q;
+    x = intersection_lc x : p a u;
+    y = intersection_lc y : a p v;
+    z = intersection_lc z : a p w;
+    a1 = foot a1 : r u v;
+    m = mirror m : r a1
+    ?
+    eqratio y x x z b p p c
+
+---------------------------------------
+    w = (-0.095865, -1.751645)    y = (0.878255, -0.922020)    c = (0.927760, -1.773369)
+    z = (0.178716, -2.629338)    a1 = (0.676099, -0.482326)    v = (1.365197, -1.029172)
+    p = (0.914491, -1.917358)    r = (0.966411, -0.116494)    u = (0.146660, -0.062179)
+    b = (1.084400, -0.073576)    a = (-0.446615, -0.630482)    q = (-0.303912, -0.749150)
+    m = (0.385787, -0.848157)    x = (0.374754, -0.613284)
+    Loss: 0
+=======================================
+Problem: MO-TG-225-20
+
+    a b c = triangle a b c;
+    m = on_line m : a c;
+    n = on_line n : b c;
+    p = on_line p : m n;
+    a1 = foot a1 : a m n;
+    b1 = foot b1 : b m n;
+    c1 = foot c1 : c m n;
+    e = mirror e : b b1;
+    d = mirror d : a a1;
+    f = mirror f : c c1;
+    g = intersection_ll g : d p b c;
+    h = intersection_ll h : e p a c;
+    i = intersection_ll i : f p a b;
+    q_a = on_line_at_angle q_a : a c p a b;
+    q_b = on_line_at_angle q_b : b c p b a;
+    q = intersection_ll q : a q_a b q_b
+    ?
+    cong g h g i
+
+---------------------------------------
+    i = (-0.123776, -0.480149)    d = (0.919035, -3.351130)    q = (-0.219759, 3.007126)
+    h = (-0.330916, 0.669380)    q_a = (-1.628957, -1.352880)    g = (-0.619803, 2.272571)
+    m = (-0.012366, 1.304201)    b = (1.322924, 1.282795)    a = (-2.141646, -2.939120)
+    c = (0.250948, 1.828943)    n = (0.070638, 1.920806)    c1 = (0.061701, 1.854418)
+    e = (-1.305784, 1.636655)    p = (-0.125286, 0.465352)    b1 = (0.008570, 1.459725)
+    q_b = (0.183769, 2.556084)    a1 = (-0.611305, -3.145125)    f = (-0.127546, 1.879893)
+
+    Loss: 0

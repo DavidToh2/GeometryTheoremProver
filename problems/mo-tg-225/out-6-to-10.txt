@@ -1,0 +1,258 @@
+=======================================
+Problem: MO-TG-225-6
+
+    b a c = triangle b a c;
+    o = circumcenter o : a b c;
+    d = foot d : c a b;
+    m = intersection_lc m : d o c;
+    n = intersection_lc n : o o c
+    ?
+    cong a n b m
+
+---------------------------------------
+    b = (1.359482, 1.007704)    o = (0.623098, 0.202677)    d = (-0.067949, 0.421363)
+    m = (-0.247970, 0.859617)    n = (0.780872, 1.282231)    a = (-0.466539, 0.257635)
+    c = (0.465324, -0.876877)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] oc = on && oc = om && oa = ob && ob = oc => on = om
+[   3 | gr ] ncoll o a b
+[   3 | gr ] ncoll o c m
+[   4 | dd ] oa = ob && ncoll o a b => ∠oab = ∠abo
+[   4 | dd ] oc = om && ncoll o c m => ∠ocm = ∠cmo
+[   6 | ar ] dc ⊥ ab && ∠oab = ∠abo && ∠ocm = ∠cmo => ∠aon = ∠mob
+[   7 | gr ] n, o, c collinear && ∠aon = ∠mob => ∠aon = ∠mob
+[   7 | dd ] on = om && ∠aon = ∠mob && ncoll a o n && diffclock a o n b o m && ao = bo => △aon ≅ △bom
+[   7 | gr ] ncoll a o n
+[   7 | gr ] diffclock a o n b o m
+[   7 | gr ] oa = ob => ao = bo
+[ 511 | dd ] △aon ≅ △bom => an = bm
+=======================================
+Problem: MO-TG-225-7
+
+    b a c = triangle b a c;
+    o = circumcenter o : a b c;
+    e = mirror e : a c;
+    z = incenter z : b a e;
+    g = intersection_lc g : z o a
+    ?
+    cong b g c g
+
+---------------------------------------
+    a = (1.549816, -1.372849)    b = (0.371657, -1.239469)    z = (0.621747, -0.909625)
+    c = (0.564442, -0.331171)    g = (0.302160, -0.750110)    e = (-0.420933, 0.710507)
+    o = (1.006757, -0.899660)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] ncoll o c a
+[   3 | gr ] ncoll o a b
+[   3 | gr ] ncoll o g a
+[   3 | gr ] oa = og => og = oa
+[   3 | gr ] oa = ob && ob = oc => ao = co
+[   3 | gr ] oa = ob && ob = oc => oc = oa
+[   3 | gr ] ca = ac
+[   4 | dd ] ncoll o c a && ao = co && oc = oa && ca = ac => △oca ≅ △oac
+[   4 | dd ] ncoll o a b && oa = ob => ∠oab = ∠abo
+[   4 | dd ] ncoll o g a && og = oa => ∠oga = ∠gao
+[   6 | ar ] ob = oc => co = bo
+[   6 | ar ] ∠eaz = ∠zab && ∠oab = ∠abo && ∠oga = ∠gao => ∠cab = ∠gob
+[   6 | ar ] ∠eaz = ∠zab && △oca ≅ △oac && ∠oga = ∠gao => ∠cab = ∠cog
+[   7 | dd ] co = bo && ncoll c o g && og = og && ∠cog = ∠gob && diffclock c o g b o g => △cog ≅ △bog
+[   7 | gr ] ncoll c o g
+[   7 | gr ] og = og
+[   7 | gr ] ∠cab = ∠gob && ∠cab = ∠cog => ∠cog = ∠gob
+[   7 | gr ] diffclock c o g b o g
+[ 511 | dd ] △cog ≅ △bog => bg = cg
+=======================================
+Problem: MO-TG-225-8
+
+    a b c = triangle a b c;
+    o = circumcenter o : a b c;
+    h = foot h : o a b;
+    q = intersection_ll q : o h a c;
+    p = intersection_ll p : o h b c
+    ?
+    simtri c p o q c o
+
+---------------------------------------
+    q = (-1.092561, 3.988176)    c = (-0.395619, 1.250704)    a = (-0.228635, 0.594819)
+    b = (0.886313, 1.099353)    o = (0.231916, 1.061271)    h = (0.328839, 0.847086)
+    p = (0.176775, 1.183124)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] ncoll o c b
+[   3 | gr ] ncoll o b a
+[   3 | gr ] oa = ob => ob = oa
+[   3 | gr ] oa = ob && ob = oc => oc = ob
+[   3 | gr ] oa = ob && ob = oc => oc = oa
+[   3 | gr ] ncoll o c a
+[   3 | gr ] ncoll o b c
+[   4 | dd ] ncoll o c b && oc = ob => ∠ocb = ∠cbo
+[   4 | dd ] ncoll o b a && ob = oa => ∠oba = ∠bao
+[   4 | dd ] oc = oa && ncoll o c a => ∠oca = ∠cao
+[   4 | dd ] ncoll o b c && ob = oc => ∠obc = ∠bco
+[   6 | ar ] ∠ocb = ∠cbo && ho ⊥ ab && ∠oba = ∠bao && ∠oca = ∠cao => ∠oqc = ∠obc
+[   6 | ar ] ∠ocb = ∠cbo && ho ⊥ ab && ∠oba = ∠bao && ∠oca = ∠cao => ∠(qc, ao) = ∠(cb, qo)
+[   6 | ar ] ∠ocb = ∠cbo && ho ⊥ ab && ∠oba = ∠bao && ∠oca = ∠cao => ∠qoa = ∠bcq
+[   6 | ar ] ∠ocb = ∠cbo && ho ⊥ ab && ∠oba = ∠bao && ∠oca = ∠cao => ∠bcq = ∠boq
+[   7 | gr ] q, a, c collinear && q, o, h collinear && ∠oqc = ∠obc && p, o, h collinear => ∠pqc = ∠obp
+[   7 | gr ] diffclock p q c p b o
+[   7 | gr ] p, b, c collinear && q, a, c collinear && ∠qoa = ∠bcq && ∠bcq = ∠boq && p, o, h collinear => ∠pcq = ∠bop
+[   7 | gr ] ncoll p q c
+[   7 | gr ] p, b, c collinear && q, a, c collinear && q, o, h collinear && ∠oqc = ∠obc && ∠obc = ∠bco => ∠oqc = ∠pco
+[   7 | gr ] diffclock o q c o c p
+[   7 | gr ] p, b, c collinear && q, a, c collinear && ∠(qc, ao) = ∠(cb, qo) && ∠oca = ∠cao && p, o, h collinear => ∠ocq = ∠cpo
+[   7 | gr ] ncoll o q c
+[   8 | dd ] ∠pqc = ∠obp && diffclock p q c p b o && ∠pcq = ∠bop && ncoll p q c => △pqc ~ △pbo
+[   8 | dd ] ∠oqc = ∠pco && diffclock o q c o c p && ∠ocq = ∠cpo && ncoll o q c => △oqc ~ △ocp
+[ 511 | dd ] △pqc ~ △pbo && oa = ob && ob = oc && △oqc ~ △ocp => △cpo ~ △qco
+=======================================
+Problem: MO-TG-225-10
+
+    c b a = triangle c b a;
+    o = circumcenter o : a b c;
+    d = foot d : c a b;
+    e = foot e : b a c;
+    h = intersection_ll h : c d b e;
+    f = midpoint f : a b;
+    i = midpoint i : a c;
+    g = intersection_ll g : c f b i
+    ?
+    coll o g h
+
+---------------------------------------
+    b = (1.490301, -1.198578)    a = (0.821717, -0.624145)    f = (1.156009, -0.911361)
+    i = (0.722469, -0.756098)    e = (0.787340, -0.669849)    o = (1.066856, -1.015127)
+    d = (0.837967, -0.638107)    g = (0.978413, -0.903591)    h = (0.801527, -0.680520)
+    c = (0.623221, -0.888051)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] ncoll i a o
+[   3 | gr ] oa = ob => ob = oa
+[   3 | gr ] diff i o
+[   3 | gr ] ba = ab
+[   3 | gr ] oa = ob => ao = bo
+[   3 | gr ] ncoll o b a
+[   3 | dd ] ob = oa && bf = af && fo = fo && ncoll o b f => △obf ≅ △oaf
+[   3 | gr ] oa = ob => bo = ao
+[   3 | dd ] oi = oi && ncoll i c o && co = ao && ic = ia => △ico ≅ △iao
+[   3 | gr ] i midpoint of ac => ci = ai
+[   3 | gr ] eb ⊥ ac && h, b, e collinear => ca ⊥ hb
+[   3 | gr ] diff h c a b
+[   3 | gr ] oi = oi
+[   3 | gr ] ncoll o b c
+[   3 | gr ] ncoll i c o
+[   3 | gr ] h, c, d collinear && dc ⊥ ab => hc ⊥ ab
+[   3 | gr ] diff o f
+[   3 | gr ] oa = ob && ob = oc => co = ao
+[   3 | gr ] ncoll f a o
+[   3 | gr ] i midpoint of ac => ic = ia
+[   3 | gr ] f midpoint of ab => bf = af
+[   3 | gr ] fo = fo
+[   3 | gr ] ncoll o b f
+[   3 | gr ] diff c b i f
+[   3 | gr ] ncoll a c b
+[   4 | dd ] ob = oa && ba = ab && ao = bo && ncoll o b a => △oba ≅ △oab
+[   4 | dd ] i midpoint of ac && f midpoint of ab && diff c b i f && ncoll a c b => if ∥ cb
+[   4 | dd ] diff i o && ci = ai && co = ao => ca ⊥ io
+[   4 | dd ] ob = oc && ncoll o b c => ∠obc = ∠bco
+[   4 | dd ] ca ⊥ hb && diff h c a b && hc ⊥ ab => ah ⊥ cb
+[   4 | dd ] bo = ao && diff o f && bf = af => ba ⊥ of
+[   6 | ar ] i midpoint of ac && f midpoint of ab => ab / ca = af / ci
+[   6 | ar ] ∠obc = ∠bco && ah ⊥ cb => ∠(oc, ah) = ∠(ah, bo)
+[   6 | ar ] △obf ≅ △oaf && ah ⊥ cb => ∠(ah, bc) = ∠(dh, ba)
+[   6 | ar ] △oba ≅ △oab && △ico ≅ △iao && ∠obc = ∠bco && ah ⊥ cb => ∠iab = ∠(oc, ah)
+[   6 | ar ] △ico ≅ △iao && ah ⊥ cb => ∠(ah, io) = ∠(bc, ai)
+[   6 | ar ] △ico ≅ △iao && ah ⊥ cb => ∠(ah, bc) = ∠oia
+[   6 | ar ] △obf ≅ △oaf && ah ⊥ cb => ∠ahd = ∠cba
+[   6 | ar ] △oba ≅ △oab && △ico ≅ △iao && ∠obc = ∠bco && dc ⊥ ab => ∠(bc, ai) = ∠(bo, dh)
+[   6 | ar ] △oba ≅ △oab && △ico ≅ △iao && ∠obc = ∠bco && ah ⊥ cb => ∠hab = ∠iao
+[   6 | ar ] △oba ≅ △oab && △ico ≅ △iao && ∠obc = ∠bco && ah ⊥ cb => ∠bao = ∠hai
+[   6 | ar ] △oba ≅ △oab && eb ⊥ ac && △ico ≅ △iao && ∠obc = ∠bco && ah ⊥ cb && dc ⊥ ab => ∠(ah, bo) = ∠(io, dh)
+[   6 | ar ] △oba ≅ △oab && △ico ≅ △iao && ∠obc = ∠bco => ∠cba = ∠coi
+[   7 | gr ] △oba ≅ △oab && e, a, c collinear && f midpoint of ab && ∠bao = ∠hai => ∠fao = ∠hae
+[   7 | gr ] diffclock f a o e a h
+[   7 | gr ] ca ⊥ io && eb ⊥ ac && △obf ≅ △oaf && ∠(ah, io) = ∠(bc, ai) && ∠(bc, ai) = ∠(bo, dh) && h, b, e collinear => ∠foa = ∠ahe
+[   7 | gr ] diffclock i a o d a h
+[   7 | gr ] h, c, d collinear && △ico ≅ △iao && ∠ahd = ∠cba && ba ⊥ of && ∠cba = ∠coi && dc ⊥ ab => ∠ioa = ∠ahd
+[   7 | gr ] i midpoint of ac && d, a, b collinear && △ico ≅ △iao && ∠hab = ∠iao => ∠iao = ∠had
+[   7 | gr ] ab / ca = af / ci => ab / ac = af / ai
+[   7 | gr ] f midpoint of ab => ab ∥ af
+[   7 | gr ] i midpoint of ac => ac ∥ ai
+[   7 | gr ] sameclock b a c f a i
+[   7 | gr ] if ∥ cb => bc ∥ if
+[   7 | gr ] ncoll b c i
+[   7 | gr ] ca ⊥ io && eb ⊥ ac && h, b, e collinear => bh ∥ io
+[   7 | dd ] ∠bhd = ∠eab && diffclock b h d b a e && ∠bdh = ∠aeb && ncoll b h d => △bhd ~ △bae
+[   7 | gr ] ca ⊥ io && eb ⊥ ac && e, a, c collinear && h, c, d collinear && ∠(oc, ah) = ∠(ah, bo) && ∠iab = ∠(oc, ah) && ba ⊥ of && ∠(ah, bo) = ∠(io, dh) && h, b, e collinear && dc ⊥ ab => ∠bhd = ∠eab
+[   7 | gr ] diffclock b h d b a e
+[   7 | gr ] ca ⊥ io && eb ⊥ ac && e, a, c collinear && d, a, b collinear && h, c, d collinear && △obf ≅ △oaf && △ico ≅ △iao && ∠(ah, bc) = ∠(dh, ba) && ∠(ah, bc) = ∠oia && ba ⊥ of && dc ⊥ ab => ∠bdh = ∠aeb
+[   7 | gr ] ncoll b h d
+[   8 | dd ] ∠fao = ∠hae && diffclock f a o e a h && ∠foa = ∠ahe && ncoll f a o => △fao ~ △eah
+[   8 | dd ] ncoll i a o && diffclock i a o d a h && ∠ioa = ∠ahd && ∠iao = ∠had => △iao ~ △dah
+[   8 | dd ] ncoll b a c && ab / ac = af / ai && ab ∥ af && ac ∥ ai && sameclock b a c f a i => △bac ~ △fai
+[   8 | dd ] g, c, f collinear && g, b, i collinear && bc ∥ if && ncoll b c i => △gbc ~ △gif
+[  10 | ar ] i midpoint of ac && f midpoint of ab && △fao ~ △eah && △iao ~ △dah && △bac ~ △fai && △gbc ~ △gif && △bhd ~ △bae => hb / gb = io / ig
+[  11 | gr ] hb / gb = io / ig => bh / bg = io / ig
+[  11 | gr ] g, b, i collinear => bg ∥ ig
+[  11 | gr ] sameclock h b g o i g
+[  11 | gr ] ncoll h b g
+[  12 | dd ] bh ∥ io && bh / bg = io / ig && bg ∥ ig && sameclock h b g o i g && ncoll h b g => △hbg ~ △oig
+[  14 | ar ] △hbg ~ △oig => gh ∥ og
+[  15 | dd ] gh ∥ go && diff h o => g, h, o collinear
+[  15 | gr ] gh ∥ og => gh ∥ go
+[  15 | gr ] diff h o
+[ 511 | dd ] g, h, o collinear => o, g, h collinear
+=======================================
+Problem: MO-TG-225-9
+
+    c b a = triangle c b a;
+    o = circumcenter o : a b c;
+    m = midpoint m : b c;
+    p = on_line_perp p : b b o, on_line p : o m;
+    s = on_line s : a p, on_circum s : a b c
+    ?
+    eqangle b a a m p a a c
+
+---------------------------------------
+    c = (-0.733429, -1.545535)    o = (-0.003400, -0.727892)    m = (0.041690, -0.773141)
+    b = (0.816809, -0.000747)    a = (-0.818956, 0.004468)    p = (13.272803, -14.050939)
+    s = (0.731064, -1.541554)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] o center of ⦿abc => o center of ⦿bca
+[   3 | gr ] pb ⊥ bo => ob ⊥ bp
+[   3 | gr ] a, b, c, s cyclic && o center of ⦿abc => o center of ⦿bcs
+[   3 | gr ] a, b, c, s cyclic && o center of ⦿abc => o center of ⦿bas
+[   3 | dd ] ob = oc && bm = cm && mo = mo && ncoll o b m => △obm ≅ △ocm
+[   3 | gr ] m midpoint of bc => bm = cm
+[   3 | gr ] mo = mo
+[   3 | gr ] ncoll o b m
+[   3 | gr ] oa = ob && ob = oc => bo = co
+[   3 | gr ] ncoll o a b
+[   3 | gr ] a, b, c, s cyclic => s, c, b, a cyclic
+[   4 | dd ] o center of ⦿bca && ob ⊥ bp => ∠pbc = ∠bac
+[   4 | dd ] ob ⊥ bp && o center of ⦿bcs => ∠pbc = ∠bsc
+[   4 | dd ] ob ⊥ bp && o center of ⦿bas => ∠pba = ∠bsa
+[   4 | dd ] oa = ob && ncoll o a b => ∠oab = ∠abo
+[   4 | dd ] s, c, b, a cyclic => ∠sbc = ∠sac
+[   6 | ar ] pb ⊥ bo && △obm ≅ △ocm => ∠pbo = ∠cmo
+[   6 | ar ] pb ⊥ bo && △obm ≅ △ocm => ∠(ob, cm) = ∠(bp, om)
+[   7 | gr ] p, o, m collinear && △obm ≅ △ocm && ∠pbo = ∠cmo => ∠omb = ∠pbo
+[   7 | gr ] diffclock o b m o p b
+[   7 | gr ] △obm ≅ △ocm => ∠bop = ∠poc
+[   7 | dd ] bo = co && ∠bop = ∠poc && op = op && ncoll b o p && diffclock b o p c o p => △bop ≅ △cop
+[   7 | gr ] op = op
+[   7 | gr ] ∠(ob, cm) = ∠(bp, om) => ∠obm = ∠bpo
+[   7 | gr ] ncoll b o p
+[   7 | gr ] diffclock b o p c o p
+[   8 | dd ] ncoll o b m && ∠omb = ∠pbo && diffclock o b m o p b && ∠obm = ∠bpo => △obm ~ △opb
+[  10 | ar ] ∠pbc = ∠bac && ∠pbc = ∠bsc && ∠pba = ∠bsa && △obm ≅ △ocm && △bop ≅ △cop => ∠pac = ∠scp
+[  11 | gr ] ncoll m o a
+[  11 | gr ] △obm ~ △opb => om / oa = oa / op
+[  11 | gr ] oa ∥ oa
+[  11 | gr ] p, o, m collinear => om ∥ op
+[  11 | gr ] diffclock m o a a o p
+[  12 | dd ] ncoll m o a && om / oa = oa / op && oa ∥ oa && om ∥ op && diffclock m o a a o p => △moa ~ △aop
+[  14 | ar ] pb ⊥ bo && ∠pbc = ∠bsc && ∠pba = ∠bsa && △obm ≅ △ocm && ∠oab = ∠abo && △bop ≅ △cop && △moa ~ △aop => ∠scp = ∠bam
+[ 511 | dd ] s, a, p collinear && ∠sbc = ∠sac && ∠pac = ∠scp && ∠scp = ∠bam => ∠bam = ∠pac

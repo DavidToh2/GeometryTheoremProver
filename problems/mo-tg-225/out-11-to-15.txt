@@ -1,0 +1,227 @@
+=======================================
+Problem: MO-TG-225-11
+
+    c a b = triangle c a b;
+    o = circumcenter o : a b c;
+    d = on_circum d : a b c;
+    g = intersection_ll g : a c b d;
+    e = incenter e : a d c;
+    j = incenter j : b d c;
+    n = incenter n : a g b;
+    s = intersection_ll s : n g e j;
+    x = foot x : e a c;
+    y = foot y : e a d;
+    z = foot z : e d c;
+    u = foot u : j b c;
+    v = foot v : j b d;
+    w = foot w : j d c;
+    h = foot h : n a c;
+    r = foot r : n a b;
+    t = foot t : n d b
+    ?
+    perp e s s n
+
+---------------------------------------
+    d = (0.146165, -0.219847)    g = (0.146035, -0.219845)    e = (0.146094, -0.219795)
+    c = (0.146038, -0.219870)    a = (0.065587, 0.457055)    b = (0.009560, -0.217156)
+    o = (0.084455, 0.116054)    j = (0.146037, -0.219858)    n = (0.076448, -0.156801)
+    s = (0.146043, -0.219852)    x = (0.146030, -0.219803)    y = (0.146158, -0.219787)
+    z = (0.146106, -0.219858)    u = (0.146037, -0.219870)    v = (0.146038, -0.219845)
+    w = (0.146040, -0.219870)    h = (0.137678, -0.149524)    r = (0.015000, -0.151695)
+    t = (0.075234, -0.218450)
+    Loss: 0
+=======================================
+Problem: MO-TG-225-11
+
+    c a b = triangle c a b;
+    o = circumcenter o : a b c;
+    d = on_circum d : a b c;
+    g = intersection_ll g : a c b d;
+    e = incenter e : a d c;
+    j = incenter j : b d c;
+    n = incenter n : a g b;
+    s = intersection_ll s : n g e j;
+    x = foot x : e a c;
+    y = foot y : e a d;
+    z = foot z : e d c;
+    u = foot u : j b c;
+    v = foot v : j b d;
+    w = foot w : j d c;
+    h = foot h : n a c;
+    r = foot r : n a b;
+    t = foot t : n d b
+    ?
+    perp e s s n
+
+---------------------------------------
+    d = (-0.103776, 0.453486)    g = (-0.118508, 0.486302)    e = (-0.106129, 0.471656)
+    c = (-0.180675, 0.470729)    a = (0.032625, 0.524163)    b = (-0.232191, 0.739546)
+    o = (-0.105832, 0.624417)    j = (-0.155170, 0.495449)    n = (-0.087219, 0.550796)
+    s = (-0.121901, 0.479308)    x = (-0.110312, 0.488355)    y = (-0.098209, 0.456371)
+    z = (-0.109895, 0.454858)    u = (-0.184341, 0.489859)    v = (-0.128074, 0.507613)
+    w = (-0.161669, 0.466467)    h = (-0.073864, 0.497486)    r = (-0.052542, 0.593432)
+    t = (-0.137356, 0.528289)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] a, b, c, d cyclic => d, c, a, b cyclic
+[   4 | dd ] d, c, a, b cyclic => ∠dac = ∠dbc
+[   6 | ar ] ∠cde = ∠eda && ∠ace = ∠ecd && ∠bcj = ∠jcd && ∠cdj = ∠jdb && ∠dac = ∠dbc => ∠ecj = ∠edj
+[   7 | gr ] ∠ecj = ∠edj => ∠ecj = ∠edj
+[   7 | gr ] ncoll e j c d
+[   8 | dd ] ∠ecj = ∠edj && ncoll e j c d => e, j, c, d cyclic
+[  11 | gr ] e, j, c, d cyclic => d, e, c, j cyclic
+[  12 | dd ] d, e, c, j cyclic => ∠dce = ∠dje
+[  14 | ar ] ∠ace = ∠ecd && ∠cdj = ∠jdb && ∠bgn = ∠nga && ∠dce = ∠dje => ej ⊥ gn
+[ 511 | dd ] s, n, g collinear && ej ⊥ gn => es ⊥ sn
+=======================================
+Problem: MO-TG-225-12
+
+    b c a = triangle b c a;
+    o = circumcenter o : a b c;
+    m = midpoint m : a c;
+    n = on_line n : b c, on_line_para n : m a b;
+    f = on_line_perp f : a a o, on_line f : o m;
+    d = intersection_ll d : m n a f;
+    e = mirror e : a d;
+    g = circumcenter g : a b e;
+    p = intersection_lc p : c g a;
+    h = circumcenter h : a d p;
+    q = intersection_lc q : m h d
+    ?
+    eqangle q c q b b a b c
+
+---------------------------------------
+    n = (0.894183, 0.949082)    f = (0.249306, -0.090949)    c = (0.343680, 0.686169)
+    b = (1.444687, 1.211995)    a = (1.031464, -0.123335)    o = (1.061373, 0.599011)
+    m = (0.687572, 0.281417)    d = (0.568255, -0.104156)    e = (0.105046, -0.084976)
+    g = (0.603240, 0.740782)    p = (-0.180364, 1.302956)    h = (0.843701, 0.945086)
+    q = (1.209031, 1.966513)
+    Loss: 0
+=======================================
+Problem: MO-TG-225-13
+
+    c b a = triangle c b a;
+    i = incenter i : a b c;
+    e = foot e : i a c;
+    f = foot f : i a b;
+    d = foot d : i b c;
+    s = foot s : d e f;
+    r = intersection_lc r : s i d;
+    p = intersection_lc p : a i r;
+    j = circumcenter j : p c e;
+    k = circumcenter k : p b f;
+    a1 = foot a1 : p j k;
+    u = intersection_ll u : p a1 i d;
+    q = mirror q : a1 p;
+    g = circumcenter g : a b c;
+    l = circumcenter l : a i e;
+    b1 = foot b1 : a l g;
+    m = mirror m : b1 a;
+    n = intersection_lc n : i g a;
+    h = intersection_lc h : p n q
+    ?
+    perp a i a u
+
+---------------------------------------
+    e = (0.614082, 0.450237)    f = (0.403202, 0.375247)    c = (0.696104, 0.625136)
+    a = (0.546531, 0.306195)    i = (0.471537, 0.517086)    b = (-0.919877, 1.012676)
+    d = (0.508253, 0.670186)    s = (0.589568, 0.441519)    r = (0.596672, 0.421540)
+    p = (0.611717, 0.456148)    j = (0.732897, 0.501199)    k = (0.106047, 1.450296)
+    a1 = (0.716809, 0.525558)    u = (0.427790, 0.334670)    q = (0.506625, 0.386738)
+    g = (-0.113911, 0.810464)    l = (0.509034, 0.411640)    b1 = (0.583512, 0.363958)
+    m = (0.509549, 0.248432)    n = (0.079869, 1.618498)    h = (1.045239, 0.742476)
+
+    Loss: 0
+=======================================
+Problem: MO-TG-225-14
+
+    c b a = triangle c b a;
+    m = midpoint m : b c;
+    p = foot p : c a m;
+    o = circumcenter o : a b p;
+    q = intersection_lc q : c o b;
+    n = midpoint n : a q
+    ?
+    cong b n c n
+
+---------------------------------------
+    n = (-0.417399, 0.528058)    c = (0.538383, 1.961082)    m = (-0.679942, 0.804655)
+    p = (-0.158053, 2.218209)    b = (-1.898268, -0.351773)    a = (-1.277668, -0.814304)
+    o = (-0.649169, 0.676591)    q = (0.442870, 1.870421)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] oa = ob && ob = oq => oa = oq
+[   3 | gr ] aq = qa
+[   3 | gr ] oa = ob && ob = oq => qo = ao
+[   3 | gr ] ncoll o a q
+[   3 | dd ] oa = oq && an = qn && no = no && ncoll o a n => △oan ≅ △oqn
+[   3 | gr ] n midpoint of aq => an = qn
+[   3 | gr ] no = no
+[   3 | gr ] ncoll o a n
+[   3 | gr ] oa = ob && ob = op => oa = op
+[   3 | gr ] ncoll o a p
+[   3 | gr ] ncoll o b p
+[   3 | gr ] ncoll o b q
+[   4 | dd ] oa = oq && aq = qa && qo = ao && ncoll o a q => △oaq ≅ △oqa
+[   4 | dd ] oa = op && ncoll o a p => ∠oap = ∠apo
+[   4 | dd ] ob = op && ncoll o b p => ∠obp = ∠bpo
+[   4 | dd ] ob = oq && ncoll o b q => ∠obq = ∠bqo
+[   6 | ar ] △oaq ≅ △oqa && ∠oap = ∠apo && ∠obp = ∠bpo && ∠obq = ∠bqo => ∠(cm, na) = ∠bpm
+[   6 | ar ] △oaq ≅ △oqa && ∠oap = ∠apo && ∠obp = ∠bpo && ∠obq = ∠bqo => ∠(pb, cm) = ∠(mp, na)
+[   7 | gr ] n midpoint of aq && ∠(pb, cm) = ∠(mp, na) => ∠maq = ∠pbm
+[   7 | gr ] diffclock m a q m b p
+[   7 | gr ] n midpoint of aq && q, c, b collinear && p, a, m collinear && ∠(cm, na) = ∠bpm => ∠mqa = ∠bpm
+[   7 | gr ] ncoll m a q
+[   8 | dd ] ∠maq = ∠pbm && diffclock m a q m b p && ∠mqa = ∠bpm && ncoll m a q => △maq ~ △mbp
+[  10 | ar ] n midpoint of aq && m midpoint of bc && △maq ~ △mbp => an / am = bp / bc
+[  11 | gr ] ncoll p b c
+[  11 | gr ] diffclock p b c n a m
+[  11 | gr ] an / am = bp / bc => bp / bc = an / am
+[  11 | gr ] m midpoint of bc && ∠(pb, cm) = ∠(mp, na) => ∠pbc = ∠man
+[  12 | dd ] ncoll p b c && diffclock p b c n a m && bp / bc = an / am && ∠pbc = ∠man => △pbc ~ △nam
+[  14 | ar ] pc ⊥ am && △oan ≅ △oqn && △pbc ~ △nam => ∠nmc = ∠ona
+[  14 | ar ] pc ⊥ am && △oan ≅ △oqn && △pbc ~ △nam => ∠cmn = ∠ano
+[  15 | gr ] ncoll b m n
+[  15 | gr ] m midpoint of bc => bm = cm
+[  15 | dd ] ncoll b m n && bm = cm && ∠bmn = ∠nmc && diffclock b m n c m n && mn = mn => △bmn ≅ △cmn
+[  15 | gr ] m midpoint of bc && △oan ≅ △oqn && ∠nmc = ∠ona && ∠cmn = ∠ano => ∠bmn = ∠nmc
+[  15 | gr ] diffclock b m n c m n
+[  15 | gr ] mn = mn
+[ 511 | dd ] △bmn ≅ △cmn => bn = cn
+=======================================
+Problem: MO-TG-225-15
+
+    c b a = triangle c b a;
+    o = circumcenter o : a b c;
+    i = incenter i : a b c;
+    v = on_line_perp v : c c i, on_line v : i b;
+    w = on_line_perp w : b b i, on_line w : i c;
+    u = intersection_ll u : v c w b;
+    d = on_circum d : a b c;
+    t = circumcenter t : d i u;
+    r = circumcenter r : d w v;
+    a1 = foot a1 : d t r;
+    f = mirror f : a1 d;
+    b1 = foot b1 : d a i;
+    g = mirror g : b1 d;
+    e = intersection_ll e : b c a g;
+    m = midpoint m : i u;
+    c1 = foot c1 : d o t;
+    p = mirror p : c1 d;
+    n = midpoint n : w v;
+    h = intersection_lc h : e o n;
+    j = mirror j : m e;
+    k = mirror k : n e
+    ?
+    cong d e d f
+
+---------------------------------------
+    o = (0.647575, 1.752376)    i = (-0.704977, -0.462392)    c = (3.166433, 4.059038)
+    b = (-1.872782, -0.552647)    a = (-0.503441, -1.463288)    v = (7.689334, 0.186370)
+    w = (-1.782497, -1.720832)    u = (-2.611559, 9.006359)    d = (2.299121, -1.237227)
+    t = (2.324986, 5.074032)    r = (-3.799864, 32.771922)    a1 = (3.654330, -0.937549)
+    f = (0.943911, -1.536906)    b1 = (-0.437986, -1.788358)    g = (5.036228, -0.686097)
+    e = (-3.295938, -1.855062)    m = (-1.658268, 4.271984)    c1 = (-0.219787, 0.034801)
+    p = (4.818028, -2.509256)    n = (2.953418, -0.767231)    h = (-0.671257, -1.398182)
+    j = (-4.933609, -7.982109)    k = (-9.545295, -2.942894)
+    Loss: 0

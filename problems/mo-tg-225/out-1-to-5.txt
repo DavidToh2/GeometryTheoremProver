@@ -1,0 +1,394 @@
+=======================================
+Problem: MO-TG-225-2
+
+    b c a = triangle b c a;
+    o = circumcenter o : a b c;
+    s0 = on_circum s0 : a b c, on_angle_bisect s0 : b a c;
+    s = on_circum s : a b c, on_line_perp s : a a s0;
+    f = foot f : a b c;
+    d = intersection_ll d : a f b s;
+    e = intersection_lc e : f o a;
+    l = on_line l : b e, on_line_para l : d b c;
+    m = circumcenter m : d b l;
+    a1 = foot a1 : b o m;
+    p = mirror p : b a1;
+    h = intersection_ll h : a s0 b s;
+    k = mirror k : a o;
+    t = intersection_ll t : s k a e;
+    x = intersection_ll x : p k a s0
+    ?
+    perp h p p m
+
+---------------------------------------
+    s0 = (0.505635, -0.024162)    s = (-0.821133, 0.092729)    b = (-0.170522, -0.631548)
+    a = (-0.684147, -0.373637)    o = (-0.157749, 0.034283)    c = (-0.053907, 0.692091)
+    f = (-0.151930, -0.420526)    d = (-0.377970, -0.400611)    e = (0.289218, -0.459392)
+    l = (-0.406087, -0.719758)    m = (-0.329479, -0.565695)    a1 = (-0.334864, -0.584508)
+    p = (-0.499207, -0.537469)    h = (-0.461063, -0.308110)    k = (0.368650, 0.442204)
+    t = (-2.010915, -0.256746)    x = (-0.237978, -0.242584)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] a, b, c, s cyclic && o center of ⦿abc && a, b, c, s0 cyclic => o center of ⦿s0sb
+[   3 | dd ] o center of ⦿s0bs => os0 = ob
+[   3 | gr ] a, b, c, s cyclic && o center of ⦿abc && a, b, c, s0 cyclic => o center of ⦿s0bs
+[   3 | gr ] a, b, c, s cyclic && o center of ⦿abc && a, b, c, s0 cyclic => o center of ⦿ass0
+[   3 | gr ] oa = ob && oa = oe => ob = oe
+[   3 | gr ] oa = ob && oa = ok => ob = ok
+[   3 | gr ] oa = ob && ob = oc => oa = oc
+[   3 | gr ] oa = ob && ob = oc && oa = oe => oc = oe
+[   3 | gr ] oa = ob && ob = oc && oa = oe => oe = oc
+[   3 | gr ] oa = oe && oa = ok => oe = ok
+[   3 | gr ] ncoll o a b
+[   3 | gr ] ncoll o a c
+[   3 | gr ] ncoll o a e
+[   3 | gr ] ncoll o b c
+[   3 | gr ] ncoll o b e
+[   3 | gr ] ncoll o b k
+[   3 | gr ] ncoll o c e
+[   3 | gr ] ncoll o e c
+[   3 | gr ] ncoll o e k
+[   3 | gr ] ncoll m d b
+[   3 | gr ] md = mb => mb = md
+[   3 | gr ] ncoll m b d
+[   3 | gr ] md = mb && mb = ml => md = ml
+[   3 | gr ] ncoll m d l
+[   3 | gr ] ncoll m b l
+[   3 | gr ] a, b, c, s cyclic && a, b, c, s0 cyclic => s0, s, b, a cyclic
+[   3 | gr ] a, b, c, s cyclic && a, b, c, s0 cyclic => s0, b, s, a cyclic
+[   3 | gr ] a, b, c, s cyclic && a, b, c, s0 cyclic => s0, a, s, b cyclic
+[   3 | gr ] a, b, c, s cyclic && a, b, c, s0 cyclic => s, s0, b, a cyclic
+[   3 | gr ] a, b, c, s cyclic && a, b, c, s0 cyclic => b, a, s0, s cyclic
+[   3 | gr ] a, b, c, s cyclic && a, b, c, s0 cyclic => a, b, s0, s cyclic
+[   3 | gr ] a, b, c, s cyclic && a, b, c, s0 cyclic => s0, s, b, c cyclic
+[   3 | gr ] a, b, c, s cyclic && a, b, c, s0 cyclic => s0, b, s, c cyclic
+[   3 | gr ] a, b, c, s cyclic && a, b, c, s0 cyclic => s0, a, s, c cyclic
+[   3 | gr ] a, b, c, s cyclic && a, b, c, s0 cyclic => a, s, s0, c cyclic
+[   3 | gr ] a, b, c, s0 cyclic => b, a, s0, c cyclic
+[   3 | gr ] a, b, c, s0 cyclic => a, b, s0, c cyclic
+[   3 | gr ] ∠bas0 = ∠s0ac => ∠bas0 = ∠s0ac
+[   3 | gr ] p, b, a1 collinear && a1b = a1p => a1 midpoint of bp
+[   3 | gr ] a1b ⊥ om && a1, o, m collinear && p, b, a1 collinear => oa1 ⊥ bp
+[   3 | gr ] a1b ⊥ om && a1, o, m collinear && p, b, a1 collinear => ma1 ⊥ bp
+[   3 | gr ] f, b, c collinear && ld ∥ bc => bf ∥ ld
+[   3 | gr ] l, b, e collinear => e, b, l collinear
+[   3 | gr ] d, a, f collinear && e, f, a collinear => e, f, d collinear
+[   3 | gr ] ncoll b f l
+[   4 | dd ] o center of ⦿s0sb => os0 = os
+[   4 | dd ] o center of ⦿ass0 => oa = os
+[   4 | dd ] oa = ob && ncoll o a b => ∠oab = ∠abo
+[   4 | dd ] oa = oc && ncoll o a c => ∠oac = ∠aco
+[   4 | dd ] oa = oe && ncoll o a e => ∠oae = ∠aeo
+[   4 | dd ] ob = oc && ncoll o b c => ∠obc = ∠bco
+[   4 | dd ] ob = oe && ncoll o b e => ∠obe = ∠beo
+[   4 | dd ] ob = ok && ncoll o b k => ∠obk = ∠bko
+[   4 | dd ] oc = oe && ncoll o c e => ∠oce = ∠ceo
+[   4 | dd ] oe = oc && ncoll o e c => ∠oec = ∠eco
+[   4 | dd ] oe = ok && ncoll o e k => ∠oek = ∠eko
+[   4 | dd ] md = mb && ncoll m d b => ∠mdb = ∠dbm
+[   4 | dd ] mb = md && ncoll m b d => ∠mbd = ∠bdm
+[   4 | dd ] md = ml && ncoll m d l => ∠mdl = ∠dlm
+[   4 | dd ] mb = ml && ncoll m b l => ∠mbl = ∠blm
+[   4 | dd ] s0, s, b, a cyclic => ∠s0bs = ∠s0as
+[   4 | dd ] s0, b, s, a cyclic => ∠s0sb = ∠s0ab
+[   4 | dd ] s0, a, s, b cyclic => ∠s0sa = ∠s0ba
+[   4 | dd ] s, s0, b, a cyclic => ∠sbs0 = ∠sas0
+[   4 | dd ] b, a, s0, s cyclic => ∠bs0a = ∠bsa
+[   4 | dd ] a, b, s0, s cyclic => ∠as0b = ∠asb
+[   4 | dd ] s0, s, b, c cyclic => ∠s0bs = ∠s0cs
+[   4 | dd ] s0, b, s, c cyclic => ∠s0sb = ∠s0cb
+[   4 | dd ] s0, a, s, c cyclic => ∠s0sa = ∠s0ca
+[   4 | dd ] a, s, s0, c cyclic => ∠as0s = ∠acs
+[   4 | dd ] b, a, s0, c cyclic => ∠bs0a = ∠bca
+[   4 | dd ] a, b, s0, c cyclic => ∠as0b = ∠acb
+[   4 | dd ] a, b, s0, c cyclic && ∠bas0 = ∠s0ac => bs0 = s0c
+[   4 | dd ] a1 midpoint of bp && oa1 ⊥ bp => ob = op
+[   4 | dd ] a1 midpoint of bp && ma1 ⊥ bp => mb = mp
+[   4 | dd ] bf ∥ ld && e, b, l collinear && e, f, d collinear && ncoll b f l => △ebf ~ △eld
+[   6 | ar ] fa ⊥ bc && ∠oac = ∠aco && ∠oae = ∠aeo && ∠obc = ∠bco && ∠obe = ∠beo && ∠mdb = ∠dbm && ∠mdl = ∠dlm && ∠mbl = ∠blm && ∠s0sb = ∠s0cb && ∠s0sa = ∠s0ca => ∠sao = ∠mbo
+[   6 | ar ] ∠bas0 = ∠s0ac && sa ⊥ as0 && ∠s0sb = ∠s0ab && ∠s0sb = ∠s0cb && ∠s0sa = ∠s0ca => bc ⊥ s0s
+[   6 | ar ] ∠oae = ∠aeo && ∠oek = ∠eko => af ⊥ ek
+[   6 | ar ] sa ⊥ as0 && fa ⊥ bc && ∠oac = ∠aco && ∠oae = ∠aeo && ∠obc = ∠bco && ∠obe = ∠beo && ∠mdb = ∠dbm && ∠mdl = ∠dlm && ∠mbl = ∠blm && ∠s0sb = ∠s0cb && ∠s0sa = ∠s0ca => s0a ⊥ dm
+[   6 | ar ] fa ⊥ bc && ∠oae = ∠aeo && ∠obc = ∠bco && ∠obk = ∠bko && ∠oce = ∠ceo => ∠(bk, ao) = ∠oec
+[   6 | ar ] fa ⊥ bc && ∠oae = ∠aeo && ∠obc = ∠bco && ∠obk = ∠bko && ∠oce = ∠ceo => ∠(ao, bk) = ∠ceo
+[   6 | ar ] ∠obc = ∠bco && ∠obe = ∠beo && ∠oce = ∠ceo && ∠mdb = ∠dbm && ∠mdl = ∠dlm && ∠mbl = ∠blm => ∠eco = ∠mbs
+[   6 | ar ] sa ⊥ as0 && fa ⊥ bc && ∠oab = ∠abo && ∠oae = ∠aeo && ∠obe = ∠beo && ∠mdb = ∠dbm && ∠mdl = ∠dlm && ∠mbl = ∠blm && ∠s0sb = ∠s0ab && ∠s0sa = ∠s0ca => ∠s0ca = ∠mbo
+[   6 | ar ] sa ⊥ as0 && ∠s0bs = ∠s0as => ∠(sa, s0b) = ∠(s0a, sb)
+[   6 | ar ] ∠bas0 = ∠s0ac && sa ⊥ as0 && fa ⊥ bc && ∠oab = ∠abo && ∠oae = ∠aeo && ∠obe = ∠beo && ∠s0sb = ∠s0cb && ∠s0sa = ∠s0ca => ∠sao = ∠ebs
+[   6 | ar ] sa ⊥ as0 && ∠s0bs = ∠s0as => ∠sas0 = ∠s0bs
+[   6 | ar ] ∠obc = ∠bco && ∠obe = ∠beo && ∠oce = ∠ceo && ∠mdb = ∠dbm && ∠mdl = ∠dlm && ∠mbl = ∠blm => ∠oce = ∠sbm
+[   6 | ar ] sa ⊥ as0 && fa ⊥ bc && ∠oac = ∠aco && ∠oae = ∠aeo && ∠obc = ∠bco && ∠obe = ∠beo && ∠s0sb = ∠s0cb && ∠s0sa = ∠s0ca => ∠(s0a, sb) = ∠cbe
+[   6 | ar ] sa ⊥ as0 && ∠oab = ∠abo && ∠oac = ∠aco && ∠obc = ∠bco && ∠s0bs = ∠s0as && ∠s0sb = ∠s0cb && ∠s0sa = ∠s0ca => ∠oab = ∠(sa, s0b)
+[   6 | ar ] fa ⊥ bc && ∠oac = ∠aco && ∠obc = ∠bco && ∠obe = ∠beo && ∠oek = ∠eko => ∠bca = ∠(be, af)
+[   6 | ar ] ∠bas0 = ∠s0ac && sa ⊥ as0 && ∠oab = ∠abo && ∠obe = ∠beo && ∠oek = ∠eko && ∠mdb = ∠dbm && ∠mdl = ∠dlm && ∠mbl = ∠blm && ∠s0sb = ∠s0cb && ∠s0sa = ∠s0ca => ∠oas0 = ∠(bc, lm)
+[   6 | ar ] fa ⊥ bc && ∠oac = ∠aco && ∠obc = ∠bco && ∠obe = ∠beo && ∠oek = ∠eko => ∠acb = ∠(af, be)
+[   6 | ar ] ∠oac = ∠aco && ∠obc = ∠bco && ∠obk = ∠bko && ∠s0sb = ∠s0cb && ∠s0sa = ∠s0ca => ∠sao = ∠sbk
+[   6 | ar ] ∠bas0 = ∠s0ac && ∠s0sb = ∠s0ab && ∠s0sb = ∠s0cb && ∠s0sa = ∠s0ca => ∠s0as = ∠(bc, af)
+[   6 | ar ] ∠bas0 = ∠s0ac && sa ⊥ as0 && fa ⊥ bc && ∠oab = ∠abo && ∠oac = ∠aco && ∠oae = ∠aeo && ∠obc = ∠bco && ∠obe = ∠beo && ∠obk = ∠bko && ∠mdb = ∠dbm && ∠mdl = ∠dlm && ∠mbl = ∠blm && ∠s0bs = ∠s0as && ∠s0sb = ∠s0cb && ∠s0sa = ∠s0ca => ∠(bc, lm) = ∠kbs0
+[   6 | ar ] sa ⊥ as0 && ∠oab = ∠abo && ∠oac = ∠aco && ∠obc = ∠bco && ∠s0bs = ∠s0as && ∠s0sb = ∠s0ab && ∠s0bs = ∠s0cs && ∠s0sb = ∠s0cb => ∠acs = ∠oas0
+[   6 | ar ] sa ⊥ as0 && ∠oab = ∠abo && ∠obk = ∠bko => ∠s0as = ∠kba
+[   7 | gr ] md = mb && mb = mp => md = mp
+[   7 | dd ] mb = mp && bo = po && om = om && ncoll m b o => △mbo ≅ △mpo
+[   7 | gr ] oa = ob && os0 = ob && ob = op => bo = po
+[   7 | gr ] om = om
+[   7 | gr ] ncoll m b o
+[   7 | dd ] bo = co && os0 = os0 && s0b = s0c && ncoll b o s0 => △bos0 ≅ △cos0
+[   7 | gr ] oa = ob && ob = oc => bo = co
+[   7 | gr ] os0 = os0
+[   7 | gr ] bs0 = s0c => s0b = s0c
+[   7 | gr ] ncoll b o s0
+[   7 | gr ] bs0 = s0c => bs0 = cs0
+[   7 | gr ] ncoll o p m
+[   7 | gr ] oa = ob && os0 = ob && ob = op => oa = op
+[   7 | gr ] oa = ob && oa = oe && os0 = os && os0 = ob => oe = os
+[   7 | gr ] oa = ob && oa = ok && os0 = ob => ok = os0
+[   7 | gr ] oa = ob && oa = ok && os0 = os && os0 = ob => ok = os
+[   7 | gr ] oa = ob && oa = ok && os0 = ob && ob = op => ok = op
+[   7 | gr ] oa = ob && oa = oe && os0 = os && os0 = ob => os = oe
+[   7 | gr ] diff o s0
+[   7 | gr ] ncoll m d p
+[   7 | gr ] ncoll o a s
+[   7 | gr ] ncoll o a p
+[   7 | gr ] ncoll o e s
+[   7 | gr ] ncoll o s e
+[   7 | gr ] ncoll o k s0
+[   7 | gr ] ncoll o k s
+[   7 | gr ] ncoll o k p
+[   7 | gr ] sa ⊥ as0 && fa ⊥ bc && k, a, o collinear && t, a, e collinear && ∠s0sa = ∠s0ca && ∠sao = ∠mbo && bc ⊥ s0s && af ⊥ ek && s0a ⊥ dm && ∠s0ca = ∠mbo => ∠tas = ∠sak
+[   7 | gr ] t, s, k collinear => s, t, k collinear
+[   7 | gr ] ncoll a t k
+[   7 | gr ] f, b, c collinear && l, b, e collinear && k, a, o collinear && ∠(sa, s0b) = ∠(s0a, sb) && ∠(s0a, sb) = ∠cbe && ∠oab = ∠(sa, s0b) => ∠kab = ∠fbe
+[   7 | gr ] diffclock k a b e b f
+[   7 | gr ] f, b, c collinear && e, f, a collinear && ∠s0bs = ∠s0as && ∠sbs0 = ∠sas0 && ∠sas0 = ∠s0bs && ∠s0as = ∠(bc, af) && ∠s0as = ∠kba => ∠kba = ∠bfe
+[   7 | gr ] ncoll k a b
+[   7 | gr ] ncoll f b e
+[   7 | gr ] f, b, c collinear && l, b, e collinear && h, a, s0 collinear && h, b, s collinear && ∠(sa, s0b) = ∠(s0a, sb) && ∠(s0a, sb) = ∠cbe && ∠oab = ∠(sa, s0b) => ∠fbe = ∠s0hb
+[   7 | gr ] diffclock f b e b h s0
+[   7 | gr ] e, f, a collinear && l, b, e collinear && h, a, s0 collinear && ∠oce = ∠ceo && ∠mdb = ∠dbm && ∠as0b = ∠asb && ∠as0b = ∠acb && s0a ⊥ dm && ∠(ao, bk) = ∠ceo && ∠oce = ∠sbm && ∠acb = ∠(af, be) => ∠feb = ∠hs0b
+[   7 | gr ] ∠obk = ∠bko && ∠oec = ∠eco && ∠mbd = ∠bdm && ∠(bk, ao) = ∠oec && ∠eco = ∠mbs => ∠obk = ∠bdm
+[   7 | gr ] diffclock o b k m d b
+[   7 | gr ] k, a, o collinear && ∠oce = ∠ceo && ∠mdb = ∠dbm && ∠(ao, bk) = ∠ceo && ∠oce = ∠sbm => ∠okb = ∠dbm
+[   7 | gr ] d, b, s collinear && ∠bs0a = ∠bsa => ∠dsa = ∠bs0a
+[   7 | gr ] diffclock d s a a s0 b
+[   7 | gr ] fa ⊥ bc && d, a, f collinear && ∠s0sa = ∠s0ba && bc ⊥ s0s && af ⊥ ek => ∠das = ∠s0ba
+[   7 | gr ] ncoll d s a
+[   7 | gr ] d, a, f collinear && d, b, s collinear && e, f, a collinear && l, b, e collinear && ∠obk = ∠bko && ∠oec = ∠eco && ∠mbd = ∠bdm && ∠bs0a = ∠bsa && ∠bs0a = ∠bca && s0a ⊥ dm && ∠(bk, ao) = ∠oec && ∠eco = ∠mbs && ∠bca = ∠(be, af) => ∠dsa = ∠bed
+[   7 | gr ] diffclock d s a d e b
+[   7 | gr ] fa ⊥ bc && d, a, f collinear && l, b, e collinear && ∠s0sa = ∠s0ca && ∠sao = ∠mbo && bc ⊥ s0s && af ⊥ ek && ∠s0ca = ∠mbo && ∠sao = ∠ebs => ∠das = ∠ebd
+[   8 | dd ] bo = co && bs0 = cs0 && diff o s0 => bc ⊥ os0
+[   8 | dd ] md = mp && ncoll m d p => ∠mdp = ∠dpm
+[   8 | dd ] oa = os && ncoll o a s => ∠oas = ∠aso
+[   8 | dd ] oa = op && ncoll o a p => ∠oap = ∠apo
+[   8 | dd ] oe = os && ncoll o e s => ∠oes = ∠eso
+[   8 | dd ] os = oe && ncoll o s e => ∠ose = ∠seo
+[   8 | dd ] ok = os0 && ncoll o k s0 => ∠oks0 = ∠ks0o
+[   8 | dd ] ok = os && ncoll o k s => ∠oks = ∠kso
+[   8 | dd ] ok = op && ncoll o k p => ∠okp = ∠kpo
+[   8 | dd ] ∠tas = ∠sak && s, t, k collinear && ncoll a t k => st / sk = at / ak
+[   8 | dd ] ∠kab = ∠fbe && diffclock k a b e b f && ∠kba = ∠bfe && ncoll k a b => △kab ~ △ebf
+[   8 | dd ] ncoll f b e && ∠fbe = ∠s0hb && diffclock f b e b h s0 && ∠feb = ∠hs0b => △fbe ~ △bhs0
+[   8 | dd ] ncoll o b k && ∠obk = ∠bdm && diffclock o b k m d b && ∠okb = ∠dbm => △obk ~ △mdb
+[   8 | dd ] ∠dsa = ∠bs0a && diffclock d s a a s0 b && ∠das = ∠s0ba && ncoll d s a => △dsa ~ △as0b
+[   8 | dd ] ncoll d s a && ∠dsa = ∠bed && diffclock d s a d e b && ∠das = ∠ebd => △dsa ~ △deb
+[  10 | ar ] △ebf ~ △eld && △kab ~ △ebf && △dsa ~ △as0b && △dsa ~ △deb => as0 / ld = bk / db
+[  10 | ar ] ∠bas0 = ∠s0ac && sa ⊥ as0 && fa ⊥ bc && ∠oab = ∠abo && ∠oac = ∠aco && ∠oae = ∠aeo && ∠obc = ∠bco && ∠obe = ∠beo && ∠mdb = ∠dbm && ∠mdl = ∠dlm && ∠mbl = ∠blm && ∠s0sb = ∠s0cb && ∠s0sa = ∠s0ca && ∠oas = ∠aso => bc ⊥ so
+[  10 | ar ] fa ⊥ bc && ∠oae = ∠aeo && ∠obe = ∠beo && ∠mdl = ∠dlm && ∠mbl = ∠blm && △mbo ≅ △mpo && ∠mdp = ∠dpm && ∠oap = ∠apo => ap ⊥ dp
+[  10 | ar ] fa ⊥ bc && ∠oac = ∠aco && ∠oae = ∠aeo && ∠obc = ∠bco && ∠obe = ∠beo && ∠mdb = ∠dbm && ∠mdl = ∠dlm && ∠mbl = ∠blm && ∠s0sb = ∠s0cb && ∠s0sa = ∠s0ca && ∠oas = ∠aso && ∠oks = ∠kso => sa ⊥ sk
+[  10 | ar ] ∠oap = ∠apo && ∠okp = ∠kpo => ap ⊥ pk
+[  10 | ar ] ∠bas0 = ∠s0ac && ∠oab = ∠abo && ∠oac = ∠aco && △bos0 ≅ △cos0 && ∠oks0 = ∠ks0o => s0a ⊥ s0k
+[  10 | ar ] ∠bas0 = ∠s0ac && sa ⊥ as0 && fa ⊥ bc && ∠oab = ∠abo && ∠oae = ∠aeo && ∠obe = ∠beo && ∠mdb = ∠dbm && ∠mdl = ∠dlm && ∠mbl = ∠blm && ∠s0sb = ∠s0cb && ∠s0sa = ∠s0ca && ∠oas = ∠aso && ∠oes = ∠eso => ∠oas0 = ∠seo
+[  10 | ar ] os0 = ob && △obk ~ △mdb => ao / dm = bk / db
+[  11 | gr ] oa = ok => ao = ko
+[  11 | gr ] k, a, o collinear => ao ∥ ko
+[  11 | gr ] fa ⊥ bc && bc ⊥ s0s && af ⊥ ek && bc ⊥ os0 && bc ⊥ so => os0 ∥ os
+[  11 | dd ] os0 = os && ao = ko && ao ∥ ko && os0 ∥ os && sameclock a o s0 k o s && ncoll a o s0 => △aos0 ≅ △kos
+[  11 | gr ] sameclock a o s0 k o s
+[  11 | gr ] ncoll a o s0
+[  11 | gr ] ncoll k s0 b
+[  11 | gr ] sa ⊥ as0 && d, b, s collinear && s0a ⊥ dm && ∠(sa, s0b) = ∠(s0a, sb) && ∠oab = ∠(sa, s0b) && sa ⊥ sk && s0a ⊥ s0k => ∠ks0b = ∠tsd
+[  11 | gr ] diffclock k s0 b d s t
+[  11 | gr ] sa ⊥ as0 && fa ⊥ bc && d, a, f collinear && t, a, e collinear && ∠mdl = ∠dlm && ∠as0s = ∠acs && bc ⊥ s0s && af ⊥ ek && s0a ⊥ dm && ∠oas0 = ∠(bc, lm) && ∠(bc, lm) = ∠kbs0 && ∠acs = ∠oas0 && sa ⊥ sk => ∠kbs0 = ∠std
+[  11 | gr ] fa ⊥ bc && k, a, o collinear && t, a, e collinear && ∠oae = ∠aeo && bc ⊥ s0s && af ⊥ ek && bc ⊥ os0 && bc ⊥ so => ∠kat = ∠soe
+[  11 | gr ] diffclock k a t e o s
+[  11 | gr ] fa ⊥ bc && t, s, k collinear && t, a, e collinear && bc ⊥ s0s && af ⊥ ek && bc ⊥ os0 && ∠ose = ∠seo && ∠oks = ∠kso && bc ⊥ so && ∠oas0 = ∠seo => ∠kta = ∠ose
+[  11 | gr ] ncoll k a t
+[  11 | gr ] oa = ob && md = mb && os0 = ob && ob = op && mb = mp && as0 / ld = bk / db && ao / dm = bk / db => po / pm = bk / bd
+[  11 | gr ] diffclock o p m k b d
+[  11 | gr ] ∠s0sa = ∠s0ca && ∠sao = ∠mbo && ∠s0ca = ∠mbo && ∠sao = ∠sbk && △mbo ≅ △mpo => ∠opm = ∠dbk
+[  11 | dd ] pk ∥ pd && diff k d => p, k, d collinear
+[  11 | gr ] x, p, k collinear && ap ⊥ dp && ap ⊥ pk => pk ∥ pd
+[  11 | gr ] diff k d
+[  12 | dd ] ncoll k s0 b && ∠ks0b = ∠tsd && diffclock k s0 b d s t && ∠kbs0 = ∠std => △ks0b ~ △dst
+[  12 | dd ] ∠kat = ∠soe && diffclock k a t e o s && ∠kta = ∠ose && ncoll k a t => △kat ~ △eos
+[  12 | dd ] ncoll o p m && po / pm = bk / bd && diffclock o p m k b d && ∠opm = ∠dbk => △opm ~ △kbd
+[  14 | ar ] os0 = ob && st / sk = at / ak && △kab ~ △ebf && △fbe ~ △bhs0 && △aos0 ≅ △kos && △ks0b ~ △dst && △kat ~ △eos => hs0 / ao = tk / td
+[  15 | gr ] hs0 / ao = tk / td => s0h / s0o = tk / td
+[  15 | gr ] sa ⊥ as0 && h, a, s0 collinear && t, s, k collinear && s0a ⊥ dm && sa ⊥ sk => s0h ∥ tk
+[  15 | gr ] fa ⊥ bc && d, a, f collinear && t, a, e collinear && bc ⊥ s0s && af ⊥ ek && bc ⊥ os0 => s0o ∥ td
+[  15 | gr ] sameclock h s0 o k t d
+[  15 | gr ] ncoll h s0 o
+[  16 | dd ] s0h / s0o = tk / td && s0h ∥ tk && s0o ∥ td && sameclock h s0 o k t d && ncoll h s0 o => △hs0o ~ △ktd
+[  18 | ar ] fa ⊥ bc && ∠oae = ∠aeo && ∠obe = ∠beo && ∠mdb = ∠dbm && ∠mdl = ∠dlm && ∠mbl = ∠blm && △mbo ≅ △mpo && ∠oap = ∠apo && △opm ~ △kbd && △hs0o ~ △ktd => ap ⊥ oh
+[  19 | gr ] diffclock a o h p o h
+[  19 | gr ] ncoll a o h
+[  19 | dd ] diffclock a o h p o h && ncoll a o h && ao = po && ∠aoh = ∠hop && oh = oh => △aoh ≅ △poh
+[  19 | gr ] oa = ob && os0 = ob && ob = op => ao = po
+[  19 | gr ] x, p, k collinear && ∠okp = ∠kpo && ap ⊥ dp && ap ⊥ pk && p, k, d collinear && ap ⊥ oh => ∠aoh = ∠hop
+[  19 | gr ] oh = oh
+[  22 | ar ] ∠mdb = ∠dbm && △mbo ≅ △mpo && ∠oas = ∠aso && ∠oks = ∠kso && △opm ~ △kbd && △hs0o ~ △ktd && △aoh ≅ △poh => ph ⊥ mp
+[ 511 | dd ] ph ⊥ mp => hp ⊥ pm
+=======================================
+Problem: MO-TG-225-3
+
+    c b a = triangle c b a;
+    f = midpoint f : a b;
+    e = midpoint e : a c;
+    d = midpoint d : b c;
+    g = midpoint g : d e;
+    h = intersection_ll h : a g f d
+    ?
+    para c g b h
+
+---------------------------------------
+    c = (0.754964, 0.727845)    f = (0.937210, 0.825689)    e = (0.747075, 0.764116)
+    b = (1.135235, 0.850990)    a = (0.739185, 0.800387)    d = (0.945099, 0.789418)
+    g = (0.846087, 0.776767)    h = (0.952988, 0.753147)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] diff b c f e
+[   3 | gr ] ncoll a b c
+[   3 | gr ] f midpoint of ab => f midpoint of ba
+[   3 | gr ] diff a c f d
+[   3 | gr ] ncoll b a c
+[   3 | gr ] d midpoint of bc => d midpoint of cb
+[   4 | dd ] f midpoint of ab && e midpoint of ac && diff b c f e && ncoll a b c => fe ∥ bc
+[   4 | dd ] d midpoint of bc && f midpoint of ba && diff a c f d && ncoll b a c => fd ∥ ac
+[   7 | gr ] h, f, d collinear && fd ∥ ac => ae ∥ fd
+[   7 | gr ] d midpoint of bc && fe ∥ bc => dc ∥ ef
+[   7 | gr ] fe ∥ bc => fe ∥ bd
+[   7 | dd ] ae ∥ fd && fe ∥ bd && af ∥ fb && af = fb && ncoll a f e => △afe ≅ △fbd
+[   7 | gr ] f midpoint of ab => af ∥ fb
+[   7 | gr ] f midpoint of ab => af = fb
+[   7 | gr ] ncoll a f e
+[   7 | gr ] h, f, d collinear && fd ∥ ac => ea ∥ dh
+[   7 | gr ] g midpoint of de => g, e, d collinear
+[   7 | gr ] h, a, g collinear => g, a, h collinear
+[   7 | gr ] ncoll e a d
+[   7 | gr ] h, f, d collinear && e midpoint of ac && fd ∥ ac => df ∥ ec
+[   8 | dd ] ea ∥ dh && g, e, d collinear && g, a, h collinear && ncoll e a d => △gea ~ △gdh
+[  10 | ar ] △gea ~ △gdh => ae = dh
+[  10 | ar ] △gea ~ △gdh => ag = gh
+[  11 | dd ] f midpoint of ab && g midpoint of ah && diff b h f g && ncoll a b h => fg ∥ bh
+[  11 | gr ] h, a, g collinear && ag = gh => g midpoint of ah
+[  11 | gr ] diff b h f g
+[  11 | gr ] ncoll a b h
+[  11 | gr ] h, f, d collinear && △afe ≅ △fbd && ae = dh => d midpoint of fh
+[  11 | dd ] d midpoint of cb && d midpoint of fh && ncoll f h c b => fc ∥ hb
+[  11 | gr ] ncoll f h c b
+[  11 | dd ] g midpoint of de && dc ∥ ef && df ∥ ec && ncoll d e c f => g midpoint of cf
+[  11 | gr ] ncoll d e c f
+[ 511 | dd ] fg ∥ bh && fc ∥ hb && g midpoint of cf => cg ∥ bh
+=======================================
+Problem: MO-TG-225-4
+
+    c b a = triangle c b a;
+    b1 = midpoint b1 : a c;
+    d = mirror d : b b1;
+    e = foot e : b a c;
+    f = foot f : d a c;
+    g = midpoint g : a b;
+    h = midpoint h : c d
+    ?
+    para e g f h
+
+---------------------------------------
+    g = (-0.733704, 0.023577)    h = (-0.118508, -0.269817)    c = (-0.365077, -0.013431)
+    b1 = (-0.426106, -0.123120)    d = (0.128061, -0.526203)    a = (-0.487135, -0.232809)
+    e = (-0.385849, -0.050766)    f = (-0.466363, -0.195474)    b = (-0.980273, 0.279963)
+
+    Loss: 0
+---------------------------------------
+[   3 | dd ] b1 midpoint of bd && g midpoint of ba && diff d a b1 g && ncoll b d a => b1g ∥ da
+[   3 | gr ] d, b, b1 collinear && b1b = b1d => b1 midpoint of bd
+[   3 | gr ] g midpoint of ab => g midpoint of ba
+[   3 | gr ] diff d a b1 g
+[   3 | gr ] ncoll b d a
+[   3 | gr ] e, a, c collinear && eb ⊥ ac => ae ⊥ eb
+[   3 | gr ] b1 midpoint of ac && f, a, c collinear && fd ⊥ ac => cf ⊥ fd
+[   4 | dd ] g midpoint of ab && ae ⊥ eb => ag = eg
+[   4 | dd ] h midpoint of cd && cf ⊥ fd => ch = fh
+[   7 | gr ] be = eb
+[   7 | gr ] df = fd
+[   7 | gr ] g midpoint of ab && ag = eg => eg = bg
+[   7 | gr ] ncoll h d f
+[   7 | gr ] ncoll g b e
+[   7 | gr ] h midpoint of cd && ch = fh => fh = dh
+[   7 | gr ] g midpoint of ab && ag = eg => gb = ge
+[   7 | gr ] h midpoint of cd && ch = fh => hd = hf
+[   8 | dd ] df = fd && ncoll h d f && fh = dh && hd = hf => △hdf ≅ △hfd
+[   8 | dd ] be = eb && eg = bg && ncoll g b e && gb = ge => △gbe ≅ △geb
+[  10 | ar ] b1g ∥ da && △hdf ≅ △hfd && △gbe ≅ △geb => ge ∥ hf
+[ 511 | dd ] ge ∥ hf => eg ∥ fh
+=======================================
+Problem: MO-TG-225-5
+
+    b a n = triangle b a n;
+    c = foot c : b a n;
+    d = foot d : a b n;
+    m = foot m : n a b
+    ?
+    simtri c a m b d m
+
+---------------------------------------
+    b = (0.725105, 0.509288)    c = (0.845560, -0.195513)    d = (0.959608, 0.364769)
+    a = (0.587096, -0.239686)    n = (1.646604, -0.058611)    m = (0.654159, 0.124261)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] cb ⊥ an && c, a, n collinear => nc ⊥ cb
+[   3 | gr ] m, a, b collinear && mn ⊥ ab => nm ⊥ mb
+[   3 | gr ] d, b, n collinear && da ⊥ bn => ad ⊥ dn
+[   3 | gr ] m, a, b collinear && mn ⊥ ab => am ⊥ mn
+[   3 | gr ] diff d m
+[   3 | gr ] diff m c
+[   4 | dd ] ad ⊥ dn && am ⊥ mn && diff d m => a, d, n, m cyclic
+[   4 | dd ] nc ⊥ cb && nm ⊥ mb && diff m c => n, m, b, c cyclic
+[   6 | ar ] mn ⊥ ab && cb ⊥ an => ∠abc = ∠(nm, ca)
+[   6 | ar ] da ⊥ bn && cb ⊥ an => ∠bda = ∠bca
+[   6 | ar ] da ⊥ bn && cb ⊥ an => ∠(da, bc) = ∠(bd, ca)
+[   6 | ar ] da ⊥ bn && cb ⊥ an => ∠cad = ∠cbd
+[   6 | ar ] mn ⊥ ab && cb ⊥ an => ∠(nm, ba) = ∠bca
+[   6 | ar ] da ⊥ bn && cb ⊥ an => ∠adb = ∠bca
+[   6 | ar ] da ⊥ bn && mn ⊥ ab => ∠bad = ∠(nm, bd)
+[   7 | gr ] ncoll b a d
+[   7 | gr ] ∠bad = ∠(nm, bd) => ∠bad = ∠mnb
+[   7 | gr ] diffclock b a d b n m
+[   7 | gr ] d, b, n collinear && m, a, b collinear && ∠bda = ∠bca && ∠(nm, ba) = ∠bca && ∠adb = ∠bca => ∠bda = ∠nmb
+[   7 | gr ] a, d, n, m cyclic => d, a, n, m cyclic
+[   7 | gr ] a, d, n, m cyclic => m, n, d, a cyclic
+[   7 | gr ] diffclock c b n d a n
+[   7 | gr ] d, b, n collinear && c, a, n collinear => ∠cnb = ∠and
+[   7 | gr ] ncoll c b n
+[   7 | gr ] ∠cad = ∠cbd => ∠cbn = ∠nad
+[   7 | gr ] ∠abc = ∠(nm, ca) => ∠mna = ∠abc
+[   7 | gr ] diffclock m n a c b a
+[   7 | gr ] m, a, b collinear && c, a, n collinear => ∠man = ∠bac
+[   7 | gr ] ncoll m n a
+[   8 | dd ] n, m, b, c cyclic => ∠nbm = ∠ncm
+[   8 | dd ] ncoll b a d && ∠bad = ∠mnb && diffclock b a d b n m && ∠bda = ∠nmb => △bad ~ △bnm
+[   8 | dd ] d, a, n, m cyclic => ∠dna = ∠dma
+[   8 | dd ] m, n, d, a cyclic => ∠mdn = ∠man
+[   8 | dd ] diffclock c b n d a n && ∠cnb = ∠and && ncoll c b n && ∠cbn = ∠nad => △cbn ~ △dan
+[   8 | dd ] ∠mna = ∠abc && diffclock m n a c b a && ∠man = ∠bac && ncoll m n a => △mna ~ △cba
+[  10 | ar ] △cbn ~ △dan => ad / bc = an / bn
+[  10 | ar ] △bad ~ △bnm => bn / ab = mb / bd
+[  10 | ar ] △mna ~ △cba => ac / am = ab / an
+[  11 | gr ] diffclock b a n b d m
+[  11 | gr ] c, a, n collinear && ∠nbm = ∠ncm => ∠nba = ∠acm
+[  11 | gr ] d, b, n collinear && ∠mdn = ∠man => ∠ban = ∠mdb
+[  11 | gr ] diffclock n b a m c a
+[  11 | gr ] m, a, b collinear && ∠(da, bc) = ∠(bd, ca) && ∠dna = ∠dma => ∠bna = ∠dmb
+[  11 | gr ] m, a, b collinear && c, a, n collinear => ∠nab = ∠cam
+[  11 | gr ] ncoll n b a
+[  12 | dd ] ncoll b a n && diffclock b a n b d m && ∠ban = ∠mdb && ∠bna = ∠dmb => △ban ~ △bdm
+[  12 | dd ] ∠nba = ∠acm && diffclock n b a m c a && ∠nab = ∠cam && ncoll n b a => △nba ~ △mca
+[ 511 | dd ] △ban ~ △bdm && △nba ~ △mca && ad / bc = an / bn && bn / ab = mb / bd && ac / am = ab / an => △cam ~ △bdm

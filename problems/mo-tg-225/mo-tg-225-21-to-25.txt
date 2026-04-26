@@ -1,0 +1,91 @@
+problem MO-TG-225-21 {
+    a c b = triangle a c b;
+    o = circumcenter o : a b c;
+    p = on_circum p : a b c;
+    d = foot d : p b a;
+    e = foot e : p b c;
+    f = foot f : p a c
+    ?
+    coll d e f
+}
+
+# UNSOLVED
+problem MO-TG-225-22 {
+    d b a = triangle d b a;
+    o = circumcenter o : d b a;
+    c = on_circum c : d b a;
+    e = on_circum e : d b a;
+    f = on_circum f : d b a;
+    g = intersection_ll g : b f c e;
+    h = intersection_ll h : e d a f;
+    i = intersection_ll i : a c b d;
+    j_c = on_line_at_angle j_c : c i g c b;
+    j_b = on_line_at_angle j_b : b i g b c;
+    j = intersection_ll j : c j_c b j_b
+    ?
+    cong g h h i
+}
+
+problem MO-TG-225-23 {
+    b a c = triangle b a c;
+    m = on_line m : a c;
+    n = on_line n : b c;
+    p = on_line p : m n;
+    a1 = foot a1 : p b c;
+    b1 = foot b1 : p a c;
+    c1 = foot c1 : p a b;
+    d = mirror d : p a1;
+    e = mirror e : p b1;
+    f = mirror f : p c1;
+    o = circumcenter o : d e f;
+    g = on_circum g : d e f;
+    h = midpoint h : g p;
+    i = on_line_perp i : h h p, on_line i : p a;
+    j = intersection_ll j : h i a b;
+    k = intersection_ll k : h i a c
+    ?
+    eqangle p j p b p k p c
+}
+
+problem MO-TG-225-24 {
+    c b a = triangle c b a;
+    o = circumcenter o : a b c;
+    d = foot d : a b c;
+    e = foot e : b a c;
+    f = foot f : c a b;
+    h = intersection_ll h : a d b e;
+    i = midpoint i : b c;
+    j = midpoint j : a c;
+    k = midpoint k : a b;
+    l = midpoint l : a h;
+    m = midpoint m : b h;
+    n = midpoint n : c h;
+    v = midpoint v : o h
+    ?
+    cyclic d e f i j k l m n
+}
+
+# USAMO 2016 P3; UNSOLVED
+problem MO-TG-225-25 {
+    c b a = triangle c b a;
+    o = circumcenter o : a b c;
+    i = incenter i : a b c;
+    y = intersection_ll y : b i a c;
+    z = intersection_ll z : c i a b;
+    e = foot e : b a c;
+    f = foot f : c a b;
+    v = on_line_perp v : b b i, on_line v : i c;
+    u = on_line_perp u : c c i, on_line u : i b;
+    p = intersection_ll p : f u v e;
+    x = circumcenter x : u v i;
+    h = intersection_ll h : x o z y;
+    d = midpoint d : i u;
+    g = midpoint g : i v;
+    w = intersection_ll w : u c b v;
+    r = intersection_lc r : f u x;
+    s = intersection_lc s : e v x;
+    m = circumcenter m : w u r;
+    n = circumcenter n : w v s
+    ?
+    perp p h h y
+}

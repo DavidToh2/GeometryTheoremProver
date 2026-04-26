@@ -1,0 +1,100 @@
+problem MO-TG-225-11 {
+    c a b = triangle c a b;
+    o = circumcenter o : a b c;
+    d = on_circum d : a b c;
+    g = intersection_ll g : a c b d;
+    e = incenter e : a d c;
+    j = incenter j : b d c;
+    n = incenter n : a g b;
+    s = intersection_ll s : n g e j;
+    x = foot x : e a c;
+    y = foot y : e a d;
+    z = foot z : e d c;
+    u = foot u : j b c;
+    v = foot v : j b d;
+    w = foot w : j d c;
+    h = foot h : n a c;
+    r = foot r : n a b;
+    t = foot t : n d b
+    ?
+    perp e s s n
+}
+
+problem MO-TG-225-12 {
+    b c a = triangle b c a;
+    o = circumcenter o : a b c;
+    m = midpoint m : a c;
+    n = on_line n : b c, on_line_para n : m a b;
+    f = on_line_perp f : a a o, on_line f : o m;
+    d = intersection_ll d : m n a f;
+    e = mirror e : a d;
+    g = circumcenter g : a b e;
+    p = intersection_lc p : c g a;
+    h = circumcenter h : a d p;
+    q = intersection_lc q : m h d
+    ?
+    eqangle q c q b b a b c
+}
+
+# UNSOLVED
+problem MO-TG-225-13 {
+    c b a = triangle c b a;
+    i = incenter i : a b c;
+    e = foot e : i a c;
+    f = foot f : i a b;
+    d = foot d : i b c;
+    s = foot s : d e f;
+    r = intersection_lc r : s i d;
+    p = intersection_lc p : a i r;
+    j = circumcenter j : p c e;
+    k = circumcenter k : p b f;
+    a1 = foot a1 : p j k;
+    u = intersection_ll u : p a1 i d;
+    q = mirror q : a1 p;
+    g = circumcenter g : a b c;
+    l = circumcenter l : a i e;
+    b1 = foot b1 : a l g;
+    m = mirror m : b1 a;
+    n = intersection_lc n : i g a;
+    h = intersection_lc h : p n q
+    ?
+    perp a i a u
+}
+
+problem MO-TG-225-14 {
+    c b a = triangle c b a;
+    m = midpoint m : b c;
+    p = foot p : c a m;
+    o = circumcenter o : a b p;
+    q = intersection_lc q : c o b;
+    n = midpoint n : a q
+    ?
+    cong b n c n
+}
+
+# USAMO 2023 P6. UNSOLVED
+problem MO-TG-225-15 {
+    c b a = triangle c b a;
+    o = circumcenter o : a b c;
+    i = incenter i : a b c;
+    v = on_line_perp v : c c i, on_line v : i b;
+    w = on_line_perp w : b b i, on_line w : i c;
+    u = intersection_ll u : v c w b;
+    d = on_circum d : a b c;
+    t = circumcenter t : d i u;
+    r = circumcenter r : d w v;
+    a1 = foot a1 : d t r;
+    f = mirror f : a1 d;
+    b1 = foot b1 : d a i;
+    g = mirror g : b1 d;
+    e = intersection_ll e : b c a g;
+    m = midpoint m : i u;
+    c1 = foot c1 : d o t;
+    p = mirror p : c1 d;
+    n = midpoint n : w v;
+    h = intersection_lc h : e o n;
+    j = mirror j : m e;
+    k = mirror k : n e
+    ?
+    cong d e d f
+}

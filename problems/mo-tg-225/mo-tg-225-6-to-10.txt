@@ -1,0 +1,52 @@
+problem MO-TG-225-6 {
+    b a c = triangle b a c;
+    o = circumcenter o : a b c;
+    d = foot d : c a b;
+    m = intersection_lc m : d o c;
+    n = intersection_lc n : o o c
+    ?
+    cong a n b m
+}
+
+problem MO-TG-225-7 {
+    b a c = triangle b a c;
+    o = circumcenter o : a b c;
+    e = mirror e : a c;
+    z = incenter z : b a e;
+    g = intersection_lc g : z o a
+    ?
+    cong b g c g
+}
+
+problem MO-TG-225-8 {
+    a b c = triangle a b c;
+    o = circumcenter o : a b c;
+    h = foot h : o a b;
+    q = intersection_ll q : o h a c;
+    p = intersection_ll p : o h b c
+    ?
+    simtri c p o q c o
+}
+
+problem MO-TG-225-9 {
+    c b a = triangle c b a;
+    o = circumcenter o : a b c;
+    m = midpoint m : b c;
+    p = on_line_perp p : b b o, on_line p : o m;
+    s = on_line s : a p, on_circum s : a b c
+    ?
+    eqangle b a a m p a a c
+}
+
+problem MO-TG-225-10 {
+    c b a = triangle c b a;
+    o = circumcenter o : a b c;
+    d = foot d : c a b;
+    e = foot e : b a c;
+    h = intersection_ll h : c d b e;
+    f = midpoint f : a b;
+    i = midpoint i : a c;
+    g = intersection_ll g : c f b i
+    ?
+    coll o g h
+}
