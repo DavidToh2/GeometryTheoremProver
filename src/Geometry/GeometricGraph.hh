@@ -741,6 +741,11 @@ public:
 
 
 
+    int count_nodes();
+
+
+
+
     void print(std::ostream &os = std::cout);
 
     void reset_problem();

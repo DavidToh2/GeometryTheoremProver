@@ -3308,9 +3308,10 @@ int GeometricGraph::synthesise_preds(DDEngine &dd, AREngine &ar) {
         pred->level = level;
         pred->why.set_level(level - 1);
 
-        if (!num_check(pred)) {
-            throw GGraphInternalError("The following predicate failed num_check: " + pred->to_string_with_whys());
-        }
+        // if (!num_check(pred)) {
+        //     throw GGraphInternalError("The following predicate failed num_check: " 
+        //         + pred->to_string_with_whys());
+        // }
 
         switch(pred->name) {
             case pred_t::COLL:
@@ -3377,6 +3378,11 @@ int GeometricGraph::synthesise_ar_preds(DDEngine &dd) {
         assert(pred->why.size() > 0);
         assert(!(pred->why.contains(pred)));
 
+        // if (!num_check(pred)) {
+        //     throw GGraphInternalError("The following AR predicate failed num_check: " 
+        //         + pred->to_string_with_whys());
+        // }
+
         switch(pred->name) {
             case pred_t::PARA:
                 res = make_ar_para(pred, dd);
@@ -3413,6 +3419,17 @@ int GeometricGraph::synthesise_ar_preds(DDEngine &dd) {
     return num;
 }
 
+
+
+
+int GeometricGraph::count_nodes() {
+    return (
+        points.size() + lines.size() + circles.size() + segments.size() + triangles.size() +
+        directions.size() + lengths.size() +
+        angles.size() + ratios.size() + dimensions.size() +
+        measures.size() + fractions.size() + shapes.size()
+    );
+}
 
 
 

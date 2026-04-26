@@ -18,6 +18,7 @@ int main(int argc, char** argv) {
         {"rule_file", required_argument, 0, 'r'},
         {"construction_file", required_argument, 0, 'c'},
         {"output_file", required_argument, 0, 'o'},
+        {"profiler_output_file", required_argument, 0, 'g'},
         {0, 0, 0, 0}
     };
 
@@ -25,10 +26,11 @@ int main(int argc, char** argv) {
         problem_name="", 
         rule_filepath="problems/rules.txt", 
         construction_filepath="problems/constructions.txt", 
-        output_filepath="";
+        output_filepath="",
+        profiler_filepath="";
 
     int opt, optindex;
-    while ( (opt = getopt_long(argc, argv, "f:p:r:c:o:", options, &optindex)) != -1 ) {
+    while ( (opt = getopt_long(argc, argv, "f:p:r:c:o:g:", options, &optindex)) != -1 ) {
         fprintf(stderr, "%s\n", optarg);
         switch(opt) {
             case 'f':
@@ -46,6 +48,9 @@ int main(int argc, char** argv) {
             case 'o':
                 output_filepath = std::string(optarg);
                 break;
+            case 'g':
+                profiler_filepath = std::string(optarg);
+                break;
             default:
                 std::cerr << "Error: Invalid argument found!" << std::endl;
                 return 1;
@@ -61,7 +66,8 @@ int main(int argc, char** argv) {
 
     GTPEngine gtp(
         rule_filepath,
-        construction_filepath
+        construction_filepath,
+        profiler_filepath
     );
 
     if (problem_name.empty()) {
@@ -93,6 +99,7 @@ int main(int argc, char** argv) {
                 unsolved_problems.insert(problem_name);
             }
 
+            gtp.output_profiler_data();
             gtp.clear_problem();
         }
 
@@ -116,6 +123,7 @@ int main(int argc, char** argv) {
         && gtp.solve(20)
         && gtp.get_problem_solution();
 
+        gtp.output_profiler_data();
         gtp.clear_problem();
     }
 }

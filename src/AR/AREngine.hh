@@ -7,6 +7,7 @@
 #include "Geometry/Value.hh"
 #include "Geometry/Object2.hh"
 #include "Common/Constants.hh"
+#include "IO/Profiler.hh"
 
 class DDEngine;
 
@@ -138,7 +139,7 @@ public:
     get_all_congs_and_why_2();
 
     /* Derive new predicates. */
-    void derive(GeometricGraph& ggraph, DDEngine& dd);
+    void derive(GeometricGraph& ggraph, DDEngine& dd, Profiler& profiler);
 
     void reset_problem();
 };

@@ -293,7 +293,9 @@ AREngine::get_all_congs_and_why_2() {
 
 
 
-void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
+void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd, Profiler& profiler) {
+
+    int angle_table_eqs = 0, ratio_table_eqs = 0, displacement_table_eqs = 0;
 
     angle_table.generate_all_eqs();
 
@@ -303,6 +305,7 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
 
     auto gen_const_angle = get_all_constangles_and_why();
     while (gen_const_angle) {
+        angle_table_eqs++;
         auto [d1, d2, f, why] = gen_const_angle();
         while (f < 0) f += 180;
         while (f >= 180) f -= 180;
@@ -329,6 +332,7 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
 
     auto gen_eqangle = get_all_eqangles_and_why();
     while (gen_eqangle) {
+        angle_table_eqs++;
         auto [d1, d2, d3, d4, why] = gen_eqangle();
         if (d1 == d2) {
             dd.insert_new_predicate(
@@ -353,6 +357,7 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
 
     auto gen_para = get_all_paras_and_why();
     while (gen_para) {
+        angle_table_eqs++;
         auto [d1, d2, why] = gen_para();
         dd.insert_new_predicate(
             std::make_unique<Predicate>(
@@ -371,6 +376,7 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
 
     auto gen_cong_1 = get_all_congs_and_why_1();
     while (gen_cong_1) {
+        ratio_table_eqs++;
         auto [l1, l2, why] = gen_cong_1();
         dd.insert_new_predicate(
             std::make_unique<Predicate>(
@@ -381,6 +387,7 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
 
     auto gen_const_ratio = get_all_constratios_and_why();
     while (gen_const_ratio) {
+        ratio_table_eqs++;
         auto [l1, l2, f, why] = gen_const_ratio();
         dd.insert_new_predicate(
             std::make_unique<Predicate>(
@@ -391,6 +398,7 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
 
     auto gen_eqratio = get_all_eqratios_and_why();
     while (gen_eqratio) {
+        ratio_table_eqs++;
         auto [l1, l2, l3, l4, why] = gen_eqratio();
         if (l1 == l2) {
             dd.insert_new_predicate(
@@ -423,6 +431,7 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
 
     auto gen_cong_2 = get_all_congs_and_why_2();
     while (gen_cong_2) {
+        displacement_table_eqs++;
         auto [p1, p2, p3, p4, why] = gen_cong_2();
         dd.insert_new_predicate(
             std::make_unique<Predicate>(
@@ -430,6 +439,17 @@ void AREngine::derive(GeometricGraph& ggraph, DDEngine& dd) {
                 std::move(why), pred_src::AR)
         );
     }
+
+    LOG("Produced " << angle_table_eqs << " angle equations, " << ratio_table_eqs << " ratio equations, " << displacement_table_eqs << " displacement equations.");
+    profiler.ar_p.angle_table_eqs.emplace_back(angle_table_eqs);
+    profiler.ar_p.ratio_table_eqs.emplace_back(ratio_table_eqs);
+    profiler.ar_p.displacement_table_eqs.emplace_back(displacement_table_eqs);
+    profiler.ar_p.total_cols.emplace_back(
+        angle_table.num_eqs + ratio_table.num_eqs + displacement_table.num_eqs
+    );
+    profiler.ar_p.total_rows.emplace_back(
+        angle_table.num_vars + ratio_table.num_vars + displacement_table.num_vars
+    );
 }
 
 void AREngine::reset_problem() {

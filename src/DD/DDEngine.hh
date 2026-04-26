@@ -8,13 +8,13 @@
 #include <iostream>
 
 #include "Predicate.hh"
-#include "Predicate2.hh"
 #include "Theorem.hh"
 #include "Construction.hh"
 #include "Common/Arg.hh"
 #include "Common/Generator.hh"
 #include "Common/Constants.hh"
 #include "Geometry/GeometricGraph.hh"
+#include "IO/Profiler.hh"
 
 template<typename T>    // "alias declaration"
 using uptrmap = std::map<std::string, std::unique_ptr<T>>;
@@ -31,10 +31,8 @@ public:
     DDEngine();
     std::unique_ptr<Predicate> base_pred;
     uptrmap<Predicate> predicates;
-    uptrmap<Predicate2> predicate2s;
 
     std::deque<Predicate*> recent_predicates;
-    std::map<pred_t, std::set<Predicate*>> predicates_by_type;
 
     // Flag indicating whether the most recent insertion was a new or existing predicate
     bool new_predicate = false;
@@ -115,8 +113,7 @@ public:
     Generator<bool> match(Theorem* theorem, int i, int n, GeometricGraph &ggraph);
 
     /* Search functions */
-    void search(GeometricGraph &ggraph);
-    void search2(GeometricGraph &ggraph);
+    void search(GeometricGraph &ggraph, Profiler& profiler);
 
     bool check_postcondition_exact(PredicateTemplate* pred_template);
     bool check_conclusion(GeometricGraph &ggraph);

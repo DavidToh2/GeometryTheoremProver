@@ -10,6 +10,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         DDEngine dd;
         AREngine ar;
         TracebackEngine tr;
+        Profiler profiler;
         ggraph.tr = &tr;
         Predicate* base_pred = dd.base_pred.get();
 
@@ -113,7 +114,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ));
         ggraph.synthesise_preds(dd, ar);
 
-        dd.search(ggraph);  // apply para H K H G => coll H K G (or coll H G K)
+        dd.search(ggraph, profiler);  // apply para H K H G => coll H K G (or coll H G K)
         REQUIRE((
             (dd.recent_predicates[0]->to_string() == "coll h k g") ||
             (dd.recent_predicates[0]->to_string() == "coll h g k")
@@ -131,7 +132,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ggraph.merge_points(i, k, preds.back(), dd, ar);
         REQUIRE(ggraph.synthesise_preds(dd, ar) == 0);
 
-        dd.search(ggraph);  // apply para I J I H => coll I J H (or coll I H J, or replace J with G since IHG now collinear)
+        dd.search(ggraph, profiler);  // apply para I J I H => coll I J H (or coll I H J, or replace J with G since IHG now collinear)
         REQUIRE((
             (dd.recent_predicates[0]->to_string() == "coll i j h") ||
             (dd.recent_predicates[0]->to_string() == "coll i h j") ||
@@ -147,7 +148,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         Line* ghij = NodeUtils::get_root(gh);
         Direction* dir2 = ghij->get_direction();    // dir2 == d_ij
 
-        dd.search(ggraph);
+        dd.search(ggraph, profiler);
         REQUIRE(ggraph.synthesise_preds(dd, ar) == 0);
 
         /*
@@ -215,7 +216,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ));
         ggraph.synthesise_preds(dd, ar);
 
-        dd.search(ggraph);  // apply para M L M N => coll M N L and para O L O P => coll O L P
+        dd.search(ggraph, profiler);  // apply para M L M N => coll M N L and para O L O P => coll O L P
         REQUIRE((
             (dd.recent_predicates[0]->to_string() == "coll m n l" || dd.recent_predicates[1]->to_string() == "coll m n l") ||
             (dd.recent_predicates[2]->to_string() == "coll m n l" || dd.recent_predicates[3]->to_string() == "coll m n l")
@@ -254,7 +255,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
             why_dir3_1_of_st.size() == 3
         ));
 
-        dd.search(ggraph);  // apply para L O L N => coll L O N (and the other 3 combinations)
+        dd.search(ggraph, profiler);  // apply para L O L N => coll L O N (and the other 3 combinations)
         // Q, R, S, T also become collinear
 
         /* Here, it is entirely arbitrary (and infact indeterminate) whether coll L O N or
@@ -291,7 +292,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         preds.emplace_back(dd.predicates["coll r s q"].get());
         preds.emplace_back(dd.predicates["coll s r t"].get());
 
-        dd.search(ggraph);
+        dd.search(ggraph, profiler);
         REQUIRE(ggraph.synthesise_preds(dd, ar) == 0);
 
         Predicate* diff_t_q = dd.predicates["diff t q"].get();

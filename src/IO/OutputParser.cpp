@@ -5,12 +5,15 @@
 #include "Common/Constants.hh"
 #include "Geometry/Node.hh"
 #include "DD/DDEngine.hh"
+#include "Common/StrUtils.hh"
 
 
 void OutputParser::set_output_stream(std::string file_name) {
     os.open(file_name, std::ios_base::app);
 }
-
+void OutputParser::set_profiler_stream(std::string file_name) {
+    profs.open(file_name, std::ios_base::app);
+}
 
 
 std::string OutputParser::__format_predicate(Predicate* pred) {
@@ -154,6 +157,53 @@ void OutputParser::format_solution_from_predset(
 
 
 
+void OutputParser::output_profiler_data(std::string problem_name, Profiler& profiler) {
+    profs << "BEGINPROBLEM:" << problem_name << std::endl; 
+
+    profs << "num_success=" << profiler.num_success << "\n";
+    profs << "num_params=" << profiler.nm_p.num_params << "\n";
+    profs << "num_duration=" << profiler.nm_p.duration << std::endl;
+
+    if (profiler.num_success) {
+        profs << "solve_success=" << profiler.solved << "\n";
+        profs << "solve_total_duration=" << profiler.ggraph_p.total_duration << "\n";
+        profs << "solve_iterations=" << profiler.ggraph_p.iterations << "\n";
+        profs << "dd_duration=" << StrUtils::to_string(profiler.dd_p.duration) << "\n";
+        profs << "dd_total_preds=" << StrUtils::to_string(profiler.dd_p.total_preds) << "\n";
+        for (const auto& [theorem_name, durations] : profiler.dd_p.theorem_duration) {
+            profs << "dd_thm_duration:" << theorem_name << "=" << StrUtils::to_string(durations) << "\n";
+        }
+        for (const auto& [theorem_name, matches] : profiler.dd_p.theorem_matches) {
+            profs << "dd_thm_matches:" << theorem_name << "=" << StrUtils::to_string(matches) << "\n";
+        }
+
+        profs << "ar_duration=" << StrUtils::to_string(profiler.ar_p.duration) << "\n";
+        profs << "ar_angle_table_eqs=" << StrUtils::to_string(profiler.ar_p.angle_table_eqs) << "\n";
+        profs << "ar_ratio_table_eqs=" << StrUtils::to_string(profiler.ar_p.ratio_table_eqs) << "\n";
+        profs << "ar_displacement_table_eqs=" << StrUtils::to_string(profiler.ar_p.displacement_table_eqs) << "\n";
+        profs << "ar_total_cols=" << StrUtils::to_string(profiler.ar_p.total_cols) << "\n";
+        profs << "ar_total_rows=" << StrUtils::to_string(profiler.ar_p.total_rows) << "\n";
+
+        profs << "ggraph_duration_dd=" << StrUtils::to_string(profiler.ggraph_p.duration_dd) << "\n";
+        profs << "ggraph_duration_ar=" << StrUtils::to_string(profiler.ggraph_p.duration_ar) << "\n";
+        profs << "ggraph_num_preds_dd=" << StrUtils::to_string(profiler.ggraph_p.num_preds_dd) << "\n";
+        profs << "ggraph_num_preds_ar=" << StrUtils::to_string(profiler.ggraph_p.num_preds_ar) << "\n";
+        profs << "ggraph_total_nodes=" << StrUtils::to_string(profiler.ggraph_p.total_nodes) << std::endl;
+    }
+    
+    if (profiler.solved) {
+        profs << "tr_success=" << profiler.extracted_solution << "\n";
+        profs << "tr_sol_length=" << profiler.tr_p.solution_length << "\n";
+        profs << "tr_sol_depth=" << profiler.tr_p.solution_depth << "\n";
+        profs << "tr_duration=" << profiler.tr_p.duration << std::endl;
+    }
+}
+
+
+
 void OutputParser::close_output_stream() {
     os.close();
+}
+void OutputParser::close_profiler_stream() {
+    profs.close();
 }

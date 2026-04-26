@@ -28,4 +28,24 @@ std::pair<std::string, std::string> split_first(const std::string& s, const std:
     }
 }
 
+std::string to_string(std::vector<int> v) {
+    std::string res = "[";
+    for (int i : v) {
+        res += std::to_string(i) + ",";
+    }
+    if (!v.empty()) res.pop_back();
+    res += "]";
+    return res;
+}
+
+std::string to_string(std::vector<long> v) {
+    std::string res = "[";
+    for (long i : v) {
+        res += std::to_string(i) + ",";
+    }
+    if (!v.empty()) res.pop_back();
+    res += "]";
+    return res;
+}
+
 } // namespace StrUtils

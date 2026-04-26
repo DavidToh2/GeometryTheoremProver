@@ -4,9 +4,10 @@
 #include "AR/AREngine.hh"
 #include "Numerics/NumEngine.hh"
 #include "Geometry/GeometricGraph.hh"
+#include "Traceback/TracebackEngine.hh"
 #include "IO/InputParser.hh"
 #include "IO/OutputParser.hh"
-#include "Traceback/TracebackEngine.hh"
+#include "IO/Profiler.hh"
 
 class GTPEngine {
 
@@ -18,18 +19,22 @@ public:
     GeometricGraph ggraph;
     InputParser inputParser;
     OutputParser outputParser;
+    Profiler profiler;
     
     std::string rule_filepath;
     std::string construction_filepath;
     std::string input_filepath;
     std::string output_filepath;
+    std::string profiler_filepath;
+
     std::string problem_name;
 
     bool solved = false;
 
     GTPEngine(
         std::string rule_filepath,
-        std::string construction_filepath
+        std::string construction_filepath,
+        std::string profiler_filepath
     );
 
     bool load_problem(
@@ -45,6 +50,8 @@ public:
     );
 
     bool get_problem_solution();
+
+    void output_profiler_data();
 
     void clear_problem();
 

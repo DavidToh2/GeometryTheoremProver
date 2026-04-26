@@ -33,4 +33,7 @@ inline std::string trim_copy(std::string s) {
     return s;
 }
 
+std::string to_string(std::vector<int> v);
+std::string to_string(std::vector<long> v);
+
 } // namespace StrUtils

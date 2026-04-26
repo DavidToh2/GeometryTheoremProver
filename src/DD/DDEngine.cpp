@@ -31,7 +31,6 @@ DDEngine::DDEngine() {
     pred_t pt;
     while (pt != pred_t::LAST) {
         pt = static_cast<pred_t>(i);
-        predicates_by_type.insert({pt, std::set<Predicate*>()});
         i++;
     }
 }
@@ -1831,8 +1830,13 @@ Generator<bool> DDEngine::match(Theorem* theorem, int i, int n, GeometricGraph &
     if (i == n) {
         if (!ggraph.check(theorem->postcondition.get())) {
 
+
             std::unique_ptr<Predicate> pred_ = theorem->instantiate_postcondition();
             Predicate* pred = pred_.get();
+            // if (!ggraph.num_check(pred)) {
+            //     throw GGraphInternalError("The following predicate failed num_check: " 
+            //         + theorem->to_string());
+            // }
             pred->source = pred_src::DD;
 
             auto whys_ = theorem->instantiate_preconditions();
@@ -1876,9 +1880,11 @@ Generator<bool> DDEngine::match(Theorem* theorem, int i, int n, GeometricGraph &
 
 
 
-void DDEngine::search(GeometricGraph &ggraph) {
+void DDEngine::search(GeometricGraph &ggraph, Profiler& profiler) {
 
     for (auto& thr : theorems) {
+        auto start_time = std::chrono::high_resolution_clock::now();
+
         int matches = 0;
         Theorem* theorem = thr.second.get();
         int n = theorem->preconditions.predicates.size();
@@ -1891,7 +1897,14 @@ void DDEngine::search(GeometricGraph &ggraph) {
         }
         LOG("Matches for theorem " << theorem->to_string_with_placeholders() << ": " << matches);
         theorem->__clear_args();
+
+        auto end_time = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
+        profiler.dd_p.theorem_duration[theorem->name].emplace_back(duration);
+        profiler.dd_p.theorem_matches[theorem->name].emplace_back(matches);
     }
+
+    profiler.dd_p.total_preds.emplace_back(predicates.size());
 
 }
 
@@ -1915,12 +1928,8 @@ bool DDEngine::check_conclusion(GeometricGraph &ggraph) {
 
 void DDEngine::reset_problem() {
     predicates.clear();
-    predicate2s.clear();
 
     recent_predicates.clear();
-    for (auto& [pt, pt_set] : predicates_by_type) {
-        pt_set.clear();
-    }
 
     conclusion_.reset();
     conclusion_args.clear();

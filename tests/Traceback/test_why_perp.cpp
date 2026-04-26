@@ -10,6 +10,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         DDEngine dd;
         AREngine ar;
         TracebackEngine tr;
+        Profiler profiler;
         ggraph.tr = &tr;
         Predicate* base_pred = dd.base_pred.get();
 
@@ -91,7 +92,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ));
         ggraph.synthesise_preds(dd, ar);
 
-        dd.search(ggraph);  // apply para C D C E => coll C D E and para F I F J => coll F I J
+        dd.search(ggraph, profiler);  // apply para C D C E => coll C D E and para F I F J => coll F I J
         
         // We "hack" the system to force coll C E D and coll F I J
         dd.recent_predicates.emplace_front(dd.predicates["coll f i j"].get());
@@ -192,7 +193,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         ));
         ggraph.merge_points(d, m, preds.back(), dd, ar);
 
-        dd.search(ggraph);  // apply para D K D G => coll D K G
+        dd.search(ggraph, profiler);  // apply para D K D G => coll D K G
 
         // We "hack" the system to force coll D K G
         dd.recent_predicates.emplace_front(dd.predicates["coll d k g"].get());

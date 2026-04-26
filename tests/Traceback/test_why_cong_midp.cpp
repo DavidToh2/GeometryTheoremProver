@@ -10,6 +10,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
         DDEngine dd;
         AREngine ar;
         TracebackEngine tr;
+        Profiler profiler;
         ggraph.tr = &tr;
         Predicate* base_pred = dd.base_pred.get();
 
@@ -135,7 +136,7 @@ TEST_SUITE("TracebackEngine: why_() functions") {
             hi->get_line() == fghi
         ));
 
-        ar.derive(ggraph, dd);
+        ar.derive(ggraph, dd, profiler);
         dd.recent_predicates.emplace_front(dd.predicates["cong f g g h"].get());
         ggraph.synthesise_ar_preds(dd);
         // 8 predicates get synthesised, including some eqratios and constratios

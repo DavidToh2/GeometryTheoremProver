@@ -41,11 +41,16 @@ void NumEngine::compute_segment(NumInstance& inst, Numeric* num) {
 
 }
 void NumEngine::compute_triangle(NumInstance& inst, Numeric* num) {
-    CartesianPoint a = Cartesian::random_point(), b = Cartesian::random_point(), c = Cartesian::random_point();
+    CartesianPoint b(0, 0), c(1, 0);
+    // write code that generates a random point a such that a, b, c form an acute triangle
+    double angle = NumUtils::urand(M_PI / 20, 9 * M_PI / 20);
+    double r = NumUtils::urand(std::cos(angle), 1 / std::cos(angle));
+    CartesianPoint a = b + r * CartesianPoint(std::cos(angle), std::sin(angle));
+    auto [aff_a, aff_sc, aff_shx, aff_shy] = Cartesian::random_affine(a, b, c);
     inst.record_out(num, 0, a);
     inst.record_out(num, 1, b);
     inst.record_out(num, 2, c);
-    inst.record_params({a.x, a.y, b.x, b.y, c.x, c.y});
+    inst.record_params({angle, r, aff_a, aff_sc, aff_shx, aff_shy});
 }
 void NumEngine::compute_iso_triangle(NumInstance& inst, Numeric* num) {
     double angle = NumUtils::urand(M_PI / 20, 9 * M_PI / 20);
