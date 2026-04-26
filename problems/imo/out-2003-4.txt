@@ -11,28 +11,33 @@ Problem: imo-2003-4
     ? cong p q q r
 
 ---------------------------------------
-    d1 = (0.831385, -0.197719)    x = (0.879820, 0.784481)    b = (0.794901, 0.781317)
-    c = (-0.082215, 0.061820)    o = (0.473185, 0.279130)    m = (0.377193, 0.406918)
-    b1 = (0.114985, 0.755980)    a = (0.836601, 0.752016)    d = (0.876562, 0.718424)
-    p = (0.812877, 0.796062)    q = (0.846016, 0.759088)    r = (0.879156, 0.722115)
+    d1 = (0.522900, -0.410834)    x = (2.543953, 0.208070)    a = (0.628464, -0.344230)
+    b = (0.484466, 0.027478)    c = (0.398081, -0.410658)    o = (0.460794, -0.195438)
+    m = (0.513273, -0.377444)    b1 = (0.398689, 0.019957)    d = (0.529948, -0.408675)
+    p = (0.403392, -0.383723)    q = (0.520354, -0.375402)    r = (0.637317, -0.367081)
 
     Loss: 0
 ---------------------------------------
+[   3 | gr ] oa = ob && ob = oc => oa = oc
+[   3 | gr ] diff o m
 [   3 | gr ] oa = ob1 && oa = ob => ob = ob1
-[   3 | gr ] ncoll o a b
+[   3 | gr ] ac = ca
+[   3 | gr ] oa = ob && ob = oc => co = ao
+[   3 | gr ] ncoll o a c
+[   3 | dd ] oa = oc && am = cm && mo = mo && ncoll o a m => △oam ≅ △ocm
+[   3 | gr ] m midpoint of ac => am = cm
+[   3 | gr ] mo = mo
+[   3 | gr ] ncoll o a m
+[   3 | gr ] oa = ob && ob = oc => ao = co
 [   3 | gr ] oa = od1 && oa = ob => ob = od1
 [   3 | gr ] oa = od1 && oa = ob && od1 = od => ob = od
 [   3 | gr ] oa = od1 && od1 = od => oa = od
-[   3 | gr ] oa = ob && ob = oc => oa = oc
 [   3 | gr ] oa = od1 && oa = ob && ob = oc => oc = od1
 [   3 | gr ] oa = od1 && oa = ob && ob = oc && od1 = od => oc = od
 [   3 | gr ] oa = od1 && oa = ob1 && od1 = od => ob1 = od
 [   3 | gr ] oa = ob1 => ob1 = oa
 [   3 | gr ] oa = od1 => od1 = oa
-[   3 | gr ] oa = ob && ob = oc => ao = co
-[   3 | gr ] m midpoint of ac => am = cm
-[   3 | gr ] diff o m
-[   3 | gr ] ncoll o a c
+[   3 | gr ] ncoll o a b
 [   3 | gr ] ncoll o a b1
 [   3 | gr ] ncoll o b1 a
 [   3 | gr ] ncoll o a d1
@@ -46,16 +51,17 @@ Problem: imo-2003-4
 [   3 | gr ] ncoll o c d
 [   3 | gr ] ncoll o b1 d
 [   3 | gr ] ncoll o d1 d
+[   3 | gr ] diff p r
 [   3 | gr ] pd ⊥ bc && p, b, c collinear => dp ⊥ pc
 [   3 | gr ] m midpoint of ac && qd ⊥ ca && q, c, a collinear => dq ⊥ qc
 [   3 | gr ] diff p q
-[   3 | gr ] diff q p
-[   3 | gr ] qd ⊥ ca && q, c, a collinear => dq ⊥ qa
-[   3 | gr ] rd ⊥ ab && r, a, b collinear => dr ⊥ ra
-[   3 | gr ] diff q r
-[   4 | dd ] ao = co && am = cm && diff o m => ac ⊥ om
+[   3 | gr ] pd ⊥ bc && p, b, c collinear => bp ⊥ pd
+[   3 | gr ] rd ⊥ ab && r, a, b collinear => br ⊥ rd
+[   3 | gr ] pd ⊥ bc && p, b, c collinear => cp ⊥ pd
+[   3 | gr ] m midpoint of ac && qd ⊥ ca && q, c, a collinear => cq ⊥ qd
+[   4 | dd ] oa = oc && ac = ca && co = ao && ncoll o a c => △oac ≅ △oca
+[   4 | dd ] diff o m && am = cm && ao = co => ac ⊥ om
 [   4 | dd ] oa = ob && ncoll o a b => ∠oab = ∠abo
-[   4 | dd ] oa = oc && ncoll o a c => ∠oac = ∠aco
 [   4 | dd ] oa = ob1 && ncoll o a b1 => ∠oab1 = ∠ab1o
 [   4 | dd ] ob1 = oa && ncoll o b1 a => ∠ob1a = ∠b1ao
 [   4 | dd ] oa = od1 && ncoll o a d1 => ∠oad1 = ∠ad1o
@@ -70,40 +76,39 @@ Problem: imo-2003-4
 [   4 | dd ] ob1 = od && ncoll o b1 d => ∠ob1d = ∠b1do
 [   4 | dd ] od1 = od && ncoll o d1 d => ∠od1d = ∠d1do
 [   4 | dd ] dp ⊥ pc && dq ⊥ qc && diff p q => d, p, c, q cyclic
-[   4 | dd ] dp ⊥ pc && dq ⊥ qc && diff q p => d, q, c, p cyclic
-[   4 | dd ] dq ⊥ qa && dr ⊥ ra && diff q r => d, q, a, r cyclic
+[   4 | dd ] diff p r && bp ⊥ pd && br ⊥ rd => b, p, d, r cyclic
+[   4 | dd ] diff p q && cp ⊥ pd && cq ⊥ qd => c, p, d, q cyclic
+[   6 | ar ] pd ⊥ bc && △oac ≅ △oca && △oam ≅ △ocm && ∠oad = ∠ado && ∠obc = ∠bco && ∠obd = ∠bdo => ∠(dp, d1o) = ∠bda
+[   6 | ar ] △oac ≅ △oca && △oam ≅ △ocm && ∠oad = ∠ado && ∠obc = ∠bco && ∠obd1 = ∠bd1o && ∠od1d = ∠d1do => ∠cbd1 = ∠(d1x, ad)
 [   6 | ar ] ∠oab = ∠abo && ∠oad = ∠ado && ∠obc = ∠bco && ∠ocd = ∠cdo => ∠bad = ∠bcd
-[   6 | ar ] ac ⊥ om && ∠oac = ∠aco && ∠oad1 = ∠ad1o && ∠ocd = ∠cdo && ∠ob1d = ∠b1do => ∠d1ao = ∠cdb1
-[   6 | ar ] ac ⊥ om && ∠oac = ∠aco && ∠oab1 = ∠ab1o && ∠ocd = ∠cdo && ∠od1d = ∠d1do => ∠b1ao = ∠(cd, d1x)
+[   6 | ar ] △oac ≅ △oca && △oam ≅ △ocm && ∠oab = ∠abo && ∠obb1 = ∠bb1o && ∠ocd = ∠cdo && ∠ob1d = ∠b1do => ∠xba = ∠cdb1
+[   6 | ar ] qd ⊥ ca && rd ⊥ ab && △oac ≅ △oca && ∠oab = ∠abo && ∠obd = ∠bdo && ∠ocd = ∠cdo => ∠(dr, d1o) = ∠bdc
+[   6 | ar ] △oac ≅ △oca && △oam ≅ △ocm && ∠oab1 = ∠ab1o && ∠ocd = ∠cdo && ∠od1d = ∠d1do => ∠b1ao = ∠(cd, d1x)
+[   6 | ar ] △oac ≅ △oca && △oam ≅ △ocm && ∠oad = ∠ado && ∠obc = ∠bco && ∠obb1 = ∠bb1o && ∠ob1d = ∠b1do => ∠cbx = ∠b1da
+[   6 | ar ] △oac ≅ △oca && △oam ≅ △ocm && ∠oad1 = ∠ad1o && ∠ocd = ∠cdo && ∠ob1d = ∠b1do => ∠d1ao = ∠cdb1
 [   6 | ar ] ∠oad1 = ∠ad1o && ∠oad = ∠ado && ∠ob1d = ∠b1do => ∠d1ao = ∠b1da
-[   6 | ar ] ac ⊥ om && ∠oac = ∠aco && ∠oad = ∠ado && ∠obc = ∠bco && ∠obb1 = ∠bb1o && ∠ob1d = ∠b1do => ∠cbx = ∠b1da
-[   6 | ar ] ∠oab = ∠abo && ∠oab1 = ∠ab1o && ∠obd = ∠bdo && ∠ob1d = ∠b1do => ∠dba = ∠db1a
 [   6 | ar ] ∠obc = ∠bco && ∠obd1 = ∠bd1o && ∠ocd = ∠cdo && ∠od1d = ∠d1do => ∠cbd1 = ∠(cd, d1x)
-[   6 | ar ] ∠oab1 = ∠ab1o && ∠oad1 = ∠ad1o && ∠ob1d = ∠b1do && ∠od1d = ∠d1do => ∠db1a = ∠xd1a
-[   6 | ar ] ac ⊥ om && ∠oac = ∠aco && ∠oad = ∠ado && ∠obc = ∠bco && ∠obd1 = ∠bd1o && ∠od1d = ∠d1do => ∠cbd1 = ∠(d1x, ad)
-[   6 | ar ] ac ⊥ om && ∠oab = ∠abo && ∠oac = ∠aco && ∠obb1 = ∠bb1o && ∠ocd = ∠cdo && ∠ob1d = ∠b1do => ∠xba = ∠cdb1
 [   6 | ar ] ∠ocd1 = ∠cd1o && ∠ocd = ∠cdo && ∠ob1d = ∠b1do => ∠ocd1 = ∠cdb1
-[   6 | ar ] qd ⊥ ca && rd ⊥ ab && ∠oab = ∠abo && ∠oac = ∠aco && ∠obd = ∠bdo && ∠ocd = ∠cdo => ∠(dr, d1o) = ∠bdc
-[   6 | ar ] ∠oac = ∠aco && ∠oad1 = ∠ad1o && ∠ocd = ∠cdo && ∠od1d = ∠d1do => ∠xd1a = ∠dcx
-[   6 | ar ] ∠oab = ∠abo && ∠oad = ∠ado && ∠obc = ∠bco && ∠ocd = ∠cdo => ∠dab = ∠dcb
-[   7 | gr ] d, q, a, r cyclic => r, d, a, q cyclic
-[   7 | gr ] ∠ob1a = ∠b1ao && ∠b1ao = ∠(cd, d1x) && ∠cbd1 = ∠(cd, d1x) && ∠cbd1 = ∠(d1x, ad) => ∠cdx = ∠xda
+[   7 | gr ] d, p, c, q cyclic => p, d, c, q cyclic
+[   7 | gr ] ∠ob1a = ∠b1ao && ∠cbd1 = ∠(d1x, ad) && ∠b1ao = ∠(cd, d1x) && ∠cbd1 = ∠(cd, d1x) => ∠cdx = ∠xda
 [   7 | gr ] x, a, c collinear && m midpoint of ac => x, c, a collinear
-[   7 | gr ] ∠od1a = ∠d1ao && ∠d1ao = ∠cdb1 && ∠d1ao = ∠b1da && ∠cbx = ∠b1da && ∠xba = ∠cdb1 && ∠ocd1 = ∠cdb1 => ∠cbx = ∠xba
+[   7 | gr ] ∠od1a = ∠d1ao && ∠xba = ∠cdb1 && ∠cbx = ∠b1da && ∠d1ao = ∠cdb1 && ∠d1ao = ∠b1da && ∠ocd1 = ∠cdb1 => ∠cbx = ∠xba
 [   7 | gr ] ncoll b c a
-[   8 | dd ] d, p, c, q cyclic => ∠dcp = ∠dqp
-[   8 | dd ] d, q, c, p cyclic => ∠dcq = ∠dpq
-[   8 | dd ] r, d, a, q cyclic => ∠rad = ∠rqd
+[   8 | dd ] b, p, d, r cyclic => ∠bdp = ∠brp
+[   8 | dd ] c, p, d, q cyclic => ∠cdp = ∠cqp
+[   8 | dd ] p, d, c, q cyclic => ∠pcd = ∠pqd
 [   8 | dd ] ncoll d c a && ∠cdx = ∠xda && x, c, a collinear => xc / xa = dc / da
 [   8 | dd ] x, c, a collinear && ∠cbx = ∠xba && ncoll b c a => xc / xa = bc / ba
-[  11 | gr ] qd ⊥ ca && ac ⊥ om && ∠bad = ∠bcd && ∠rad = ∠rqd => ∠bcd = ∠rqd
+[  10 | ar ] △oac ≅ △oca && ∠oab = ∠abo && ∠obd = ∠bdo && ∠ocd = ∠cdo && ∠bdp = ∠brp && ∠cdp = ∠cqp => pq ∥ pr
+[  11 | gr ] qd ⊥ ca && ac ⊥ om && ∠bad = ∠bcd && ∠pcd = ∠pqd => ∠bad = ∠pqd
+[  11 | gr ] sameclock b a d p q d
+[  11 | gr ] qd ⊥ ca && ac ⊥ om && ∠(dp, d1o) = ∠bda => ∠bda = ∠pdq
+[  11 | gr ] ncoll b a d
+[  11 | gr ] qd ⊥ ca && ac ⊥ om && ∠bad = ∠bcd && ∠pcd = ∠pqd && pq ∥ pr => ∠bcd = ∠rqd
 [  11 | gr ] sameclock b c d r q d
 [  11 | gr ] qd ⊥ ca && ac ⊥ om && ∠(dr, d1o) = ∠bdc => ∠bdc = ∠rdq
 [  11 | gr ] ncoll b c d
-[  11 | gr ] qd ⊥ ca && ac ⊥ om && ∠dab = ∠dcb && ∠dcp = ∠dqp => ∠dab = ∠dqp
-[  11 | gr ] sameclock d a b d q p
-[  11 | gr ] ∠dba = ∠db1a && ∠db1a = ∠xd1a && ∠xd1a = ∠dcx && ∠dcq = ∠dpq => ∠dba = ∠dpq
+[  12 | dd ] ∠bad = ∠pqd && sameclock b a d p q d && ∠bda = ∠pdq && ncoll b a d => △bad ~ △pqd
 [  12 | dd ] ∠bcd = ∠rqd && sameclock b c d r q d && ∠bdc = ∠rdq && ncoll b c d => △bcd ~ △rqd
-[  12 | dd ] ncoll d a b && ∠dab = ∠dqp && sameclock d a b d q p && ∠dba = ∠dpq => △dab ~ △dqp
-[  14 | ar ] xc / xa = dc / da && xc / xa = bc / ba && △bcd ~ △rqd && △dab ~ △dqp => pq = qr
+[  14 | ar ] xc / xa = dc / da && xc / xa = bc / ba && △bad ~ △pqd && △bcd ~ △rqd => pq = qr
 [ 511 | dd ] pq = qr => pq = qr

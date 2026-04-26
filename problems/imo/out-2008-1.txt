@@ -11,11 +11,11 @@ Problem: imo-2008-1
     ? cyclic c1 c2 b1 b2
 
 ---------------------------------------
-    f = (0.153167, -0.243854)    a1 = (-0.187596, -0.991346)    a2 = (-0.074991, 0.804100)
-    b = (-0.102503, 0.365434)    c = (-0.160084, -0.552680)    h = (-0.709039, -0.783033)
-    d = (-0.131294, -0.093623)    e = (0.124377, -0.702911)    a = (0.408837, -0.853143)
-    b1 = (-0.615975, -0.311911)    b2 = (0.864728, -1.093911)    c1 = (-0.240313, 0.693849)
-    c2 = (0.546647, -1.181557)    p = (0.941251, -0.886534)
+    f = (0.322238, 0.660187)    a1 = (0.177924, 0.678781)    a2 = (0.356647, 0.219601)
+    a = (0.471115, 0.629870)    b = (0.173361, 0.690504)    c = (0.361210, 0.207878)
+    h = (0.445081, 0.619736)    d = (0.267286, 0.449191)    e = (0.416163, 0.418874)
+    b1 = (0.365016, 0.222491)    b2 = (0.467310, 0.615256)    c1 = (0.195507, 0.685994)
+    c2 = (0.448969, 0.634380)    p = (0.259064, 0.547334)
     Loss: 0
 ---------------------------------------
 [   3 | dd ] eh = ep && hf = pf && fe = fe && ncoll e h f => △ehf ≅ △epf
@@ -40,30 +40,31 @@ Problem: imo-2008-1
 [   4 | dd ] fh = fc2 && ncoll f h c2 => ∠fhc2 = ∠hc2f
 [   4 | dd ] fc1 = fp && ncoll f c1 p => ∠fc1p = ∠c1pf
 [   4 | dd ] fc2 = fp && ncoll f c2 p => ∠fc2p = ∠c2pf
-[   6 | ar ] ha ⊥ bc && △ehf ≅ △epf && ∠ehb1 = ∠hb1e && ∠eb2p = ∠b2pe && ef ∥ cb => ∠(ha, b2p) = ∠(hb1, ce)
-[   6 | ar ] △ehf ≅ △epf && ∠fhc1 = ∠hc1f && ∠fc1p = ∠c1pf && ef ∥ cb => ∠(a1a2, c1p) = ∠(hc1, fb)
-[   6 | ar ] ha ⊥ bc && ∠fhc1 = ∠hc1f && ∠fhc2 = ∠hc2f => ∠c1ha = ∠(hc2, a1a2)
-[   6 | ar ] ha ⊥ bc && ∠fc1p = ∠c1pf && ∠fc2p = ∠c2pf => ∠(ha, c2p) = ∠(a1a2, c1p)
-[   6 | ar ] △ehf ≅ △epf && ∠fhc2 = ∠hc2f && ∠fc2p = ∠c2pf => ∠(hc2, a1a2) = ∠(fb, c2p)
+[   6 | ar ] △ehf ≅ △epf && ∠fhc1 = ∠hc1f && ∠fc1p = ∠c1pf && ef ∥ cb => ∠(hc1, a1a2) = ∠(fa, c1p)
+[   6 | ar ] hc ⊥ ab && ∠fhc1 = ∠hc1f && ∠fhc2 = ∠hc2f => ∠c1hc = ∠(hc2, fa)
+[   6 | ar ] ha ⊥ bc && △ehf ≅ △epf && ∠ehb1 = ∠hb1e && ∠eb2p = ∠b2pe && ef ∥ cb => ∠(ah, b2p) = ∠(hb1, ac)
+[   6 | ar ] hc ⊥ ab && △ehf ≅ △epf && ∠fhc1 = ∠hc1f && ∠fc2p = ∠c2pf && ef ∥ cb => ∠(a1a2, c2p) = ∠c1hc
+[   6 | ar ] ha ⊥ bc && ∠fc1p = ∠c1pf && ∠fc2p = ∠c2pf => ∠(ah, c1p) = ∠(a1a2, c2p)
+[   6 | ar ] ha ⊥ bc && ∠fhc1 = ∠hc1f && ∠fhc2 = ∠hc2f => ∠c2ha = ∠(hc1, a1a2)
 [   7 | dd ] ha ∥ hp && diff a p => h, a, p collinear
 [   7 | gr ] ha ⊥ bc && ef ⊥ hp && ef ∥ cb => ha ∥ hp
 [   7 | gr ] diff a p
+[  11 | gr ] ha ⊥ bc && f midpoint of ab && a, b, c1 collinear && ef ⊥ hp && ef ∥ cb && ∠(hc1, a1a2) = ∠(fa, c1p) && ∠c2ha = ∠(hc1, a1a2) => ∠ac1p = ∠c2ha
+[  11 | gr ] diffclock a c1 p a h c2
+[  11 | gr ] e midpoint of ac && a, c, b1 collinear && ∠ehb1 = ∠hb1e && ∠(ah, b2p) = ∠(hb1, ac) && h, a, p collinear => ∠hb1a = ∠apb2
+[  11 | gr ] ncoll h b1 a
 [  11 | gr ] diffclock h b1 a b2 p a
 [  11 | gr ] e midpoint of ac && a, c, b1 collinear && a, c, b2 collinear && h, a, p collinear => ∠hab1 = ∠pab2
-[  11 | gr ] ncoll a c2 p
-[  11 | gr ] ha ⊥ bc && f midpoint of ab && a, b, c2 collinear && ef ⊥ hp && ef ∥ cb && ∠c1ha = ∠(hc2, a1a2) && ∠(hc2, a1a2) = ∠(fb, c2p) => ∠ac2p = ∠c1ha
-[  11 | gr ] diffclock a c2 p a h c1
-[  11 | gr ] f midpoint of ab && a, b, c1 collinear && ∠fhc1 = ∠hc1f && ∠(a1a2, c1p) = ∠(hc1, fb) && ∠(ha, c2p) = ∠(a1a2, c1p) && h, a, p collinear => ∠apc2 = ∠hc1a
-[  11 | gr ] e midpoint of ac && a, c, b1 collinear && ∠ehb1 = ∠hb1e && ∠(ha, b2p) = ∠(hb1, ce) && h, a, p collinear => ∠hb1a = ∠apb2
-[  11 | gr ] ncoll h b1 a
-[  12 | dd ] diffclock h b1 a b2 p a && ∠hab1 = ∠pab2 && ∠hb1a = ∠apb2 && ncoll h b1 a => △hb1a ~ △b2pa
-[  12 | dd ] ncoll a c2 p && ∠ac2p = ∠c1ha && diffclock a c2 p a h c1 && ∠apc2 = ∠hc1a => △ac2p ~ △ahc1
-[  14 | ar ] △hb1a ~ △b2pa && △ac2p ~ △ahc1 => ac2 / ab2 = b1a / c1a
-[  15 | gr ] ac2 / ab2 = b1a / c1a => ab1 / ac1 = ac2 / ab2
-[  15 | gr ] f midpoint of ab && a, b, c1 collinear && a, b, c2 collinear => c1, a, c2 collinear
-[  15 | gr ] diffside_p a c1 c2
-[  15 | gr ] ncoll b1 c1 b2
-[  15 | gr ] diffside_p a b1 b2
+[  11 | gr ] f midpoint of ab && a, b, c2 collinear && ∠fhc2 = ∠hc2f && ∠c1hc = ∠(hc2, fa) && ∠(a1a2, c2p) = ∠c1hc && ∠(ah, c1p) = ∠(a1a2, c2p) && h, a, p collinear => ∠apc1 = ∠hc2a
+[  11 | gr ] ncoll a c1 p
+[  12 | dd ] ∠ac1p = ∠c2ha && diffclock a c1 p a h c2 && ∠apc1 = ∠hc2a && ncoll a c1 p => △ac1p ~ △ahc2
+[  12 | dd ] ∠hb1a = ∠apb2 && ncoll h b1 a && diffclock h b1 a b2 p a && ∠hab1 = ∠pab2 => △hb1a ~ △b2pa
+[  14 | ar ] △ac1p ~ △ahc2 && △hb1a ~ △b2pa => c2a / b2a = b1a / c1a
 [  15 | gr ] e midpoint of ac && a, c, b1 collinear && a, c, b2 collinear => b1, a, b2 collinear
-[  16 | dd ] ab1 / ac1 = ac2 / ab2 && c1, a, c2 collinear && diffside_p a c1 c2 && ncoll b1 c1 b2 && diffside_p a b1 b2 && b1, a, b2 collinear => b1, c1, b2, c2 cyclic
+[  15 | gr ] ncoll b1 c1 b2
+[  15 | gr ] sameside_p a c1 c2
+[  15 | gr ] sameside_p a b1 b2
+[  15 | gr ] c2a / b2a = b1a / c1a => ab1 / ac1 = ac2 / ab2
+[  15 | gr ] f midpoint of ab && a, b, c1 collinear && a, b, c2 collinear => c1, a, c2 collinear
+[  16 | dd ] b1, a, b2 collinear && ncoll b1 c1 b2 && sameside_p a c1 c2 && sameside_p a b1 b2 && ab1 / ac1 = ac2 / ab2 && c1, a, c2 collinear => b1, c1, b2, c2 cyclic
 [ 511 | dd ] b1, c1, b2, c2 cyclic => c1, c2, b1, b2 cyclic

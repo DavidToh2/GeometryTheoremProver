@@ -1,0 +1,13 @@
+problem imo-2020-1 {
+    p a b = triangle p a b; 
+    x = on_angle_bisect x : p b a; 
+    y = on_angle_bisect y : p a b; 
+    z = on_line_at_angle z : a p a b x; 
+    t = on_line_at_angle t : p a p a z; 
+    d = on_line_at_angle d : p t p b a, on_line d : a z; 
+    u = on_line_at_angle u : b p b a y; 
+    v = on_line_at_angle v : p b p b u; 
+    c = on_line_at_angle c : p v p a b, on_line c : b u; 
+    o = circumcenter o : a b p
+    ? eqangle a d d o o d d p
+}

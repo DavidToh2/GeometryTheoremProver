@@ -1,0 +1,14 @@
+# Points g, m added; Unsolved
+problem imo-2021-3 {
+    a b c = triangle a b c; 
+    d = on_angle_bisect d : b a c; 
+    o1 = circumcenter o1 : a d c;
+    e = on_line_at_angle e : d a d c b, on_line e : a c; 
+    f = on_line_at_angle f : d a d b c, on_line f : a b; 
+    x = on_line_bisect x : b c, on_line x : a c;
+    o2 = circumcenter o2 : e x d;
+    y = intersection_ll y : b c e f;
+    g = on_circum g : b d f, on_line g : d a;
+    m = intersection_cc m : a b c e f
+    ? coll o1 o2 y
+}

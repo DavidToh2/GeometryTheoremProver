@@ -33,7 +33,7 @@ A B C D : cyclic A B C D, para B C D A => cong A B C D
 A B C D : cyclic A B C D, cong B C C D => eqangle B A A C C A A D
 A B C D : cyclic A B C D, cong A B C D, sameclock A B C C D A => para B C D A
 
-#angle_bisector_cong_cyclic (advanced)
+#angle_bisector_cong_cyclic
 A B C D : cong A B B C, eqangle A D D B B D D C, ncoll A B C D, ncong A D D C => cyclic A B C D
 
 #midpoint_theorem

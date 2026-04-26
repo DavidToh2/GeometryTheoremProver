@@ -188,13 +188,13 @@ problem 110-22 {
     a b c = triangle a b c;
     m = on_circum m : a b c, on_angle_bisect m : a c b;
     n = on_circum n : a b c, on_angle_bisect n : a b c;
-    d, e = intersection_ll d : a b m n, intersection_ll e : a c m n
+    d e = intersection_ll d : a b m n, intersection_ll e : a c m n
     ? cong a d a e
 }
 
 problem 110-23 {
     a b c = iso_triangle c a b;
-    f, g = on_line f : a b, on_line g : a b;
+    f g = on_line f : a b, on_line g : a b;
     d = on_line d : c f, on_circum d : a b c;
     e = on_line e : c g, on_circum e : a b c
     ? cyclic d e f g

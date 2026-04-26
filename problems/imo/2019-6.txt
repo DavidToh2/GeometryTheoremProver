@@ -1,0 +1,14 @@
+# Points M, N added; Unsolved
+problem imo-2019-6 {
+    a b c = triangle a b c; 
+    d e f i = incenter2 d e f i : a b c; 
+    r = on_line_perp r : d e f, on_circle r : i d; 
+    p = intersection_lc p : a i r;
+    o1 = circumcenter o1 : p c e; 
+    o2 = circumcenter o2 : p b f; 
+    q = on_circle q : o1 p, on_circle q : o2 p; 
+    x = intersection_ll x : p q i d;
+    m = on_angle_bisect m : b a c, on_circum m : a b c;
+    n = on_line_perp n : a a m, on_circum n : a b c
+    ? perp a x a i
+}

@@ -8,15 +8,15 @@ Problem: imo-2004-5
     ? cong a p c p
 
 ---------------------------------------
-    a = (-0.481438, -0.370123)    o = (-0.289648, -0.892174)    d = (-0.844989, -0.861906)
-    c = (-0.844721, -0.927019)    p = (-0.821318, -0.545346)    b = (-0.560956, -0.406672)
+    a = (-0.421257, 0.236543)    o = (-0.756748, 0.333444)    d = (-1.069965, 0.179046)
+    p = (-1.016304, 0.490425)    b = (-1.091511, 0.432828)    c = (-0.515140, 0.081314)
 
     Loss: 0
 ---------------------------------------
-[   3 | gr ] ncoll o a b
 [   3 | gr ] oa = ob && od = oa => ob = od
 [   3 | gr ] od = oa => oa = od
 [   3 | gr ] oa = ob && ob = oc && od = oa => oc = od
+[   3 | gr ] ncoll o a b
 [   3 | gr ] ncoll o a d
 [   3 | gr ] ncoll o b c
 [   3 | gr ] ncoll o b d
@@ -26,20 +26,20 @@ Problem: imo-2004-5
 [   4 | dd ] ob = oc && ncoll o b c => ∠obc = ∠bco
 [   4 | dd ] ob = od && ncoll o b d => ∠obd = ∠bdo
 [   4 | dd ] oc = od && ncoll o c d => ∠ocd = ∠cdo
-[   6 | ar ] ∠pbc = ∠abd && ∠pdc = ∠adb && ∠oab = ∠abo && ∠oad = ∠ado && ∠obc = ∠bco && ∠ocd = ∠cdo => ∠pdo = ∠pbo
+[   6 | ar ] ∠pbc = ∠abd && ∠pdc = ∠adb && ∠oab = ∠abo && ∠oad = ∠ado && ∠obc = ∠bco && ∠ocd = ∠cdo => ∠dob = ∠dpb
 [   6 | ar ] ∠oab = ∠abo && ∠oad = ∠ado && ∠obc = ∠bco && ∠ocd = ∠cdo => ∠abc = ∠adc
-[   7 | gr ] ∠pdo = ∠pbo => ∠pbo = ∠pdo
-[   7 | gr ] diff p o b d
-[   8 | dd ] ∠pbo = ∠pdo && diff p o b d => p, o, b, d cyclic
+[   7 | gr ] ∠dob = ∠dpb => ∠dpb = ∠dob
+[   7 | gr ] ncoll d b p o
+[   8 | dd ] ∠dpb = ∠dob && ncoll d b p o => d, b, p, o cyclic
 [  11 | dd ] p, d, o, b cyclic && do = ob => ∠dpo = ∠opb
-[  11 | gr ] p, o, b, d cyclic => p, d, o, b cyclic
+[  11 | gr ] d, b, p, o cyclic => p, d, o, b cyclic
 [  11 | gr ] oa = ob && od = oa => do = ob
 [  14 | ar ] ∠pbc = ∠abd && ∠pdc = ∠adb && ∠oab = ∠abo && ∠oad = ∠ado && ∠obc = ∠bco && ∠obd = ∠bdo && ∠ocd = ∠cdo && ∠dpo = ∠opb => ∠adc = ∠aop
 [  14 | ar ] ∠pbc = ∠abd && ∠pdc = ∠adb && ∠oab = ∠abo && ∠oad = ∠ado && ∠obc = ∠bco && ∠obd = ∠bdo && ∠ocd = ∠cdo && ∠dpo = ∠opb => ∠abc = ∠poc
-[  15 | dd ] ao = co && op = op && ∠aop = ∠poc && ncoll a o p && diffclock a o p c o p => △aop ≅ △cop
 [  15 | gr ] oa = ob && ob = oc => ao = co
-[  15 | gr ] op = op
+[  15 | dd ] ao = co && ∠aop = ∠poc && diffclock a o p c o p && op = op && ncoll a o p => △aop ≅ △cop
 [  15 | gr ] ∠abc = ∠adc && ∠adc = ∠aop && ∠abc = ∠poc => ∠aop = ∠poc
-[  15 | gr ] ncoll a o p
 [  15 | gr ] diffclock a o p c o p
+[  15 | gr ] op = op
+[  15 | gr ] ncoll a o p
 [ 511 | dd ] △aop ≅ △cop => ap = cp

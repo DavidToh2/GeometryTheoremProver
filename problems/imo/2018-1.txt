@@ -1,0 +1,13 @@
+# Addition of points x and y
+problem imo-2018-1 {
+    a b c = triangle a b c; 
+    o = circumcenter o : a b c; 
+    d = on_ray d : a b; 
+    e = on_ray e : a c, on_circle e : a d; 
+    m n = midpoint m : b d, midpoint n : c e;
+    b0 c0 = r_triangle_n b0 : m b, r_triangle_p c0 : n c;
+    f = on_ray f : m b0, on_circle f : o a; 
+    g = on_ray g : n c0, on_circle g : o a;
+    x y = intersection_lc x : d o f, intersection_lc y : e o g
+    ? para d e f g
+}

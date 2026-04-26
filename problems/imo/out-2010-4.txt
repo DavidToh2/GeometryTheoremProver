@@ -11,32 +11,27 @@ Problem: imo-2010-4
     ? cong m k m l
 
 ---------------------------------------
-    k = (0.408541, 0.686416)    o = (-0.541545, -0.732181)    s = (0.624543, 0.779074)
-    m = (-1.375882, -2.221800)    p = (1.369251, 0.361963)    a = (-0.437008, 0.971977)
-    b = (-0.039846, 0.899805)    c = (0.995829, 0.010492)    l = (0.171762, 0.819036)
+    p = (2.558231, 0.283836)    k = (1.295073, 0.227203)    a = (-3.239167, 0.023912)
+    b = (1.298604, -0.842645)    c = (1.225225, 0.461522)    o = (-0.952288, -0.315144)
+    s = (1.719026, -0.922931)    m = (-2.850330, 1.004785)    l = (-0.678484, -2.610750)
 
     Loss: 0
 ---------------------------------------
 [   3 | gr ] o center of ⦿abc => o center of ⦿cab
 [   3 | gr ] cs ⊥ co => oc ⊥ cs
-[   3 | gr ] o center of ⦿abc => o center of ⦿cba
-[   3 | gr ] om = oc && oa = ob && ob = oc => ob = om
-[   3 | gr ] ncoll o a b
-[   3 | gr ] oa = ok && om = oc && oa = ob && ob = oc => ob = ok
+[   3 | gr ] om = oc && oa = ob && ob = oc && oa = ok => ob = ok
 [   3 | gr ] om = oc && oa = ob && ob = oc => oa = om
-[   3 | gr ] om = oc && oa = ob && ob = oc && ob = ol => oa = ol
 [   3 | gr ] oa = ob && ob = oc => oa = oc
 [   3 | gr ] om = oc && oa = ob && ob = oc => oc = om
-[   3 | gr ] oa = ok && om = oc && oa = ob && ob = oc => oc = ok
+[   3 | gr ] om = oc && oa = ob && ob = oc && oa = ok => oc = ok
 [   3 | gr ] om = oc && oa = ob && ob = oc && ob = ol => oc = ol
-[   3 | gr ] oa = ok && om = oc && oa = ob && ob = oc => om = ok
+[   3 | gr ] om = oc && oa = ob && ob = oc && oa = ok => om = ok
 [   3 | gr ] om = oc && oa = ob && ob = oc && ob = ol => om = ol
-[   3 | gr ] oa = ok && om = oc && oa = ob && ob = oc && ob = ol => ok = ol
+[   3 | gr ] om = oc && oa = ob && ob = oc && oa = ok && ob = ol => ok = ol
+[   3 | gr ] ncoll o a b
 [   3 | gr ] ncoll o a c
 [   3 | gr ] ncoll o a m
 [   3 | gr ] ncoll o a k
-[   3 | gr ] ncoll o a l
-[   3 | gr ] ncoll o b m
 [   3 | gr ] ncoll o b k
 [   3 | gr ] ncoll o b l
 [   3 | gr ] ncoll o c m
@@ -46,13 +41,10 @@ Problem: imo-2010-4
 [   3 | gr ] ncoll o m l
 [   3 | gr ] ncoll o k l
 [   4 | dd ] o center of ⦿cab && oc ⊥ cs => ∠sca = ∠cba
-[   4 | dd ] oc ⊥ cs && o center of ⦿cba => ∠scb = ∠cab
 [   4 | dd ] oa = ob && ncoll o a b => ∠oab = ∠abo
 [   4 | dd ] oa = oc && ncoll o a c => ∠oac = ∠aco
 [   4 | dd ] oa = om && ncoll o a m => ∠oam = ∠amo
 [   4 | dd ] oa = ok && ncoll o a k => ∠oak = ∠ako
-[   4 | dd ] oa = ol && ncoll o a l => ∠oal = ∠alo
-[   4 | dd ] ob = om && ncoll o b m => ∠obm = ∠bmo
 [   4 | dd ] ob = ok && ncoll o b k => ∠obk = ∠bko
 [   4 | dd ] ob = ol && ncoll o b l => ∠obl = ∠blo
 [   4 | dd ] oc = om && ncoll o c m => ∠ocm = ∠cmo
@@ -61,48 +53,37 @@ Problem: imo-2010-4
 [   4 | dd ] om = ok && ncoll o m k => ∠omk = ∠mko
 [   4 | dd ] om = ol && ncoll o m l => ∠oml = ∠mlo
 [   4 | dd ] ok = ol && ncoll o k l => ∠okl = ∠klo
-[   6 | ar ] cs ⊥ co && ∠sca = ∠cba && ∠oac = ∠aco && ∠oam = ∠amo && ∠ocm = ∠cmo => ∠mas = ∠(mp, bc)
-[   6 | ar ] ∠obm = ∠bmo && ∠obk = ∠bko && ∠ocm = ∠cmo && ∠ock = ∠cko => ∠ckb = ∠pmb
-[   6 | ar ] cs ⊥ co && ∠ock = ∠cko && ∠ocl = ∠clo && ∠okl = ∠klo => ∠kcs = ∠klc
-[   6 | ar ] ∠oam = ∠amo && ∠oal = ∠alo && ∠omk = ∠mko && ∠okl = ∠klo => ∠lkm = ∠lam
-[   6 | ar ] ∠sca = ∠cba && ∠oab = ∠abo && ∠oac = ∠aco && ∠obk = ∠bko && ∠ock = ∠cko => ∠kbc = ∠kcs
-[   6 | ar ] ∠oab = ∠abo && ∠oac = ∠aco && ∠obk = ∠bko && ∠ock = ∠cko => ∠bkc = ∠sac
-[   6 | ar ] ∠oab = ∠abo && ∠oac = ∠aco && ∠obk = ∠bko && ∠ock = ∠cko => ∠ckb = ∠cas
-[   6 | ar ] ∠oam = ∠amo && ∠oal = ∠alo && ∠obm = ∠bmo && ∠obl = ∠blo => ∠pbm = ∠lam
-[   6 | ar ] ∠ocm = ∠cmo && ∠ock = ∠cko && ∠oml = ∠mlo && ∠okl = ∠klo => ∠lkc = ∠lmp
-[   6 | ar ] ∠oab = ∠abo && ∠oam = ∠amo && ∠obl = ∠blo && ∠oml = ∠mlo => ∠(ml, pb) = ∠mas
-[   6 | ar ] ∠oac = ∠aco && ∠oak = ∠ako && ∠ocm = ∠cmo && ∠omk = ∠mko => ∠mkp = ∠(mp, ac)
+[   6 | ar ] ∠oab = ∠abo && ∠oac = ∠aco && ∠obk = ∠bko && ∠ock = ∠cko => ∠bkc = ∠bac
+[   6 | ar ] cs ⊥ co && ∠ock = ∠cko && ∠ocl = ∠clo && ∠okl = ∠klo => ∠sck = ∠clk
+[   6 | ar ] ∠ocm = ∠cmo && ∠ock = ∠cko && ∠oml = ∠mlo && ∠okl = ∠klo => ∠ckl = ∠(pc, ml)
+[   6 | ar ] cs ⊥ co && ∠sca = ∠cba && ∠oab = ∠abo && ∠oac = ∠aco && ∠obl = ∠blo && ∠ock = ∠cko && ∠okl = ∠klo => ∠ckl = ∠cbp
+[   6 | ar ] ∠oac = ∠aco && ∠oak = ∠ako && ∠ocm = ∠cmo && ∠omk = ∠mko => ∠pkm = ∠acp
 [   6 | ar ] ∠sca = ∠cba && ∠oab = ∠abo && ∠oac = ∠aco && ∠obk = ∠bko && ∠ock = ∠cko => ∠bkc = ∠bcs
-[   6 | ar ] ∠ocm = ∠cmo && ∠ocl = ∠clo && ∠omk = ∠mko && ∠okl = ∠klo => ∠lkm = ∠(cl, mp)
-[   6 | ar ] ∠obk = ∠bko && ∠obl = ∠blo && ∠ock = ∠cko && ∠ocl = ∠clo => ∠ckb = ∠(cl, pb)
-[   6 | ar ] ∠ocm = ∠cmo && ∠ocl = ∠clo && ∠omk = ∠mko && ∠okl = ∠klo => ∠klc = ∠kmp
-[   6 | ar ] ∠oac = ∠aco && ∠oak = ∠ako && ∠ocm = ∠cmo && ∠omk = ∠mko => ∠kmp = ∠(kp, ac)
-[   6 | ar ] cs ⊥ co && ∠sca = ∠cba && ∠oab = ∠abo && ∠oac = ∠aco && ∠obl = ∠blo && ∠ock = ∠cko && ∠okl = ∠klo => ∠lkc = ∠pbc
+[   6 | ar ] ∠sca = ∠cba && ∠oab = ∠abo && ∠oac = ∠aco && ∠obk = ∠bko && ∠ock = ∠cko => ∠cbk = ∠sck
+[   6 | ar ] ∠oac = ∠aco && ∠oak = ∠ako && ∠ocm = ∠cmo && ∠omk = ∠mko => ∠(pc, km) = ∠(ac, pk)
+[   6 | ar ] ∠ocm = ∠cmo && ∠ocl = ∠clo && ∠omk = ∠mko && ∠okl = ∠klo => ∠clk = ∠(pc, km)
+[   6 | ar ] ∠oab = ∠abo && ∠oam = ∠amo && ∠obl = ∠blo && ∠oml = ∠mlo => ∠(pb, ml) = ∠bam
+[   6 | ar ] cs ⊥ co && ∠sca = ∠cba && ∠oac = ∠aco && ∠oam = ∠amo && ∠ocm = ∠cmo => ∠bam = ∠bcp
 [   7 | gr ] s, a, b collinear && ∠sca = ∠cba => ∠sca = ∠cbs
 [   7 | gr ] diffclock s c a s b c
-[   7 | gr ] ∠bkc = ∠sac && ∠bkc = ∠bcs => ∠sac = ∠bcs
+[   7 | gr ] ∠bkc = ∠bac && ∠bkc = ∠bcs => ∠sac = ∠bcs
 [   7 | gr ] ncoll s c a
-[   7 | gr ] p, c, m collinear && ∠scb = ∠cab && ∠ckb = ∠pmb && ∠ckb = ∠cas && ∠ckb = ∠(cl, pb) => ∠pmb = ∠clp
-[   7 | gr ] diffclock p m b p l c
-[   7 | gr ] l, p, b collinear && ∠lkm = ∠lam && ∠pbm = ∠lam && ∠lkm = ∠(cl, mp) => ∠pbm = ∠lcp
-[   7 | gr ] ncoll p m b
-[   7 | gr ] k, p, a collinear && p, c, m collinear && ∠kcs = ∠klc && ∠kbc = ∠kcs && ∠klc = ∠kmp && ∠kmp = ∠(kp, ac) => ∠pac = ∠kmp
-[   7 | gr ] diffclock p a c p m k
-[   7 | gr ] ∠mkp = ∠(mp, ac) => ∠pca = ∠mkp
-[   7 | gr ] ncoll p a c
-[   7 | gr ] ∠mas = ∠(mp, bc) && ∠(ml, pb) = ∠mas => ∠pcb = ∠mlp
-[   7 | gr ] diffclock p c b p l m
-[   7 | gr ] p, c, m collinear && l, p, b collinear && ∠lkc = ∠lmp && ∠lkc = ∠pbc => ∠pbc = ∠lmp
-[   7 | gr ] ncoll p c b
+[   7 | gr ] p, c, m collinear && k, p, a collinear && ∠sck = ∠clk && ∠cbk = ∠sck && ∠(pc, km) = ∠(ac, pk) && ∠clk = ∠(pc, km) => ∠pmk = ∠cap
+[   7 | gr ] diffclock p m k p a c
+[   7 | gr ] ∠pkm = ∠acp => ∠pkm = ∠acp
+[   7 | gr ] ncoll p m k
+[   7 | gr ] p, c, m collinear && l, p, b collinear && ∠ckl = ∠(pc, ml) && ∠ckl = ∠cbp => ∠pml = ∠cbp
+[   7 | gr ] diffclock p m l p b c
+[   7 | gr ] ∠(pb, ml) = ∠bam && ∠bam = ∠bcp => ∠plm = ∠bcp
+[   7 | gr ] ncoll p m l
 [   8 | dd ] ∠sca = ∠cbs && diffclock s c a s b c && ∠sac = ∠bcs && ncoll s c a => △sca ~ △sbc
-[   8 | dd ] ∠pmb = ∠clp && diffclock p m b p l c && ∠pbm = ∠lcp && ncoll p m b => △pmb ~ △plc
-[   8 | dd ] ∠pac = ∠kmp && diffclock p a c p m k && ∠pca = ∠mkp && ncoll p a c => △pac ~ △pmk
-[   8 | dd ] ∠pcb = ∠mlp && diffclock p c b p l m && ∠pbc = ∠lmp && ncoll p c b => △pcb ~ △plm
+[   8 | dd ] ∠pmk = ∠cap && diffclock p m k p a c && ∠pkm = ∠acp && ncoll p m k => △pmk ~ △pac
+[   8 | dd ] ∠pml = ∠cbp && diffclock p m l p b c && ∠plm = ∠bcp && ncoll p m l => △pml ~ △pbc
 [  11 | gr ] sp ∥ sp
-[  11 | gr ] △sca ~ △sbc => sa / sp = sp / sb
-[  11 | gr ] diffclock a s p p s b
 [  11 | gr ] s, a, b collinear => sa ∥ sb
+[  11 | gr ] diffclock a s p p s b
 [  11 | gr ] ncoll a s p
-[  12 | dd ] sp ∥ sp && sa / sp = sp / sb && diffclock a s p p s b && sa ∥ sb && ncoll a s p => △asp ~ △psb
-[  14 | ar ] △asp ~ △psb && △sca ~ △sbc && △pmb ~ △plc && △pac ~ △pmk && △pcb ~ △plm => mk = ml
+[  11 | gr ] △sca ~ △sbc => sa / sp = sp / sb
+[  12 | dd ] sp ∥ sp && sa ∥ sb && diffclock a s p p s b && ncoll a s p && sa / sp = sp / sb => △asp ~ △psb
+[  14 | ar ] △sca ~ △sbc && △pmk ~ △pac && △pml ~ △pbc && △asp ~ △psb => mk = ml
 [ 511 | dd ] mk = ml => mk = ml

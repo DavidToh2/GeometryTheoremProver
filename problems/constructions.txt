@@ -13,6 +13,7 @@ segment a b :
 
 ##### TRIANGLES
 
+# Acute-angled, counterclockwise triangle
 triangle a b c : 
 -
 -
@@ -189,26 +190,31 @@ reflect x : a b c
 - cong b a b x, cong c a c x, perp b c a x
 - x = reflect a b c
 
+# x is the intersection of lines ab and cd
 intersection_ll x : a b c d
 - npara a b c d, ncoll a b c d
 - coll x a b, coll x c d
 - x = line a b, line c d
 
+# x is the intersection of the circumcircles of apq and ars
 intersection_cc x : a p q r s
 - ncoll a p q, ncoll a r s
 - cyclic a x p q, cyclic a x r s
 - x = circum a p q, circum a r s
 
+# x is the second intersection of line ab and circle (o,ob)
 intersection_lc x : a o b
 - diff a b, diff o b, nperp b o b a
 - coll x a b, cong o b o x
 - x = line a b, circle o o b
 
+# x, y are the two intersections of the circles (o,oa) and (i,ib)
 intersections_cc x y : o a i b
 - diff o i
 - cong o a o x, cong o a o y, cong i b i x, cong i b i y
 - x y = intersections_cc o a i b
 
+# x, y are the two intersections of the line ab and circle (o,op)
 intersections_lc x y : a b o p
 -
 - cong o p o x, cong o p o y, coll a b x, coll a b y
@@ -216,6 +222,7 @@ intersections_lc x y : a b o p
 
 ##### ANGLES
 
+# x is a point such that angle BAX = angle XCB
 on_angle_eq2 x : a b c
 - ncoll a b c
 - eqangle a b a x c x c b

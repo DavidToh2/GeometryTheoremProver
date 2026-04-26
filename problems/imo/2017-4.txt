@@ -1,0 +1,11 @@
+problem imo-2017-4 {
+    r s = segment r s; 
+    t = mirror t : r s; 
+    o = on_line_bisect o : r s; 
+    j = on_circle j : o s; 
+    o1 = circumcenter o1 : j s t; 
+    x = on_line_perp x : r o r;
+    a b = intersections_lc a b : x r o1 s;
+    k = intersection_lc k : a o j
+    ? perp k t o1 t
+}

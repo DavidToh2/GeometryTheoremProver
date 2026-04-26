@@ -1,0 +1,104 @@
+=======================================
+Problem: imo-2017-4
+
+    r s = segment r s; 
+    t = mirror t : r s; 
+    o = on_line_bisect o : r s; 
+    j = on_circle j : o s; 
+    o1 = circumcenter o1 : j s t; 
+    x = on_line_perp x : r o r;
+    a b = intersections_lc a b : x r o1 s;
+    k = intersection_lc k : a o j
+    ? perp k t o1 t
+
+---------------------------------------
+    x = (-0.044419, 0.318744)    a = (0.043383, 0.389259)    b = (2.559153, 2.409705)
+    r = (-0.370852, 0.056581)    s = (0.627733, 0.089737)    t = (1.626318, 0.122893)
+    o = (0.150547, -0.592642)    j = (0.284622, 0.229168)    o1 = (1.074722, 1.681566)
+    k = (0.855709, -0.149816)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] diff o o1
+[   3 | dd ] os = oj && so1 = jo1 && o1o = o1o && ncoll o s o1 => △oso1 ≅ △ojo1
+[   3 | gr ] or = os && oj = os => os = oj
+[   3 | gr ] o1j = o1s => so1 = jo1
+[   3 | gr ] o1o = o1o
+[   3 | gr ] ncoll o s o1
+[   3 | gr ] ncoll o1 j o
+[   3 | gr ] or = os && oj = os => so = jo
+[   3 | gr ] st = ts
+[   3 | gr ] o1s = o1t && o1j = o1s => to1 = so1
+[   3 | gr ] ncoll o1 s t
+[   3 | gr ] or = os && oj = os && oj = ok => os = ok
+[   3 | gr ] or = os && oj = os => or = oj
+[   3 | gr ] or = os && oj = os && oj = ok => or = ok
+[   3 | gr ] o1s = o1a && o1j = o1s => o1j = o1a
+[   3 | gr ] o1s = o1b && o1j = o1s => o1j = o1b
+[   3 | gr ] o1s = o1t && o1j = o1s => o1j = o1t
+[   3 | gr ] o1s = o1a && o1s = o1t && o1j = o1s => o1t = o1a
+[   3 | gr ] o1s = o1b && o1s = o1t && o1j = o1s => o1t = o1b
+[   3 | gr ] o1s = o1a && o1s = o1b && o1j = o1s => o1a = o1b
+[   3 | gr ] o1s = o1b && o1s = o1t && o1j = o1s => o1b = o1t
+[   3 | gr ] ncoll o r j
+[   3 | gr ] ncoll o r k
+[   3 | gr ] ncoll o s k
+[   3 | gr ] ncoll o j k
+[   3 | gr ] ncoll o1 j t
+[   3 | gr ] ncoll o1 j a
+[   3 | gr ] ncoll o1 j b
+[   3 | gr ] ncoll o1 s a
+[   3 | gr ] ncoll o1 t a
+[   3 | gr ] ncoll o1 t b
+[   3 | gr ] ncoll o1 b t
+[   3 | gr ] ncoll o1 a b
+[   4 | dd ] diff o o1 && so1 = jo1 && so = jo => sj ⊥ oo1
+[   4 | dd ] o1s = o1t && st = ts && to1 = so1 && ncoll o1 s t => △o1st ≅ △o1ts
+[   4 | dd ] or = oj && ncoll o r j => ∠orj = ∠rjo
+[   4 | dd ] or = ok && ncoll o r k => ∠ork = ∠rko
+[   4 | dd ] os = ok && ncoll o s k => ∠osk = ∠sko
+[   4 | dd ] oj = ok && ncoll o j k => ∠ojk = ∠jko
+[   4 | dd ] o1j = o1t && ncoll o1 j t => ∠o1jt = ∠jto1
+[   4 | dd ] o1j = o1a && ncoll o1 j a => ∠o1ja = ∠jao1
+[   4 | dd ] o1j = o1b && ncoll o1 j b => ∠o1jb = ∠jbo1
+[   4 | dd ] o1s = o1a && ncoll o1 s a => ∠o1sa = ∠sao1
+[   4 | dd ] o1t = o1a && ncoll o1 t a => ∠o1ta = ∠tao1
+[   4 | dd ] o1t = o1b && ncoll o1 t b => ∠o1tb = ∠tbo1
+[   4 | dd ] o1b = o1t && ncoll o1 b t => ∠o1bt = ∠bto1
+[   4 | dd ] o1a = o1b && ncoll o1 a b => ∠o1ab = ∠abo1
+[   6 | ar ] xr ⊥ or && ∠ors = ∠rso && △oso1 ≅ △ojo1 && ∠orj = ∠rjo && ∠o1jb = ∠jbo1 && ∠o1sa = ∠sao1 && ∠o1ab = ∠abo1 => ∠bjr = ∠rsa
+[   6 | ar ] ∠ors = ∠rso && △oso1 ≅ △ojo1 && △o1st ≅ △o1ts && ∠ork = ∠rko && ∠ojk = ∠jko && ∠o1jt = ∠jto1 && ∠o1ja = ∠jao1 && ∠o1jb = ∠jbo1 && ∠o1ab = ∠abo1 => ∠(rk, xa) = ∠tjb
+[   6 | ar ] ∠ors = ∠rso && △oso1 ≅ △ojo1 && △o1st ≅ △o1ts && ∠ork = ∠rko && ∠ojk = ∠jko && ∠o1ja = ∠jao1 && ∠o1ta = ∠tao1 => at ∥ rk
+[   6 | ar ] △oso1 ≅ △ojo1 && ∠osk = ∠sko && ∠ojk = ∠jko && ∠o1ja = ∠jao1 && ∠o1sa = ∠sao1 => ∠ksa = ∠o1jo
+[   6 | ar ] sj ⊥ oo1 && △oso1 ≅ △ojo1 && △o1st ≅ △o1ts && ∠o1jb = ∠jbo1 && ∠o1tb = ∠tbo1 => ∠bjs = ∠(bt, rs)
+[   6 | ar ] xr ⊥ or && ∠ors = ∠rso && △oso1 ≅ △ojo1 && △o1st ≅ △o1ts && ∠orj = ∠rjo && ∠o1jb = ∠jbo1 && ∠o1tb = ∠tbo1 => ∠bjr = ∠(bt, xa)
+[   6 | ar ] xr ⊥ or && ∠ors = ∠rso && △oso1 ≅ △ojo1 && △o1st ≅ △o1ts && ∠osk = ∠sko && ∠ojk = ∠jko && ∠o1jt = ∠jto1 && ∠o1ja = ∠jao1 && ∠o1jb = ∠jbo1 && ∠o1ab = ∠abo1 => ∠ksr = ∠tjb
+[   6 | ar ] sj ⊥ oo1 && △oso1 ≅ △ojo1 && ∠o1jb = ∠jbo1 && ∠o1sa = ∠sao1 && ∠o1ab = ∠abo1 => ∠bjs = ∠xas
+[   6 | ar ] △oso1 ≅ △ojo1 && ∠osk = ∠sko && ∠ojk = ∠jko => ∠(sk, aj) = ∠o1oj
+[   6 | ar ] xr ⊥ or && ∠ors = ∠rso && △oso1 ≅ △ojo1 && △o1st ≅ △o1ts && ∠ork = ∠rko && ∠ojk = ∠jko && ∠o1ja = ∠jao1 && ∠o1tb = ∠tbo1 && ∠o1ab = ∠abo1 => ∠tbo1 = ∠okr
+[   6 | ar ] xr ⊥ or && ∠ors = ∠rso && △oso1 ≅ △ojo1 && △o1st ≅ △o1ts && ∠ork = ∠rko && ∠ojk = ∠jko && ∠o1ja = ∠jao1 && ∠o1tb = ∠tbo1 && ∠o1ab = ∠abo1 => ∠o1bt = ∠rko
+[   7 | gr ] △oso1 ≅ △ojo1 && ∠ksa = ∠o1jo => ∠o1jo = ∠ksa
+[   7 | gr ] diffclock o1 j o a s k
+[   7 | gr ] △oso1 ≅ △ojo1 && ∠(sk, aj) = ∠o1oj => ∠o1oj = ∠ska
+[   7 | gr ] ∠ork = ∠rko && ∠o1bt = ∠bto1 && ∠o1bt = ∠rko => ∠ork = ∠bto1
+[   7 | gr ] diffclock o r k o1 t b
+[   7 | gr ] ∠o1tb = ∠tbo1 && ∠tbo1 = ∠okr => ∠okr = ∠tbo1
+[   7 | gr ] x, r, b collinear && t, r, s collinear && ∠bjr = ∠rsa && ∠bjr = ∠(bt, xa) => ∠rsa = ∠tbr
+[   7 | gr ] diffclock r s a r b t
+[   7 | gr ] x, r, a collinear && ∠bjs = ∠(bt, rs) && ∠bjs = ∠xas => ∠ras = ∠btr
+[   7 | gr ] ncoll r s a
+[   7 | gr ] x, r, a collinear && t, r, s collinear && ∠(rk, xa) = ∠tjb && ∠ksr = ∠tjb => ∠ksr = ∠tar
+[   7 | gr ] diffclock k s r r a t
+[   7 | gr ] t, r, s collinear && at ∥ rk => ∠krs = ∠atr
+[   7 | gr ] ncoll k s r
+[   8 | dd ] ncoll o1 j o && ∠o1jo = ∠ksa && diffclock o1 j o a s k && ∠o1oj = ∠ska => △o1jo ~ △ask
+[   8 | dd ] ncoll o r k && ∠ork = ∠bto1 && diffclock o r k o1 t b && ∠okr = ∠tbo1 => △ork ~ △o1tb
+[   8 | dd ] ∠rsa = ∠tbr && diffclock r s a r b t && ∠ras = ∠btr && ncoll r s a => △rsa ~ △rbt
+[   8 | dd ] ∠ksr = ∠tar && diffclock k s r r a t && ∠krs = ∠atr && ncoll k s r => △ksr ~ △rat
+[  10 | ar ] △o1jo ~ △ask && △ork ~ △o1tb && △rsa ~ △rbt && △ksr ~ △rat => rk / rt = rs / at
+[  11 | gr ] sr = st && rk / rt = rs / at => ts / ta = rk / rt
+[  11 | gr ] t, r, s collinear && at ∥ rk => ∠sta = ∠trk
+[  11 | gr ] ncoll s t a
+[  11 | gr ] diffclock s t a k r t
+[  12 | dd ] ts / ta = rk / rt && ∠sta = ∠trk && ncoll s t a && diffclock s t a k r t => △sta ~ △krt
+[  14 | ar ] △o1st ≅ △o1ts && ∠o1sa = ∠sao1 && ∠o1ta = ∠tao1 && △sta ~ △krt => tk ⊥ to1
+[ 511 | dd ] tk ⊥ to1 => kt ⊥ o1t

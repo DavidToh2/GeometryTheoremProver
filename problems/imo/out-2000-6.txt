@@ -1,0 +1,59 @@
+=======================================
+Problem: imo-2000-6
+
+    a b c = triangle a b c; 
+    h = orthocenter h : a b c; 
+    t1 t2 t3 i = incenter2 t1 t2 t3 i : a b c; 
+    h1 = foot h1 : a b c; 
+    h2 = foot h2 : b c a; 
+    h3 = foot h3 : c a b; 
+    d = on_circle d : i t1, on_line_para d : t1 t2 t3;
+    p = reflect p : d t1 t2;
+    y = intersection_ll y : d t2 t1 t3
+    ? coll p h1 h2
+
+---------------------------------------
+    t2 = (0.601233, 1.252722)    t3 = (1.075053, 0.618658)    i = (0.892185, 0.976074)
+    a = (-1.021691, -0.454114)    b = (1.539566, 0.856320)    c = (0.900510, 1.567473)
+    h = (1.003647, 1.365891)    t1 = (1.190809, 1.244423)    h1 = (1.046805, 1.404673)
+    h2 = (0.848818, 1.513108)    h3 = (1.321458, 0.744727)    d = (1.234152, 1.186422)
+    p = (1.235767, 1.301181)    y = (1.181108, 1.191978)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] it1 = it2 && id = it1 => it2 = id
+[   3 | gr ] t2d = dt2
+[   3 | gr ] it1 = it2 && id = it1 => di = t2i
+[   3 | gr ] ncoll i t2 d
+[   3 | dd ] t1d = t1p && dt2 = pt2 && t2t1 = t2t1 && ncoll t1 d t2 => △t1dt2 ≅ △t1pt2
+[   3 | gr ] t2d = t2p => dt2 = pt2
+[   3 | gr ] t2t1 = t2t1
+[   3 | gr ] ncoll t1 d t2
+[   3 | gr ] it1 = it2 && it2 = it3 && id = it1 => it3 = id
+[   3 | gr ] ncoll i t1 t2
+[   3 | gr ] ncoll i t2 t3
+[   3 | gr ] ncoll i t3 d
+[   3 | gr ] diff h1 h2
+[   3 | gr ] h1a ⊥ bc && h1, b, c collinear => ah1 ⊥ h1b
+[   3 | gr ] h2b ⊥ ca && h2, c, a collinear => ah2 ⊥ h2b
+[   4 | dd ] it2 = id && t2d = dt2 && di = t2i && ncoll i t2 d => △it2d ≅ △idt2
+[   4 | dd ] it1 = it2 && ncoll i t1 t2 => ∠it1t2 = ∠t1t2i
+[   4 | dd ] it2 = it3 && ncoll i t2 t3 => ∠it2t3 = ∠t2t3i
+[   4 | dd ] it3 = id && ncoll i t3 d => ∠it3d = ∠t3di
+[   4 | dd ] diff h1 h2 && ah1 ⊥ h1b && ah2 ⊥ h2b => a, h1, b, h2 cyclic
+[   6 | ar ] ∠aci = ∠icb && ∠bai = ∠iac && ∠cbi = ∠iba && hb ⊥ ca => ∠t2ia = ∠cib
+[   6 | ar ] ∠bai = ∠iac && hb ⊥ ca && h1a ⊥ bc && h2b ⊥ ca && h3c ⊥ ab && △t1dt2 ≅ △t1pt2 && ∠it1t2 = ∠t1t2i && ∠it2t3 = ∠t2t3i => ∠t2ia = ∠(t1p, bc)
+[   6 | ar ] ∠bai = ∠iac && hc ⊥ ab && h2b ⊥ ca && h3c ⊥ ab && △it2d ≅ △idt2 && ∠it3d = ∠t3di => ∠t2dt3 = ∠ait3
+[   6 | ar ] ∠cbi = ∠iba && h1a ⊥ bc && h3c ⊥ ab && t1t2 ⊥ dp && △it2d ≅ △idt2 && ∠it1t2 = ∠t1t2i && ∠it3d = ∠t3di => ∠t2dt3 = ∠cib
+[   6 | ar ] ∠bai = ∠iac && hc ⊥ ab && h2b ⊥ ca && h3c ⊥ ab && ∠it2t3 = ∠t2t3i => ∠(t2a, t1d) = ∠ait3
+[   8 | dd ] a, h1, b, h2 cyclic => ∠abh1 = ∠ah2h1
+[  27 | gr ] t1d = t1p && △pt1h1 ~ △t3t2a && h1p = h1t1 => t1p / t1h1 = t2t3 / t2a
+[  27 | gr ] ncoll p t1 h1
+[  27 | gr ] diffclock p t1 h1 t3 t2 a
+[  27 | gr ] t2, c, a collinear && t1, b, c collinear && h1, b, c collinear && ∠t2ia = ∠cib && ∠t2ia = ∠(t1p, bc) && ∠t2dt3 = ∠ait3 && ∠t2dt3 = ∠cib && ∠(t2a, t1d) = ∠ait3 => ∠pt1h1 = ∠at2t3
+[  28 | dd ] t1p / t1h1 = t2t3 / t2a && ncoll p t1 h1 && diffclock p t1 h1 t3 t2 a && ∠pt1h1 = ∠at2t3 => △pt1h1 ~ △t3t2a
+[  30 | ar ] ∠abh1 = ∠ah2h1 && △pt1h1 ~ △t3t2a => h1h2 ∥ h1p
+[  30 | ar ] △pt1h1 ~ △t3t2a => h1p = h1t1
+[  31 | gr ] h1h2 ∥ h1p => h1h2 ∥ h1p
+[  31 | dd ] h1h2 ∥ h1p && diff h2 p => h1, h2, p collinear
+[  31 | gr ] diff h2 p
+[ 511 | dd ] h1, h2, p collinear => p, h1, h2 collinear

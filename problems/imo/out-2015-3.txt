@@ -17,23 +17,23 @@ Problem: imo-2015-3
     ? coll o1 o2 k
 
 ---------------------------------------
-    f = (0.534106, 0.088169)    m = (0.903959, 0.068785)    o = (0.884953, -0.293872)
-    a = (0.516770, -0.242607)    b = (0.824665, 0.072941)    c = (0.983253, 0.064630)
-    h = (0.554783, 0.482709)    q = (0.896452, 0.077684)    k = (0.683597, 0.018606)
-    o1 = (0.725618, 0.280197)    o2 = (0.731535, 0.317033)    a0 = (1.253135, -0.345138)
-    q0 = (0.873453, -0.665429)    d = (0.513428, -0.306371)    p = (0.113231, 0.110227)
+    f = (0.053463, -0.573633)    m = (0.013230, -0.386196)    o = (0.212229, -0.343482)
+    a = (0.487085, -0.480558)    b = (-0.035043, -0.161295)    c = (0.061504, -0.611096)
+    h = (0.089087, -0.565986)    q = (0.118634, -0.636015)    k = (0.068497, -0.614916)
+    o1 = (0.103861, -0.601001)    o2 = (0.865488, -0.301300)    a0 = (-0.062627, -0.206406)
+    q0 = (0.305824, -0.050949)    d = (0.017838, -0.581279)    p = (0.054916, -0.580404)
 
     Loss: 0
 ---------------------------------------
 [   3 | gr ] ob = oc && oa = ob => bo = co
 [   3 | dd ] bo = co && mb = mc && om = om && ncoll m b o => △mbo ≅ △mco
 [   3 | gr ] m midpoint of bc => mb = mc
-[   3 | gr ] ncoll o a b
+[   3 | gr ] diff m o
 [   3 | gr ] oa = ob && oq = oa => ob = oq
 [   3 | gr ] om = om
 [   3 | gr ] ncoll m b o
-[   3 | gr ] ncoll o b c
 [   3 | gr ] m midpoint of bc => bm = cm
+[   3 | gr ] ncoll o c b
 [   3 | dd ] oq = ok && qo1 = ko1 && o1o = o1o && ncoll o q o1 => △oqo1 ≅ △oko1
 [   3 | gr ] oq = oa && ok = oa => oq = ok
 [   3 | gr ] o1k = o1q => qo1 = ko1
@@ -46,14 +46,15 @@ Problem: imo-2015-3
 [   3 | gr ] po1 = po1
 [   3 | gr ] ncoll o1 k p
 [   3 | gr ] o1k = o1q && o1q = o1h => o1h = o1k
-[   3 | dd ] ncoll h b c && ch = cd && hb = db && bc = bc => △hbc ≅ △dbc
-[   3 | gr ] bh = bd => hb = db
-[   3 | gr ] bc = bc
+[   3 | dd ] bh = bd && hc = dc && cb = cb && ncoll b h c => △bhc ≅ △bdc
 [   3 | gr ] ch = cd => hc = dc
+[   3 | gr ] cb = cb
+[   3 | gr ] ncoll b h c
 [   3 | dd ] bh = bd && hp = dp && pb = pb && ncoll b h p => △bhp ≅ △bdp
 [   3 | gr ] pd = ph => hp = dp
 [   3 | gr ] pb = pb
 [   3 | gr ] ncoll b h p
+[   3 | gr ] bh = bd => hb = db
 [   3 | gr ] ch = cd => cd = ch
 [   3 | dd ] ch = cd && hp = dp && pc = pc && ncoll c h p => △chp ≅ △cdp
 [   3 | gr ] pc = pc
@@ -63,7 +64,6 @@ Problem: imo-2015-3
 [   3 | gr ] oa = ob && oq = oa && ok = oa && oa = oa0 => ob = oa0
 [   3 | gr ] oa = ob && oq = oa && ok = oa && oq = oq0 => ob = oq0
 [   3 | gr ] oq = oa => oa = oq
-[   3 | gr ] oq = oa && ok = oa => oa = ok
 [   3 | gr ] oq = oa && ok = oa && oq = oq0 => oa = oq0
 [   3 | gr ] ob = oc && oa = ob => oa = oc
 [   3 | gr ] ob = oc && oa = ob && oq = oa => oc = oq
@@ -75,15 +75,12 @@ Problem: imo-2015-3
 [   3 | gr ] ob = oc && oa = ob && oq = oa && ok = oa && oa = oa0 => oa0 = oc
 [   3 | gr ] oq = oa && ok = oa && oa = oa0 && oq = oq0 => oa0 = oq0
 [   3 | gr ] oq = oa && ok = oa && oq = oq0 => oq0 = oa
-[   3 | gr ] diff m o
 [   3 | gr ] diff o o1
 [   3 | gr ] diff o1 p
-[   3 | gr ] diff b p
-[   3 | gr ] diff c p
+[   3 | gr ] ncoll o a b
 [   3 | gr ] ncoll o a c
 [   3 | dd ] oa = oq && ncoll o a q => ∠oaq = ∠aqo
 [   3 | gr ] ncoll o a q
-[   3 | gr ] ncoll o a k
 [   3 | dd ] oa = oq0 && ncoll o a q0 => ∠oaq0 = ∠aq0o
 [   3 | gr ] ncoll o a q0
 [   3 | dd ] oq0 = oa && ncoll o q0 a => ∠oq0a = ∠q0ao
@@ -112,21 +109,21 @@ Problem: imo-2015-3
 [   3 | gr ] ncoll c d h
 [   3 | gr ] pd = ph && ph = pk => pd = pk
 [   3 | gr ] ncoll p d k
+[   3 | dd ] o midpoint of aa0 && o midpoint of qq0 && ncoll a a0 q q0 => aq ∥ a0q0
 [   3 | gr ] oq = oa && ok = oa && a0, o, a collinear && oa = oa0 => o midpoint of aa0
+[   3 | gr ] oq = oa && ok = oa && q0, o, q collinear && oq = oq0 => o midpoint of qq0
+[   3 | gr ] ncoll a a0 q q0
 [   3 | dd ] o midpoint of aa0 && o midpoint of q0q && ncoll a a0 q0 q => aq0 ∥ a0q
 [   3 | gr ] oq = oa && ok = oa && q0, o, q collinear && oq = oq0 => o midpoint of q0q
 [   3 | gr ] ncoll a a0 q0 q
 [   3 | dd ] hf ∥ hd && diff f d => h, f, d collinear
 [   3 | gr ] ha ⊥ bc && f, a, h collinear && bc ⊥ hd => hf ∥ hd
 [   3 | gr ] diff f d
-[   4 | dd ] bo = co && bm = cm && diff m o => bc ⊥ mo
+[   4 | dd ] bo = co && diff m o && bm = cm => bc ⊥ mo
 [   4 | dd ] qo1 = ko1 && qo = ko && diff o o1 => qk ⊥ oo1
 [   4 | dd ] kp = hp && ko1 = ho1 && diff o1 p => kh ⊥ o1p
-[   4 | dd ] hb = db && hp = dp && diff b p => hd ⊥ bp
-[   4 | dd ] hc = dc && hp = dp && diff c p => hd ⊥ cp
 [   4 | dd ] oa = ob && ncoll o a b => ∠oab = ∠abo
 [   4 | dd ] oa = oc && ncoll o a c => ∠oac = ∠aco
-[   4 | dd ] oa = ok && ncoll o a k => ∠oak = ∠ako
 [   4 | dd ] ob = oq && ncoll o b q => ∠obq = ∠bqo
 [   4 | dd ] ob = ok && ncoll o b k => ∠obk = ∠bko
 [   4 | dd ] ob = oa0 && ncoll o b a0 => ∠oba0 = ∠ba0o
@@ -144,59 +141,62 @@ Problem: imo-2015-3
 [   4 | dd ] ch = cd && ncoll c h d => ∠chd = ∠hdc
 [   4 | dd ] cd = ch && ncoll c d h => ∠cdh = ∠dhc
 [   4 | dd ] pd = pk && ncoll p d k => ∠pdk = ∠dkp
-[   6 | ar ] ∠oqa0 = ∠qa0o && ∠oa0q0 = ∠a0q0o => aq0 ⊥ aq
 [   6 | ar ] △oqo1 ≅ △oko1 && qk ⊥ oo1 && ∠okq0 = ∠kq0o => qk ⊥ kq0
+[   6 | ar ] ∠oqa0 = ∠qa0o && ∠oa0q0 = ∠a0q0o => aq0 ⊥ aq
 [   6 | ar ] ∠oab = ∠abo && ∠oba0 = ∠ba0o => ba0 ⊥ ab
 [   6 | ar ] ∠oac = ∠aco && ∠oca0 = ∠ca0o => ca0 ⊥ ac
-[   6 | ar ] △mbo ≅ △mco && △oqo1 ≅ △oko1 && qk ⊥ oo1 && ∠okq0 = ∠kq0o => ∠qkh = ∠afm
-[   6 | ar ] hb ⊥ ca && △mbo ≅ △mco && △hbc ≅ △dbc && ∠oac = ∠aco && ∠oaq0 = ∠aq0o && ∠ocq0 = ∠cq0o => ∠(cq0, hq) = ∠dbo
-[   6 | ar ] △mbo ≅ △mco && △hbc ≅ △dbc => ∠(oc, bh) = ∠dbo
-[   6 | ar ] ha ⊥ bc && hc ⊥ ab && △mbo ≅ △mco && △hbc ≅ △dbc && ∠oab = ∠abo && ∠oca0 = ∠ca0o => ∠(cd, bh) = ∠fao
-[   6 | ar ] qa ⊥ qh && ha ⊥ bc && hc ⊥ ab && △mbo ≅ △mco && △hbc ≅ △dbc && ∠oab = ∠abo && ∠oaq = ∠aqo && ∠ocq0 = ∠cq0o => ∠(hq, cq0) = ∠(fa, cd)
-[   6 | ar ] qa ⊥ qh && ha ⊥ bc && hc ⊥ ab && △mbo ≅ △mco && △hbc ≅ △dbc && ∠oab = ∠abo && ∠oaq = ∠aqo && ∠ocq0 = ∠cq0o => ∠(cq0, hq) = ∠(cd, fa)
-[   6 | ar ] △mbo ≅ △mco && △hbc ≅ △dbc => ∠(bh, oc) = ∠obd
+[   6 | ar ] hb ⊥ ca && △mbo ≅ △mco && △bhc ≅ △bdc && ∠oac = ∠aco && ∠oaq0 = ∠aq0o && ∠ocq0 = ∠cq0o => ∠(cq0, hq) = ∠dbo
+[   6 | ar ] hb ⊥ ca && △mbo ≅ △mco && △bhc ≅ △bdc && ∠oac = ∠aco && ∠oaq0 = ∠aq0o && ∠ocq0 = ∠cq0o => ∠(hq, cq0) = ∠obd
+[   6 | ar ] ∠obq = ∠bqo && ∠obq0 = ∠bq0o && ∠ocq = ∠cqo && ∠ocq0 = ∠cq0o => ∠q0cq = ∠q0bq
 [   6 | ar ] △oqo1 ≅ △oko1 && △o1kp ≅ △o1hp && kh ⊥ o1p => ho1 ∥ qo1
-[   6 | ar ] hb ⊥ ca && △mbo ≅ △mco && △hbc ≅ △dbc && ∠oac = ∠aco && ∠oaq0 = ∠aq0o && ∠ocq0 = ∠cq0o => ∠(hq, cq0) = ∠obd
+[   6 | ar ] ha ⊥ bc && hc ⊥ ab && qa ⊥ qh && △mbo ≅ △mco && △bhc ≅ △bdc && ∠oab = ∠abo && ∠oaq = ∠aqo && ∠ocq0 = ∠cq0o => ∠(cq0, hq) = ∠(cd, fa)
+[   6 | ar ] hc ⊥ ab && ∠oqa0 = ∠qa0o && ∠oa0q0 = ∠a0q0o => ∠hqa = ∠(ch, ab)
+[   6 | ar ] ha ⊥ bc && hc ⊥ ab && qa ⊥ qh && △mbo ≅ △mco && △bhc ≅ △bdc && ∠oab = ∠abo && ∠oaq = ∠aqo && ∠ocq0 = ∠cq0o => ∠(hq, cq0) = ∠(fa, cd)
+[   6 | ar ] △mbo ≅ △mco && △bhc ≅ △bdc => ∠(oc, bh) = ∠dbo
+[   6 | ar ] △mbo ≅ △mco && △bhc ≅ △bdc => ∠(bh, oc) = ∠obd
 [   6 | ar ] △mbo ≅ △mco && ∠oqa0 = ∠qa0o && ∠oa0q0 = ∠a0q0o => ∠aqh = ∠mfa
-[   6 | ar ] kh ⊥ kq && △mbo ≅ △mco && △oqo1 ≅ △oko1 && △hbc ≅ △dbc && △bhp ≅ △bdp && △chp ≅ △cdp && qk ⊥ oo1 && ∠obk = ∠bko && ∠ocq0 = ∠cq0o => ∠(hk, cq0) = ∠(bk, fm)
-[   6 | ar ] hb ⊥ ca && hc ⊥ ab && △hbc ≅ △dbc && ∠oab = ∠abo && ∠oac = ∠aco && ∠oba0 = ∠ba0o && ∠oca0 = ∠ca0o => ∠(bd, ch) = ∠(cd, bh)
+[   6 | ar ] hb ⊥ ca && hc ⊥ ab && △bhc ≅ △bdc && ∠oab = ∠abo && ∠oac = ∠aco && ∠oba0 = ∠ba0o && ∠oca0 = ∠ca0o => ∠(bd, ch) = ∠(cd, bh)
+[   6 | ar ] △mbo ≅ △mco && △oqo1 ≅ △oko1 && qk ⊥ oo1 && ∠okq0 = ∠kq0o => ∠qkh = ∠afm
+[   6 | ar ] △mbo ≅ △mco && ∠oqa0 = ∠qa0o && ∠oa0q0 = ∠a0q0o => ∠hqa = ∠afm
+[   6 | ar ] ∠oac = ∠aco && ∠obq = ∠bqo && ∠obq0 = ∠bq0o && ∠oca0 = ∠ca0o => ∠(bh, ac) = ∠q0bq
+[   6 | ar ] hc ⊥ ab && ∠oac = ∠aco && ∠oca0 = ∠ca0o => ∠(bh, ac) = ∠(ch, ab)
+[   6 | ar ] ∠obq = ∠bqo && ∠obq0 = ∠bq0o && ∠ocq = ∠cqo && ∠ocq0 = ∠cq0o => ∠qcq0 = ∠qbq0
+[   6 | ar ] ha ⊥ bc && hc ⊥ ab && △mbo ≅ △mco && △bhc ≅ △bdc && ∠oab = ∠abo && ∠oca0 = ∠ca0o => ∠(cd, bh) = ∠fao
+[   6 | ar ] ∠obq = ∠bqo && ∠obq0 = ∠bq0o && ∠ocq = ∠cqo && ∠ocq0 = ∠cq0o => ∠qcq0 = ∠q0bq
 [   6 | ar ] qa ⊥ qh && kh ⊥ kq && △oqo1 ≅ △oko1 && qk ⊥ oo1 && ∠oab = ∠abo && ∠oaq = ∠aqo && ∠obk = ∠bko => ∠qhk = ∠abk
-[   6 | ar ] △mbo ≅ △mco && △hbc ≅ △dbc && △bhp ≅ △bdp && △chp ≅ △cdp && ∠obk = ∠bko && ∠oca0 = ∠ca0o && ∠oka0 = ∠ka0o => ∠(ka0, bh) = ∠(bk, fm)
-[   6 | ar ] ∠oab = ∠abo && ∠oaq0 = ∠aq0o && ∠obq = ∠bqo => ∠(hq, oa) = ∠qba
-[   6 | ar ] △mbo ≅ △mco && △oqo1 ≅ △oko1 && qk ⊥ oo1 && ∠obk = ∠bko && ∠ocq = ∠cqo => ∠(bk, fm) = ∠kqc
 [   6 | ar ] hc ⊥ ab && ∠oab = ∠abo && ∠obq0 = ∠bq0o && ∠oqa0 = ∠qa0o => ∠(bq0, ch) = ∠oqh
-[   6 | ar ] hb ⊥ ca && ∠oak = ∠ako && ∠oka0 = ∠ka0o => ∠(ka0, bh) = ∠kac
+[   6 | ar ] ∠oab = ∠abo && ∠oaq0 = ∠aq0o && ∠obq = ∠bqo => ∠(hq, oa) = ∠qba
 [   6 | ar ] ∠oab = ∠abo && ∠obk = ∠bko && ∠oka0 = ∠ka0o => ∠(oa, ka0) = ∠abk
 [   7 | dd ] o1 center of ⦿qhk && ∠qkh = ∠aqh => o1q ⊥ qa
 [   7 | gr ] o1 center of ⦿kqh => o1 center of ⦿qhk
-[   7 | gr ] qa ⊥ qh && kh ⊥ kq && △mbo ≅ △mco && qk ⊥ oo1 && kh ⊥ o1p && aq0 ⊥ aq && qk ⊥ kq0 && ∠qkh = ∠afm && ∠aqh = ∠mfa => ∠qkh = ∠aqh
-[   7 | gr ] m midpoint of bc => m, b, c collinear
+[   7 | gr ] qa ⊥ qh && kh ⊥ kq && △mbo ≅ △mco && qk ⊥ oo1 && kh ⊥ o1p && qk ⊥ kq0 && aq0 ⊥ aq && ∠aqh = ∠mfa && ∠qkh = ∠afm => ∠qkh = ∠aqh
+[   7 | gr ] m midpoint of bc => m, c, b collinear
 [   7 | dd ] hb = db && ∠hbf = ∠fbd && bf = bf && diffclock h b f d b f && ncoll h b f => △hbf ≅ △dbf
-[   7 | gr ] f, b, c collinear && △hbc ≅ △dbc => ∠hbf = ∠fbd
+[   7 | gr ] f, b, c collinear && △bhc ≅ △bdc => ∠hbf = ∠fbd
 [   7 | gr ] bf = bf
 [   7 | gr ] diffclock h b f d b f
 [   7 | gr ] ncoll h b f
-[   7 | gr ] f, b, c collinear && △hbc ≅ △dbc => ∠hcf = ∠fcd
+[   7 | gr ] f, b, c collinear && △bhc ≅ △bdc => ∠hcf = ∠fcd
 [   7 | gr ] f, b, c collinear && bc ⊥ hd => bf ⊥ hd
 [   7 | gr ] f, a, h collinear && h, f, d collinear => f, h, d collinear
-[   7 | gr ] △mbo ≅ △mco => ∠bom = ∠moc
-[   7 | gr ] hb ⊥ ca && hc ⊥ ab && △hbc ≅ △dbc && ba0 ⊥ ab && ca0 ⊥ ac => ∠ba0c = ∠bdc
-[   7 | gr ] ha ⊥ bc && bc ⊥ hd && bc ⊥ mo && ∠cdh = ∠dhc && ∠(cq0, hq) = ∠dbo && ∠(oc, bh) = ∠dbo && ∠(cq0, hq) = ∠(cd, fa) => ∠oca0 = ∠dhc
+[   7 | gr ] △mbo ≅ △mco => ∠com = ∠mob
+[   7 | gr ] hb ⊥ ca && hc ⊥ ab && △bhc ≅ △bdc && ba0 ⊥ ab && ca0 ⊥ ac => ∠ca0b = ∠cdb
+[   7 | gr ] ha ⊥ bc && bc ⊥ hd && bc ⊥ mo && ∠cdh = ∠dhc && ∠(cq0, hq) = ∠dbo && ∠(cq0, hq) = ∠(cd, fa) && ∠(oc, bh) = ∠dbo => ∠oca0 = ∠dhc
 [   7 | gr ] diffclock o c a0 c h d
-[   7 | gr ] ha ⊥ bc && a0, o, a collinear && bc ⊥ hd && bc ⊥ mo && ∠oa0c = ∠a0co && ∠chd = ∠hdc && ∠(hq, cq0) = ∠(fa, cd) && ∠(bh, oc) = ∠obd && ∠(hq, cq0) = ∠obd => ∠oa0c = ∠hdc
-[   7 | dd ] ∠kbc = ∠kq0c && ncoll k c b q0 => k, c, b, q0 cyclic
-[   7 | gr ] ha ⊥ bc && bc ⊥ hd && bc ⊥ mo && hd ⊥ bp && hd ⊥ cp && ∠(hk, cq0) = ∠(bk, fm) => ∠kbc = ∠kq0c
-[   7 | gr ] ncoll k c b q0
-[   7 | dd ] ∠kbc = ∠ka0c && ncoll k c b a0 => k, c, b, a0 cyclic
-[   7 | gr ] ha ⊥ bc && bc ⊥ hd && bc ⊥ mo && hd ⊥ bp && hd ⊥ cp && ∠(hk, cq0) = ∠(bk, fm) && ∠(ka0, bh) = ∠(bk, fm) => ∠kbc = ∠ka0c
-[   7 | gr ] ncoll k c b a0
-[   7 | dd ] ∠kbc = ∠kqc && ncoll k c b q => k, c, b, q cyclic
-[   7 | gr ] ha ⊥ bc && kh ⊥ kq && bc ⊥ hd && bc ⊥ mo && qk ⊥ oo1 && kh ⊥ o1p && hd ⊥ bp && hd ⊥ cp && ∠(hk, cq0) = ∠(bk, fm) && ∠(bk, fm) = ∠kqc => ∠kbc = ∠kqc
-[   7 | gr ] ncoll k c b q
-[   7 | dd ] ∠kbc = ∠kac && ncoll k c b a => k, c, b, a cyclic
-[   7 | gr ] ha ⊥ bc && bc ⊥ hd && bc ⊥ mo && hd ⊥ bp && hd ⊥ cp && ∠(hk, cq0) = ∠(bk, fm) && ∠(ka0, bh) = ∠(bk, fm) && ∠(ka0, bh) = ∠kac => ∠kbc = ∠kac
-[   7 | gr ] ncoll k c b a
-[   7 | gr ] ncoll b c a0 d
+[   7 | gr ] ha ⊥ bc && a0, o, a collinear && bc ⊥ hd && bc ⊥ mo && ∠oa0c = ∠a0co && ∠chd = ∠hdc && ∠(hq, cq0) = ∠obd && ∠(hq, cq0) = ∠(fa, cd) && ∠(bh, oc) = ∠obd => ∠oa0c = ∠hdc
+[   7 | dd ] ∠qa0q0 = ∠qkq0 && ncoll q q0 a0 k => q, q0, a0, k cyclic
+[   7 | gr ] kh ⊥ kq && qk ⊥ oo1 && kh ⊥ o1p && aq ∥ a0q0 && aq0 ∥ a0q && ∠qkh = ∠afm && ∠hqa = ∠afm => ∠qa0q0 = ∠qkq0
+[   7 | gr ] ncoll q q0 a0 k
+[   7 | dd ] ∠qaq0 = ∠qkq0 && ncoll q q0 a k => q, q0, a, k cyclic
+[   7 | gr ] kh ⊥ kq && △mbo ≅ △mco && qk ⊥ oo1 && kh ⊥ o1p && ∠aqh = ∠mfa && ∠qkh = ∠afm => ∠qaq0 = ∠qkq0
+[   7 | gr ] ncoll q q0 a k
+[   7 | dd ] ∠qcq0 = ∠qkq0 && ncoll q q0 c k => q, q0, c, k cyclic
+[   7 | gr ] kh ⊥ kq && qk ⊥ oo1 && kh ⊥ o1p && ∠q0cq = ∠q0bq && ∠hqa = ∠(ch, ab) && ∠qkh = ∠afm && ∠hqa = ∠afm && ∠(bh, ac) = ∠q0bq && ∠(bh, ac) = ∠(ch, ab) && ∠qcq0 = ∠q0bq => ∠qcq0 = ∠qkq0
+[   7 | gr ] ncoll q q0 c k
+[   7 | dd ] ∠qbq0 = ∠qkq0 && ncoll q q0 b k => q, q0, b, k cyclic
+[   7 | gr ] kh ⊥ kq && qk ⊥ oo1 && kh ⊥ o1p && ∠q0cq = ∠q0bq && ∠hqa = ∠(ch, ab) && ∠qkh = ∠afm && ∠hqa = ∠afm && ∠(bh, ac) = ∠q0bq && ∠(bh, ac) = ∠(ch, ab) && ∠qcq0 = ∠qbq0 && ∠qcq0 = ∠q0bq => ∠qbq0 = ∠qkq0
+[   7 | gr ] ncoll q q0 b k
+[   7 | gr ] ncoll c b a0 d
 [   7 | dd ] m midpoint of bc && bh ∥ ca0 && ba0 ∥ ch && ncoll b c h a0 => m midpoint of ha0
 [   7 | gr ] hb ⊥ ca && ca0 ⊥ ac => bh ∥ ca0
 [   7 | gr ] hc ⊥ ab && ba0 ⊥ ab => ba0 ∥ ch
@@ -208,17 +208,17 @@ Problem: imo-2015-3
 [   7 | gr ] qa ⊥ qh && aq0 ∥ a0q && aq0 ⊥ aq => qh ∥ qa0
 [   7 | gr ] diff h a0
 [   8 | dd ] bh = bd && ncoll b h d && bf ⊥ hd && f, h, d collinear => f midpoint of hd
-[   8 | dd ] ncoll o b c && m, b, c collinear && ∠bom = ∠moc => mb / mc = ob / oc
+[   8 | dd ] ncoll o c b && m, c, b collinear && ∠com = ∠mob => mc / mb = oc / ob
 [   8 | dd ] ncoll c h d && ∠hcf = ∠fcd && f, h, d collinear => fh / fd = ch / cd
 [   8 | dd ] ncoll o c a0 && ∠oca0 = ∠dhc && diffclock o c a0 c h d && ∠oa0c = ∠hdc => △oca0 ~ △chd
-[   8 | dd ] ∠ba0c = ∠bdc && ncoll b c a0 d => b, c, a0, d cyclic
+[   8 | dd ] ∠ca0b = ∠cdb && ncoll c b a0 d => c, b, a0, d cyclic
 [  10 | ar ] △oqo1 ≅ △oko1 && △o1kp ≅ △o1hp && kh ⊥ o1p && ∠oaq = ∠aqo && o1q ⊥ qa => ∠(aq0, ko1) = ∠aok
-[  11 | gr ] k, c, b, q0 cyclic && k, c, b, a0 cyclic && k, c, b, q cyclic && k, c, b, a cyclic && b, c, a0, d cyclic => a, q, b, d cyclic
-[  11 | gr ] k, c, b, q0 cyclic && k, c, b, a0 cyclic && k, c, b, q cyclic && k, c, b, a cyclic && b, c, a0, d cyclic => q, a, b, d cyclic
+[  11 | gr ] q, q0, a, k cyclic && q, q0, c, k cyclic && q, q0, b, k cyclic && c, b, a0, d cyclic && diff a q => a, q, b, d cyclic
+[  11 | gr ] q, q0, a, k cyclic && q, q0, c, k cyclic && q, q0, b, k cyclic && c, b, a0, d cyclic && diff a q => q, a, b, d cyclic
 [  11 | dd ] a, k, b, d cyclic => ∠abk = ∠adk
-[  11 | gr ] k, c, b, a cyclic && b, c, a0, d cyclic => a, k, b, d cyclic
-[  11 | gr ] k, c, b, q0 cyclic && k, c, b, a0 cyclic && k, c, b, q cyclic && k, c, b, a cyclic && b, c, a0, d cyclic => d, a0, a, q cyclic
-[  11 | gr ] kh ⊥ kq && a0, o, a collinear && △oqo1 ≅ △oko1 && qk ⊥ oo1 && kh ⊥ o1p && ∠o1hk = ∠hko1 && qk ⊥ kq0 && ho1 ∥ qo1 && ∠qhk = ∠abk && ∠(oa, ka0) = ∠abk && o1q ⊥ qa => ∠hko1 = ∠oa0k
+[  11 | gr ] q, q0, a, k cyclic && q, q0, c, k cyclic && q, q0, b, k cyclic && c, b, a0, d cyclic && diff a q => a, k, b, d cyclic
+[  11 | gr ] q, q0, a0, k cyclic && q, q0, a, k cyclic && q, q0, c, k cyclic && q, q0, b, k cyclic && c, b, a0, d cyclic && diff a q => d, a0, a, q cyclic
+[  11 | gr ] kh ⊥ kq && a0, o, a collinear && △oqo1 ≅ △oko1 && qk ⊥ oo1 && kh ⊥ o1p && ∠o1hk = ∠hko1 && qk ⊥ kq0 && ho1 ∥ qo1 && ∠qhk = ∠abk && o1q ⊥ qa && ∠(oa, ka0) = ∠abk => ∠hko1 = ∠oa0k
 [  11 | gr ] diffclock h k o1 k a0 o
 [  11 | gr ] a0, o, a collinear && ∠(aq0, ko1) = ∠aok => ∠ho1k = ∠a0ok
 [  11 | gr ] ncoll h k o1
@@ -235,19 +235,19 @@ Problem: imo-2015-3
 [  12 | dd ] ∠hko1 = ∠oa0k && diffclock h k o1 k a0 o && ∠ho1k = ∠a0ok && ncoll h k o1 => △hko1 ~ △ka0o
 [  12 | dd ] f midpoint of hd && o1 midpoint of hq && diff q d o1 f && ncoll h q d => o1f ∥ qd
 [  12 | dd ] ah ∥ om && a0, a, o collinear && a0, h, m collinear && ncoll a h o => △a0ah ~ △a0om
-[  14 | ar ] △mbo ≅ △mco && △oqo1 ≅ △oko1 && △o1kp ≅ △o1hp && △hbc ≅ △dbc && △bhp ≅ △bdp && kh ⊥ o1p && ∠oab = ∠abo && ∠oaq = ∠aqo && ∠obk = ∠bko && ∠pdk = ∠dkp && o1q ⊥ qa && ∠abk = ∠adk => ko1 ⊥ kp
+[  14 | ar ] △mbo ≅ △mco && △oqo1 ≅ △oko1 && △o1kp ≅ △o1hp && △bhc ≅ △bdc && △bhp ≅ △bdp && kh ⊥ o1p && ∠oab = ∠abo && ∠oaq = ∠aqo && ∠obk = ∠bko && ∠pdk = ∠dkp && o1q ⊥ qa && ∠abk = ∠adk => ko1 ⊥ kp
 [  14 | ar ] ha ⊥ bc && △mbo ≅ △mco && △oqo1 ≅ △oko1 && △o1kp ≅ △o1hp && kh ⊥ o1p && ∠oab = ∠abo && ∠oaq = ∠aqo && ∠obq = ∠bqo && o1q ⊥ qa && ∠abq = ∠adq => ∠(fa, ok) = ∠(qd, ko1)
 [  15 | gr ] diffside_p f h d
 [  15 | dd ] h, f, d collinear && diffside_p f h d && h, o1, q collinear && ncoll f o1 d && diffside_p o1 h q && hf / fd = ho1 / o1q => △hfo1 ~ △hdq
 [  15 | gr ] o1, q, h collinear => h, o1, q collinear
 [  15 | gr ] ncoll f o1 d
 [  15 | gr ] diffside_p o1 h q
-[  15 | gr ] o1k = o1q && o1q = o1h && △hbf ≅ △dbf && mb / mc = ob / oc && fh / fd = ch / cd && △oca0 ~ △chd && △hko1 ~ △ka0o => hf / fd = ho1 / o1q
-[  15 | dd ] ∠ma0o = ∠qdh && diffclock m a0 o h d q && ∠moa0 = ∠dqh && ncoll m a0 o => △ma0o ~ △hdq
-[  15 | gr ] qa ⊥ qh && ha ⊥ bc && a0, o, a collinear && bc ⊥ hd && bc ⊥ mo && ∠oq0a = ∠q0ao && aq0 ∥ a0q && aq0 ⊥ aq && ho1 ∥ qo1 && ∠(hq, oa) = ∠qba && ∠(bq0, ch) = ∠oqh && o1q ⊥ qa && m midpoint of ha0 && q, h, a0 collinear && ∠qba = ∠qda => ∠ma0o = ∠qdh
-[  15 | gr ] diffclock m a0 o h d q
-[  15 | gr ] a0, o, a collinear && ∠(cd, bh) = ∠fao && ∠(bd, ch) = ∠(cd, bh) && m midpoint of ha0 && q, h, a0 collinear && ∠daa0 = ∠dqa0 => ∠moa0 = ∠dqh
+[  15 | gr ] o1k = o1q && o1q = o1h && △hbf ≅ △dbf && mc / mb = oc / ob && fh / fd = ch / cd && △oca0 ~ △chd && △hko1 ~ △ka0o => hf / fd = ho1 / o1q
 [  15 | gr ] ncoll m a0 o
+[  15 | dd ] ncoll m a0 o && ∠ma0o = ∠qdh && diffclock m a0 o h d q && ∠moa0 = ∠dqh => △ma0o ~ △hdq
+[  15 | gr ] ha ⊥ bc && qa ⊥ qh && a0, o, a collinear && bc ⊥ hd && bc ⊥ mo && ∠oq0a = ∠q0ao && aq0 ∥ a0q && aq0 ⊥ aq && ho1 ∥ qo1 && ∠(bq0, ch) = ∠oqh && ∠(hq, oa) = ∠qba && o1q ⊥ qa && m midpoint of ha0 && q, h, a0 collinear && ∠qba = ∠qda => ∠ma0o = ∠qdh
+[  15 | gr ] diffclock m a0 o h d q
+[  15 | gr ] a0, o, a collinear && ∠(bd, ch) = ∠(cd, bh) && ∠(cd, bh) = ∠fao && m midpoint of ha0 && q, h, a0 collinear && ∠daa0 = ∠dqa0 => ∠moa0 = ∠dqh
 [  19 | gr ] △a0ah ~ △a0om && △hfo1 ~ △hdq && △ma0o ~ △hdq => om / ok = o1k / o1f
 [  19 | gr ] diffclock m o k k o1 f
 [  19 | gr ] o1f ∥ qd && ∠(fa, ok) = ∠(qd, ko1) => ∠mok = ∠fo1k

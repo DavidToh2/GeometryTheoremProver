@@ -1,0 +1,13 @@
+problem imo-2015-4 {
+    a b c = triangle a b c; 
+    o = circumcenter o : a b c; 
+    d = on_line d : b c; 
+    e = on_line e : b c, on_circle e : a d; 
+    f g = intersections_cc f g : o a a d;
+    o1 = circumcenter o1 : f b d; 
+    o2 = circumcenter o2 : g c e; 
+    k = intersection_lc k : a o1 b;
+    l = intersection_lc l : a o2 c;
+    x = intersection_ll x : f k g l 
+    ? coll x o a
+}

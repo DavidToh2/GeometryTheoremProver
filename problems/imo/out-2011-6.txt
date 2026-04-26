@@ -15,7 +15,8 @@ Problem: imo-2011-6
     b1 = intersection_ll b1 : pa qa pc qc; 
     c1 = intersection_ll c1 : pa qa pb qb; 
     o1 = circumcenter o1 : a1 b1 c1; 
-    x = on_circle x : o a, on_circle x : o1 a1;
+    x = intersection_cc x : pa b1 b c1 c;
+    y = on_line_perp y : x x o;
     i = incenter i : a1 b1 c1;
     a0 = intersection_ll a0 : p q b c;
     b0 = intersection_ll b0 : p q a c;
@@ -23,43 +24,170 @@ Problem: imo-2011-6
     ? coll x o o1
 
 ---------------------------------------
-    c = (-0.756813, 0.541622)    o = (-0.733531, -0.123006)    p = (-1.105429, 0.428323)
-    a = (-0.999669, -0.732467)    b = (-0.382636, 0.441923)    q = (-0.905650, 0.563083)
-    pa = (-1.002836, 0.813360)    pb = (-0.474319, 0.308026)    pc = (0.016229, -0.161005)
-    qa = (-0.896597, 0.597062)    qb = (-0.610517, 0.506827)    qc = (0.013862, 0.079964)
-    a1 = (0.018691, -0.411596)    b1 = (0.027261, -1.283859)    c1 = (-1.464608, 1.753502)
-    o1 = (-2.982804, -0.877258)    x = (-0.103002, 0.088430)    i = (-0.166085, -0.469817)
-    a0 = (-0.886314, 0.576127)    b0 = (-0.730158, 0.681461)    c0 = (0.003093, 1.176074)
-
+    o = (0.721774, -0.458224)    p = (2.019480, -0.345758)    a = (0.584254, -1.753515)
+    b = (1.347798, 0.684048)    c = (0.167755, 0.720654)    q = (2.116187, -1.461629)
+    pa = (2.082019, 1.670240)    pb = (-1.232771, -0.893238)    pc = (0.208641, 0.221471)
+    qa = (2.247706, 2.777971)    qb = (-0.958812, -1.979271)    qc = (-0.507393, -0.639816)
+    a1 = (-1.112954, -1.368220)    b1 = (2.228775, 2.651405)    c1 = (0.607452, -8.188279)
+    o1 = (5.370848, -3.359659)    x = (-0.383257, 0.231413)    y = (1.115761, 2.633343)
+    i = (0.286531, -1.685926)    a0 = (1.931802, 0.665931)    b0 = (3.793885, -20.819989)
+    c0 = (1.804010, 2.140474)
     Loss: 0
-
-Loading problem imo-2011-6
-Drawing numeric diagram for problem imo-2011-6
-Time to draw numeric diagram: 939 us
-Numeric diagram drawn successfully!
-Solving problem imo-2011-6
--------- Iteration 0: --------
-Derived 149 new predicates from DD and 463 new predicates from AR.
--------- Iteration 1: --------
-Derived 76 new predicates from DD and 411 new predicates from AR.
--------- Iteration 2: --------
-Derived 51 new predicates from DD and 6 new predicates from AR.
--------- Iteration 3: --------
-Derived 36 new predicates from DD and 11 new predicates from AR.
--------- Iteration 4: --------
-Derived 3 new predicates from DD and 0 new predicates from AR.
--------- Iteration 5: --------
-Derived 1 new predicates from DD and 0 new predicates from AR.
--------- Iteration 6: --------
-Derived 32 new predicates from DD and 31 new predicates from AR.
--------- Iteration 7: --------
-Derived 10 new predicates from DD and 36 new predicates from AR.
--------- Iteration 8: --------
-Derived 5 new predicates from DD and 0 new predicates from AR.
--------- Iteration 9: --------
-Derived 0 new predicates from DD and 0 new predicates from AR.
-UNSOLVED!! No new predicates derived.
-Time to solve problem: 247991624 us
-
-Solved 0 out of 1 problems.
-Unsolved problems: imo-2011-6 
+---------------------------------------
+[   3 | gr ] pa = ap
+[   3 | gr ] op = oa => ao = po
+[   3 | gr ] ncoll o p a
+[   3 | gr ] op = oa => oa = op
+[   3 | gr ] oa = ob && op = oa => op = ob
+[   3 | gr ] pb = bp
+[   3 | gr ] oa = ob && op = oa => bo = po
+[   3 | gr ] ncoll o p b
+[   3 | gr ] oa = ob && ob = oc && op = oa => op = oc
+[   3 | gr ] pc = cp
+[   3 | gr ] oa = ob && ob = oc && op = oa => co = po
+[   3 | gr ] ncoll o p c
+[   3 | dd ] bp = bpa && pc = pac && cb = cb && ncoll b p c => △bpc ≅ △bpac
+[   3 | gr ] cp = cpa => pc = pac
+[   3 | gr ] cb = cb
+[   3 | gr ] ncoll b p c
+[   3 | dd ] bp = bpc && pa = pca && ab = ab && ncoll b p a => △bpa ≅ △bpca
+[   3 | gr ] ap = apc => pa = pca
+[   3 | gr ] ab = ab
+[   3 | gr ] ncoll b p a
+[   3 | gr ] bp = bpa => pb = pab
+[   3 | dd ] cp = cpb && pa = pba && ac = ac && ncoll c p a => △cpa ≅ △cpba
+[   3 | gr ] ap = apb => pa = pba
+[   3 | gr ] ac = ac
+[   3 | gr ] ncoll c p a
+[   3 | gr ] cp = cpb => pc = pbc
+[   3 | gr ] bp = bpc => pb = pcb
+[   3 | dd ] bq = bqa && cb = cb && qc = qac && ncoll b q c => △bqc ≅ △bqac
+[   3 | gr ] cq = cqa => qc = qac
+[   3 | gr ] ncoll b q c
+[   3 | dd ] bq = bqc && ab = ab && qa = qca && ncoll b q a => △bqa ≅ △bqca
+[   3 | gr ] aq = aqc => qa = qca
+[   3 | gr ] ncoll b q a
+[   3 | gr ] bq = bqa => qb = qab
+[   3 | dd ] cq = cqb && ac = ac && qa = qba && ncoll c q a => △cqa ≅ △cqba
+[   3 | gr ] aq = aqb => qa = qba
+[   3 | gr ] ncoll c q a
+[   3 | gr ] cq = cqb => qc = qbc
+[   3 | gr ] oa = ob && ob = oc => oa = oc
+[   3 | gr ] oa = ob && ob = oc => oc = oa
+[   3 | gr ] diff o c a p
+[   3 | gr ] cp = cpa && cp = cpb => cpa = cpb
+[   3 | gr ] ap = apb && ap = apc => apb = apc
+[   3 | gr ] ncoll o a b
+[   3 | gr ] ncoll o a c
+[   3 | gr ] ncoll o b c
+[   3 | gr ] ncoll c pa pb
+[   3 | gr ] ncoll a pb pc
+[   3 | gr ] pa, x, b1, b cyclic => b, pa, b1, x cyclic
+[   3 | gr ] pa, x, b1, b cyclic => b, b1, pa, x cyclic
+[   3 | gr ] pa, x, c1, c cyclic => c, pa, c1, x cyclic
+[   3 | gr ] pa, x, c1, c cyclic => c, c1, pa, x cyclic
+[   4 | dd ] op = oa && pa = ap && ao = po && ncoll o p a => △opa ≅ △oap
+[   4 | dd ] op = ob && pb = bp && bo = po && ncoll o p b => △opb ≅ △obp
+[   4 | dd ] op = oc && pc = cp && co = po && ncoll o p c => △opc ≅ △ocp
+[   4 | dd ] oa = op && oc = oa && diff o c a p => o center of ⦿cap
+[   4 | dd ] oa = ob && ncoll o a b => ∠oab = ∠abo
+[   4 | dd ] oa = oc && ncoll o a c => ∠oac = ∠aco
+[   4 | dd ] ob = oc && ncoll o b c => ∠obc = ∠bco
+[   4 | dd ] cpa = cpb && ncoll c pa pb => ∠cpapb = ∠papbc
+[   4 | dd ] apb = apc && ncoll a pb pc => ∠apbpc = ∠pbpca
+[   4 | dd ] b, pa, b1, x cyclic => ∠bb1pa = ∠bxpa
+[   4 | dd ] b, b1, pa, x cyclic => ∠bpab1 = ∠bxb1
+[   4 | dd ] c, pa, c1, x cyclic => ∠cc1pa = ∠cxpa
+[   4 | dd ] c, c1, pa, x cyclic => ∠cpac1 = ∠cxc1
+[   6 | ar ] bp = bpa && bp = bpc => pab = bpc
+[   6 | ar ] ∠bb1pa = ∠bxpa && ∠cc1pa = ∠cxpa => ∠(bb1, cc1) = ∠bxc
+[   6 | ar ] qp ⊥ op && ab ⊥ ppc && △opa ≅ △oap && △opc ≅ △ocp && △bpa ≅ △bpca && △cpa ≅ △cpba && ∠oac = ∠aco && ∠apbpc = ∠pbpca => ∠ppcpa = ∠qpc
+[   6 | ar ] △opb ≅ △obp && △opc ≅ △ocp && △bpc ≅ △bpac && △bpa ≅ △bpca && △cpa ≅ △cpba && ∠oab = ∠abo && ∠oac = ∠aco => ∠(bpc, cpb) = ∠cpab
+[   6 | ar ] △bpc ≅ △bpac && △bqc ≅ △bqac => ∠pbq = ∠qabpa
+[   6 | ar ] △bpa ≅ △bpca && △cpa ≅ △cpba && △bqa ≅ △bqca && △cqa ≅ △cqba => ∠pbapc = ∠qbaqc
+[   6 | ar ] △bpc ≅ △bpac && △bpa ≅ △bpca && △bqc ≅ △bqac && △bqa ≅ △bqca => ∠qabpa = ∠qcbpc
+[   6 | ar ] △opb ≅ △obp && △opc ≅ △ocp && △bpc ≅ △bpac && ∠oab = ∠abo && ∠oac = ∠aco => ∠bac = ∠cpab
+[   6 | ar ] △bpc ≅ △bpac && △bqc ≅ △bqac => ∠pcq = ∠qacpa
+[   6 | ar ] ab ⊥ ppc && △opb ≅ △obp && △opc ≅ △ocp && △bpc ≅ △bpac && △cpa ≅ △cpba && ∠oab = ∠abo && ∠oac = ∠aco && ∠cpapb = ∠papbc => ∠ppcpa = ∠cbpa
+[   6 | ar ] △bpc ≅ △bpac && △cpa ≅ △cpba && △bqc ≅ △bqac && △cqa ≅ △cqba => ∠qacpa = ∠qbcpb
+[   6 | ar ] ca ⊥ ppb && △bpc ≅ △bpac && △cpa ≅ △cpba && ∠cpapb = ∠papbc => ∠(ppb, papc) = ∠bcpa
+[   6 | ar ] qp ⊥ op && ca ⊥ ppb && △opa ≅ △oap && △opb ≅ △obp && △bpa ≅ △bpca && △cpa ≅ △cpba && ∠oab = ∠abo && ∠apbpc = ∠pbpca => ∠(ppb, papc) = ∠qpb
+[   6 | ar ] △opa ≅ △oap && △opb ≅ △obp && △bpc ≅ △bpac && ∠oac = ∠aco && ∠obc = ∠bco => ∠pac = ∠cbpa
+[   6 | ar ] △opa ≅ △oap && △opc ≅ △ocp && △bpa ≅ △bpca && ∠oab = ∠abo && ∠obc = ∠bco => ∠bapc = ∠pcb
+[   6 | ar ] cp = cpa && cp = cpb => pac = cpb
+[   7 | dd ] pb = pab && ∠pba0 = ∠a0bpa && ba0 = ba0 && diffclock p b a0 pa b a0 && ncoll p b a0 => △pba0 ≅ △paba0
+[   7 | gr ] a0, b, c collinear && △bpc ≅ △bpac => ∠pba0 = ∠a0bpa
+[   7 | gr ] ba0 = ba0
+[   7 | gr ] diffclock p b a0 pa b a0
+[   7 | gr ] ncoll p b a0
+[   7 | dd ] bq = bqa && pb = pab && ∠pbq = ∠qabpa && diffclock p b q pa b qa && ncoll p b q => △pbq ≅ △pabqa
+[   7 | gr ] ∠pbq = ∠qabpa => ∠pbq = ∠qabpa
+[   7 | gr ] diffclock p b q pa b qa
+[   7 | gr ] ncoll p b q
+[   7 | dd ] bq = bqc && pb = pcb && ncoll p b q && ∠pbq = ∠qcbpc && diffclock p b q pc b qc => △pbq ≅ △pcbqc
+[   7 | gr ] ∠pbq = ∠qabpa && ∠qabpa = ∠qcbpc => ∠pbq = ∠qcbpc
+[   7 | gr ] diffclock p b q pc b qc
+[   7 | dd ] cq = cqa && pc = pac && ∠pcq = ∠qacpa && diffclock p c q pa c qa && ncoll p c q => △pcq ≅ △pacqa
+[   7 | gr ] ∠pcq = ∠qacpa => ∠pcq = ∠qacpa
+[   7 | gr ] diffclock p c q pa c qa
+[   7 | gr ] ncoll p c q
+[   7 | gr ] cb0 = cb0
+[   7 | dd ] cq = cqb && pc = pbc && ncoll p c q && ∠pcq = ∠qbcpb && diffclock p c q pb c qb => △pcq ≅ △pbcqb
+[   7 | gr ] ∠pcq = ∠qacpa && ∠qacpa = ∠qbcpb => ∠pcq = ∠qbcpb
+[   7 | gr ] diffclock p c q pb c qb
+[   7 | dd ] qb = qab && ba0 = ba0 && ∠qba0 = ∠a0bqa && diffclock q b a0 qa b a0 && ncoll q b a0 => △qba0 ≅ △qaba0
+[   7 | gr ] a0, b, c collinear && △bqc ≅ △bqac => ∠qba0 = ∠a0bqa
+[   7 | gr ] diffclock q b a0 qa b a0
+[   7 | gr ] ncoll q b a0
+[   7 | dd ] qc = qbc && cb0 = cb0 && ∠qcb0 = ∠b0cqb && diffclock q c b0 qb c b0 && ncoll q c b0 => △qcb0 ≅ △qbcb0
+[   7 | gr ] b0, a, c collinear && △cqa ≅ △cqba => ∠qcb0 = ∠b0cqb
+[   7 | gr ] diffclock q c b0 qb c b0
+[   7 | gr ] ncoll q c b0
+[   7 | dd ] ∠bpc = ∠bac && ncoll b c p a => b, c, p, a cyclic
+[   7 | gr ] △bpc ≅ △bpac && ∠bac = ∠cpab => ∠bpc = ∠bac
+[   7 | gr ] ncoll b c p a
+[  10 | ar ] △bqa ≅ △bqca && △cqa ≅ △cqba && △pbq ≅ △pcbqc && △pcq ≅ △pbcqb => ∠(pbqb, pcqc) = ∠qbaqc
+[  10 | ar ] △bpc ≅ △bpac && △bpa ≅ △bpca && △bqc ≅ △bqac && △bqa ≅ △bqca && ∠bpab1 = ∠bxb1 && △pbq ≅ △pabqa && △pbq ≅ △pcbqc => ∠(b1x, pcqc) = ∠xbpc
+[  10 | ar ] △bpc ≅ △bpac && △cpa ≅ △cpba && △bqc ≅ △bqac && ∠cpac1 = ∠cxc1 && △pbq ≅ △pabqa && △qcb0 ≅ △qbcb0 => ∠(c1x, pbqb) = ∠xcpb
+[  10 | ar ] ∠a1c1i = ∠ic1b1 && ∠c1b1i = ∠ib1a1 && △opb ≅ △obp && △opc ≅ △ocp && △bpa ≅ △bpca && △cpa ≅ △cpba && △bqa ≅ △bqca && △cqa ≅ △cqba && ∠oab = ∠abo && ∠oac = ∠aco && △pbq ≅ △pcbqc && △pcq ≅ △pbcqb => ∠(bpc, cpb) = ∠b1ic1
+[  11 | gr ] b1, pc, qc collinear && △bpc ≅ △bpac && △bpa ≅ △bpca && ∠bpab1 = ∠bxb1 && ∠(ppb, papc) = ∠bcpa && ∠(ppb, papc) = ∠qpb && ∠bapc = ∠pcb && △pbq ≅ △pabqa && △pbq ≅ △pcbqc => ∠bxb1 = ∠bpcb1
+[  11 | gr ] ncoll b b1 x pc
+[  11 | gr ] c1, pb, qb collinear && △bpc ≅ △bpac && ∠cpac1 = ∠cxc1 && ∠ppcpa = ∠qpc && ∠ppcpa = ∠cbpa && ∠pac = ∠cbpa && △pcq ≅ △pacqa && △pcq ≅ △pbcqb => ∠cxc1 = ∠cpbc1
+[  11 | gr ] ncoll c c1 x pb
+[  12 | dd ] ∠bxb1 = ∠bpcb1 && ncoll b b1 x pc => b, b1, x, pc cyclic
+[  12 | dd ] ∠cxc1 = ∠cpbc1 && ncoll c c1 x pb => c, c1, x, pb cyclic
+[  15 | dd ] pab = bpc && b1, pa, b, pc cyclic => ∠pab1b = ∠bb1pc
+[  15 | gr ] pa, x, c1, c cyclic && c, c1, x, pb cyclic => x, pb, c, pa cyclic
+[  15 | dd ] x, pb, c, pa cyclic => ∠xcpb = ∠xpapb
+[  15 | gr ] pa, x, c1, c cyclic && c, c1, x, pb cyclic => c1, pa, c, pb cyclic
+[  15 | dd ] pac = cpb && c1, pa, c, pb cyclic => ∠pac1c = ∠cc1pb
+[  15 | gr ] pa, x, b1, b cyclic && b, b1, x, pc cyclic => x, pc, b, pa cyclic
+[  15 | gr ] pa, x, b1, b cyclic && b, b1, x, pc cyclic => b1, pa, b, pc cyclic
+[  15 | dd ] x, pc, b, pa cyclic => ∠xbpc = ∠xpapc
+[  18 | ar ] △opb ≅ △obp && △opc ≅ △ocp && △bpc ≅ △bpac && △bqa ≅ △bqca && △cqa ≅ △cqba && ∠oab = ∠abo && ∠oac = ∠aco && ∠bb1pa = ∠bxpa && ∠bpab1 = ∠bxb1 && ∠cc1pa = ∠cxpa && ∠cpac1 = ∠cxc1 && △pbq ≅ △pcbqc && △pcq ≅ △pbcqb && ∠pab1b = ∠bb1pc && ∠pac1c = ∠cc1pb => ∠c1xb1 = ∠qbaqc
+[  18 | ar ] ∠c1b1i = ∠ib1a1 && △bqc ≅ △bqac && △pbq ≅ △pabqa && △qba0 ≅ △qaba0 && ∠pab1b = ∠bb1pc => b1i ∥ bb1
+[  18 | ar ] ∠a1c1i = ∠ic1b1 && △bqc ≅ △bqac && △pbq ≅ △pabqa && △qba0 ≅ △qaba0 && ∠pac1c = ∠cc1pb => c1i ∥ cc1
+[  19 | gr ] △bpc ≅ △bpac && ∠(bb1, cc1) = ∠bxc && ∠(bpc, cpb) = ∠cpab && ∠(bpc, cpb) = ∠b1ic1 && b1i ∥ bb1 && c1i ∥ cc1 => ∠bpc = ∠bxc
+[  19 | gr ] ncoll b c p x
+[  19 | gr ] b1, pc, qc collinear && c1, pb, qb collinear && ∠pbapc = ∠qbaqc && ∠(pbqb, pcqc) = ∠qbaqc && ∠c1xb1 = ∠qbaqc => ∠c1a1b1 = ∠c1xb1
+[  19 | gr ] ncoll c1 b1 a1 x
+[  20 | dd ] ∠bpc = ∠bxc && ncoll b c p x => b, c, p, x cyclic
+[  20 | dd ] ∠c1a1b1 = ∠c1xb1 && ncoll c1 b1 a1 x => c1, b1, a1, x cyclic
+[  23 | gr ] o center of ⦿cap && b, c, p, x cyclic => o center of ⦿pax
+[  23 | gr ] qp ⊥ op => op ⊥ pq
+[  23 | gr ] o center of ⦿abc && b, c, p, a cyclic && b, c, p, x cyclic => o center of ⦿pbx
+[  23 | gr ] o center of ⦿cap && b, c, p, x cyclic => o center of ⦿xpa
+[  23 | gr ] c1, b1, a1, x cyclic => a1, b1, c1, x cyclic
+[  23 | gr ] o1 center of ⦿a1b1c1 && c1, b1, a1, x cyclic => o1 center of ⦿xa1b1
+[  23 | gr ] yx ⊥ xo => ox ⊥ xy
+[  24 | dd ] o center of ⦿pax && op ⊥ pq => ∠qpa = ∠pxa
+[  24 | dd ] o center of ⦿xpa && ox ⊥ xy => ∠yxp = ∠xap
+[  24 | dd ] a1, b1, c1, x cyclic => ∠a1c1b1 = ∠a1xb1
+[  24 | dd ] op ⊥ pq && o center of ⦿pbx => ∠qpb = ∠pxb
+[  26 | ar ] qp ⊥ op && △opb ≅ △obp && △bpc ≅ △bpac && △bqc ≅ △bqac && △bqa ≅ △bqca && △cqa ≅ △cqba && ∠oab = ∠abo && ∠oac = ∠aco && ∠obc = ∠bco && ∠bpab1 = ∠bxb1 && △pba0 ≅ △paba0 && △pbq ≅ △pabqa && △pbq ≅ △pcbqc && △pcq ≅ △pbcqb && ∠qpa = ∠pxa && ∠yxp = ∠xap && ∠a1c1b1 = ∠a1xb1 && ∠qpb = ∠pxb => ∠(b1x, pcqc) = ∠yxa1
+[  27 | gr ] b1, pc, qc collinear && ∠(b1x, pcqc) = ∠xbpc && ∠(c1x, pbqb) = ∠xcpb && ∠xcpb = ∠xpapb && ∠xbpc = ∠xpapc && ∠(b1x, pcqc) = ∠yxa1 => ∠xb1a1 = ∠yxa1
+[  28 | dd ] o1 center of ⦿xa1b1 && ∠xb1a1 = ∠yxa1 => o1x ⊥ xy
+[  31 | dd ] xo ∥ xo1 && diff o o1 => x, o, o1 collinear
+[  31 | gr ] yx ⊥ xo && o1x ⊥ xy => xo ∥ xo1
+[  31 | gr ] diff o o1
+[ 511 | dd ] x, o, o1 collinear => x, o, o1 collinear

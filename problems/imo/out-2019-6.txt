@@ -1,0 +1,23 @@
+=======================================
+Problem: imo-2019-6
+
+    a b c = triangle a b c; 
+    d e f i = incenter2 d e f i : a b c; 
+    r = on_line_perp r : d e f, on_circle r : i d; 
+    p = intersection_lc p : a i r;
+    o1 = circumcenter o1 : p c e; 
+    o2 = circumcenter o2 : p b f; 
+    q = on_circle q : o1 p, on_circle q : o2 p; 
+    x = intersection_ll x : p q i d;
+    m = on_angle_bisect m : b a c, on_circum m : a b c;
+    n = on_line_perp n : a a m, on_circum n : a b c
+    ? perp a x a i
+
+---------------------------------------
+    r = (-0.170724, -1.002733)    c = (-0.686245, -1.279078)    a = (0.179000, -0.902879)
+    b = (-1.177922, 0.387611)    d = (-0.800640, -0.891301)    e = (-0.315476, -1.117872)
+    f = (-0.211711, -0.531297)    i = (-0.457942, -0.790204)    p = (-0.589645, -1.122344)
+    o1 = (-0.449349, -1.316949)    o2 = (-1.030077, -0.424362)    q = (-0.570418, -1.109834)
+    x = (0.235099, -0.585755)    m = (-1.484305, -0.608640)    n = (0.325498, -0.074744)
+
+    Loss: 0

@@ -12,129 +12,60 @@ Problem: imo-2000-1
     ? cong e p e q
 
 ---------------------------------------
-    c = (1.031402, -0.044666)    d = (-0.752439, -0.374376)    g1 = (0.690626, 0.505292)
-    m = (0.568948, -0.130142)    n = (0.183542, 0.907099)    a = (0.573036, 1.141496)
-    b = (-0.318885, 0.976641)    g2 = (-0.172488, 0.184587)    e = (0.114669, 2.327659)
-    p = (-2.474879, -0.692737)    q = (3.612774, 0.432452)
+    c = (-1.570673, -0.138125)    d = (0.217267, 0.153807)    g1 = (-0.908972, -0.966016)
+    m = (-0.544969, 0.029350)    n = (0.150743, -0.949997)    g2 = (-0.086560, -0.381789)
+    a = (-1.079758, 0.079968)    b = (-0.185788, 0.225934)    e = (-0.588844, 0.298062)
+    p = (-0.941863, -0.035454)    q = (-0.148075, 0.094154)
     Loss: 0
 ---------------------------------------
 [   3 | gr ] g1m = g1n && g1a = g1m => g1n = g1a
-[   3 | gr ] g1c = g1a && g1m = g1n && g1a = g1m => g1n = g1c
 [   3 | gr ] g1a = g1m => g1m = g1a
 [   3 | gr ] g1c = g1a && g1a = g1m => g1m = g1c
 [   3 | gr ] g1c = g1a => g1a = g1c
 [   3 | gr ] g2b = g2m && g2m = g2n => g2n = g2b
-[   3 | gr ] g2b = g2m && g2m = g2n && g2d = g2b => g2n = g2d
 [   3 | gr ] g2b = g2m => g2m = g2b
 [   3 | gr ] g2b = g2m && g2d = g2b => g2m = g2d
 [   3 | gr ] g2d = g2b => g2b = g2d
-[   3 | gr ] g2b = g2m && g2m = g2n && g2d = g2b => g2d = g2n
-[   3 | gr ] g1m = g1n => mg1 = ng1
-[   3 | gr ] g2m = g2n => mg2 = ng2
 [   3 | gr ] ncoll g1 m a
 [   3 | gr ] ncoll g1 m c
 [   3 | gr ] ncoll g1 n a
-[   3 | gr ] ncoll g1 n c
 [   3 | gr ] ncoll g1 a c
 [   3 | gr ] ncoll g2 m b
 [   3 | gr ] ncoll g2 m d
 [   3 | gr ] ncoll g2 n b
-[   3 | gr ] ncoll g2 n d
-[   3 | gr ] ncoll g2 d n
 [   3 | gr ] ncoll g2 b d
 [   3 | dd ] mc ∥ md && diff c d => m, c, d collinear
 [   3 | gr ] cm ∥ ab && dm ∥ ab => mc ∥ md
 [   3 | gr ] diff c d
-[   4 | dd ] diff g1 g2 && mg1 = ng1 && mg2 = ng2 => mn ⊥ g1g2
 [   4 | dd ] g1m = g1a && ncoll g1 m a => ∠g1ma = ∠mag1
 [   4 | dd ] g1m = g1c && ncoll g1 m c => ∠g1mc = ∠mcg1
 [   4 | dd ] g1n = g1a && ncoll g1 n a => ∠g1na = ∠nag1
-[   4 | dd ] g1n = g1c && ncoll g1 n c => ∠g1nc = ∠ncg1
 [   4 | dd ] g1a = g1c && ncoll g1 a c => ∠g1ac = ∠acg1
 [   4 | dd ] g2m = g2b && ncoll g2 m b => ∠g2mb = ∠mbg2
 [   4 | dd ] g2m = g2d && ncoll g2 m d => ∠g2md = ∠mdg2
 [   4 | dd ] g2n = g2b && ncoll g2 n b => ∠g2nb = ∠nbg2
-[   4 | dd ] g2n = g2d && ncoll g2 n d => ∠g2nd = ∠ndg2
-[   4 | dd ] g2d = g2n && ncoll g2 d n => ∠g2dn = ∠dng2
 [   4 | dd ] g2b = g2d && ncoll g2 b d => ∠g2bd = ∠bdg2
-[   6 | ar ] ∠g1ma = ∠mag1 && ∠g1mc = ∠mcg1 && ∠g1na = ∠nag1 && ∠g1nc = ∠ncg1 => ∠mab = ∠anc
-[   6 | ar ] ag1 ⊥ ab && ∠g1ma = ∠mag1 && ∠g1mc = ∠mcg1 && ∠g1ac = ∠acg1 => ∠ag1c = ∠mac
-[   6 | ar ] ag1 ⊥ ab && ∠g2mb = ∠mbg2 && ∠g2md = ∠mdg2 && ∠g2bd = ∠bdg2 => ∠mbd = ∠(mg2, g1a)
-[   6 | ar ] bg2 ⊥ ba && ag1 ⊥ ab && ∠g1mc = ∠mcg1 => ∠ag1c = ∠mg1a
 [   6 | ar ] ∠g1ma = ∠mag1 && ∠g1mc = ∠mcg1 && ∠g1ac = ∠acg1 && ∠g2mb = ∠mbg2 && ∠g2md = ∠mdg2 && ∠g2bd = ∠bdg2 => ∠amb = ∠(db, ca)
-[   6 | ar ] bg2 ⊥ ba && ∠g1mn = ∠mng1 && ∠g1mc = ∠mcg1 && ∠g1na = ∠nag1 && ∠g1nc = ∠ncg1 => ∠anc = ∠mna
-[   6 | ar ] bg2 ⊥ ba && ∠g1ma = ∠mag1 && ∠g1mc = ∠mcg1 && ∠g1ac = ∠acg1 => ∠bac = ∠mab
-[   6 | ar ] ∠g1mn = ∠mng1 && mn ⊥ g1g2 && ∠g1mc = ∠mcg1 && ∠g1nc = ∠ncg1 => ∠g2g1m = ∠(cn, ab)
-[   6 | ar ] bg2 ⊥ ba && ∠g2mb = ∠mbg2 && ∠g2md = ∠mdg2 && ∠g2bd = ∠bdg2 => ∠(g1a, dg2) = ∠mbd
-[   6 | ar ] ∠g1mn = ∠mng1 && ∠g2mn = ∠mng2 && ∠g1mc = ∠mcg1 && ∠g1nc = ∠ncg1 && ∠g2md = ∠mdg2 && ∠g2nd = ∠ndg2 => ∠dng2 = ∠g1cn
-[   6 | ar ] bg2 ⊥ ba && ∠g2mb = ∠mbg2 && ∠g2md = ∠mdg2 && ∠g2bd = ∠bdg2 => ∠abd = ∠mba
-[   6 | ar ] ∠g1mn = ∠mng1 && ∠g2mn = ∠mng2 && ∠g1mc = ∠mcg1 && ∠g1nc = ∠ncg1 && ∠g2md = ∠mdg2 && ∠g2nd = ∠ndg2 => ∠g2nd = ∠ncg1
-[   6 | ar ] ∠g2mn = ∠mng2 && mn ⊥ g1g2 && ∠g2md = ∠mdg2 && ∠g2nd = ∠ndg2 => ∠g1g2m = ∠(dn, ab)
-[   6 | ar ] ∠g1mn = ∠mng1 && mn ⊥ g1g2 && ∠g1ma = ∠mag1 && ∠g1na = ∠nag1 => ∠g2g1m = ∠nam
-[   6 | ar ] bg2 ⊥ ba && ∠g2mn = ∠mng2 && ∠g2md = ∠mdg2 && ∠g2nb = ∠nbg2 && ∠g2nd = ∠ndg2 => ∠bnd = ∠mnb
-[   6 | ar ] ∠g2mb = ∠mbg2 && ∠g2md = ∠mdg2 && ∠g2nb = ∠nbg2 && ∠g2nd = ∠ndg2 => ∠nbm = ∠(dn, ab)
-[   6 | ar ] ∠g2mb = ∠mbg2 && ∠g2md = ∠mdg2 && ∠g2nb = ∠nbg2 && ∠g2nd = ∠ndg2 => ∠mba = ∠bnd
-[   7 | gr ] ncoll m g1 a
-[   7 | gr ] ncoll m g2 b
-[   7 | gr ] p, c, d collinear && m, c, d collinear => p, m, c collinear
-[   7 | gr ] ncoll n m c
-[   7 | gr ] p, a, n collinear && ∠mab = ∠anc && ∠anc = ∠mna && ∠bac = ∠mab => ∠mnp = ∠pnc
-[   7 | gr ] q, b, n collinear && ∠abd = ∠mba && ∠bnd = ∠mnb && ∠mba = ∠bnd => ∠mnq = ∠qnd
-[   7 | gr ] p, c, d collinear && q, c, d collinear && m, c, d collinear => q, m, d collinear
-[   7 | gr ] ncoll n m d
-[   7 | gr ] ∠g1nc = ∠ncg1 && ∠g2nd = ∠ndg2 && ∠g2nd = ∠ncg1 => ∠g1nc = ∠ndg2
-[   7 | gr ] diffclock g1 n c g2 d n
-[   7 | gr ] ∠g2dn = ∠dng2 && ∠dng2 = ∠g1cn => ∠g1cn = ∠dng2
-[   7 | gr ] cm ∥ ab && p, c, d collinear && m, c, d collinear && ∠g2g1m = ∠(cn, ab) && ∠g2g1m = ∠nam => ∠ncp = ∠pam
-[   7 | gr ] diffclock n c p m a p
-[   7 | gr ] cm ∥ ab && p, a, n collinear && p, c, d collinear && m, c, d collinear => ∠npc = ∠apm
-[   7 | gr ] ncoll n c p
-[   7 | gr ] ∠amb = ∠(db, ca) => ∠bea = ∠amb
-[   7 | gr ] diffclock b e a b m a
-[   7 | gr ] ∠bac = ∠mab => ∠bae = ∠mab
-[   7 | gr ] ncoll b e a
-[   7 | gr ] cm ∥ ab && p, c, d collinear && q, c, d collinear && m, c, d collinear && ∠g1g2m = ∠(dn, ab) && ∠nbm = ∠(dn, ab) => ∠ndq = ∠qbm
-[   7 | gr ] diffclock n d q m b q
-[   7 | gr ] cm ∥ ab && p, c, d collinear && q, b, n collinear && q, c, d collinear && m, c, d collinear => ∠nqd = ∠bqm
-[   7 | gr ] ncoll n d q
-[   7 | gr ] cm ∥ ab && e, a, c collinear && p, a, n collinear && p, c, d collinear && m, c, d collinear && ∠mab = ∠anc && ∠bac = ∠mab => ∠pca = ∠anc
-[   7 | gr ] diffclock p c a c n a
-[   7 | gr ] e, a, c collinear && p, a, n collinear => ∠pac = ∠nac
-[   7 | gr ] ncoll p c a
-[   7 | gr ] ncoll q d b
-[   7 | gr ] cm ∥ ab && e, b, d collinear && p, c, d collinear && q, b, n collinear && q, c, d collinear && m, c, d collinear && ∠abd = ∠mba && ∠mba = ∠bnd => ∠qdb = ∠bnd
-[   7 | gr ] diffclock q d b d n b
-[   7 | gr ] e, b, d collinear && q, b, n collinear => ∠qbd = ∠nbd
-[   7 | gr ] cm ∥ ab && p, c, d collinear && q, c, d collinear && m, c, d collinear => ab ∥ pq
-[   7 | gr ] p, a, n collinear => n, a, p collinear
-[   7 | gr ] q, b, n collinear => n, b, q collinear
-[   7 | gr ] ncoll a b p
-[   8 | dd ] p, m, c collinear && ncoll n m c && ∠mnp = ∠pnc => pm / pc = nm / nc
-[   8 | dd ] ∠mnq = ∠qnd && q, m, d collinear && ncoll n m d => qm / qd = nm / nd
-[   8 | dd ] ncoll g1 n c && ∠g1nc = ∠ndg2 && diffclock g1 n c g2 d n && ∠g1cn = ∠dng2 => △g1nc ~ △g2dn
-[   8 | dd ] ∠ncp = ∠pam && diffclock n c p m a p && ∠npc = ∠apm && ncoll n c p => △ncp ~ △map
-[   8 | dd ] ∠bea = ∠amb && diffclock b e a b m a && ∠bae = ∠mab && ncoll b e a => △bea ~ △bma
-[   8 | dd ] ∠ndq = ∠qbm && diffclock n d q m b q && ∠nqd = ∠bqm && ncoll n d q => △ndq ~ △mbq
-[   8 | dd ] ∠pca = ∠anc && diffclock p c a c n a && ∠pac = ∠nac && ncoll p c a => △pca ~ △cna
-[   8 | dd ] ncoll q d b && ∠qdb = ∠bnd && diffclock q d b d n b && ∠qbd = ∠nbd => △qdb ~ △dnb
-[   8 | dd ] ab ∥ pq && n, a, p collinear && n, b, q collinear && ncoll a b p => △nab ~ △npq
-[  11 | gr ] diffclock m g2 b e b m
-[  11 | gr ] ∠mbd = ∠(mg2, g1a) && ∠(g1a, dg2) = ∠mbd => ∠mg2b = ∠mbe
-[  11 | gr ] g2m / g2b = be / bm
-[  11 | gr ] g1m / g1a = ae / am
-[  11 | gr ] diffclock m g1 a e a m
+[   6 | ar ] ∠g1mn = ∠mng1 && ∠g2mn = ∠mng2 && ∠g1mc = ∠mcg1 && ∠g1na = ∠nag1 && ∠g1ac = ∠acg1 && ∠g2md = ∠mdg2 && ∠g2nb = ∠nbg2 && ∠g2bd = ∠bdg2 => ∠nac = ∠nbd
+[   6 | ar ] ∠g1mn = ∠mng1 && ∠g2mn = ∠mng2 && ∠g1mc = ∠mcg1 && ∠g1na = ∠nag1 && ∠g1ac = ∠acg1 && ∠g2md = ∠mdg2 && ∠g2nb = ∠nbg2 && ∠g2bd = ∠bdg2 => ∠bna = ∠(db, ca)
+[   7 | gr ] p, a, n collinear && q, b, n collinear && ∠nac = ∠nbd => ∠nae = ∠nbe
+[   7 | gr ] ncoll n e a b
+[   8 | dd ] ∠nae = ∠nbe && ncoll n e a b => n, e, a, b cyclic
+[  11 | gr ] ncoll e a p
 [  11 | gr ] ae / ap = an / ae
 [  11 | gr ] diffclock e a p n a e
 [  11 | gr ] p, a, n collinear => ∠eap = ∠ean
-[  11 | gr ] ncoll e a p
+[  11 | gr ] ncoll e b q
 [  11 | gr ] be / bq = bn / be
 [  11 | gr ] diffclock e b q n b e
 [  11 | gr ] q, b, n collinear => ∠ebq = ∠ebn
-[  11 | gr ] ncoll e b q
-[  11 | gr ] bg2 ⊥ ba && ag1 ⊥ ab && ∠ag1c = ∠mac && ∠ag1c = ∠mg1a => ∠mg1a = ∠mae
-[  12 | dd ] ncoll m g2 b && diffclock m g2 b e b m && ∠mg2b = ∠mbe && g2m / g2b = be / bm => △mg2b ~ △ebm
-[  12 | dd ] ncoll m g1 a && g1m / g1a = ae / am && diffclock m g1 a e a m && ∠mg1a = ∠mae => △mg1a ~ △eam
-[  12 | dd ] ae / ap = an / ae && diffclock e a p n a e && ∠eap = ∠ean && ncoll e a p => △eap ~ △nae
-[  12 | dd ] be / bq = bn / be && diffclock e b q n b e && ∠ebq = ∠ebn && ncoll e b q => △ebq ~ △nbe
-[  14 | ar ] pm / pc = nm / nc && qm / qd = nm / nd && △g1nc ~ △g2dn && △ncp ~ △map && △bea ~ △bma && △ndq ~ △mbq && △pca ~ △cna && △qdb ~ △dnb && △nab ~ △npq && △mg2b ~ △ebm && △mg1a ~ △eam && △eap ~ △nae && △ebq ~ △nbe => eq = pe
-[ 511 | dd ] eq = pe => ep = eq
+[  11 | gr ] n, e, a, b cyclic => n, a, b, e cyclic
+[  12 | dd ] ncoll e a p && ae / ap = an / ae && diffclock e a p n a e && ∠eap = ∠ean => △eap ~ △nae
+[  12 | dd ] ncoll e b q && be / bq = bn / be && diffclock e b q n b e && ∠ebq = ∠ebn => △ebq ~ △nbe
+[  12 | dd ] n, a, b, e cyclic => ∠nba = ∠nea
+[  14 | ar ] ∠g1mn = ∠mng1 && ∠g2mn = ∠mng2 && ∠g1mc = ∠mcg1 && ∠g1na = ∠nag1 && ∠g1ac = ∠acg1 && ∠g2md = ∠mdg2 && ∠g2nb = ∠nbg2 && ∠g2bd = ∠bdg2 && △ebq ~ △nbe && ∠nba = ∠nea => ∠bna = ∠(eq, ab)
+[  14 | ar ] △eap ~ △nae && ∠nba = ∠nea => ∠bna = ∠(ab, ep)
+[  15 | gr ] cm ∥ ab && p, c, d collinear && q, c, d collinear && m, c, d collinear && ∠amb = ∠(db, ca) && ∠bna = ∠(db, ca) && ∠bna = ∠(eq, ab) && ∠bna = ∠(ab, ep) => ∠eqp = ∠qpe
+[  15 | gr ] ncoll e q p
+[  15 | dd ] ∠eqp = ∠qpe && ncoll e q p => eq = ep
+[ 511 | dd ] eq = ep => ep = eq

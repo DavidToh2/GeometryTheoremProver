@@ -1,0 +1,141 @@
+=======================================
+Problem: imo-2018-1
+
+    a b c = triangle a b c; 
+    o = circumcenter o : a b c; 
+    d = on_ray d : a b; 
+    e = on_ray e : a c, on_circle e : a d; 
+    m n = midpoint m : b d, midpoint n : c e;
+    b0 c0 = r_triangle_n b0 : m b, r_triangle_p c0 : n c;
+    f = on_ray f : m b0, on_circle f : o a; 
+    g = on_ray g : n c0, on_circle g : o a;
+    x y = intersection_lc x : d o f, intersection_lc y : e o g
+    ? para d e f g
+
+---------------------------------------
+    m = (0.461012, -0.797405)    n = (-0.226809, -0.670081)    o = (0.089000, -0.855512)
+    a = (0.028640, -1.267025)    b = (0.494136, -0.761428)    c = (-0.250359, -0.615049)
+    d = (0.427888, -0.833382)    e = (-0.203260, -0.725113)    b0 = (0.496989, -0.830529)
+    c0 = (-0.281842, -0.693631)    f = (0.504525, -0.837467)    g = (-0.296755, -0.700013)
+    x = (-0.322253, -0.793401)    y = (0.500767, -0.914120)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] m midpoint of bd => mb = md
+[   3 | gr ] n midpoint of ce => nc = ne
+[   3 | gr ] oa = ob && of = oa => ob = of
+[   3 | gr ] oa = ob && of = oa && og = oa => ob = og
+[   3 | gr ] oa = ob && of = oa && og = oa && of = ox => ob = ox
+[   3 | gr ] oa = ob && of = oa && og = oa && og = oy => ob = oy
+[   3 | gr ] of = oa => oa = of
+[   3 | gr ] of = oa && og = oa => oa = og
+[   3 | gr ] of = oa && og = oa && of = ox => oa = ox
+[   3 | gr ] of = oa && og = oa && og = oy => oa = oy
+[   3 | gr ] oa = ob && ob = oc => oa = oc
+[   3 | gr ] oa = ob && ob = oc && of = oa => oc = of
+[   3 | gr ] oa = ob && ob = oc && of = oa && og = oa => oc = og
+[   3 | gr ] oa = ob && ob = oc && of = oa && og = oa && of = ox => oc = ox
+[   3 | gr ] oa = ob && ob = oc && of = oa && og = oa && og = oy => oc = oy
+[   3 | gr ] of = oa && og = oa => of = og
+[   3 | gr ] of = oa && og = oa && og = oy => of = oy
+[   3 | gr ] of = oa && og = oa && of = ox => og = ox
+[   3 | gr ] of = oa && og = oa && og = oy => oy = oa
+[   3 | gr ] ncoll a e d
+[   3 | gr ] ncoll o a b
+[   3 | gr ] ncoll o a c
+[   3 | gr ] ncoll o a f
+[   3 | gr ] ncoll o a g
+[   3 | gr ] ncoll o a x
+[   3 | gr ] ncoll o a y
+[   3 | gr ] ncoll o b c
+[   3 | gr ] ncoll o b f
+[   3 | gr ] ncoll o b g
+[   3 | gr ] ncoll o b x
+[   3 | gr ] ncoll o b y
+[   3 | gr ] ncoll o c f
+[   3 | gr ] ncoll o c g
+[   3 | gr ] ncoll o c x
+[   3 | gr ] ncoll o c y
+[   3 | gr ] ncoll o f g
+[   3 | gr ] ncoll o f x
+[   3 | gr ] ncoll o f y
+[   3 | gr ] ncoll o g x
+[   3 | gr ] ncoll o g y
+[   3 | gr ] d, a, b collinear && b0m ⊥ mb && f, m, b0 collinear => fm ⊥ bd
+[   3 | gr ] e, a, c collinear && c0n ⊥ nc && g, n, c0 collinear => gn ⊥ ce
+[   4 | dd ] ae = ad && ncoll a e d => ∠aed = ∠eda
+[   4 | dd ] oa = ob && ncoll o a b => ∠oab = ∠abo
+[   4 | dd ] oa = oc && ncoll o a c => ∠oac = ∠aco
+[   4 | dd ] oa = of && ncoll o a f => ∠oaf = ∠afo
+[   4 | dd ] oa = og && ncoll o a g => ∠oag = ∠ago
+[   4 | dd ] oa = ox && ncoll o a x => ∠oax = ∠axo
+[   4 | dd ] oa = oy && ncoll o a y => ∠oay = ∠ayo
+[   4 | dd ] ob = oc && ncoll o b c => ∠obc = ∠bco
+[   4 | dd ] ob = of && ncoll o b f => ∠obf = ∠bfo
+[   4 | dd ] ob = og && ncoll o b g => ∠obg = ∠bgo
+[   4 | dd ] ob = ox && ncoll o b x => ∠obx = ∠bxo
+[   4 | dd ] ob = oy && ncoll o b y => ∠oby = ∠byo
+[   4 | dd ] oc = of && ncoll o c f => ∠ocf = ∠cfo
+[   4 | dd ] oc = og && ncoll o c g => ∠ocg = ∠cgo
+[   4 | dd ] oc = ox && ncoll o c x => ∠ocx = ∠cxo
+[   4 | dd ] oc = oy && ncoll o c y => ∠ocy = ∠cyo
+[   4 | dd ] of = og && ncoll o f g => ∠ofg = ∠fgo
+[   4 | dd ] of = ox && ncoll o f x => ∠ofx = ∠fxo
+[   4 | dd ] of = oy && ncoll o f y => ∠ofy = ∠fyo
+[   4 | dd ] og = ox && ncoll o g x => ∠ogx = ∠gxo
+[   4 | dd ] og = oy && ncoll o g y => ∠ogy = ∠gyo
+[   4 | dd ] m midpoint of bd && fm ⊥ bd => fb = fd
+[   4 | dd ] n midpoint of ce && gn ⊥ ce => gc = ge
+[   6 | ar ] ∠ocf = ∠cfo && ∠ocg = ∠cgo && ∠ofy = ∠fyo && ∠ogy = ∠gyo => ∠cfy = ∠cge
+[   6 | ar ] ∠ocx = ∠cxo && ∠ocy = ∠cyo && ∠ogx = ∠gxo && ∠ogy = ∠gyo => ∠cxg = ∠(cy, eg)
+[   6 | ar ] ∠obc = ∠bco && ∠obg = ∠bgo && ∠ocf = ∠cfo && ∠ofg = ∠fgo => ∠cbg = ∠cfg
+[   6 | ar ] ∠oac = ∠aco && ∠oay = ∠ayo && ∠obc = ∠bco && ∠oby = ∠byo => ∠nay = ∠cby
+[   6 | ar ] ∠oac = ∠aco && ∠oax = ∠axo && ∠ocf = ∠cfo && ∠ofx = ∠fxo => ∠(cf, na) = ∠(df, ax)
+[   6 | ar ] ∠ocf = ∠cfo && ∠ocx = ∠cxo && ∠ofg = ∠fgo && ∠ogx = ∠gxo => ∠cfg = ∠cxg
+[   6 | ar ] ∠oac = ∠aco && ∠oay = ∠ayo && ∠ocg = ∠cgo && ∠ogy = ∠gyo => ∠(cg, na) = ∠(eg, ay)
+[   6 | ar ] ∠obc = ∠bco && ∠oby = ∠byo && ∠ocf = ∠cfo && ∠ofy = ∠fyo => ∠cby = ∠cfy
+[   6 | ar ] ∠oac = ∠aco && ∠oag = ∠ago && ∠obc = ∠bco && ∠obg = ∠bgo => ∠nag = ∠cbg
+[   6 | ar ] ∠oab = ∠abo && ∠oac = ∠aco && ∠obf = ∠bfo && ∠ocf = ∠cfo => ∠(bf, ma) = ∠(cf, na)
+[   6 | ar ] ∠oab = ∠abo && ∠oac = ∠aco && ∠obx = ∠bxo && ∠ocx = ∠cxo => ∠(bx, ma) = ∠(cx, na)
+[   6 | ar ] ∠oab = ∠abo && ∠oax = ∠axo && ∠obc = ∠bco && ∠ocx = ∠cxo => ∠max = ∠bcx
+[   6 | ar ] ∠obc = ∠bco && ∠obx = ∠bxo && ∠ocf = ∠cfo && ∠ofx = ∠fxo => ∠bcf = ∠(bx, df)
+[   6 | ar ] ∠oac = ∠aco && ∠oag = ∠ago && ∠ocy = ∠cyo && ∠ogy = ∠gyo => ∠(cy, na) = ∠ega
+[   6 | ar ] ∠oac = ∠aco && ∠oaf = ∠afo && ∠ocx = ∠cxo && ∠ofx = ∠fxo => ∠(cx, na) = ∠dfa
+[   6 | ar ] ∠oab = ∠abo && ∠oac = ∠aco && ∠obg = ∠bgo && ∠ocg = ∠cgo => ∠(bg, ma) = ∠(cg, na)
+[   6 | ar ] ∠oab = ∠abo && ∠oac = ∠aco && ∠oby = ∠byo && ∠ocy = ∠cyo => ∠(by, ma) = ∠(cy, na)
+[   6 | ar ] ∠oab = ∠abo && ∠oaf = ∠afo && ∠obc = ∠bco && ∠ocf = ∠cfo => ∠maf = ∠bcf
+[   6 | ar ] ∠obc = ∠bco && ∠obf = ∠bfo && ∠ocx = ∠cxo && ∠ofx = ∠fxo => ∠bfd = ∠bcx
+[   7 | dd ] mb = md && bf = df && fm = fm && ncoll m b f => △mbf ≅ △mdf
+[   7 | gr ] fb = fd => bf = df
+[   7 | gr ] fm = fm
+[   7 | gr ] ncoll m b f
+[   7 | dd ] nc = ne && cg = eg && gn = gn && ncoll n c g => △ncg ≅ △neg
+[   7 | gr ] gc = ge => cg = eg
+[   7 | gr ] gn = gn
+[   7 | gr ] ncoll n c g
+[   7 | gr ] ∠cxg = ∠(cy, eg) && ∠cbg = ∠cfg && ∠cfg = ∠cxg && ∠nag = ∠cbg => ∠eag = ∠cye
+[   7 | gr ] diffclock e a g e y c
+[   7 | gr ] e, a, c collinear && y, e, g collinear && ∠(cy, na) = ∠ega && ∠(by, ma) = ∠(cy, na) => ∠ega = ∠yce
+[   7 | gr ] ncoll e a g
+[   7 | gr ] ∠bcf = ∠(bx, df) && ∠maf = ∠bcf => ∠daf = ∠bxd
+[   7 | gr ] diffclock d a f d x b
+[   7 | gr ] d, a, b collinear && x, d, f collinear && ∠(bx, ma) = ∠(cx, na) && ∠(cx, na) = ∠dfa => ∠dfa = ∠xbd
+[   7 | gr ] ncoll d a f
+[   7 | gr ] d, a, b collinear && ∠(cf, na) = ∠(df, ax) && ∠(bf, ma) = ∠(cf, na) => ∠dxa = ∠fbd
+[   7 | gr ] diffclock d x a d b f
+[   7 | gr ] x, d, f collinear && ∠max = ∠bcx && ∠bfd = ∠bcx => ∠dax = ∠bfd
+[   7 | gr ] ncoll d x a
+[   7 | gr ] e, a, c collinear && ∠(cg, na) = ∠(eg, ay) && ∠(bg, ma) = ∠(cg, na) => ∠eya = ∠gce
+[   7 | gr ] diffclock e y a e c g
+[   7 | gr ] y, e, g collinear && ∠cfy = ∠cge && ∠nay = ∠cby && ∠cby = ∠cfy => ∠eay = ∠cge
+[   7 | gr ] ncoll e y a
+[   8 | dd ] ∠eag = ∠cye && diffclock e a g e y c && ∠ega = ∠yce && ncoll e a g => △eag ~ △eyc
+[   8 | dd ] ∠daf = ∠bxd && diffclock d a f d x b && ∠dfa = ∠xbd && ncoll d a f => △daf ~ △dxb
+[   8 | dd ] ∠dxa = ∠fbd && diffclock d x a d b f && ∠dax = ∠bfd && ncoll d x a => △dxa ~ △dbf
+[   8 | dd ] ∠eya = ∠gce && diffclock e y a e c g && ∠eay = ∠cge && ncoll e y a => △eya ~ △ecg
+[  10 | ar ] △eag ~ △eyc && △daf ~ △dxb && △dxa ~ △dbf && △eya ~ △ecg => ea = xa
+[  11 | dd ] oy = oa && ao = xo && ya = ax && ncoll a o y => △aoy ≅ △xoa
+[  11 | gr ] of = oa && og = oa && of = ox => ao = xo
+[  11 | gr ] ea = xa => ya = ax
+[  11 | gr ] ncoll a o y
+[  14 | ar ] ∠aed = ∠eda && ∠oab = ∠abo && ∠oac = ∠aco && ∠obf = ∠bfo && ∠ocg = ∠cgo && ∠ofg = ∠fgo && ∠ofx = ∠fxo && ∠ogy = ∠gyo && △mbf ≅ △mdf && △ncg ≅ △neg && △aoy ≅ △xoa => de ∥ fg
+[ 511 | dd ] de ∥ fg => de ∥ fg

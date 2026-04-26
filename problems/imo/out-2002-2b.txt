@@ -9,40 +9,39 @@ Problem: imo-2002-2b
     ? eqangle c e c j c j c f
 
 ---------------------------------------
-    j = (-1.300086, -0.566710)    a = (-0.642519, -0.526954)    c = (-1.275134, -0.565202)
-    o = (-0.993681, 0.030415)    d = (-0.336114, 0.070172)    e = (-0.335404, 0.055846)
-    f = (-1.300795, -0.552385)    b = (-0.712228, 0.626032)
+    j = (-0.179431, -0.418213)    a = (-0.219238, 0.240520)    b = (-1.495708, 0.163383)
+    c = (-0.199532, -0.085583)    o = (-0.847620, 0.038900)    d = (-0.887427, 0.697633)
+    e = (-0.708037, 0.683904)    f = (-0.358821, -0.404485)
     Loss: 0
 ---------------------------------------
-[   3 | gr ] oa = of => fo = ao
-[   3 | dd ] oa = oe && fo = ao && af = ea && ncoll o a f => △oaf ≅ △oea
-[   3 | gr ] ao = ae && ao = af => af = ea
+[   3 | dd ] oa = oe && ae = ea && eo = ao && ncoll o a e => △oae ≅ △oea
+[   3 | gr ] ae = ea
 [   3 | gr ] o midpoint of bc && od = ob => oc = od
-[   3 | gr ] ncoll o a f
+[   3 | gr ] oa = oe => eo = ao
 [   3 | gr ] ncoll o a e
-[   3 | gr ] ncoll a o e
+[   3 | dd ] oa = oe && af = ea && fo = ao && ncoll o a f => △oaf ≅ △oea
+[   3 | gr ] ao = af && ao = ae => af = ea
+[   3 | gr ] oa = of => fo = ao
+[   3 | gr ] ncoll o a f
+[   3 | gr ] ao = ae && oa = oe => eo = ea
+[   3 | dd ] eo = ea && of = af && fe = fe && ncoll e o f => △eof ≅ △eaf
+[   3 | gr ] ao = af && oa = of => of = af
+[   3 | gr ] fe = fe
+[   3 | gr ] ncoll e o f
 [   3 | gr ] ncoll o c d
-[   3 | dd ] oa = oe && ncoll o a e => ∠oae = ∠aeo
-[   3 | dd ] ao = ae && ncoll a o e => ∠aoe = ∠oea
 [   3 | dd ] o midpoint of bc && ba ⊥ ac => bo = ao
 [   3 | gr ] ab ⊥ ac => ba ⊥ ac
 [   4 | dd ] oc = od && ncoll o c d => ∠ocd = ∠cdo
 [   6 | ar ] ab ⊥ ac && ∠acd = ∠dcb && ∠ocd = ∠cdo => ab ⊥ od
 [   7 | gr ] od = ob && bo = ao => ob = oa
-[   7 | gr ] o midpoint of bc && oa = of && od = ob && bo = ao => of = oc
-[   7 | gr ] o midpoint of bc && oa = oe && od = ob && bo = ao => oe = oc
-[   7 | gr ] o midpoint of bc && oa = oe && od = ob && bo = ao => co = eo
-[   7 | gr ] diffclock c o e e o c
-[   7 | gr ] o midpoint of bc => ∠coe = ∠coe
-[   7 | gr ] ncoll c o e
-[   7 | gr ] o midpoint of bc && oa = of && od = ob && bo = ao => co = fo
-[   7 | gr ] diffclock c o f f o c
-[   7 | gr ] o midpoint of bc => ∠cof = ∠cof
-[   7 | gr ] ncoll c o f
+[   7 | gr ] o midpoint of bc && oa = of && od = ob && bo = ao => oc = of
+[   7 | gr ] ncoll o c e
+[   7 | gr ] ncoll o c f
 [   7 | gr ] ncoll o b a
-[   8 | dd ] oe = oc && co = eo && diffclock c o e e o c && ∠coe = ∠coe && ncoll c o e => △coe ≅ △eoc
-[   8 | dd ] of = oc && co = fo && diffclock c o f f o c && ∠cof = ∠cof && ncoll c o f => △cof ≅ △foc
+[   7 | gr ] o midpoint of bc && oa = oe && od = ob && bo = ao => oc = oe
+[   8 | dd ] ncoll o c e && oc = oe => ∠oce = ∠ceo
+[   8 | dd ] oc = of && ncoll o c f => ∠ocf = ∠cfo
 [   8 | dd ] ob = oa && ncoll o b a => ∠oba = ∠bao
-[  10 | ar ] ab ⊥ ac && ∠oae = ∠aeo && ∠aoe = ∠oea && △cof ≅ △foc && ∠oba = ∠bao => ∠(ja, cf) = 30/1°
-[  10 | ar ] ab ⊥ ac && △oaf ≅ △oea && ∠oae = ∠aeo && ∠aoe = ∠oea && △coe ≅ △eoc && ∠oba = ∠bao => ∠(ce, ja) = 30/1°
-[ 511 | dd ] j, a, c collinear && ab ⊥ ac && ab ⊥ od && ∠(ja, cf) = 30/1° && ∠(ce, ja) = 30/1° => ∠ecj = ∠jcf
+[  10 | ar ] ab ⊥ ac && △oae ≅ △oea && △oaf ≅ △oea && △eof ≅ △eaf && ∠oce = ∠ceo && ∠oba = ∠bao => ∠(ce, ja) = 30/1°
+[  10 | ar ] ab ⊥ ac && △oae ≅ △oea && △oaf ≅ △oea && △eof ≅ △eaf && ∠ocf = ∠cfo && ∠oba = ∠bao => ∠(ja, cf) = 30/1°
+[ 511 | dd ] j, a, c collinear && ab ⊥ ac && ab ⊥ od && ∠(ce, ja) = 30/1° && ∠(ja, cf) = 30/1° => ∠ecj = ∠jcf

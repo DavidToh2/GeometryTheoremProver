@@ -1,0 +1,22 @@
+=======================================
+Problem: imo-2021-3
+
+    a b c = triangle a b c; 
+    d = on_angle_bisect d : b a c; 
+    o1 = circumcenter o1 : a d c;
+    e = on_line_at_angle e : d a d c b, on_line e : a c; 
+    f = on_line_at_angle f : d a d b c, on_line f : a b; 
+    x = on_line_bisect x : b c, on_line x : a c;
+    o2 = circumcenter o2 : e x d;
+    y = intersection_ll y : b c e f;
+    g = on_circum g : b d f, on_line g : d a;
+    m = intersection_cc m : a b c e f
+    ? coll o1 o2 y
+
+---------------------------------------
+    f = (0.285842, -0.368819)    x = (-0.069879, -0.011539)    a = (-0.154598, -0.290206)
+    b = (-0.723678, -0.188633)    c = (-0.266902, -0.659612)    d = (-0.565480, -0.541848)
+    o1 = (-0.349882, -0.432611)    e = (0.040243, 0.350685)    o2 = (-1.171459, 0.521209)
+    y = (0.739212, -1.697009)    g = (0.303157, -0.009859)    m = (-0.237811, -0.159233)
+
+    Loss: 0

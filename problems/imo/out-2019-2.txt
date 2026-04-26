@@ -1,0 +1,86 @@
+=======================================
+Problem: imo-2019-2
+
+    a b c = triangle a b c; 
+    a1 = on_line a1 : b c; 
+    b1 = on_line b1 : a c; 
+    p = on_line p : a a1; 
+    q = on_line q : b b1, on_line_para q : p a b; 
+    r = intersection_ll r : a b b1 p;
+    s = intersection_ll s : a b a1 q;
+    p1 = on_line p1 : p b1, on_circum p1 : r a c; 
+    q1 = on_line q1 : q a1, on_circum q1 : s b c;
+    x = on_line x : b q, on_circum x : a b c;
+    y = on_line y : a p, on_circum y : a b c
+    ? cyclic p q p1 q1
+
+---------------------------------------
+    p = (-0.501384, 0.792982)    q = (-0.699886, 0.455999)    r = (0.341181, 1.926698)
+    b = (-1.046973, -0.429871)    a = (-0.496196, 0.505144)    c = (-0.309876, 0.379035)
+    a1 = (-0.490353, 0.180976)    b1 = (-0.641972, 0.603813)    s = (-0.601339, 0.326650)
+    p1 = (-0.616425, 0.638188)    q1 = (0.242430, -0.780837)    x = (-0.665168, 0.544611)
+    y = (-0.478044, -0.501905)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] r, a, c, p1 cyclic => c, p1, r, a cyclic
+[   3 | gr ] s, b, c, q1 cyclic => b, s, c, q1 cyclic
+[   3 | gr ] s, b, c, q1 cyclic => q1, c, b, s cyclic
+[   3 | gr ] a, b, c, x cyclic => b, c, a, x cyclic
+[   3 | gr ] a, b, c, x cyclic => a, x, b, c cyclic
+[   3 | gr ] a, b, c, y cyclic => c, a, b, y cyclic
+[   3 | gr ] a, b, c, y cyclic => y, b, a, c cyclic
+[   3 | gr ] r, a, b collinear && qp ∥ ab => pq ∥ rb
+[   3 | gr ] r, b1, p collinear => b1, p, r collinear
+[   3 | gr ] q, b, b1 collinear => b1, q, b collinear
+[   3 | gr ] ncoll p q r
+[   3 | gr ] qp ∥ ab && s, a, b collinear => pq ∥ as
+[   3 | gr ] p, a, a1 collinear => a1, p, a collinear
+[   3 | gr ] s, a1, q collinear => a1, q, s collinear
+[   3 | gr ] ncoll p q a
+[   4 | dd ] r, a, c, p1 cyclic => ∠rca = ∠rp1a
+[   4 | dd ] c, p1, r, a cyclic => ∠crp1 = ∠cap1
+[   4 | dd ] b, s, c, q1 cyclic => ∠bcs = ∠bq1s
+[   4 | dd ] q1, c, b, s cyclic => ∠q1bc = ∠q1sc
+[   4 | dd ] b, c, a, x cyclic => ∠bac = ∠bxc
+[   4 | dd ] a, x, b, c cyclic => ∠abx = ∠acx
+[   4 | dd ] c, a, b, y cyclic => ∠cba = ∠cya
+[   4 | dd ] y, b, a, c cyclic => ∠yab = ∠ycb
+[   4 | dd ] pq ∥ rb && b1, p, r collinear && b1, q, b collinear && ncoll p q r => △b1pq ~ △b1rb
+[   4 | dd ] pq ∥ as && a1, p, a collinear && a1, q, s collinear && ncoll p q a => △a1pq ~ △a1as
+[   7 | gr ] p, a, a1 collinear && y, a, p collinear && ∠cba = ∠cya => ∠a1ba = ∠cya1
+[   7 | gr ] diffclock a1 b a a1 y c
+[   7 | gr ] ncoll a1 c s
+[   7 | gr ] b1, a, c collinear && p1, p, b1 collinear && ∠rca = ∠rp1a => ∠b1p1a = ∠rcb1
+[   7 | gr ] a1, b, c collinear && p, a, a1 collinear && ∠yab = ∠ycb => ∠a1ab = ∠yca1
+[   7 | gr ] ncoll a1 b a
+[   7 | gr ] diffclock a1 c s a1 q1 b
+[   7 | gr ] ∠q1bc = ∠q1sc => ∠a1sc = ∠q1ba1
+[   7 | gr ] diffclock b1 p1 a b1 c r
+[   7 | gr ] ncoll b1 p1 a
+[   7 | gr ] diffclock b1 x c b1 a b
+[   7 | gr ] q, b, b1 collinear && x, b, q collinear && ∠bac = ∠bxc => ∠b1xc = ∠bab1
+[   7 | gr ] q, b, b1 collinear && b1, a, c collinear && ∠abx = ∠acx => ∠b1cx = ∠abb1
+[   7 | gr ] ∠crp1 = ∠cap1 => ∠b1ap1 = ∠crb1
+[   7 | gr ] ncoll b1 x c
+[   7 | gr ] a1, b, c collinear && q1, q, a1 collinear && ∠bcs = ∠bq1s => ∠a1cs = ∠bq1a1
+[   8 | dd ] ∠b1p1a = ∠rcb1 && diffclock b1 p1 a b1 c r && ncoll b1 p1 a && ∠b1ap1 = ∠crb1 => △b1p1a ~ △b1cr
+[   8 | dd ] ncoll a1 c s && diffclock a1 c s a1 q1 b && ∠a1sc = ∠q1ba1 && ∠a1cs = ∠bq1a1 => △a1cs ~ △a1q1b
+[   8 | dd ] diffclock b1 x c b1 a b && ∠b1xc = ∠bab1 && ∠b1cx = ∠abb1 && ncoll b1 x c => △b1xc ~ △b1ab
+[   8 | dd ] ∠a1ba = ∠cya1 && diffclock a1 b a a1 y c && ∠a1ab = ∠yca1 && ncoll a1 b a => △a1ba ~ △a1yc
+[  10 | ar ] △b1p1a ~ △b1cr && △b1xc ~ △b1ab => bb1 / b1r = b1p1 / xb1
+[  10 | ar ] △a1pq ~ △a1as && △a1cs ~ △a1q1b && △a1ba ~ △a1yc => a1q1 / a1y = pa1 / qa1
+[  11 | gr ] diffside_p a1 q q1
+[  11 | gr ] q, b, b1 collinear && x, b, q collinear => q, b1, x collinear
+[  11 | gr ] r, b1, p collinear && p1, p, b1 collinear => p, b1, p1 collinear
+[  11 | gr ] sameside_p b1 p p1
+[  11 | gr ] a1q1 / a1y = pa1 / qa1 => a1p / a1q = a1q1 / a1y
+[  11 | gr ] △b1pq ~ △b1rb && bb1 / b1r = b1p1 / xb1 => b1q / b1p = b1p1 / b1x
+[  11 | gr ] ncoll q p x
+[  11 | gr ] sameside_p b1 q x
+[  11 | gr ] s, a1, q collinear && q1, q, a1 collinear => q, a1, q1 collinear
+[  11 | gr ] p, a, a1 collinear && y, a, p collinear => p, a1, y collinear
+[  11 | gr ] diffside_p a1 p y
+[  11 | gr ] ncoll p q y
+[  12 | dd ] diffside_p a1 q q1 && a1p / a1q = a1q1 / a1y && q, a1, q1 collinear && p, a1, y collinear && diffside_p a1 p y && ncoll p q y => p, q, y, q1 cyclic
+[  12 | dd ] q, b1, x collinear && p, b1, p1 collinear && sameside_p b1 p p1 && b1q / b1p = b1p1 / b1x && ncoll q p x && sameside_p b1 q x => q, p, x, p1 cyclic
+[ 511 | dd ] p, q, y, q1 cyclic && q, p, x, p1 cyclic => p, q, p1, q1 cyclic

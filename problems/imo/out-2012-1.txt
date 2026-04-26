@@ -10,21 +10,21 @@ Problem: imo-2012-1
     ? cong m s m t
 
 ---------------------------------------
-    f = (0.031099, -1.290712)    g = (-0.009456, 0.904147)    a = (0.733038, 0.390252)
-    m = (-0.711395, -0.776816)    l = (-1.335439, -0.344903)    k = (-0.856360, -1.123969)
-    j = (-1.178863, -0.785454)    b = (-0.707600, -0.982245)    c = (-0.723395, -0.127377)
-    s = (-0.670840, -2.971675)    t = (-0.751950, 1.418043)
+    f = (1.445489, 1.107135)    a = (0.915368, 0.694663)    b = (1.344566, 1.236844)
+    c = (0.736179, 0.964234)    m = (1.208198, 1.175739)    l = (0.449848, 1.394989)
+    k = (1.437316, 1.354009)    j = (0.958463, 1.733076)    g = (0.678077, 0.763267)
+    s = (1.975611, 1.519607)    t = (0.440786, 0.831872)
     Loss: 0
 ---------------------------------------
-[   3 | gr ] jm = jl && jl = jk => jm = jk
+[   3 | gr ] jl = jk && jm = jl => jm = jk
 [   3 | gr ] ncoll j m l
 [   3 | gr ] ncoll j m k
 [   3 | gr ] ncoll j l k
 [   3 | gr ] ncoll c t a
-[   3 | gr ] k, a, b collinear && jk ⊥ ab => ak ⊥ kj
+[   3 | gr ] jk ⊥ ab && k, a, b collinear => ak ⊥ kj
 [   3 | gr ] jl ⊥ ca && l, c, a collinear => al ⊥ lj
 [   3 | gr ] diff k l
-[   3 | gr ] k, a, b collinear && jk ⊥ ab => jk ⊥ ka
+[   3 | gr ] jk ⊥ ab && k, a, b collinear => jk ⊥ ka
 [   3 | gr ] jl ⊥ ca && l, c, a collinear => jl ⊥ la
 [   3 | gr ] diff l k
 [   4 | dd ] jm = jl && ncoll j m l => ∠jml = ∠mlj
@@ -32,127 +32,131 @@ Problem: imo-2012-1
 [   4 | dd ] jl = jk && ncoll j l k => ∠jlk = ∠lkj
 [   4 | dd ] ak ⊥ kj && al ⊥ lj && diff k l => a, k, j, l cyclic
 [   4 | dd ] jk ⊥ ka && jl ⊥ la && diff l k => j, l, a, k cyclic
-[   6 | ar ] jm ⊥ bc && jl ⊥ ca && ∠acj = ∠jcb && ∠jml = ∠mlj => gj ⊥ fm
-[   6 | ar ] jl ⊥ ca && jk ⊥ ab && ∠acj = ∠jcb && ∠cbj = ∠jba && ∠jml = ∠mlj && ∠jmk = ∠mkj => ∠fjg = ∠gmf
-[   6 | ar ] jm ⊥ bc && jk ⊥ ab && ∠cbj = ∠jba && ∠jmk = ∠mkj => fj ⊥ gm
-[   6 | ar ] jl ⊥ ca && ∠baj = ∠jac && ∠acj = ∠jcb && ∠cbj = ∠jba => ∠lja = ∠gjf
-[   6 | ar ] jl ⊥ ca && ∠baj = ∠jac && ∠acj = ∠jcb && ∠cbj = ∠jba => ∠ajl = ∠fjg
-[   6 | ar ] jl ⊥ ca && ∠baj = ∠jac && ∠acj = ∠jcb && ∠cbj = ∠jba => ∠fja = ∠gjl
-[   6 | ar ] jl ⊥ ca && jk ⊥ ab && ∠baj = ∠jac && ∠jml = ∠mlj && ∠jmk = ∠mkj => ∠fmg = ∠ajk
-[   6 | ar ] jm ⊥ bc && jl ⊥ ca && ∠acj = ∠jcb && ∠jmk = ∠mkj && ∠jlk = ∠lkj => ∠(gm, lk) = ∠mjg
-[   6 | ar ] jl ⊥ ca && jk ⊥ ab && ∠baj = ∠jac && ∠jlk = ∠lkj => ∠lka = ∠lja
-[   6 | ar ] jl ⊥ ca && jk ⊥ ab && ∠acj = ∠jcb && ∠cbj = ∠jba && ∠jlk = ∠lkj => ∠(mb, gj) = ∠(fj, lk)
-[   6 | ar ] jl ⊥ ca && jk ⊥ ab && ∠acj = ∠jcb && ∠cbj = ∠jba && ∠jlk = ∠lkj => ∠(fj, lk) = ∠(gj, al)
-[   6 | ar ] jm ⊥ bc && jl ⊥ ca && jk ⊥ ab && ∠acj = ∠jcb && ∠cbj = ∠jba && ∠jml = ∠mlj && ∠jmk = ∠mkj => ∠jfm = ∠mgj
-[   6 | ar ] jl ⊥ ca && jk ⊥ ab && ∠baj = ∠jac && ∠jml = ∠mlj && ∠jmk = ∠mkj => ∠gmf = ∠kja
-[   6 | ar ] jm ⊥ bc && jl ⊥ ca && ∠baj = ∠jac && ∠cbj = ∠jba && ∠jml = ∠mlj => ∠fja = ∠(fm, al)
-[   6 | ar ] jl ⊥ ca && jk ⊥ ab && ∠acj = ∠jcb && ∠cbj = ∠jba && ∠jml = ∠mlj && ∠jmk = ∠mkj => ∠gjf = ∠fmg
-[   6 | ar ] jl ⊥ ca && ∠jml = ∠mlj && ∠jmk = ∠mkj && ∠jlk = ∠lkj => ∠(fm, al) = ∠(gm, lk)
-[   6 | ar ] jm ⊥ bc && jl ⊥ ca && ∠baj = ∠jac && ∠cbj = ∠jba && ∠jml = ∠mlj => ∠bmf = ∠fja
-[   6 | ar ] jm ⊥ bc && jl ⊥ ca && ∠baj = ∠jac && ∠cbj = ∠jba && ∠jml = ∠mlj => ∠jal = ∠jfm
-[   6 | ar ] jl ⊥ ca && jk ⊥ ab && ∠baj = ∠jac && ∠jlk = ∠lkj => ∠kja = ∠kla
-[   6 | ar ] jm ⊥ bc && jl ⊥ ca && ∠acj = ∠jcb && ∠jml = ∠mlj => ∠(gj, al) = ∠(fm, lj)
-[   6 | ar ] jl ⊥ ca && jk ⊥ ab && ∠baj = ∠jac && ∠jlk = ∠lkj => ∠akl = ∠ajl
-[   6 | ar ] jk ⊥ ab && ∠baj = ∠jac && ∠acj = ∠jcb && ∠cbj = ∠jba => ∠gja = ∠fjk
-[   6 | ar ] jm ⊥ bc && jk ⊥ ab && ∠baj = ∠jac && ∠acj = ∠jcb && ∠jml = ∠mlj && ∠jlk = ∠lkj => ∠gja = ∠(fm, lk)
-[   6 | ar ] jm ⊥ bc && ∠baj = ∠jac && ∠acj = ∠jcb && ∠cbj = ∠jba => ∠gja = ∠mjf
-[   6 | ar ] jm ⊥ bc && jk ⊥ ab && ∠baj = ∠jac && ∠acj = ∠jcb && ∠jmk = ∠mkj => ∠gja = ∠bmg
-[   7 | gr ] ∠fja = ∠gjl && ∠(gm, lk) = ∠mjg && ∠fja = ∠(fm, al) && ∠(fm, al) = ∠(gm, lk) => ∠mjc = ∠cjl
+[   6 | ar ] jm ⊥ bc && jk ⊥ ab && jl ⊥ ca && ∠acj = ∠jcb && ∠cbj = ∠jba && ∠jml = ∠mlj && ∠jmk = ∠mkj => ∠bfm = ∠(mk, cj)
+[   6 | ar ] jk ⊥ ab && jl ⊥ ca && ∠acj = ∠jcb && ∠cbj = ∠jba && ∠jlk = ∠lkj => ∠bcj = ∠(fb, lk)
+[   6 | ar ] jl ⊥ ca && ∠jml = ∠mlj && ∠jmk = ∠mkj && ∠jlk = ∠lkj => ∠(ac, fm) = ∠lkm
+[   6 | ar ] jm ⊥ bc && jk ⊥ ab && ∠baj = ∠jac && ∠acj = ∠jcb && ∠jml = ∠mlj && ∠jlk = ∠lkj => ∠cja = ∠(fm, lk)
+[   6 | ar ] jm ⊥ bc && jl ⊥ ca && ∠baj = ∠jac && ∠cbj = ∠jba && ∠jml = ∠mlj => ∠jac = ∠bfm
+[   6 | ar ] jl ⊥ ca && ∠baj = ∠jac && ∠acj = ∠jcb && ∠cbj = ∠jba => ∠(fb, aj) = ∠cjl
+[   6 | ar ] jm ⊥ bc && jl ⊥ ca && ∠acj = ∠jcb && ∠jmk = ∠mkj && ∠jlk = ∠lkj => ∠mkl = ∠mjc
+[   6 | ar ] jk ⊥ ab && jl ⊥ ca && ∠baj = ∠jac && ∠jlk = ∠lkj => ∠(lk, ab) = ∠lja
+[   6 | ar ] jm ⊥ bc && jl ⊥ ca && ∠baj = ∠jac && ∠cbj = ∠jba && ∠jml = ∠mlj => ∠(fb, aj) = ∠(fm, ac)
+[   6 | ar ] jm ⊥ bc && jl ⊥ ca && ∠baj = ∠jac && ∠cbj = ∠jba && ∠jml = ∠mlj => ∠(aj, fb) = ∠(ac, fm)
+[   6 | ar ] jm ⊥ bc && ∠baj = ∠jac && ∠acj = ∠jcb && ∠cbj = ∠jba => ∠cja = ∠(mj, fb)
+[   6 | ar ] jk ⊥ ab && jl ⊥ ca && ∠acj = ∠jcb && ∠cbj = ∠jba && ∠jlk = ∠lkj => ∠(fb, lk) = ∠jca
+[   6 | ar ] jm ⊥ bc && jk ⊥ ab && ∠cbj = ∠jba && ∠jmk = ∠mkj => fb ⊥ mk
+[   6 | ar ] jm ⊥ bc && jk ⊥ ab && ∠baj = ∠jac && ∠acj = ∠jcb && ∠jmk = ∠mkj => ∠ajc = ∠(mk, bc)
+[   6 | ar ] jk ⊥ ab && ∠baj = ∠jac && ∠acj = ∠jcb && ∠cbj = ∠jba => ∠cja = ∠(fb, kj)
+[   6 | ar ] jm ⊥ bc && jl ⊥ ca && ∠baj = ∠jac && ∠cbj = ∠jba && ∠jml = ∠mlj => ∠(fm, bc) = ∠(aj, fb)
+[   6 | ar ] jm ⊥ bc && jl ⊥ ca && ∠acj = ∠jcb && ∠jml = ∠mlj => ∠jca = ∠(fm, lj)
+[   6 | ar ] jm ⊥ bc && jl ⊥ ca && ∠acj = ∠jcb && ∠jml = ∠mlj => cj ⊥ fm
+[   6 | ar ] jk ⊥ ab && jl ⊥ ca && ∠acj = ∠jcb && ∠cbj = ∠jba && ∠jml = ∠mlj && ∠jmk = ∠mkj => ∠(cj, fb) = ∠fmk
+[   6 | ar ] jk ⊥ ab && jl ⊥ ca && ∠baj = ∠jac && ∠jml = ∠mlj && ∠jmk = ∠mkj => ∠fmk = ∠ajk
+[   6 | ar ] jl ⊥ ca && ∠baj = ∠jac && ∠acj = ∠jcb && ∠cbj = ∠jba => ∠lja = ∠(cj, fb)
+[   6 | ar ] jm ⊥ bc && jl ⊥ ca && ∠baj = ∠jac && ∠cbj = ∠jba && ∠jml = ∠mlj => ∠(bc, fm) = ∠(fb, aj)
+[   6 | ar ] jm ⊥ bc && jk ⊥ ab && ∠baj = ∠jac && ∠acj = ∠jcb && ∠jml = ∠mlj && ∠jlk = ∠lkj => ∠ajc = ∠(lk, fm)
+[   6 | ar ] jl ⊥ ca && ∠jml = ∠mlj && ∠jmk = ∠mkj && ∠jlk = ∠lkj => ∠(fm, ac) = ∠mkl
+[   7 | gr ] ∠(fb, aj) = ∠cjl && ∠mkl = ∠mjc && ∠(fb, aj) = ∠(fm, ac) && ∠(fm, ac) = ∠mkl => ∠mjc = ∠cjl
 [   7 | gr ] jc = jc
-[   7 | gr ] ncoll m j g
-[   7 | gr ] diffclock m j g l j g
-[   7 | gr ] g, c, j collinear && ∠fja = ∠gjl && ∠(gm, lk) = ∠mjg && ∠fja = ∠(fm, al) && ∠(fm, al) = ∠(gm, lk) => ∠mjg = ∠gjl
-[   7 | gr ] ncoll m j c
+[   7 | dd ] ∠mjc = ∠cjl && jc = jc && mj = lj && diffclock m j c l j c && ncoll m j c => △mjc ≅ △ljc
+[   7 | gr ] jm = jl => mj = lj
 [   7 | gr ] diffclock m j c l j c
+[   7 | gr ] ncoll m j c
+[   7 | dd ] mj = lj && ∠mjg = ∠gjl && jg = jg && diffclock m j g l j g && ncoll m j g => △mjg ≅ △ljg
+[   7 | gr ] g, c, j collinear && ∠(fb, aj) = ∠cjl && ∠mkl = ∠mjc && ∠(fb, aj) = ∠(fm, ac) && ∠(fm, ac) = ∠mkl => ∠mjg = ∠gjl
 [   7 | gr ] jg = jg
-[   7 | gr ] f, b, j collinear && ∠gja = ∠fjk && ∠gja = ∠mjf => ∠mjf = ∠fjk
+[   7 | gr ] diffclock m j g l j g
+[   7 | gr ] ncoll m j g
+[   7 | dd ] mj = kj && ∠mjf = ∠fjk && jf = jf && diffclock m j f k j f && ncoll m j f => △mjf ≅ △kjf
+[   7 | gr ] jl = jk && jm = jl => mj = kj
+[   7 | gr ] f, b, j collinear && ∠cja = ∠(mj, fb) && ∠cja = ∠(fb, kj) => ∠mjf = ∠fjk
 [   7 | gr ] jf = jf
 [   7 | gr ] diffclock m j f k j f
-[   7 | dd ] ∠mjf = ∠fjk && jf = jf && diffclock m j f k j f && mj = kj && ncoll m j f => △mjf ≅ △kjf
-[   7 | gr ] jm = jl && jl = jk => mj = kj
-[   7 | dd ] ∠mjc = ∠cjl && jc = jc && ncoll m j c && diffclock m j c l j c && mj = lj => △mjc ≅ △ljc
-[   7 | dd ] ncoll m j g && diffclock m j g l j g && ∠mjg = ∠gjl && jg = jg && mj = lj => △mjg ≅ △ljg
-[   7 | gr ] jm = jl => mj = lj
 [   7 | gr ] ncoll m j f
 [   7 | dd ] lj = kj && ∠lja = ∠ajk && ja = ja && diffclock l j a k j a && ncoll l j a => △lja ≅ △kja
-[   7 | gr ] jm = jl && jl = jk => lj = kj
-[   7 | gr ] ∠lja = ∠gjf && ∠fmg = ∠ajk && ∠lka = ∠lja && ∠gjf = ∠fmg => ∠lja = ∠ajk
+[   7 | gr ] jl = jk && jm = jl => lj = kj
+[   7 | gr ] ∠(lk, ab) = ∠lja && ∠(cj, fb) = ∠fmk && ∠fmk = ∠ajk && ∠lja = ∠(cj, fb) => ∠lja = ∠ajk
 [   7 | gr ] ja = ja
 [   7 | gr ] diffclock l j a k j a
 [   7 | gr ] ncoll l j a
-[   7 | gr ] ∠lja = ∠gjf && ∠fmg = ∠ajk && ∠lka = ∠lja && ∠gjf = ∠fmg => ∠lja = ∠ajk
-[   7 | gr ] f, m, l collinear && f, b, j collinear && l, c, a collinear && ∠baj = ∠jac && ∠jal = ∠jfm => ∠jal = ∠jfl
-[   7 | gr ] diff j l a f
-[   7 | gr ] k, a, b collinear && ∠baj = ∠jac && g, m, k collinear && g, c, j collinear && ∠jfm = ∠mgj && ∠jal = ∠jfm => ∠kaj = ∠kgj
-[   7 | gr ] diff k j a g
+[   7 | gr ] ∠(lk, ab) = ∠lja && ∠(cj, fb) = ∠fmk && ∠fmk = ∠ajk && ∠lja = ∠(cj, fb) => ∠lja = ∠ajk
 [   7 | gr ] ncoll c j l
-[   7 | gr ] f, b, j collinear && ∠baj = ∠jac && ∠jal = ∠jfm => ∠jac = ∠jfm
-[   7 | gr ] sameclock j a c j f m
-[   7 | gr ] ∠jml = ∠mlj && ∠(mb, gj) = ∠(fj, lk) && ∠(fj, lk) = ∠(gj, al) && ∠(gj, al) = ∠(fm, lj) => ∠jca = ∠jmf
-[   7 | gr ] ncoll j a c
-[   7 | gr ] ∠baj = ∠jac && g, c, j collinear && ∠jfm = ∠mgj && ∠jal = ∠jfm => ∠jac = ∠mgc
+[   7 | gr ] f, m, l collinear && f, b, j collinear && l, c, a collinear && ∠baj = ∠jac && ∠jac = ∠bfm => ∠jal = ∠jfl
+[   7 | gr ] ncoll j l a f
+[   7 | gr ] k, a, b collinear && ∠baj = ∠jac && g, m, k collinear && g, c, j collinear && ∠bfm = ∠(mk, cj) && ∠jac = ∠bfm => ∠kaj = ∠kgj
+[   7 | gr ] ncoll k j a g
+[   7 | gr ] ∠baj = ∠jac && g, c, j collinear && ∠bfm = ∠(mk, cj) && ∠jac = ∠bfm => ∠jac = ∠mgc
 [   7 | gr ] sameclock j a c m g c
-[   7 | gr ] m, b, c collinear && g, c, j collinear && ∠(mb, gj) = ∠(fj, lk) && ∠(fj, lk) = ∠(gj, al) => ∠jca = ∠mcg
-[   7 | gr ] g, c, j collinear && gj ⊥ fm => gj ⊥ fm
-[   7 | gr ] f, b, j collinear && fj ⊥ gm => jf ⊥ gm
-[   7 | gr ] diff g j f m
+[   7 | gr ] m, b, c collinear && g, c, j collinear && ∠bcj = ∠(fb, lk) && ∠(fb, lk) = ∠jca => ∠jca = ∠mcg
+[   7 | gr ] ncoll j a c
+[   7 | gr ] f, b, j collinear && ∠baj = ∠jac && ∠jac = ∠bfm => ∠jac = ∠jfm
+[   7 | gr ] sameclock j a c j f m
+[   7 | gr ] ∠jml = ∠mlj && ∠bcj = ∠(fb, lk) && ∠(fb, lk) = ∠jca && ∠jca = ∠(fm, lj) => ∠jca = ∠jmf
+[   7 | gr ] g, c, j collinear && cj ⊥ fm => jg ⊥ mf
+[   7 | gr ] f, b, j collinear && fb ⊥ mk => gm ⊥ jf
+[   7 | gr ] diff j g m f
 [   8 | dd ] j, l, a, k cyclic && ∠lja = ∠ajk => la = ak
-[   8 | dd ] ∠jal = ∠jfl && diff j l a f => j, l, a, f cyclic
-[   8 | dd ] ∠kaj = ∠kgj && diff k j a g => k, j, a, g cyclic
-[   8 | dd ] ∠jac = ∠jfm && sameclock j a c j f m && ∠jca = ∠jmf && ncoll j a c => △jac ~ △jfm
-[   8 | dd ] ncoll j a c && ∠jac = ∠mgc && sameclock j a c m g c && ∠jca = ∠mcg => △jac ~ △mgc
-[   8 | dd ] gj ⊥ fm && jf ⊥ gm && diff g j f m => fg ⊥ jm
-[  10 | ar ] jm ⊥ bc && jl ⊥ ca && ∠cbj = ∠jba && ∠jml = ∠mlj && △mjf ≅ △kjf => ∠fka = ∠(fm, al)
-[  10 | ar ] jm ⊥ bc && jl ⊥ ca && ∠cbj = ∠jba && ∠jml = ∠mlj && △mjf ≅ △kjf => ∠kal = ∠kfm
-[  10 | ar ] jm ⊥ bc && ∠acj = ∠jcb && ∠jml = ∠mlj && ∠jmk = ∠mkj && ∠jlk = ∠lkj && △mjg ≅ △ljg => ∠gla = ∠(fm, lk)
-[  10 | ar ] jm ⊥ bc && ∠cbj = ∠jba && ∠jml = ∠mlj && ∠jmk = ∠mkj && ∠jlk = ∠lkj && △mjf ≅ △kjf => ∠akl = ∠(fk, gm)
-[  10 | ar ] △jac ~ △mgc => ca / cg = jc / cm
-[  10 | ar ] △jac ~ △jfm => ja / jf = jc / jm
+[   8 | dd ] ∠jal = ∠jfl && ncoll j l a f => j, l, a, f cyclic
+[   8 | dd ] ∠kaj = ∠kgj && ncoll k j a g => k, j, a, g cyclic
+[   8 | dd ] ∠jac = ∠mgc && sameclock j a c m g c && ∠jca = ∠mcg && ncoll j a c => △jac ~ △mgc
+[   8 | dd ] ncoll j a c && ∠jac = ∠jfm && sameclock j a c j f m && ∠jca = ∠jmf => △jac ~ △jfm
+[   8 | dd ] jg ⊥ mf && gm ⊥ jf && diff j g m f => mj ⊥ gf
+[  10 | ar ] jm ⊥ bc && jk ⊥ ab && jl ⊥ ca && ∠acj = ∠jcb && ∠cbj = ∠jba && ∠jml = ∠mlj && ∠jmk = ∠mkj && △mjg ≅ △ljg && △mjf ≅ △kjf => ∠mkf = ∠(lg, fm)
+[  10 | ar ] jm ⊥ bc && jl ⊥ ca && ∠cbj = ∠jba && ∠jml = ∠mlj && △mjf ≅ △kjf => ∠cab = ∠mfk
+[  10 | ar ] jm ⊥ bc && ∠cbj = ∠jba && ∠jml = ∠mlj && ∠jmk = ∠mkj && ∠jlk = ∠lkj && △mjf ≅ △kjf => ∠(lk, ab) = ∠mkf
+[  10 | ar ] jm ⊥ bc && jl ⊥ ca && ∠cbj = ∠jba && ∠jml = ∠mlj && △mjf ≅ △kjf => ∠(ab, fk) = ∠(ac, fm)
+[  10 | ar ] jm ⊥ bc && jk ⊥ ab && jl ⊥ ca && ∠acj = ∠jcb && ∠cbj = ∠jba && ∠jml = ∠mlj && ∠jmk = ∠mkj && △mjg ≅ △ljg && △mjf ≅ △kjf => ∠mfk = ∠(lg, mk)
+[  10 | ar ] jm ⊥ bc && ∠acj = ∠jcb && ∠jml = ∠mlj && ∠jmk = ∠mkj && ∠jlk = ∠lkj && △mjg ≅ △ljg => ∠(lg, ac) = ∠(fm, lk)
+[  10 | ar ] △jac ~ △mgc => cj / cm = ca / gc
+[  10 | ar ] △jac ~ △jfm => aj / jf = cj / jm
 [  11 | dd ] la = ak && f, l, a, k cyclic => ∠lfa = ∠afk
-[  11 | gr ] a, k, j, l cyclic && j, l, a, f cyclic => f, l, a, k cyclic
-[  11 | gr ] a, k, j, l cyclic && j, l, a, f cyclic && k, j, a, g cyclic => f, a, g, l cyclic
+[  11 | gr ] a, k, j, l cyclic && j, l, a, f cyclic && k, j, a, g cyclic => a, f, l, g cyclic
+[  11 | dd ] l, a, f, g cyclic => ∠lfa = ∠lga
+[  11 | gr ] a, k, j, l cyclic && j, l, a, f cyclic && k, j, a, g cyclic => l, a, f, g cyclic
 [  11 | gr ] a, k, j, l cyclic && j, l, a, f cyclic && k, j, a, g cyclic => g, a, f, l cyclic
 [  11 | gr ] a, k, j, l cyclic && j, l, a, f cyclic && k, j, a, g cyclic => g, l, f, a cyclic
-[  11 | gr ] j, l, a, f cyclic && k, j, a, g cyclic => f, k, g, a cyclic
-[  11 | gr ] ncoll k a l
-[  11 | gr ] k, a, b collinear && l, c, a collinear && ∠kal = ∠kfm => ∠kal = ∠kfm
-[  11 | gr ] diffclock k a l m f k
-[  11 | gr ] l, c, a collinear && g, m, k collinear && ∠fjg = ∠gmf && ∠ajl = ∠fjg && ∠gmf = ∠kja && ∠kja = ∠kla && ∠akl = ∠ajl && ∠akl = ∠(fk, gm) => ∠kla = ∠fkm
-[  11 | gr ] jm ⊥ bc && g, m, k collinear && ∠fja = ∠(fm, al) && ∠(fm, al) = ∠(gm, lk) && ∠bmf = ∠fja && fg ⊥ jm => ∠gfm = ∠mkl
-[  11 | gr ] diffclock g f m l k m
-[  11 | gr ] f, m, l collinear && g, m, k collinear && fj ⊥ gm && fj ⊥ fa => ∠gmf = ∠kml
-[  11 | gr ] ncoll g f m
-[  11 | gr ] △mjc ≅ △ljc && ca / cg = jc / cm && ct = ca => ca / cg = cj / cl
+[  11 | gr ] a, k, j, l cyclic && j, l, a, f cyclic && k, j, a, g cyclic => f, a, l, g cyclic
+[  11 | gr ] a, k, j, l cyclic && j, l, a, f cyclic => f, l, a, k cyclic
+[  11 | gr ] a, k, j, l cyclic && k, j, a, g cyclic => g, l, a, k cyclic
+[  11 | gr ] k, a, b collinear && l, c, a collinear && ∠cab = ∠mfk && ∠mfk = ∠(lg, mk) => ∠lak = ∠lgm
+[  11 | gr ] diffclock l a k m g l
+[  11 | gr ] f, m, l collinear && k, a, b collinear && ∠mkf = ∠(lg, fm) && ∠(lk, ab) = ∠mkf => ∠lka = ∠glm
+[  11 | gr ] ncoll l a k
+[  11 | gr ] jm ⊥ bc && f, m, l collinear && ∠ajc = ∠(mk, bc) && ∠ajc = ∠(lk, fm) && mj ⊥ gf => ∠mgf = ∠klm
+[  11 | gr ] diffclock m g f m l k
+[  11 | gr ] jm ⊥ bc && g, m, k collinear && ∠(ac, fm) = ∠lkm && ∠(aj, fb) = ∠(ac, fm) && ∠(fm, bc) = ∠(aj, fb) && mj ⊥ gf => ∠mfg = ∠lkm
+[  11 | gr ] ncoll m g f
+[  11 | gr ] △mjc ≅ △ljc && cj / cm = ca / gc && ct = ca => ca / cg = cj / cl
 [  11 | gr ] diffclock a c g j c l
 [  11 | gr ] l, c, a collinear && g, c, j collinear => ∠acg = ∠lcj
 [  11 | gr ] ncoll a c g
-[  11 | gr ] jm = jl && ja / jf = jc / jm => jc / jl = ja / jf
+[  11 | gr ] jm = jl && aj / jf = cj / jm => jc / jl = ja / jf
 [  11 | gr ] diffclock c j l a j f
-[  11 | gr ] f, b, j collinear && ∠fja = ∠gjl => ∠cjl = ∠fja
-[  12 | dd ] f, a, g, l cyclic => ∠fga = ∠fla
+[  11 | gr ] f, b, j collinear && ∠(fb, aj) = ∠cjl => ∠cjl = ∠fja
 [  12 | dd ] g, a, f, l cyclic => ∠gfa = ∠gla
 [  12 | dd ] g, l, f, a cyclic => ∠gfl = ∠gal
-[  12 | dd ] f, k, g, a cyclic => ∠fgk = ∠fak
-[  12 | dd ] ncoll k a l && ∠kal = ∠kfm && diffclock k a l m f k && ∠kla = ∠fkm => △kal ~ △mfk
-[  12 | dd ] ∠gfm = ∠mkl && diffclock g f m l k m && ∠gmf = ∠kml && ncoll g f m => △gfm ~ △lkm
+[  12 | dd ] f, a, l, g cyclic => ∠fla = ∠fga
+[  12 | dd ] a, f, l, g cyclic => ∠alf = ∠agf
+[  12 | dd ] la = ak && g, l, a, k cyclic => ∠lga = ∠agk
+[  12 | dd ] ∠lak = ∠lgm && diffclock l a k m g l && ∠lka = ∠glm && ncoll l a k => △lak ~ △mgl
+[  12 | dd ] ∠mgf = ∠klm && diffclock m g f m l k && ∠mfg = ∠lkm && ncoll m g f => △mgf ~ △mlk
 [  12 | dd ] ca / cg = cj / cl && diffclock a c g j c l && ∠acg = ∠lcj && ncoll a c g => △acg ~ △jcl
 [  12 | dd ] ncoll c j l && jc / jl = ja / jf && diffclock c j l a j f && ∠cjl = ∠fja => △cjl ~ △ajf
-[  14 | ar ] △mjf ≅ △kjf && ∠lfa = ∠afk => fj ⊥ fa
-[  14 | ar ] △kal ~ △mfk && △gfm ~ △lkm => gf = la
-[  14 | ar ] △jac ~ △jfm && △jac ~ △mgc && △cjl ~ △ajf => fa = lg
-[  14 | ar ] △jac ~ △jfm && △jac ~ △mgc && △acg ~ △jcl => ga = mf
-[  15 | gr ] fa = lg => fa = gm
+[  14 | ar ] △lak ~ △mgl && △mgf ~ △mlk => gf = la
+[  14 | ar ] △jac ~ △mgc && △jac ~ △jfm && △acg ~ △jcl => ga = mf
+[  14 | ar ] △jac ~ △mgc && △jac ~ △jfm && △cjl ~ △ajf => af = gm
 [  15 | gr ] ncoll g a l
-[  15 | dd ] ncoll g a l && ∠gal = ∠smf && ga = fm && diffclock g a l f m s && ∠gla = ∠msf => △gal ≅ △fms
-[  15 | gr ] ncoll f a k
-[  15 | gr ] m, b, c collinear && l, c, a collinear && s, b, c collinear && t, g, a collinear && ∠bmf = ∠fja && ∠gfl = ∠gal => ∠gal = ∠smf
-[  15 | dd ] fa = gm && ncoll f a k && ∠fak = ∠tmg && diffclock f a k g m t && ∠fka = ∠mtg => △fak ≅ △gmt
-[  15 | gr ] m, b, c collinear && k, a, b collinear && s, f, a collinear && t, c, b collinear && ∠gja = ∠bmg && ∠fgk = ∠fak => ∠fak = ∠tmg
-[  15 | gr ] diffclock f a k g m t
-[  15 | gr ] jm ⊥ bc && m, b, c collinear && k, a, b collinear && t, c, b collinear && ∠fja = ∠(fm, al) && fg ⊥ jm && ∠fka = ∠(fm, al) && ∠fga = ∠fla => ∠fka = ∠mtg
-[  15 | gr ] ga = mf => ga = fm
+[  15 | dd ] ncoll g a l && ∠gal = ∠smf && diffclock g a l f m s && ∠gla = ∠msf && ga = fm => △gal ≅ △fms
+[  15 | gr ] jm ⊥ bc && m, b, c collinear && k, a, b collinear && t, c, b collinear && ∠(aj, fb) = ∠(ac, fm) && mj ⊥ gf && ∠(ab, fk) = ∠(ac, fm) && ∠alf = ∠agf => ∠akf = ∠gtm
+[  15 | gr ] ncoll a f k
+[  15 | gr ] m, b, c collinear && l, c, a collinear && s, b, c collinear && t, g, a collinear && ∠(bc, fm) = ∠(fb, aj) && ∠gfl = ∠gal => ∠gal = ∠smf
 [  15 | gr ] diffclock g a l f m s
-[  15 | gr ] jm ⊥ bc && m, b, c collinear && l, c, a collinear && s, b, c collinear && ∠gja = ∠(fm, lk) && fg ⊥ jm && ∠gla = ∠(fm, lk) && ∠gfa = ∠gla => ∠gla = ∠msf
-[  15 | gr ] jm ⊥ bc && t, g, a collinear && t, c, b collinear && ∠fja = ∠(fm, al) && ∠bmf = ∠fja && fg ⊥ jm && ∠fga = ∠fla && ∠gfl = ∠gal => ∠cta = ∠tac
+[  15 | gr ] jm ⊥ bc && m, b, c collinear && l, c, a collinear && s, b, c collinear && ∠cja = ∠(fm, lk) && mj ⊥ gf && ∠(lg, ac) = ∠(fm, lk) && ∠gfa = ∠gla => ∠gla = ∠msf
+[  15 | dd ] ∠akf = ∠gtm && ncoll a f k && ∠afk = ∠tgm && diffclock a f k m g t && af = mg => △afk ≅ △mgt
+[  15 | gr ] s, f, a collinear && ∠lfa = ∠afk && ∠lfa = ∠lga && ∠lga = ∠agk => ∠afk = ∠tgm
+[  15 | gr ] diffclock a f k m g t
+[  15 | gr ] af = gm => af = mg
+[  15 | gr ] ga = mf => ga = fm
+[  15 | gr ] jm ⊥ bc && t, g, a collinear && t, c, b collinear && ∠(fb, aj) = ∠(fm, ac) && ∠(bc, fm) = ∠(fb, aj) && mj ⊥ gf && ∠gfl = ∠gal && ∠fla = ∠fga => ∠cta = ∠tac
 [  15 | dd ] ncoll c t a && ∠cta = ∠tac => ct = ca
-[ 511 | dd ] △lja ≅ △kja && gf = la && △gal ≅ △fms && △fak ≅ △gmt => ms = mt
+[ 511 | dd ] △lja ≅ △kja && gf = la && △gal ≅ △fms && △afk ≅ △mgt => ms = mt

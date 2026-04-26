@@ -11,9 +11,9 @@ Problem: imo-2014-4
     ? cong o x o a
 
 ---------------------------------------
-    x = (-0.194097, 0.294076)    c = (0.067428, 0.164513)    p = (1.002500, 0.161717)
-    q = (-0.337031, 0.165722)    m = (1.673845, 0.687903)    n = (-1.005217, 0.695913)
-    a = (0.331156, -0.364468)    b = (-0.796369, 0.167096)    o = (-0.366108, -0.381861)
+    n = (-1.234003, 0.633389)    x = (-1.154850, 0.246355)    a = (-0.759419, 0.026030)
+    b = (-0.961023, 0.417689)    c = (-1.113178, 0.042589)    p = (-1.141213, -0.026525)
+    q = (-0.996711, 0.329709)    m = (-1.523007, -0.079079)    o = (-0.929180, 0.186363)
 
     Loss: 0
 ---------------------------------------
@@ -25,15 +25,15 @@ Problem: imo-2014-4
 [   3 | gr ] ncoll q a c
 [   4 | dd ] ∠pab = ∠bca && diffclock p a b a c b && ∠pba = ∠cba && ncoll p a b => △pab ~ △acb
 [   4 | dd ] ∠qac = ∠cba && diffclock q a c a b c && ∠qca = ∠bca && ncoll q a c => △qac ~ △abc
-[   7 | gr ] sameclock b p m n q c
-[   7 | gr ] m, a, p collinear && p, b, c collinear && n, a, q collinear && q, b, c collinear && △pab ~ △acb && △qac ~ △abc => ∠bpm = ∠nqc
 [   7 | gr ] qa = qn && pa = pm => pb / pm = qn / qc
+[   7 | gr ] sameclock b p m n q c
+[   7 | gr ] m, a, p collinear && n, a, q collinear && p, b, c collinear && q, b, c collinear && △pab ~ △acb && △qac ~ △abc => ∠bpm = ∠nqc
 [   7 | gr ] ncoll b p m
-[   8 | dd ] sameclock b p m n q c && ∠bpm = ∠nqc && pb / pm = qn / qc && ncoll b p m => △bpm ~ △nqc
-[  10 | ar ] ∠pab = ∠bca && △bpm ~ △nqc => ∠cxm = ∠cab
-[  11 | gr ] △pab ~ △acb && ∠cxm = ∠cab => ∠cab = ∠cxb
-[  11 | gr ] diff c b a x
-[  12 | dd ] ∠cab = ∠cxb && diff c b a x => c, b, a, x cyclic
-[  15 | dd ] o center of ⦿xca => ox = oc
-[  15 | gr ] o center of ⦿abc && c, b, a, x cyclic => o center of ⦿xca
-[ 511 | dd ] oa = ob && ob = oc && ox = oc => ox = oa
+[   8 | dd ] pb / pm = qn / qc && sameclock b p m n q c && ∠bpm = ∠nqc && ncoll b p m => △bpm ~ △nqc
+[  10 | ar ] ∠pab = ∠bca && △bpm ~ △nqc => ∠nxb = ∠cab
+[  11 | gr ] △pab ~ △acb && ∠nxb = ∠cab => ∠cab = ∠cxb
+[  11 | gr ] ncoll c b a x
+[  12 | dd ] ∠cab = ∠cxb && ncoll c b a x => c, b, a, x cyclic
+[  15 | dd ] o center of ⦿xab => ox = oa
+[  15 | gr ] o center of ⦿abc && c, b, a, x cyclic => o center of ⦿xab
+[ 511 | dd ] ox = oa => ox = oa

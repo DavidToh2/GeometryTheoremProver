@@ -1,0 +1,96 @@
+=======================================
+Problem: imo-2016-1
+
+    a b z = triangle a b z; 
+    f = on_angle_bisect f : b a z, on_line_bisect f : a b; 
+    c = on_line_perp c : b f b, on_line c : a f; 
+    d = on_line d : a z, on_line_bisect d : a c; 
+    e = on_angle_mirror e : c a d, on_line_bisect e : a d; 
+    m = midpoint m : c f; 
+    x = parallelogram x : e a m; 
+    y = intersection_ll y : e m f x
+    ? coll y b d
+
+---------------------------------------
+    d = (-4.832064, 6.181667)    e = (-5.880048, 0.335670)    z = (-0.623264, -0.250160)
+    a = (-0.103455, -1.044523)    b = (0.689853, -0.458062)    f = (0.016265, -0.376684)
+    c = (2.112234, 11.315311)    m = (1.064250, 5.469314)    x = (-4.712343, 6.849507)
+    y = (-2.220289, 3.041185)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] ea = ed => de = ae
+[   3 | gr ] ad = da
+[   3 | gr ] ncoll e a d
+[   3 | gr ] ncoll e d a
+[   3 | gr ] cb ⊥ fb => fb ⊥ bc
+[   3 | gr ] c, a, f collinear && m midpoint of cf => m midpoint of fc
+[   3 | gr ] cb ⊥ fb => cb ⊥ bf
+[   4 | dd ] ea = ed && de = ae && ad = da && ncoll e a d => △ead ≅ △eda
+[   4 | dd ] fb ⊥ bc && m midpoint of fc => fm = bm
+[   4 | dd ] m midpoint of cf && cb ⊥ bf => cm = bm
+[   6 | ar ] ∠baf = ∠faz && ∠cad = ∠dae && ∠fab = ∠abf && ∠ead = ∠ade => ∠eaf = ∠afb
+[   6 | ar ] ∠baf = ∠faz && ∠cad = ∠dae && ∠fab = ∠abf && ∠ead = ∠ade => ∠fae = ∠bfa
+[   6 | ar ] ∠baf = ∠faz && ∠fab = ∠abf => ∠afb = ∠(dz, ab)
+[   6 | ar ] ∠dac = ∠acd && ∠baf = ∠faz && ∠cad = ∠dae && ∠fab = ∠abf => ∠(ea, dz) = ∠abf
+[   6 | ar ] ∠dac = ∠acd && ∠baf = ∠faz => ab ∥ dc
+[   6 | ar ] fm = bm => bm = fm
+[   7 | gr ] d, a, z collinear && ∠fab = ∠abf && ∠(ea, dz) = ∠abf => ∠ead = ∠abf
+[   7 | gr ] ∠baf = ∠faz && d, a, z collinear && ∠cad = ∠dae && △ead ≅ △eda => ∠eda = ∠baf
+[   7 | gr ] ncoll m f b
+[   7 | gr ] diffclock e d a f a b
+[   7 | gr ] fb = bf
+[   7 | gr ] m midpoint of cf && fm = bm => mf = mb
+[   8 | dd ] ncoll e d a && ∠ead = ∠abf && ∠eda = ∠baf && diffclock e d a f a b => △eda ~ △fab
+[   8 | dd ] bm = fm && ncoll m f b && fb = bf && mf = mb => △mfb ≅ △mbf
+[  10 | ar ] ∠baf = ∠faz && ∠cad = ∠dae && ∠fab = ∠abf && △mfb ≅ △mbf => ∠eab = ∠abm
+[  10 | ar ] ∠baf = ∠faz && ∠cad = ∠dae && ∠fab = ∠abf && △mfb ≅ △mbf => ∠(bf, ea) = ∠(bm, af)
+[  11 | gr ] sameclock e a f d a b
+[  11 | gr ] ncoll d a f
+[  11 | gr ] ae / af = ad / ab
+[  11 | gr ] ncoll e a f
+[  11 | gr ] d, a, z collinear && ∠eaf = ∠afb && ∠afb = ∠(dz, ab) && ab ∥ dc => ∠eaf = ∠dab
+[  11 | gr ] ad / af = ac / ab
+[  11 | gr ] sameclock d a f c a b
+[  11 | gr ] ncoll f a e
+[  11 | gr ] c, a, f collinear && ∠dac = ∠acd && d, a, z collinear && ab ∥ dc => ∠daf = ∠cab
+[  12 | dd ] sameclock e a f d a b && ae / af = ad / ab && ncoll e a f && ∠eaf = ∠dab => △eaf ~ △dab
+[  12 | dd ] ncoll d a f && ad / af = ac / ab && sameclock d a f c a b && ∠daf = ∠cab => △daf ~ △cab
+[  14 | ar ] cb ⊥ fb && ∠fab = ∠abf && △daf ~ △cab => ab ⊥ df
+[  14 | ar ] cb ⊥ fb && ∠cad = ∠dae && ∠fab = ∠abf && ∠ead = ∠ade && △daf ~ △cab => ∠afd = ∠dfb
+[  15 | gr ] ncoll a f d
+[  15 | gr ] ∠afd = ∠dfb => ∠afd = ∠dfb
+[  15 | gr ] fa = fb => af = bf
+[  15 | gr ] diffclock a f d b f d
+[  15 | gr ] fd = fd
+[  15 | dd ] ncoll a f d && ∠afd = ∠dfb && af = bf && diffclock a f d b f d && fd = fd => △afd ≅ △bfd
+[  15 | gr ] ab ∥ dc && ab ⊥ df => cd ⊥ df
+[  16 | dd ] m midpoint of cf && cd ⊥ df => cm = dm
+[  18 | ar ] △eaf ~ △dab && △eda ~ △fab && △afd ≅ △bfd => ea = ef
+[  18 | ar ] ∠baf = ∠faz && cb ⊥ fb && ∠fab = ∠abf && △eaf ~ △dab && △daf ~ △cab && △afd ≅ △bfd => bc ⊥ ef
+[  18 | ar ] m midpoint of cf && cm = dm => dm = fm
+[  19 | gr ] ea = ed && ea = ef => ed = ef
+[  19 | dd ] ed = ef && me = me && dm = fm && ncoll e d m => △edm ≅ △efm
+[  19 | gr ] diff e m
+[  19 | gr ] me = me
+[  19 | gr ] ea = ed && ea = ef => de = fe
+[  19 | gr ] md = md
+[  19 | gr ] ncoll d c m
+[  19 | gr ] diffclock f a e f b m
+[  19 | gr ] m midpoint of cf && ∠(bf, ea) = ∠(bm, af) && bc ⊥ ef => ∠fea = ∠bmf
+[  19 | gr ] da = dc && △afd ≅ △bfd => dc = db
+[  19 | gr ] ncoll e d m
+[  19 | dd ] fa = fb && ncoll f a e && diffclock f a e f b m && ∠fea = ∠bmf && ∠fae = ∠mbf => △fae ≅ △fbm
+[  19 | gr ] ∠fae = ∠bfa && △mfb ≅ △mbf => ∠fae = ∠mbf
+[  19 | dd ] cm = bm && md = md && ncoll d c m && dc = db => △dcm ≅ △dbm
+[  20 | dd ] diff e m && de = fe && dm = fm => df ⊥ em
+[  23 | gr ] m midpoint of cf && ea = mx && fm = bm && △fae ≅ △fbm => xm = bm
+[  23 | gr ] my = my
+[  23 | dd ] xm = bm && my = my && ∠xmy = ∠ymb && diffclock x m y b m y && ncoll x m y => △xmy ≅ △bmy
+[  23 | gr ] ea ∥ mx && y, e, m collinear && ∠eab = ∠abm && ab ⊥ df && df ⊥ em => ∠xmy = ∠ymb
+[  23 | gr ] diffclock x m y b m y
+[  23 | gr ] ncoll x m y
+[  26 | ar ] cb ⊥ fb && ∠fab = ∠abf && △mfb ≅ △mbf && △daf ~ △cab && △afd ≅ △bfd && △edm ≅ △efm && △dcm ≅ △dbm && △xmy ≅ △bmy => db ∥ by
+[  27 | dd ] db ∥ dy && diff b y => d, b, y collinear
+[  27 | gr ] db ∥ by => db ∥ dy
+[  27 | gr ] diff b y
+[ 511 | dd ] d, b, y collinear => y, b, d collinear

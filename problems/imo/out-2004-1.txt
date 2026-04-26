@@ -1,28 +1,4 @@
 =======================================
-Problem: imo-2004-1-experiment
-
-    o m n = iso_triangle o m n;
-    a = free a;
-    r = on_angle_bisect r : m o n, on_angle_bisect r : m a n
-    ? cyclic a m n r
-
----------------------------------------
-    o = (0.496316, 0.276218)    a = (0.786473, -0.033286)    r = (-1.165273, 2.194163)
-    n = (-1.511356, 0.395453)    m = (0.664399, 2.280392)
-    Loss: 0
----------------------------------------
-[   3 | dd ] ∠mor = ∠ron && mo = no && or = or && diffclock m o r n o r && ncoll m o r => △mor ≅ △nor
-[   3 | gr ] om = on => mo = no
-[   3 | gr ] or = or
-[   3 | gr ] diffclock m o r n o r
-[   3 | gr ] ncoll m o r
-[   7 | gr ] ∠mar = ∠ran => ∠mar = ∠ran
-[   7 | gr ] diff m r n a
-[   7 | gr ] ncong m a a n
-[   7 | gr ] △mor ≅ △nor => mr = rn
-[   8 | dd ] ∠mar = ∠ran && diff m r n a && ncong m a a n && mr = rn => m, r, n, a cyclic
-[ 511 | dd ] m, r, n, a cyclic => a, m, n, r cyclic
-=======================================
 Problem: imo-2004-1
 
     a b c = triangle a b c; 
@@ -35,57 +11,54 @@ Problem: imo-2004-1
     ? coll b c p
 
 ---------------------------------------
-    c = (-0.390274, 0.698024)    b = (-0.523825, -0.995162)    a = (-0.868091, 0.901968)
-    o2 = (-0.179957, 0.500623)    o = (-0.457049, -0.148569)    o1 = (-1.151562, -0.274600)
-    n = (0.108080, 0.485313)    m = (-0.817029, 0.620582)    p = (-0.418621, 0.338637)
-    r = (-0.390892, 0.303884)
+    r = (0.348223, 0.664231)    o1 = (0.218534, 0.991127)    a = (1.809676, 0.847299)
+    b = (-0.046552, 1.222232)    c = (0.360368, 0.149820)    o = (0.156908, 0.686026)
+    m = (0.552538, 1.101224)    n = (0.449015, 0.192481)    o2 = (0.291886, 0.405552)
+    p = (0.173483, 0.642342)
     Loss: 0
 ---------------------------------------
-[   3 | gr ] diff o o2
+[   3 | gr ] o1o = o1o
+[   3 | dd ] ob = om && o1o = o1o && bo1 = mo1 && ncoll o b o1 => △obo1 ≅ △omo1
+[   3 | gr ] o1b = o1m => bo1 = mo1
 [   3 | gr ] diff o o1
-[   3 | dd ] ∠mor = ∠ron && ncoll m o r && mo = no && or = or && diffclock m o r n o r => △mor ≅ △nor
-[   3 | gr ] ncoll o1 m r
-[   3 | gr ] ncoll o2 c p
-[   3 | gr ] o1b = o1m && o1m = o1r && o1p = o1r => o1b = o1p
-[   3 | gr ] ob = om && oc = on && o midpoint of bc => om = on
-[   3 | gr ] ncoll m o r
-[   3 | gr ] ncoll o m n
-[   3 | gr ] ncoll o1 b p
+[   3 | gr ] ncoll o b o1
 [   3 | dd ] oc = on && co2 = no2 && o2o = o2o && ncoll o c o2 => △oco2 ≅ △ono2
 [   3 | gr ] o2c = o2n => co2 = no2
 [   3 | gr ] o2o = o2o
 [   3 | gr ] ncoll o c o2
-[   3 | gr ] oc = on && o midpoint of bc => co = no
-[   3 | gr ] ncoll o2 n r
-[   3 | dd ] om = ob && mo1 = bo1 && o1o = o1o && ncoll o m o1 => △omo1 ≅ △obo1
-[   3 | gr ] ob = om => om = ob
-[   3 | gr ] o1b = o1m => mo1 = bo1
-[   3 | gr ] o1o = o1o
-[   3 | gr ] ncoll o m o1
-[   3 | gr ] ob = om && oc = on && o midpoint of bc => mo = no
+[   3 | gr ] ob = om => bo = mo
+[   3 | dd ] o1r = o1p && ro2 = po2 && o2o1 = o2o1 && ncoll o1 r o2 => △o1ro2 ≅ △o1po2
+[   3 | gr ] o1b = o1m && o1m = o1r && o1p = o1r => o1r = o1p
+[   3 | gr ] o2c = o2n && o2n = o2r && o2p = o2r => ro2 = po2
+[   3 | gr ] o2o1 = o2o1
+[   3 | gr ] ncoll o1 r o2
+[   3 | gr ] o midpoint of bc && oc = on => co = no
+[   3 | gr ] o1b = o1m && o1m = o1r && o1p = o1r => o1b = o1p
+[   3 | gr ] o2c = o2n && o2n = o2r && o2p = o2r => o2c = o2p
+[   3 | gr ] diff o o2
+[   3 | dd ] ∠mor = ∠ron && mo = no && or = or && diffclock m o r n o r && ncoll m o r => △mor ≅ △nor
+[   3 | gr ] o midpoint of bc && ob = om && oc = on => mo = no
 [   3 | gr ] or = or
 [   3 | gr ] diffclock m o r n o r
-[   3 | gr ] o2c = o2n && o2n = o2r && o2p = o2r => o2c = o2p
-[   3 | gr ] ob = om => mo = bo
-[   3 | dd ] o1p = o1r && po2 = ro2 && o2o1 = o2o1 && ncoll o1 p o2 => △o1po2 ≅ △o1ro2
-[   3 | gr ] o2c = o2n && o2n = o2r && o2p = o2r => po2 = ro2
-[   3 | gr ] o2o1 = o2o1
-[   3 | gr ] ncoll o1 p o2
-[   4 | dd ] diff o o2 && co2 = no2 && co = no => cn ⊥ oo2
-[   4 | dd ] diff o o1 && mo1 = bo1 && mo = bo => mb ⊥ oo1
-[   4 | dd ] ncoll o1 m r && o1m = o1r => ∠o1mr = ∠mro1
-[   4 | dd ] ncoll o2 c p && o2c = o2p => ∠o2cp = ∠cpo2
-[   4 | dd ] om = on && ncoll o m n => ∠omn = ∠mno
+[   3 | gr ] ncoll m o r
+[   3 | gr ] ncoll o1 b p
+[   3 | gr ] ncoll o1 m r
+[   3 | gr ] ncoll o2 c p
+[   3 | gr ] ncoll o2 n r
+[   4 | dd ] bo1 = mo1 && diff o o1 && bo = mo => bm ⊥ oo1
+[   4 | dd ] co2 = no2 && co = no && diff o o2 => cn ⊥ oo2
 [   4 | dd ] o1b = o1p && ncoll o1 b p => ∠o1bp = ∠bpo1
+[   4 | dd ] o1m = o1r && ncoll o1 m r => ∠o1mr = ∠mro1
+[   4 | dd ] o2c = o2p && ncoll o2 c p => ∠o2cp = ∠cpo2
 [   4 | dd ] o2n = o2r && ncoll o2 n r => ∠o2nr = ∠nro2
-[   7 | gr ] ncong m a a n
-[   7 | gr ] diff m r n a
-[   7 | gr ] △mor ≅ △nor => mr = rn
 [   7 | gr ] ∠bar = ∠rac => ∠mar = ∠ran
-[   8 | dd ] ncong m a a n && diff m r n a && mr = rn && ∠mar = ∠ran => m, r, n, a cyclic
-[  11 | gr ] m, r, n, a cyclic => a, n, m, r cyclic
-[  12 | dd ] a, n, m, r cyclic => ∠amn = ∠arn
-[  14 | ar ] ∠mor = ∠ron && cn ⊥ oo2 && mb ⊥ oo1 && △mor ≅ △nor && ∠o1mr = ∠mro1 && ∠o2cp = ∠cpo2 && ∠omn = ∠mno && ∠o1bp = ∠bpo1 && △oco2 ≅ △ono2 && ∠o2nr = ∠nro2 && △omo1 ≅ △obo1 && ∠bar = ∠rac && △o1po2 ≅ △o1ro2 && ∠amn = ∠arn => bp ∥ cp
+[   7 | gr ] △mor ≅ △nor => mr = rn
+[   7 | gr ] ncoll m r n a
+[   7 | gr ] ncong m a a n
+[   8 | dd ] ∠mar = ∠ran && mr = rn && ncoll m r n a && ncong m a a n => m, r, n, a cyclic
+[  11 | dd ] r, a, m, n cyclic => ∠rma = ∠rna
+[  11 | gr ] m, r, n, a cyclic => r, a, m, n cyclic
+[  14 | ar ] △obo1 ≅ △omo1 && bm ⊥ oo1 && △oco2 ≅ △ono2 && △o1ro2 ≅ △o1po2 && cn ⊥ oo2 && ∠o1bp = ∠bpo1 && ∠o1mr = ∠mro1 && ∠o2cp = ∠cpo2 && ∠o2nr = ∠nro2 && ∠rma = ∠rna => bp ∥ cp
 [  15 | dd ] diff b c && pb ∥ pc => p, b, c collinear
 [  15 | gr ] bp ∥ cp => pb ∥ pc
 [ 511 | dd ] o midpoint of bc && p, b, c collinear => b, c, p collinear

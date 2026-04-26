@@ -1,0 +1,35 @@
+=======================================
+Problem: imo-2020-1
+
+    p a b = triangle p a b; 
+    x = on_angle_bisect x : p b a; 
+    y = on_angle_bisect y : p a b; 
+    z = on_line_at_angle z : a p a b x; 
+    t = on_line_at_angle t : p a p a z; 
+    d = on_line_at_angle d : p t p b a, on_line d : a z; 
+    u = on_line_at_angle u : b p b a y; 
+    v = on_line_at_angle v : p b p b u; 
+    c = on_line_at_angle c : p v p a b, on_line c : b u; 
+    o = circumcenter o : a b p
+    ? eqangle a d d o o d d p
+
+---------------------------------------
+    z = (0.631232, 2.082481)    t = (1.987501, -0.036654)    a = (-1.030135, 0.466661)
+    p = (1.507912, 0.445561)    b = (-0.080339, -0.786436)    x = (0.097499, 0.560845)
+    y = (2.009330, -1.059229)    d = (57.532916, 57.424175)    u = (1.496633, -0.462185)
+    v = (0.610380, -1.393191)    c = (1.914852, -0.376192)    o = (0.238770, 0.441938)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] ncoll o a b
+[   3 | gr ] ncoll o b p
+[   4 | dd ] oa = ob && ncoll o a b => ∠oab = ∠abo
+[   4 | dd ] ob = op && ncoll o b p => ∠obp = ∠bpo
+[   6 | ar ] ∠dpt = ∠pba && ∠pbx = ∠xba && ∠tpa = ∠paz && ∠zap = ∠abx && ∠oab = ∠abo && ∠obp = ∠bpo => ∠zao = ∠dpo
+[   7 | gr ] d, a, z collinear && ∠zao = ∠dpo => ∠dao = ∠dpo
+[   7 | gr ] ncoll d o a p
+[   8 | dd ] ∠dao = ∠dpo && ncoll d o a p => d, o, a, p cyclic
+[  11 | gr ] d, o, a, p cyclic => d, a, o, p cyclic
+[  11 | gr ] oa = ob && ob = op => ao = op
+[  12 | dd ] d, a, o, p cyclic && ao = op => ∠ado = ∠odp
+[ 511 | dd ] d, a, z collinear && ∠ado = ∠odp => ∠ado = ∠odp

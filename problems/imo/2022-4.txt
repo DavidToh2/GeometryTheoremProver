@@ -1,0 +1,12 @@
+problem imo-2022-4 {
+    b c = segment b c; 
+    d = free d; 
+    e = eqdistance e : d b c; 
+    t = on_line_bisect t : b d, on_line_bisect t : c e; 
+    a = on_angle_eq2 a : b t e; 
+    p = intersection_ll p : a b c d; 
+    q = intersection_ll q : a b c t; 
+    r = intersection_ll r : a e c d; 
+    s = intersection_ll s : a e d t 
+    ? cyclic p q r s
+}

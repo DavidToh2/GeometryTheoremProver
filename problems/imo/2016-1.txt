@@ -1,0 +1,11 @@
+problem imo-2016-1 {
+    a b z = triangle a b z; 
+    f = on_angle_bisect f : b a z, on_line_bisect f : a b; 
+    c = on_line_perp c : b f b, on_line c : a f; 
+    d = on_line d : a z, on_line_bisect d : a c; 
+    e = on_angle_mirror e : c a d, on_line_bisect e : a d; 
+    m = midpoint m : c f; 
+    x = parallelogram x : e a m; 
+    y = intersection_ll y : e m f x
+    ? coll y b d
+}

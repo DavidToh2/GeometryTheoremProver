@@ -1,0 +1,13 @@
+# Point y added
+problem imo-2000-6 {
+    a b c = triangle a b c; 
+    h = orthocenter h : a b c; 
+    t1 t2 t3 i = incenter2 t1 t2 t3 i : a b c; 
+    h1 = foot h1 : a b c; 
+    h2 = foot h2 : b c a; 
+    h3 = foot h3 : c a b; 
+    d = on_circle d : i t1, on_line_para d : t1 t2 t3;
+    p = reflect p : d t1 t2;
+    y = intersection_ll y : d t2 t1 t3
+    ? coll p h1 h2
+}

@@ -1,5 +1,5 @@
 =======================================
-Problem: imo-2010-2-alpha
+Problem: imo-2010-2
 
     a b c = triangle a b c; 
     o = circumcenter o : a b c; 
@@ -13,20 +13,20 @@ Problem: imo-2010-2-alpha
     ? cong o k o a
 
 ---------------------------------------
-    d = (0.239900, -0.143372)    f = (-0.054785, 0.011798)    b = (-0.336092, -0.335095)
-    c = (0.308513, 0.459800)    o = (-0.198279, 0.211961)    i = (0.066984, 0.438543)
-    a = (-0.025245, 0.748917)    e = (0.365712, 0.198660)    g = (0.006099, 0.225170)
-    k = (-0.333051, 0.759774)    ia = (0.412817, -0.725287)
+    d = (-0.337649, 0.293205)    f = (-0.180348, 0.078824)    a = (-0.517780, -0.309115)
+    b = (-0.074952, 0.064278)    c = (-0.652535, 0.143992)    o = (-0.381136, -0.021885)
+    i = (-0.437488, -0.040636)    e = (-0.589293, 0.218621)    g = (-0.308918, 0.019094)
+    k = (-0.273259, -0.321109)    ia = (-0.237811, 0.627046)
     Loss: 0
 ---------------------------------------
 [   3 | gr ] oa = od && oa = ob => ob = od
-[   3 | gr ] ncoll o a b
 [   3 | gr ] oa = ob && oe = oa => ob = oe
 [   3 | gr ] oe = oa => oa = oe
 [   3 | gr ] oa = ob && ob = oc => oa = oc
 [   3 | gr ] oa = od && oa = ob && ob = oc => oc = od
 [   3 | gr ] oa = ob && ob = oc && oe = oa => oc = oe
 [   3 | gr ] oa = od && oe = oa => od = oe
+[   3 | gr ] ncoll o a b
 [   3 | gr ] ncoll o a c
 [   3 | gr ] ncoll o a d
 [   3 | gr ] ncoll o a e
@@ -46,75 +46,74 @@ Problem: imo-2010-2-alpha
 [   4 | dd ] oc = od && ncoll o c d => ∠ocd = ∠cdo
 [   4 | dd ] oc = oe && ncoll o c e => ∠oce = ∠ceo
 [   4 | dd ] od = oe && ncoll o d e => ∠ode = ∠deo
-[   6 | ar ] ∠bai = ∠iac && ∠baia = ∠iaac && ∠oac = ∠aco && ∠oad = ∠ado && ∠oce = ∠ceo && ∠ode = ∠deo => ∠dec = ∠(ba, di)
-[   6 | ar ] ∠cbi = ∠iba && ∠bai = ∠iac && ∠oac = ∠aco && ∠oad = ∠ado && ∠obc = ∠bco && ∠obd = ∠bdo => ∠dbi = ∠bid
-[   6 | ar ] ∠eac = ∠baf && ∠bai = ∠iac && ∠oad = ∠ado && ∠oae = ∠aeo && ∠ocd = ∠cdo && ∠oce = ∠ceo => ∠ecd = ∠(di, fa)
-[   6 | ar ] ∠eac = ∠baf && ∠bai = ∠iac && ∠oad = ∠ado && ∠oae = ∠aeo && ∠ocd = ∠cdo && ∠oce = ∠ceo => ∠dce = ∠(fa, di)
+[   6 | ar ] ∠bai = ∠iac && ∠baia = ∠iaac => da ∥ aia
+[   6 | ar ] ∠cbi = ∠iba && ∠bai = ∠iac && ∠aci = ∠icb && ∠baia = ∠iaac && ∠oab = ∠abo && ∠oac = ∠aco && ∠oad = ∠ado && ∠obc = ∠bco => ∠(do, ci) = ∠(bi, da)
 [   6 | ar ] ∠obc = ∠bco && ∠obd = ∠bdo && ∠oce = ∠ceo && ∠ode = ∠deo => ∠dec = ∠dbf
-[   6 | ar ] ∠eac = ∠baf && ∠bai = ∠iac && ∠baia = ∠iaac => ∠(ae, di) = ∠(di, fa)
-[   6 | ar ] ∠bai = ∠iac && ∠oab = ∠abo && ∠oac = ∠aco && ∠oad = ∠ado && ∠obe = ∠beo && ∠oce = ∠ceo => ∠bec = ∠doc
-[   6 | ar ] ∠bai = ∠iac && ∠oab = ∠abo && ∠oac = ∠aco && ∠oad = ∠ado && ∠obe = ∠beo && ∠oce = ∠ceo => ∠bec = ∠bod
-[   6 | ar ] ∠eac = ∠baf && ∠bai = ∠iac && ∠oad = ∠ado && ∠oae = ∠aeo && ∠obd = ∠bdo && ∠obe = ∠beo => ∠ebd = ∠(di, fa)
-[   6 | ar ] ∠cbi = ∠iba && ∠bai = ∠iac && ∠acia = ∠iacb && ∠oab = ∠abo && ∠oad = ∠ado && ∠obc = ∠bco && ∠ocd = ∠cdo => ∠dcia = ∠iba
 [   6 | ar ] ∠eac = ∠baf && ∠oac = ∠aco && ∠oae = ∠aeo && ∠obc = ∠bco && ∠obe = ∠beo => ∠bfa = ∠eba
+[   6 | ar ] ∠cbi = ∠iba && ∠bai = ∠iac && ∠acia = ∠iacb && ∠oab = ∠abo && ∠oad = ∠ado && ∠obc = ∠bco && ∠ocd = ∠cdo => ∠dcia = ∠iba
+[   6 | ar ] ∠bai = ∠iac && ∠acia = ∠iacb && ∠oab = ∠abo && ∠oad = ∠ado && ∠obc = ∠bco && ∠ocd = ∠cdo => ∠dcia = ∠(cia, da)
+[   6 | ar ] ∠eac = ∠baf && ∠bai = ∠iac && ∠baia = ∠iaac => ∠ead = ∠daf
+[   6 | ar ] ∠eac = ∠baf && ∠bai = ∠iac && ∠oad = ∠ado && ∠oae = ∠aeo && ∠ocd = ∠cdo && ∠oce = ∠ceo => ∠dce = ∠fad
+[   6 | ar ] ∠eac = ∠baf && ∠bai = ∠iac && ∠oad = ∠ado && ∠oae = ∠aeo && ∠ocd = ∠cdo && ∠oce = ∠ceo => ∠ecd = ∠daf
 [   6 | ar ] ∠oab = ∠abo && ∠oac = ∠aco && ∠obe = ∠beo && ∠oce = ∠ceo => ∠eba = ∠eca
-[   6 | ar ] ∠bai = ∠iac && ∠baia = ∠iaac => di ∥ aia
-[   6 | ar ] ∠bai = ∠iac && ∠acia = ∠iacb && ∠oab = ∠abo && ∠oad = ∠ado && ∠obc = ∠bco && ∠ocd = ∠cdo => ∠dcia = ∠(cia, di)
-[   6 | ar ] ∠eac = ∠baf && ∠bai = ∠iac && ∠baia = ∠iaac => ∠(di, ae) = ∠(fa, di)
-[   6 | ar ] ∠cbi = ∠iba && ∠bai = ∠iac && ∠aci = ∠icb && ∠baia = ∠iaac && ∠oab = ∠abo && ∠oac = ∠aco && ∠oad = ∠ado && ∠obc = ∠bco => ∠(ci, do) = ∠dib
-[   6 | ar ] ∠cbi = ∠iba && ∠bai = ∠iac && ∠aci = ∠icb && ∠baia = ∠iaac && ∠oab = ∠abo && ∠oac = ∠aco && ∠oad = ∠ado && ∠obc = ∠bco => ∠(do, ci) = ∠bid
-[   6 | ar ] ∠cbi = ∠iba && ∠bai = ∠iac && ∠oac = ∠aco && ∠oad = ∠ado && ∠obc = ∠bco && ∠obd = ∠bdo => ∠ibd = ∠dib
+[   6 | ar ] ∠eac = ∠baf && ∠bai = ∠iac && ∠baia = ∠iaac => ∠dae = ∠fad
+[   6 | ar ] ∠bai = ∠iac && ∠oab = ∠abo && ∠oac = ∠aco && ∠oad = ∠ado && ∠obe = ∠beo && ∠oce = ∠ceo => ∠bec = ∠bod
+[   6 | ar ] ∠cbi = ∠iba && ∠bai = ∠iac && ∠oac = ∠aco && ∠oad = ∠ado && ∠obc = ∠bco && ∠obd = ∠bdo => ∠ibd = ∠(da, bi)
+[   6 | ar ] ∠bai = ∠iac && ∠baia = ∠iaac && ∠oac = ∠aco && ∠oad = ∠ado && ∠oce = ∠ceo && ∠ode = ∠deo => ∠dec = ∠bad
+[   6 | ar ] ∠cbi = ∠iba && ∠bai = ∠iac && ∠oac = ∠aco && ∠oad = ∠ado && ∠obc = ∠bco && ∠obd = ∠bdo => ∠dbi = ∠(bi, da)
+[   6 | ar ] ∠bai = ∠iac && ∠oab = ∠abo && ∠oac = ∠aco && ∠oad = ∠ado && ∠obe = ∠beo && ∠oce = ∠ceo => ∠bec = ∠doc
+[   6 | ar ] ∠cbi = ∠iba && ∠baia = ∠iaac && ∠acia = ∠iacb => ∠(bi, da) = ∠iaca
 [   6 | ar ] ∠cbi = ∠iba && ∠bai = ∠iac && ∠acia = ∠iacb && ∠oac = ∠aco && ∠oad = ∠ado && ∠obc = ∠bco && ∠obd = ∠bdo => ∠(fb, cia) = ∠dbi
-[   6 | ar ] ∠cbi = ∠iba && ∠baia = ∠iaac && ∠acia = ∠iacb => ∠bid = ∠iaca
 [   6 | ar ] ∠cbi = ∠iba && ∠bai = ∠iac && ∠acia = ∠iacb && ∠oac = ∠aco && ∠oad = ∠ado && ∠obc = ∠bco && ∠obd = ∠bdo => ∠(cia, fb) = ∠ibd
-[   7 | dd ] bo = co && ∠bod = ∠doc && od = od && diffclock b o d c o d && ncoll b o d => △bod ≅ △cod
-[   7 | gr ] oa = ob && ob = oc => bo = co
-[   7 | gr ] ∠bec = ∠doc && ∠bec = ∠bod => ∠bod = ∠doc
-[   7 | gr ] od = od
+[   6 | ar ] ∠cbi = ∠iba && ∠bai = ∠iac && ∠aci = ∠icb && ∠baia = ∠iaac && ∠oab = ∠abo && ∠oac = ∠aco && ∠oad = ∠ado && ∠obc = ∠bco => ∠(ci, do) = ∠(da, bi)
 [   7 | gr ] diffclock b o d c o d
+[   7 | dd ] diffclock b o d c o d && ∠bod = ∠doc && od = od && ncoll b o d && bo = co => △bod ≅ △cod
+[   7 | gr ] ∠bec = ∠bod && ∠bec = ∠doc => ∠bod = ∠doc
+[   7 | gr ] od = od
 [   7 | gr ] ncoll b o d
-[   7 | dd ] ∠dac = ∠dbc && diff d c a b => d, c, a, b cyclic
-[   7 | gr ] d, i, a collinear && ∠bai = ∠iac && ∠dec = ∠(ba, di) && ∠dec = ∠dbf => ∠dac = ∠dbc
-[   7 | gr ] diff d c a b
-[   7 | gr ] d, i, a collinear && ∠acia = ∠iacb && ∠(ci, do) = ∠dib && ∠ibd = ∠dib && ∠(cia, fb) = ∠ibd => ∠dib = ∠ibd
+[   7 | gr ] oa = ob && ob = oc => bo = co
+[   7 | gr ] d, i, a collinear && ∠acia = ∠iacb && ∠ibd = ∠(da, bi) && ∠(cia, fb) = ∠ibd && ∠(ci, do) = ∠(da, bi) => ∠dib = ∠ibd
 [   7 | gr ] ncoll d i b
 [   7 | dd ] ∠dib = ∠ibd && ncoll d i b => di = db
-[   7 | gr ] ∠bai = ∠iac && di ∥ aia => ∠iaac = ∠bai
+[   7 | dd ] ∠dac = ∠dbc && ncoll d c a b => d, c, a, b cyclic
+[   7 | gr ] d, i, a collinear && ∠bai = ∠iac && ∠dec = ∠dbf && ∠dec = ∠bad => ∠dac = ∠dbc
+[   7 | gr ] ncoll d c a b
+[   7 | gr ] ∠bai = ∠iac && da ∥ aia => ∠iaac = ∠bai
 [   7 | gr ] sameclock ia a c b a i
-[   7 | gr ] ∠dbi = ∠bid && ∠(do, ci) = ∠bid && ∠(fb, cia) = ∠dbi && ∠bid = ∠iaca => ∠iaca = ∠bia
+[   7 | gr ] ∠(do, ci) = ∠(bi, da) && ∠dbi = ∠(bi, da) && ∠(bi, da) = ∠iaca && ∠(fb, cia) = ∠dbi => ∠iaca = ∠bia
 [   7 | gr ] ncoll ia a c
 [   7 | gr ] sameclock e a c b a f
 [   7 | gr ] f, b, c collinear && ∠bfa = ∠eba && ∠eba = ∠eca => ∠eca = ∠bfa
 [   7 | gr ] ncoll e a c
 [   7 | dd ] ad ∥ aia && diff d ia => a, d, ia collinear
-[   7 | gr ] d, i, a collinear && di ∥ aia => ad ∥ aia
+[   7 | gr ] d, i, a collinear && da ∥ aia => ad ∥ aia
 [   7 | gr ] diff d ia
 [   8 | dd ] ∠iaac = ∠bai && sameclock ia a c b a i && ∠iaca = ∠bia && ncoll ia a c => △iaac ~ △bai
 [   8 | dd ] ∠eac = ∠baf && sameclock e a c b a f && ∠eca = ∠bfa && ncoll e a c => △eac ~ △baf
-[  10 | ar ] △iaac ~ △bai && △eac ~ △baf => fa / aia = ai / ae
-[  10 | ar ] △iaac ~ △bai && △eac ~ △baf => ae / aia = ai / fa
-[  11 | gr ] ncoll i a e
-[  11 | gr ] ∠ecd = ∠(di, fa) && ∠(ae, di) = ∠(di, fa) && di ∥ aia => ∠iaf = ∠eaia
-[  11 | gr ] fa / aia = ai / ae => ai / ae = af / aia
-[  11 | dd ] ncoll d c ia && ∠dcia = ∠ciad => dc = dia
-[  11 | gr ] sameclock i a f e a ia
-[  11 | gr ] ∠dce = ∠(fa, di) && di ∥ aia && ∠(di, ae) = ∠(fa, di) => ∠iae = ∠faia
-[  11 | gr ] sameclock i a e f a ia
+[  10 | ar ] △iaac ~ △bai && △eac ~ △baf => aia / af = ea / ai
+[  10 | ar ] △iaac ~ △bai && △eac ~ △baf => ea / aia = ai / af
+[  11 | gr ] sameclock e a ia i a f
+[  11 | gr ] ea / aia = ai / af => ae / aia = ai / af
+[  11 | gr ] ncoll e a ia
+[  11 | gr ] da ∥ aia && ∠ead = ∠daf && ∠ecd = ∠daf => ∠eaia = ∠iaf
+[  11 | gr ] sameclock e a i ia a f
+[  11 | gr ] aia / af = ea / ai => ae / ai = aia / af
 [  11 | gr ] ncoll d c ia
-[  11 | gr ] ae / aia = ai / fa => ai / af = ae / aia
-[  11 | gr ] ∠cbi = ∠iba && d, i, a collinear && ∠dcia = ∠iba && di ∥ aia && ∠dcia = ∠(cia, di) && a, d, ia collinear => ∠dcia = ∠ciad
-[  11 | gr ] ncoll i a f
-[  12 | dd ] ∠iaf = ∠eaia && sameclock i a f e a ia && ai / af = ae / aia && ncoll i a f => △iaf ~ △eaia
-[  12 | dd ] ncoll i a e && ai / ae = af / aia && ∠iae = ∠faia && sameclock i a e f a ia => △iae ~ △faia
-[  14 | ar ] ∠eac = ∠baf && ∠bai = ∠iac && △iaf ~ △eaia => ∠(ae, di) = ∠(eia, fi)
-[  14 | ar ] ∠eac = ∠baf && ∠bai = ∠iac && △iaf ~ △eaia && △iae ~ △faia => ∠(eia, fi) = ∠(ie, fia)
-[  15 | gr ] d, i, a collinear && △bod ≅ △cod && di = db && a, d, ia collinear && dc = dia => d midpoint of iia
-[  15 | gr ] diff f ia g d
+[  11 | gr ] ncoll e a i
+[  11 | dd ] ncoll d c ia && ∠dcia = ∠ciad => dc = dia
+[  11 | gr ] da ∥ aia && ∠ead = ∠daf && ∠ecd = ∠daf => ∠eai = ∠iaaf
+[  11 | gr ] ∠cbi = ∠iba && d, i, a collinear && da ∥ aia && ∠dcia = ∠iba && ∠dcia = ∠(cia, da) && a, d, ia collinear => ∠dcia = ∠ciad
+[  12 | dd ] sameclock e a i ia a f && ae / ai = aia / af && ncoll e a i && ∠eai = ∠iaaf => △eai ~ △iaaf
+[  12 | dd ] sameclock e a ia i a f && ae / aia = ai / af && ncoll e a ia && ∠eaia = ∠iaf => △eaia ~ △iaf
+[  14 | ar ] ∠eac = ∠baf && ∠bai = ∠iac && △eaia ~ △iaf => ∠dae = ∠(fi, eia)
+[  14 | ar ] △eai ~ △iaaf && △eaia ~ △iaf => ∠(fi, eia) = ∠(fia, ie)
 [  15 | gr ] ncoll i f ia
-[  16 | dd ] g midpoint of if && d midpoint of iia && diff f ia g d && ncoll i f ia => gd ∥ fia
-[  19 | gr ] diff e d b k
-[  19 | gr ] ∠ecd = ∠(di, fa) && ∠(ae, di) = ∠(di, fa) && ∠ebd = ∠(di, fa) && gd ∥ fia && ∠(ae, di) = ∠(eia, fi) && ∠(eia, fi) = ∠(ie, fia) => ∠ebd = ∠ekd
-[  20 | dd ] diff e d b k && ∠ebd = ∠ekd => e, d, b, k cyclic
-[  23 | gr ] o center of ⦿abc && d, c, a, b cyclic && e, d, b, k cyclic => o center of ⦿dkb
-[  24 | dd ] o center of ⦿dkb => od = ok
+[  15 | gr ] diff f ia g d
+[  15 | gr ] d, i, a collinear && △bod ≅ △cod && di = db && a, d, ia collinear && dc = dia => d midpoint of iia
+[  16 | dd ] g midpoint of if && ncoll i f ia && diff f ia g d && d midpoint of iia => gd ∥ fia
+[  19 | gr ] ∠dce = ∠fad && ∠dae = ∠fad && ∠dae = ∠(fi, eia) && ∠(fi, eia) = ∠(fia, ie) && gd ∥ fia => ∠dce = ∠dke
+[  19 | gr ] ncoll d e c k
+[  20 | dd ] ∠dce = ∠dke && ncoll d e c k => d, e, c, k cyclic
+[  23 | gr ] o center of ⦿abc && d, c, a, b cyclic && d, e, c, k cyclic => o center of ⦿dka
+[  24 | dd ] o center of ⦿dka => od = ok
 [ 511 | dd ] oa = od && oe = oa && od = ok => ok = oa

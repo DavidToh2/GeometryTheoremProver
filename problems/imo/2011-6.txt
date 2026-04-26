@@ -1,3 +1,4 @@
+# Points Y, I, A0, B0, C0 constructed
 problem imo-2011-6 {
     a b c = triangle a b c; 
     o = circumcenter o : a b c; 
@@ -13,7 +14,8 @@ problem imo-2011-6 {
     b1 = intersection_ll b1 : pa qa pc qc; 
     c1 = intersection_ll c1 : pa qa pb qb; 
     o1 = circumcenter o1 : a1 b1 c1; 
-    x = on_circle x : o a, on_circle x : o1 a1;
+    x = intersection_cc x : pa b1 b c1 c;
+    y = on_line_perp y : x x o;
     i = incenter i : a1 b1 c1;
     a0 = intersection_ll a0 : p q b c;
     b0 = intersection_ll b0 : p q a c;

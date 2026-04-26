@@ -1,0 +1,98 @@
+=======================================
+Problem: imo-2015-4
+
+    a b c = triangle a b c; 
+    o = circumcenter o : a b c; 
+    d = on_line d : b c; 
+    e = on_line e : b c, on_circle e : a d; 
+    f g = intersections_cc f g : o a a d;
+    o1 = circumcenter o1 : f b d; 
+    o2 = circumcenter o2 : g c e; 
+    k = intersection_lc k : a o1 b;
+    l = intersection_lc l : a o2 c;
+    x = intersection_ll x : f k g l 
+    ? coll x o a
+
+---------------------------------------
+    e = (1.497169, 0.383343)    f = (-0.075015, 0.813407)    g = (1.123726, 0.031101)
+    b = (-0.245464, -0.456630)    a = (0.762879, 0.787747)    c = (1.122976, 0.202977)
+    o = (0.322892, 0.113548)    d = (0.621821, -0.038587)    o1 = (-0.007262, 0.157858)
+    o2 = (1.394396, 0.118221)    k = (0.544506, 0.518257)    l = (1.347911, -0.162299)
+    x = (0.576928, 0.502811)
+    Loss: 0
+---------------------------------------
+[   3 | dd ] oa = of && af = fa && fo = ao && ncoll o a f => △oaf ≅ △ofa
+[   3 | gr ] af = fa
+[   3 | gr ] diff o o1
+[   3 | gr ] oa = of => fo = ao
+[   3 | gr ] ncoll o a f
+[   3 | dd ] oa = of && ag = fa && go = ao && ncoll o a g => △oag ≅ △ofa
+[   3 | gr ] ae = ad && ad = af && ad = ag => ag = fa
+[   3 | gr ] oa = og => go = ao
+[   3 | gr ] ncoll o a g
+[   3 | dd ] ob = of && bo1 = fo1 && o1o = o1o && ncoll o b o1 => △obo1 ≅ △ofo1
+[   3 | gr ] oa = of && oa = ob => ob = of
+[   3 | gr ] o1f = o1b => bo1 = fo1
+[   3 | gr ] o1o = o1o
+[   3 | gr ] ncoll o b o1
+[   3 | dd ] oc = og && co2 = go2 && o2o = o2o && ncoll o c o2 => △oco2 ≅ △ogo2
+[   3 | gr ] oa = og && oa = ob && ob = oc => oc = og
+[   3 | gr ] o2g = o2c => co2 = go2
+[   3 | gr ] o2o = o2o
+[   3 | gr ] ncoll o c o2
+[   3 | gr ] oa = og && oa = of => fo = go
+[   3 | gr ] ae = ad && ad = af && ad = ag => fa = ga
+[   3 | dd ] ae = ag && eo2 = go2 && o2a = o2a && ncoll a e o2 => △aeo2 ≅ △ago2
+[   3 | gr ] ae = ad && ad = ag => ae = ag
+[   3 | gr ] o2g = o2c && o2c = o2e => eo2 = go2
+[   3 | gr ] o2a = o2a
+[   3 | gr ] ncoll a e o2
+[   3 | dd ] ad = af && do1 = fo1 && o1a = o1a && ncoll a d o1 => △ado1 ≅ △afo1
+[   3 | gr ] o1f = o1b && o1b = o1d => do1 = fo1
+[   3 | gr ] o1a = o1a
+[   3 | gr ] ncoll a d o1
+[   3 | gr ] oa = of && oa = ob => bo = fo
+[   3 | gr ] ae = ad && ad = ag => ea = ga
+[   3 | gr ] oa = ob && ob = oc => oa = oc
+[   3 | gr ] o1f = o1b && o1b = o1k => o1f = o1k
+[   3 | gr ] o2g = o2c && o2c = o2l => o2g = o2l
+[   3 | gr ] o2g = o2c && o2c = o2e && o2c = o2l => o2e = o2l
+[   3 | gr ] diff a o2
+[   3 | gr ] ncoll o a b
+[   3 | gr ] ncoll o a c
+[   3 | gr ] ncoll o b c
+[   3 | gr ] ncoll a e d
+[   3 | gr ] ncoll o1 f k
+[   3 | gr ] ncoll o1 b d
+[   3 | gr ] ncoll o1 b k
+[   3 | gr ] ncoll o2 g l
+[   3 | gr ] ncoll o2 c e
+[   3 | gr ] ncoll o2 c l
+[   3 | gr ] ncoll o2 e l
+[   4 | dd ] diff o o1 && bo1 = fo1 && bo = fo => bf ⊥ oo1
+[   4 | dd ] diff o a && fo = go && fa = ga => fg ⊥ oa
+[   4 | dd ] eo2 = go2 && ea = ga && diff a o2 => eg ⊥ ao2
+[   4 | dd ] oa = ob && ncoll o a b => ∠oab = ∠abo
+[   4 | dd ] oa = oc && ncoll o a c => ∠oac = ∠aco
+[   4 | dd ] ob = oc && ncoll o b c => ∠obc = ∠bco
+[   4 | dd ] ae = ad && ncoll a e d => ∠aed = ∠eda
+[   4 | dd ] o1f = o1k && ncoll o1 f k => ∠o1fk = ∠fko1
+[   4 | dd ] o1b = o1d && ncoll o1 b d => ∠o1bd = ∠bdo1
+[   4 | dd ] o1b = o1k && ncoll o1 b k => ∠o1bk = ∠bko1
+[   4 | dd ] o2g = o2l && ncoll o2 g l => ∠o2gl = ∠glo2
+[   4 | dd ] o2c = o2e && ncoll o2 c e => ∠o2ce = ∠ceo2
+[   4 | dd ] o2c = o2l && ncoll o2 c l => ∠o2cl = ∠clo2
+[   4 | dd ] o2e = o2l && ncoll o2 e l => ∠o2el = ∠elo2
+[   6 | ar ] △oaf ≅ △ofa && bf ⊥ oo1 && △oag ≅ △ofa && △obo1 ≅ △ofo1 && △oco2 ≅ △ogo2 && △aeo2 ≅ △ago2 && △ado1 ≅ △afo1 && fg ⊥ oa && ∠oab = ∠abo && ∠oac = ∠aco && ∠aed = ∠eda && ∠o1fk = ∠fko1 && ∠o1bd = ∠bdo1 && ∠o1bk = ∠bko1 && ∠o2cl = ∠clo2 && ∠o2el = ∠elo2 => ∠kfg = ∠(fb, el)
+[   6 | ar ] △aeo2 ≅ △ago2 && fg ⊥ oa && eg ⊥ ao2 && ∠oab = ∠abo && ∠oac = ∠aco && ∠obc = ∠bco && ∠o2gl = ∠glo2 && ∠o2ce = ∠ceo2 && ∠o2cl = ∠clo2 => ∠fgl = ∠(ba, eg)
+[   6 | ar ] bf ⊥ oo1 && △oag ≅ △ofa && △obo1 ≅ △ofo1 && △oco2 ≅ △ogo2 && △aeo2 ≅ △ago2 && eg ⊥ ao2 && ∠oab = ∠abo && ∠oac = ∠aco && ∠o2cl = ∠clo2 && ∠o2el = ∠elo2 => ∠(ba, eg) = ∠(fb, el)
+[   7 | gr ] ∠kfg = ∠(fb, el) && ∠fgl = ∠(ba, eg) && ∠(ba, eg) = ∠(fb, el) => ∠xfg = ∠fgx
+[   7 | gr ] ncoll x f g
+[   7 | dd ] ∠xfg = ∠fgx && ncoll x f g => xf = xg
+[  11 | gr ] diff o x
+[  11 | gr ] diff a x
+[  11 | gr ] xf = xg => fx = gx
+[  12 | dd ] fo = go && diff o x && fx = gx => fg ⊥ ox
+[  15 | dd ] diff a x && oa ∥ ox => o, a, x collinear
+[  15 | gr ] fg ⊥ oa && fg ⊥ ox => oa ∥ ox
+[ 511 | dd ] o, a, x collinear => x, o, a collinear
