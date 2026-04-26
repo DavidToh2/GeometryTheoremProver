@@ -1,0 +1,225 @@
+problem complete_004_6_GDD_FULL_81-109_101 {
+    a b c = triangle a b c;
+    o = circumcenter o : a b c;
+    h = midpoint h : c b;
+    d = on_line d : o h, on_line d : a b;
+    e = on_line_perp e : c c o, on_line_perp e : a a o
+    ?
+    cyclic a o e d
+}
+
+problem complete_002_6_GDD_FULL_41-60_59 {
+    a b c = triangle a b c;
+    m = midpoint m : b a;
+    o = circumcenter o : a b c;
+    n = on_ray n : o m, on_circle n : o a
+    ?
+    eqangle c a c n c n c b
+}
+
+problem complete_002_6_GDD_FULL_01-20_04 {
+    a b c = triangle a b c;
+    o = circumcenter o : a b c;
+    d = on_circle d : o a;
+    q = midpoint q : c b;
+    s = midpoint s : a d;
+    j = midpoint j : s q;
+    m = mirror m : o j;
+    i = on_line i : a d, on_line i : b c
+    ?
+    perp s m b c
+}
+
+problem complete_004_6_GDD_FULL_81-109_90 {
+    a b c = triangle a b c;
+    o = circumcenter o : a b c;
+    d = on_circle d : o a;
+    g = foot g : d a b;
+    f = foot f : d a c;
+    c1 = on_circle c1 : o d, on_line c1 : d g;
+    b1 = on_circle b1 : o d, on_line b1 : d f
+    ?
+    para c1 c b1 b
+}
+
+problem complete_004_6_GDD_FULL_81-109_94 {
+    a b c = triangle a b c;
+    o = circumcenter o : a b c;
+    d = on_circle d : o a;
+    p = on_circle p : o a;
+    f = foot f : p a d;
+    g = foot g : p a b;
+    h = foot h : p b c;
+    e = foot e : p c d;
+    i = on_line i : f g, on_line i : h e
+    ?
+    cyclic p g i h
+}
+
+problem complete_003_6_GDD_FULL_21-40_37 {
+    a b c = triangle a b c;
+    h = orthocenter h : a b c;
+    o = circumcenter o : a b c;
+    c1 = on_circle c1 : o c, on_line c1 : c h;
+    a1 = on_circle a1 : o a, on_line a1 : a h
+    ?
+    cong b a1 b c1
+}
+
+problem complete_003_6_GDD_FULL_21-40_22 {
+    a b c = triangle a b c;
+    o = circumcenter o : a b c;
+    p = foot p : o a c;
+    q = foot q : o a b;
+    m = on_ray m : o q, on_circle m : o a;
+    n = on_ray n : o p, on_circle n : o a;
+    e = on_line e : a c, on_line e : n m;
+    d = on_line d : a b, on_line d : n m
+    ?
+    eqangle d a d e e d e a
+}
+
+problem complete_001_6_GDD_FULL_01-20_19 {
+    a b c = triangle a b c;
+    f = free f;
+    p = circumcenter p : a b f;
+    o = circumcenter o : a b c;
+    e = on_circle e : p a, on_line e : a c;
+    d = on_circle d : o b, on_line d : b f
+    ?
+    para c d e f
+}
+
+problem complete_001_6_GDD_FULL_61-80_74 {
+    a b c = triangle a b c;
+    g = foot g : c a b;
+    o = circumcenter o : a b c;
+    d = on_circle d : o c, on_line d : c g;
+    e = foot e : d a c;
+    f = foot f : d b c
+    ?
+    cyclic a e f b
+}
+
+problem complete_002_6_GDD_FULL_41-60_49 {
+    a b c = triangle a b c;
+    p = midpoint p : b a;
+    q = midpoint q : c b;
+    d = on_line_perp d : b a c;
+    r = midpoint r : d c;
+    s = midpoint s : a d;
+    o = on_line o : p r, on_line o : q s
+    ?
+    cong o s o r
+}
+
+problem complete_006_Other_ndgTest_70 {
+    p a b = triangle p a b;
+    o = midpoint o : b a;
+    a1 = on_line a1 : p a, on_circle a1 : o a;
+    b1 = on_line b1 : p b, on_circle b1 : o a;
+    o1 = circumcenter o1 : p a1 b1
+    ?
+    perp o a1 a1 o1
+}
+
+problem complete_001_6_GDD_FULL_01-20_16 {
+    a b o = triangle a b o;
+    m = on_line m : a b;
+    p = foot p : m a o;
+    q = foot q : m b o;
+    d = foot d : b a o;
+    c = foot c : a b o;
+    t = foot t : q a o;
+    k = foot k : p b o;
+    s = on_line s : q t, on_line s : p k
+    ?
+    perp o s p q
+}
+
+problem complete_001_6_GDD_FULL_61-80_67 {
+    m b c = triangle m b c;
+    i = incenter i : m b c;
+    i_b = on_line_perp i_b : c c i, on_line i_b : b i;
+    i_c = on_line_perp i_c : b b i, on_line i_c : c i;
+    a = midpoint a : i_b i_c;
+    o = circumcenter o : b i c
+    ?
+    perp a b b o
+}
+
+problem complete_000_2_PWW_A018 {
+    o a = segment o a;
+    p = on_circle p : a o;
+    q = intersection_lc q : a o p;
+    r = lc_tangent r : p a, on_circle r : o p
+    ?
+    cong p q p r
+}
+
+problem complete_004_6_GDD_FULL_81-109_88 {
+    o x l = triangle o x l;
+    a = foot a : l o x;
+    y = free y;
+    b = foot b : l o y;
+    p = mirror p : l a;
+    q = mirror q : l b;
+    q1 = on_line q1 : l a, on_line q1 : o y;
+    p1 = on_line p1 : o x, on_line p1 : l b
+    ?
+    cyclic o p q p1
+}
+
+problem complete_003_6_GDD_FULL_21-40_24 {
+    q r p = triangle q r p;
+    o1 = circumcenter o1 : q r p;
+    s = on_circle s : o1 q;
+    y = on_line y : q s;
+    o = circumcenter o : y p q;
+    x = on_circle x : o q;
+    i = on_line i : r s, on_line i : y x
+    ?
+    eqangle i r i x p r p x
+}
+
+problem complete_003_6_GDD_FULL_21-40_32 {
+    b c r = triangle b c r;
+    o = circumcenter o : b c r;
+    s = on_circle s : o b;
+    a = on_line a : b r, on_line a : c s;
+    m = foot m : a r s;
+    n = foot n : a b c
+    ?
+    eqangle a b a m a n a c
+}
+
+problem complete_002_6_GDD_FULL_41-60_54 {
+    a b c = r_triangle a b c;
+    d = foot d : a b c;
+    o = midpoint o : c b;
+    m = foot m : b a o;
+    g = on_line g : b m, on_circle g : o a;
+    f = on_line f : c a, on_line f : b m;
+    e = on_line e : a d, on_line e : b m
+    ?
+    cong e a e b
+}
+
+problem complete_005_Other_ndg1_53 {
+    a o = segment a o;
+    b = on_circle b : o a;
+    c = on_line c : a b;
+    e = on_line_perp e : b b o, on_line_perp e : c c o;
+    d = on_line d : c e, on_line_perp d : a a o
+    ?
+    cong o e o d
+}
+
+problem complete_002_6_GDD_FULL_41-60_56 {
+    m a b = iso_triangle m a b;
+    o = circumcenter o : a b m;
+    d = on_line d : m o, on_line d : a b;
+    e = on_line_perp e : a a o, on_line_para e : m a o
+    ?
+    cong m e m d
+}

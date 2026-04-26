@@ -1,0 +1,578 @@
+=======================================
+Problem: complete_007_7_Book_LLL_L057-1-1
+
+    a b = segment a b;
+    m = midpoint m : a b;
+    c = on_circle c : m a;
+    d = on_angle_mirror d : a b c;
+    e = midpoint e : a d;
+    f = on_line f : b d, on_line f : a c
+    ?
+    para c e b d
+
+---------------------------------------
+    e = (-0.720745, 0.275609)    f = (-0.491378, 0.433381)    a = (-0.890527, 0.363772)
+    b = (-0.610952, -0.060155)    m = (-0.750740, 0.151808)    c = (-0.690952, 0.398576)
+    d = (-0.550963, 0.187445)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] m midpoint of ab && mc = ma => mb = mc
+[   3 | gr ] ncoll m b c
+[   3 | gr ] diff b d m e
+[   3 | gr ] ncoll a b d
+[   4 | dd ] mb = mc && ncoll m b c => ∠mbc = ∠bcm
+[   4 | dd ] e midpoint of ad && m midpoint of ab && diff b d m e && ncoll a b d => me ∥ bd
+[   6 | ar ] ∠abc = ∠cbd && ∠mbc = ∠bcm => fb ∥ mc
+[   7 | dd ] mc ∥ me && diff c e => m, c, e collinear
+[   7 | gr ] me ∥ bd && fb ∥ mc => mc ∥ me
+[   7 | gr ] diff c e
+[ 511 | dd ] me ∥ bd && m, c, e collinear => ce ∥ bd
+=======================================
+Problem: complete_016_ex-gao_gao_M_M021-64
+
+    a b = segment a b;
+    d = midpoint d : b a;
+    c = equi_triangle_p c : b a;
+    e = on_ray e : a c, on_circle e : d a;
+    f = on_circle f : d a, on_ray f : b c
+    ?
+    cong a e e f
+
+---------------------------------------
+    c = (-0.311878, 1.119603)    e = (0.319991, 0.607721)    a = (0.951859, 0.095840)
+    f = (-0.439246, 0.316448)    b = (-0.566614, -0.486707)    d = (0.192623, -0.195434)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] df = da && de = da && d midpoint of ba => de = df
+[   3 | dd ] db = da && cd = cd && ncoll d b c && bc = ac => △dbc ≅ △dac
+[   3 | gr ] d midpoint of ba => db = da
+[   3 | gr ] ncoll d b f
+[   3 | gr ] ncoll d e f
+[   3 | gr ] ncoll d e a
+[   3 | gr ] cd = cd
+[   3 | gr ] ncoll d b c
+[   3 | gr ] d midpoint of ba => da = db
+[   3 | gr ] cb = ba && ba = ac => bc = ac
+[   3 | gr ] df = da && de = da && d midpoint of ba => db = df
+[   4 | dd ] de = df && ncoll d e f => ∠def = ∠efd
+[   4 | dd ] de = da && ncoll d e a => ∠dea = ∠ead
+[   4 | dd ] ncoll d b f && db = df => ∠dbf = ∠bfd
+[   6 | ar ] ∠def = ∠efd && ∠dea = ∠ead && ∠dbf = ∠bfd && ∠cba = ∠bac => ab ∥ ef
+[   6 | ar ] ∠dbf = ∠bfd && ∠acb = ∠cba => ce ∥ fd
+[   7 | dd ] diffclock e d f b d f && df = df && ed = bd && ∠edf = ∠fdb && ncoll e d f => △edf ≅ △bdf
+[   7 | gr ] diffclock e d f b d f
+[   7 | dd ] ed = fd && diffclock e d a f d b && ncoll e d a && da = db && ∠eda = ∠bdf => △eda ≅ △fdb
+[   7 | gr ] df = df
+[   7 | gr ] df = da && de = da && d midpoint of ba => ed = fd
+[   7 | gr ] diffclock e d a f d b
+[   7 | gr ] ncoll e d a
+[   7 | gr ] de = da && d midpoint of ba => ed = bd
+[   7 | gr ] △dbc ≅ △dac && ce ∥ fd && ∠dea = ∠ead => ∠edf = ∠fdb
+[   7 | gr ] ab ∥ ef && ∠def = ∠efd && d midpoint of ba => ∠eda = ∠bdf
+[   7 | gr ] ncoll e d f
+[ 511 | dd ] △edf ≅ △bdf && △eda ≅ △fdb => ae = ef
+=======================================
+Problem: complete_007_7_Book_LLL_L057-3-2
+
+    a b = segment a b;
+    c = on_line_bisect c : a b;
+    e = midpoint e : a c;
+    d = on_circle d : a c, on_line d : a c;
+    f = midpoint f : b d
+    ?
+    cong b e b f
+
+---------------------------------------
+    f = (-0.408693, 1.183836)    a = (-0.794790, 0.845745)    e = (-0.545815, 0.396982)
+    d = (-1.292740, 1.743271)    b = (0.475354, 0.624401)    c = (-0.296840, -0.051781)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] diffclock c b a c a b
+[   3 | gr ] ncoll c b a
+[   3 | gr ] ad = ac && d, a, c collinear => a midpoint of dc
+[   3 | gr ] diff b c f a
+[   3 | gr ] ncoll d b c
+[   3 | gr ] f midpoint of bd => f midpoint of db
+[   3 | gr ] ca = cb => cb = ca
+[   3 | gr ] △cba ≅ △cab => ∠cba = ∠bac
+[   4 | dd ] diffclock c b a c a b && ncoll c b a && ∠cab = ∠abc && cb = ca && ∠cba = ∠bac => △cba ≅ △cab
+[   4 | dd ] a midpoint of dc && diff b c f a && ncoll d b c && f midpoint of db => fa ∥ bc
+[   7 | gr ] ncoll a d f
+[   7 | gr ] f midpoint of bd => b, d, f collinear
+[   7 | gr ] ∠cab = ∠abc && fa ∥ bc => ∠dab = ∠baf
+[   7 | gr ] ncoll f a b
+[   8 | dd ] ncoll a d f && b, d, f collinear && ∠dab = ∠baf => bd / bf = ad / af
+[  10 | ar ] f midpoint of bd && bd / bf = ad / af && e midpoint of ac && ad = ac => ec = af
+[  11 | gr ] △cba ≅ △cab && e midpoint of ac && fa ∥ bc => ∠fab = ∠bae
+[  11 | gr ] ab = ab
+[  11 | dd ] ∠fab = ∠bae && ab = ab && diffclock f a b e a b && ncoll f a b && fa = ea => △fab ≅ △eab
+[  11 | gr ] diffclock f a b e a b
+[  11 | gr ] ec = af => fa = ea
+[ 511 | dd ] △fab ≅ △eab => be = bf
+=======================================
+Problem: complete_004_6_GDD_FULL_81-109_95
+
+    a b c = triangle a b c;
+    a1 = midpoint a1 : c b;
+    f = circumcenter f : a b c;
+    s = on_line_at_angle s : a b c a a1, on_line s : b c;
+    p = on_circle p : f a, on_line p : a a1;
+    q = on_circle q : f a, on_line q : a s
+    ?
+    para b c p q
+
+---------------------------------------
+    a1 = (0.211670, -0.949702)    q = (0.290730, -0.891338)    b = (0.278738, -1.142788)
+    s = (0.196110, -0.904905)    p = (0.309887, -0.946489)    c = (0.144603, -0.756615)
+    a = (-0.213267, -0.963602)    f = (0.049973, -1.005867)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] diff a1 f
+[   3 | gr ] fa = fb && fb = fc => bf = cf
+[   3 | gr ] ncoll f q p
+[   3 | gr ] fp = fa => fa = fp
+[   3 | gr ] fp = fa && fq = fa => fq = fp
+[   3 | gr ] fa = fb && fb = fc => fc = fa
+[   3 | gr ] ncoll f a p
+[   3 | gr ] ncoll f q a
+[   3 | gr ] fa1 = fa1
+[   3 | gr ] ncoll a1 b f
+[   3 | gr ] ncoll f a b
+[   3 | gr ] ncoll f c a
+[   3 | gr ] a1 midpoint of cb => ba1 = ca1
+[   3 | gr ] a1 midpoint of cb => a1b = a1c
+[   3 | dd ] bf = cf && fa1 = fa1 && ncoll a1 b f && a1b = a1c => △a1bf ≅ △a1cf
+[   4 | dd ] diff a1 f && bf = cf && ba1 = ca1 => bc ⊥ a1f
+[   4 | dd ] ncoll f q p && fq = fp => ∠fqp = ∠qpf
+[   4 | dd ] fa = fp && ncoll f a p => ∠fap = ∠apf
+[   4 | dd ] ncoll f q a && fq = fa => ∠fqa = ∠qaf
+[   4 | dd ] fa = fb && ncoll f a b => ∠fab = ∠abf
+[   4 | dd ] fc = fa && ncoll f c a => ∠fca = ∠caf
+[   6 | ar ] ∠sab = ∠caa1 && ∠fqp = ∠qpf && ∠fap = ∠apf && ∠fqa = ∠qaf && ∠fab = ∠abf && ∠fca = ∠caf && △a1bf ≅ △a1cf => a1f ⊥ qp
+[ 511 | dd ] bc ⊥ a1f && a1 midpoint of cb && a1f ⊥ qp => bc ∥ pq
+=======================================
+Problem: complete_001_6_GDD_FULL_01-20_02
+
+    a b c = triangle a b c;
+    a1 = midpoint a1 : c b;
+    b1 = midpoint b1 : c a;
+    c1 = midpoint c1 : b a;
+    o = circumcenter o : a b c
+    ?
+    perp o a1 b1 c1
+
+---------------------------------------
+    b1 = (-0.928722, -0.601861)    c1 = (-0.275640, -0.410804)    b = (0.303873, 0.028207)
+    a = (-0.855154, -0.849814)    o = (-0.277319, -0.408588)    c = (-1.002290, -0.353907)
+    a1 = (-0.349209, -0.162850)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] b1 midpoint of ca => b1 midpoint of ac
+[   3 | gr ] c1 midpoint of ba => c1 midpoint of ab
+[   3 | gr ] diff c b b1 c1
+[   3 | gr ] ncoll a c b
+[   3 | gr ] oa = ob && ob = oc => co = bo
+[   3 | gr ] diff a1 o
+[   3 | gr ] a1 midpoint of cb => ca1 = ba1
+[   4 | dd ] b1 midpoint of ac && c1 midpoint of ab && diff c b b1 c1 && ncoll a c b => b1c1 ∥ cb
+[   4 | dd ] co = bo && diff a1 o && ca1 = ba1 => cb ⊥ a1o
+[ 511 | dd ] b1c1 ∥ cb && cb ⊥ a1o => oa1 ⊥ b1c1
+=======================================
+Problem: complete_004_6_GDD_FULL_81-109_96
+
+    a b c = triangle a b c;
+    a1 = midpoint a1 : c b;
+    n = on_line n : a a1;
+    g = foot g : n a b;
+    h = foot h : n a c;
+    s = on_line_at_angle s : a b c a a1, on_line s : b c
+    ?
+    perp g h a s
+
+---------------------------------------
+    g = (0.894548, -0.661021)    c = (0.418643, -1.378501)    h = (0.976167, -0.834325)
+    s = (0.280855, -1.054168)    a = (1.189234, -0.626359)    a1 = (0.284815, -1.063491)
+    b = (0.150987, -0.748480)    n = (0.906542, -0.762992)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] g, a, b collinear && gn ⊥ ab => ag ⊥ gn
+[   3 | gr ] hn ⊥ ac && h, a, c collinear => ah ⊥ hn
+[   3 | gr ] diff g h
+[   4 | dd ] ag ⊥ gn && ah ⊥ hn && diff g h => a, g, n, h cyclic
+[   7 | gr ] a, g, n, h cyclic => g, a, h, n cyclic
+[   8 | dd ] g, a, h, n cyclic => ∠gha = ∠gna
+[  10 | ar ] ∠sab = ∠caa1 && ∠gha = ∠gna && gn ⊥ ab => sa ⊥ gh
+[ 511 | dd ] sa ⊥ gh => gh ⊥ as
+=======================================
+Problem: complete_007_7_Book_LLL_L194-2
+
+    a b = segment a b;
+    c = on_line_bisect c : a b;
+    d = on_line_bisect d : a b;
+    e = on_line e : c d, on_line e : a b
+    ?
+    cong a e e b
+
+---------------------------------------
+    c = (-0.324960, -0.522082)    b = (-0.410640, -0.375152)    e = (-0.451445, -0.463974)
+    a = (-0.492250, -0.552797)    d = (-0.542222, -0.422271)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] da = db => ad = bd
+[   3 | gr ] ca = cb => ac = bc
+[   3 | dd ] ad = bd && ncoll c a d && dc = dc && ca = cb => △cad ≅ △cbd
+[   3 | gr ] ncoll c a d
+[   3 | gr ] dc = dc
+[   7 | gr ] diffclock a c e b c e
+[   7 | dd ] diffclock a c e b c e && ac = bc && ce = ce && ∠ace = ∠ecb && ncoll a c e => △ace ≅ △bce
+[   7 | gr ] ce = ce
+[   7 | gr ] △cad ≅ △cbd => ∠ace = ∠ecb
+[   7 | gr ] ncoll a c e
+[ 511 | dd ] △ace ≅ △bce => ae = eb
+=======================================
+Problem: complete_017_ex-gao_gao_L_L022-1
+
+    a b = segment a b;
+    c = on_line_bisect c : a b;
+    d = on_line d : a c;
+    e = on_circle e : c d, on_ray e : c b
+    ?
+    cong a e b d
+
+---------------------------------------
+    c = (0.027436, 0.396946)    b = (-0.254664, 0.059757)    e = (-0.254102, 0.060429)
+    a = (0.322551, 0.722806)    d = (0.321963, 0.722157)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] ncoll c d e
+[   3 | gr ] ce = cd => cd = ce
+[   3 | gr ] ncoll c e d
+[   4 | dd ] ce = cd && ncoll c e d => ∠ced = ∠edc
+[   4 | dd ] ncoll c d e && cd = ce => ∠cde = ∠dec
+[   6 | ar ] ∠cab = ∠abc && ∠cde = ∠dec => ba ∥ ed
+[   7 | gr ] ba ∥ ed => de ∥ ab
+[   7 | gr ] ncoll b d e a
+[   7 | gr ] ∠ced = ∠edc && e, c, b collinear && ba ∥ ed && d, a, c collinear => ∠bed = ∠bad
+[   8 | dd ] ncoll b d e a && ∠bed = ∠bad => b, d, e, a cyclic
+[  12 | dd ] de ∥ ab && b, d, e, a cyclic => bd = ea
+[ 511 | dd ] bd = ea => ae = bd
+=======================================
+Problem: complete_016_ex-gao_gao_M_M09-14
+
+    a b c = triangle a b c;
+    d e f = midpoint d : b c, midpoint e : c a, midpoint f : a b;
+    g = intersection_ll g : a d e f
+    ?
+    cong e g g f
+
+---------------------------------------
+    c = (0.389933, 0.741955)    b = (1.024473, -0.478800)    e = (0.240968, 0.653754)
+    a = (0.092002, 0.565553)    d = (0.707203, 0.131578)    f = (0.558238, 0.043376)
+    g = (0.399603, 0.348565)
+    Loss: 0
+---------------------------------------
+[   3 | gr ] ncoll c b a
+[   3 | gr ] d midpoint of bc => d midpoint of cb
+[   3 | gr ] diff b a d e
+[   4 | dd ] ncoll c b a && e midpoint of ca && d midpoint of cb && diff b a d e => de ∥ ba
+[   7 | gr ] ncoll a f d
+[   7 | gr ] de ∥ ba => af ∥ de
+[   7 | gr ] g, e, f collinear => g, f, e collinear
+[   8 | dd ] g, a, d collinear && ncoll a f d && af ∥ de && g, f, e collinear => △gaf ~ △gde
+[  10 | ar ] △gaf ~ △gde => eg = gf
+[ 511 | dd ] eg = gf => eg = gf
+=======================================
+Problem: complete_014_7_Book_00EE_09_E071-4
+
+    a b = segment a b;
+    c = midpoint c : b a;
+    d = on_circle d : c a;
+    e = lc_tangent e : d c, on_line e : a b;
+    f = foot f : a d e
+    ?
+    eqangle a f a d a d a b
+
+---------------------------------------
+    a = (0.004665, -0.603505)    b = (0.575004, 0.298053)    c = (0.289834, -0.152726)
+    d = (0.814352, -0.249705)    e = (1.056293, 1.058847)    f = (0.724335, -0.736566)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] ncoll c d a
+[   4 | dd ] ncoll c d a && cd = ca => ∠cda = ∠dac
+[ 511 | dd ] ∠cda = ∠dac && c midpoint of ba => ∠fad = ∠dab
+=======================================
+Problem: complete_013_7_Book_00EE_10_E072-13
+
+    a b c = triangle a b c;
+    d = foot d : b a c;
+    e = foot e : a b c;
+    f = foot f : b d e
+    ?
+    eqangle b a b d b c b f
+
+---------------------------------------
+    d = (-0.722277, 0.343431)    e = (-0.810848, 0.472455)    f = (-0.915113, 0.624340)
+    a = (-0.550718, 0.237741)    b = (-0.281097, 1.059571)    c = (-0.854030, 0.424597)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] db ⊥ ac && d, a, c collinear => bd ⊥ da
+[   3 | gr ] diff e d
+[   3 | gr ] e, b, c collinear && ea ⊥ bc => be ⊥ ea
+[   4 | dd ] bd ⊥ da && diff e d && be ⊥ ea => b, e, a, d cyclic
+[   6 | ar ] fb ⊥ de && ea ⊥ bc => ∠ebf = ∠aed
+[   7 | gr ] b, e, a, d cyclic => a, d, e, b cyclic
+[   8 | dd ] a, d, e, b cyclic => ∠aed = ∠abd
+[ 511 | dd ] ∠ebf = ∠aed && ∠aed = ∠abd => ∠abd = ∠cbf
+=======================================
+Problem: complete_014_7_Book_00EE_09_E071-2
+
+    a b c = triangle a b c;
+    d = midpoint d : c b;
+    e = foot e : b a c;
+    f = foot f : c a b
+    ?
+    eqangle a b a c e f e d
+
+---------------------------------------
+    d = (-1.494021, 0.816013)    e = (-1.358996, 0.148972)    f = (-0.888539, 1.126768)
+    a = (0.390436, 0.096953)    b = (-1.319601, 1.473854)    c = (-1.668441, 0.158173)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] d midpoint of cb => d midpoint of bc
+[   3 | gr ] eb ⊥ ac && e, a, c collinear => be ⊥ ec
+[   3 | gr ] f, a, b collinear && fc ⊥ ab => cf ⊥ fb
+[   4 | dd ] d midpoint of bc && be ⊥ ec => bd = ed
+[   4 | dd ] d midpoint of cb && cf ⊥ fb => cd = fd
+[   7 | gr ] ncoll d b e
+[   7 | gr ] ncoll d b f
+[   7 | gr ] ncoll d f e
+[   7 | gr ] d midpoint of cb && cd = fd => db = df
+[   7 | gr ] bd = ed && d midpoint of cb => db = de
+[   7 | gr ] bd = ed && d midpoint of cb && cd = fd => df = de
+[   8 | dd ] ncoll d f e && df = de => ∠dfe = ∠fed
+[   8 | dd ] ncoll d b f && db = df => ∠dbf = ∠bfd
+[   8 | dd ] ncoll d b e && db = de => ∠dbe = ∠bed
+[  10 | ar ] ∠dfe = ∠fed && ∠dbf = ∠bfd && eb ⊥ ac && ∠dbe = ∠bed => ∠fae = ∠dfe
+[ 511 | dd ] ∠dfe = ∠fed && ∠fae = ∠dfe => ∠bac = ∠fed
+=======================================
+Problem: complete_014_7_Book_00EE_09_E071-1
+
+    a b c = triangle a b c;
+    e = on_ray e : a b, on_circle e : a c;
+    d = on_angle_bisect d : b a c, on_line d : b c;
+    f = on_line_para f : e b c, on_line f : a c
+    ?
+    eqangle e d e c e c e f
+
+---------------------------------------
+    e = (1.120379, 0.085113)    d = (0.873055, 0.933030)    f = (0.921758, 1.883812)
+    a = (-2.206473, 0.318728)    b = (0.965485, 0.095990)    c = (0.776112, 1.810944)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] diffclock c a d e a d
+[   3 | gr ] ncoll c a d
+[   3 | dd ] diffclock c a d e a d && ncoll c a d && ∠cad = ∠dae && ad = ad && ca = ea => △cad ≅ △ead
+[   3 | gr ] ncoll a c e
+[   3 | gr ] △cad ≅ △ead => ∠cad = ∠dae
+[   3 | gr ] ad = ad
+[   3 | gr ] ae = ac => ac = ae
+[   3 | gr ] ae = ac => ca = ea
+[   4 | dd ] ncoll a c e && ac = ae => ∠ace = ∠cea
+[   6 | ar ] ∠bad = ∠dac && △cad ≅ △ead && ∠ace = ∠cea => ∠(ec, db) = ∠dec
+[ 511 | dd ] fe ∥ bc && ∠(ec, db) = ∠dec => ∠dec = ∠cef
+=======================================
+Problem: complete_017_ex-gao_ex160_4_e10
+
+    a b c d = square a b c d;
+    e = on_ray e : b d, on_circle e : b c;
+    f = on_line_perp f : e b d, on_line f : d c
+    ?
+    cong e d c f
+
+---------------------------------------
+    e = (-0.023343, 0.751020)    d = (0.777173, 0.839258)    f = (0.064895, -0.049496)
+    a = (-0.740025, 2.055192)    b = (-1.955960, 0.537994)    c = (-0.438761, -0.677941)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] bc = cd && cd = da && ab = bc => da = cb
+[   3 | gr ] ncoll a c d
+[   3 | gr ] cd = dc
+[   3 | dd ] da = cb && ncoll a c d && cd = dc && ac = bd => △acd ≅ △bdc
+[   3 | gr ] ncoll b c e
+[   3 | gr ] be = bc && ab = bc => bc = be
+[   4 | dd ] ncoll b c e && bc = be => ∠bce = ∠ceb
+[   6 | ar ] ac ⊥ bd && △acd ≅ △bdc && ∠bce = ∠ceb && ab ⊥ bc && fe ⊥ bd => ∠eca = 315/2°
+[   7 | gr ] ab ∥ cd && f, d, c collinear && ∠eca = 315/2° => ∠fce = ∠cef
+[   7 | dd ] ∠efd = ∠fde && ncoll e f d => ef = ed
+[   7 | dd ] ∠fce = ∠cef && ncoll f c e => fc = fe
+[   7 | gr ] △acd ≅ △bdc && ab ∥ cd && f, d, c collinear && e, b, d collinear => ∠efd = ∠fde
+[   7 | gr ] ncoll e f d
+[   7 | gr ] ncoll f c e
+[ 511 | dd ] ef = ed && fc = fe => ed = cf
+=======================================
+Problem: complete_003_6_GDD_FULL_more_E022-12
+
+    a b c = triangle a b c;
+    e = circumcenter e : a b c;
+    d = on_line d : a b, on_angle_bisect d : a c b;
+    f = on_line_perp f : c c e, on_line_para f : d a c
+    ?
+    cong c f d b
+
+---------------------------------------
+    e = (-0.450389, 1.133336)    d = (-0.306340, 0.872971)    a = (-0.317138, 0.624256)
+    b = (-0.273518, 1.628952)    c = (-0.662094, 0.651569)    f = (-1.354851, 0.955990)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] e center of ⦿abc => e center of ⦿cab
+[   3 | gr ] fc ⊥ ce => ec ⊥ cf
+[   4 | dd ] e center of ⦿cab && ec ⊥ cf => ∠fca = ∠cba
+[   6 | ar ] ∠acd = ∠dcb && ∠fca = ∠cba => ∠cda = ∠fcd
+[   7 | gr ] diffclock c d b d c f
+[   7 | gr ] ∠cda = ∠fcd && d, a, b collinear => ∠cdb = ∠fcd
+[   7 | gr ] ncoll c d b
+[   7 | gr ] fd ∥ ac && ∠fca = ∠cba && d, a, b collinear => ∠cbd = ∠cfd
+[   8 | dd ] diffclock c d b d c f && ∠cdb = ∠fcd && ncoll c d b && ∠cbd = ∠cfd => △cdb ~ △dcf
+[  10 | ar ] △cdb ~ △dcf => db = fc
+[ 511 | dd ] db = fc => cf = db
+=======================================
+Problem: complete_001_6_GDD_FULL_61-80_69
+
+    d a b = r_triangle d a b;
+    c = midpoint c : b a;
+    e = circumcenter e : a c d;
+    f = circumcenter f : b d c
+    ?
+    perp e d d f
+
+---------------------------------------
+    c = (0.968695, -0.795285)    b = (0.215101, -0.705199)    f = (0.576303, -0.880696)
+    a = (1.722288, -0.885371)    d = (0.320724, -1.190447)    e = (1.215392, -1.928648)
+
+    Loss: 0
+---------------------------------------
+[   3 | dd ] fc = fd && ce = de && ef = ef && ncoll f c e => △fce ≅ △fde
+[   3 | gr ] ncoll e a d
+[   3 | gr ] fd = fc && fb = fd => fc = fd
+[   3 | gr ] ec = ed && ea = ec => ce = de
+[   3 | gr ] ef = ef
+[   3 | gr ] ea = ec => ce = ae
+[   3 | gr ] ncoll e a c
+[   3 | gr ] ncoll f b c
+[   3 | gr ] ncoll f c e
+[   3 | gr ] ec = ed && ea = ec => ea = ed
+[   3 | gr ] fd = fc && fb = fd => fb = fc
+[   3 | gr ] ncoll f b d
+[   3 | gr ] ac = ca
+[   3 | gr ] bc = cb
+[   3 | gr ] fd = fc && fb = fd => cf = bf
+[   4 | dd ] fb = fd && ncoll f b d => ∠fbd = ∠bdf
+[   4 | dd ] ncoll f b c && fb = fc && bc = cb && cf = bf => △fbc ≅ △fcb
+[   4 | dd ] ncoll e a d && ea = ed => ∠ead = ∠ade
+[   4 | dd ] ce = ae && ncoll e a c && ea = ec && ac = ca => △eac ≅ △eca
+[   6 | ar ] △fce ≅ △fde && ∠fbd = ∠bdf && △fbc ≅ △fcb && da ⊥ db && ∠ead = ∠ade && △eac ≅ △eca => de ⊥ fd
+[ 511 | dd ] de ⊥ fd => ed ⊥ df
+=======================================
+Problem: complete_012_7_Book_00EE_05_E051-19
+
+    a b c = triangle a b c;
+    d = circumcenter d : a c b;
+    e = on_line e : b c;
+    f = on_circle f : d a, on_angle_bisect f : a c e
+    ?
+    cong a f f b
+
+---------------------------------------
+    c = (0.393369, 1.584273)    b = (1.389215, 1.668613)    f = (-0.493986, 0.425436)
+    a = (0.921927, -1.331586)    d = (1.012885, 0.190737)    e = (0.162005, 1.564679)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] df = da => da = df
+[   3 | gr ] ncoll d b f
+[   3 | gr ] ncoll d a c
+[   3 | gr ] df = da && da = dc => dc = df
+[   3 | gr ] da = dc && dc = db => db = dc
+[   3 | gr ] ncoll d b c
+[   3 | gr ] df = da && da = dc && dc = db => db = df
+[   3 | gr ] ncoll d c f
+[   3 | gr ] ncoll d a f
+[   4 | dd ] ncoll d b f && db = df => ∠dbf = ∠bfd
+[   4 | dd ] db = dc && ncoll d b c => ∠dbc = ∠bcd
+[   4 | dd ] ncoll d a c && da = dc => ∠dac = ∠acd
+[   4 | dd ] dc = df && ncoll d c f => ∠dcf = ∠cfd
+[   4 | dd ] da = df && ncoll d a f => ∠daf = ∠afd
+[   6 | ar ] ∠acf = ∠fce && ∠dac = ∠acd && ∠dcf = ∠cfd => ∠bca = ∠fda
+[   6 | ar ] ∠dbf = ∠bfd && ∠dbc = ∠bcd && ∠acf = ∠fce && ∠dac = ∠acd && ∠dcf = ∠cfd && ∠daf = ∠afd => ∠fda = ∠bfa
+[   6 | ar ] ∠dbf = ∠bfd && ∠dbc = ∠bcd && ∠acf = ∠fce && ∠dac = ∠acd && ∠dcf = ∠cfd && ∠daf = ∠afd => ∠bfa = ∠bdf
+[   7 | gr ] df = df
+[   7 | gr ] diffclock b d f a d f
+[   7 | gr ] ncoll b d f
+[   7 | dd ] df = df && diffclock b d f a d f && ncoll b d f && bd = ad && ∠bdf = ∠fda => △bdf ≅ △adf
+[   7 | gr ] da = dc && dc = db => bd = ad
+[   7 | gr ] ∠bca = ∠fda && ∠fda = ∠bfa && ∠bfa = ∠bdf => ∠bdf = ∠fda
+[ 511 | dd ] △bdf ≅ △adf => af = fb
+=======================================
+Problem: complete_016_7_Book_00EE_06_E051-32
+
+    a b c = triangle a b c;
+    d = equi_triangle_p d : a b;
+    e = equi_triangle_p e : a c;
+    f = equi_triangle_p f : c b
+    ?
+    para e d c f
+
+---------------------------------------
+    c = (-0.882784, -0.027789)    b = (0.343816, 0.223746)    f = (-0.487320, 1.160246)
+    a = (-0.195723, -1.331238)    d = (-1.272610, -0.086491)    e = (-1.668074, -1.274526)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] ea = ac => ea = ca
+[   3 | gr ] da = ab => ad = ab
+[   6 | ar ] ∠eac = ∠ace && ∠cea = ∠eac && ∠dab = ∠abd && ∠bda = ∠dab => ∠cab = ∠ead
+[   7 | gr ] sameclock e a d c a b
+[   7 | dd ] ea = ca && sameclock e a d c a b && ad = ab && ∠ead = ∠cab && ncoll e a d => △ead ≅ △cab
+[   7 | gr ] ∠cab = ∠ead => ∠ead = ∠cab
+[   7 | gr ] ncoll e a d
+[  10 | ar ] ∠fcb = ∠cbf && ∠dab = ∠abd && △ead ≅ △cab && ∠bfc = ∠fcb && ∠bda = ∠dab => cf ∥ de
+[ 511 | dd ] cf ∥ de => ed ∥ cf
+=======================================
+Problem: complete_013_7_Book_00EE_10_E074-23
+
+    a b c = triangle a b c;
+    d = foot d : a b c;
+    e = circumcenter e : b a c;
+    f = on_angle_bisect f : b a c, on_circle f : e a
+    ?
+    eqangle e a a f f a a d
+
+---------------------------------------
+    b = (1.614536, 0.685309)    f = (0.950691, 1.097386)    a = (0.380508, 0.116531)
+    e = (0.989282, 0.418798)    c = (0.337844, 0.612704)    d = (0.352244, 0.613523)
+
+    Loss: 0
+---------------------------------------
+[   3 | gr ] ncoll e b a
+[   3 | gr ] ncoll e c b
+[   3 | gr ] ef = ea && eb = ea => ea = ef
+[   3 | gr ] ncoll e c a
+[   3 | gr ] ncoll e f a
+[   3 | gr ] ncoll e a f
+[   3 | gr ] eb = ea && ea = ec => ec = eb
+[   3 | gr ] eb = ea && ea = ec => ec = ea
+[   4 | dd ] ncoll e b a && eb = ea => ∠eba = ∠bae
+[   4 | dd ] ncoll e c b && ec = eb => ∠ecb = ∠cbe
+[   4 | dd ] ncoll e c a && ec = ea => ∠eca = ∠cae
+[   4 | dd ] ef = ea && ncoll e f a => ∠efa = ∠fae
+[   4 | dd ] ea = ef && ncoll e a f => ∠eaf = ∠afe
+[   6 | ar ] ∠baf = ∠fac && ∠eba = ∠bae && ∠ecb = ∠cbe && ∠eca = ∠cae && ∠efa = ∠fae => bc ⊥ fe
+[ 511 | dd ] bc ⊥ fe && ∠eaf = ∠afe && da ⊥ bc => ∠eaf = ∠fad
