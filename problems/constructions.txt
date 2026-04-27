@@ -320,5 +320,5 @@ common_tangent x y : o a i b
 # A pair of common EXTERNAL tangents
 common_tangent2 x y z w : o a i b
 - diff o a, diff i b, diff o i
-- cong o x o a, cong i y i b, perp x o x y, perp y i y x, cong o z o a, cong i w i b, perp z o z w, perp w i w z
+- cong o x o a, cong i y i b, perp x o x y, perp y i y x, cong o z o a, cong i w i b, perp z o z w, perp w i w z, para w y x z
 - x y z w = common_tangent2 o a i b
