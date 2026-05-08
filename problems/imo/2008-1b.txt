@@ -1,10 +1,12 @@
-problem imo-2008-1 {
+problem imo-2008-1b {
     a b c = triangle a b c; 
     h = orthocenter h : a b c; 
     d = midpoint d : b c; e = midpoint e : a c; f = midpoint f : a b; 
     a1 a2 = intersections_lc a1 a2 : b c d h; 
     b1 b2 = intersections_lc b1 b2 : a c e h; 
     c1 c2 = intersections_lc c1 c2 : a b f h;
-    # p = reflect p : h e f 
-    ? cyclic b1 b2 c1 c2
+    p = reflect p : h e f;
+    q = reflect q : h d f;
+    r = reflect r : h d e
+    ? cyclic a1 b1 c1 c2
 }

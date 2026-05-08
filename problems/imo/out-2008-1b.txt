@@ -1,0 +1,158 @@
+=======================================
+Problem: imo-2008-1b
+
+    a b c = triangle a b c; 
+    h = orthocenter h : a b c; 
+    d = midpoint d : b c; e = midpoint e : a c; f = midpoint f : a b; 
+    a1 a2 = intersections_lc a1 a2 : b c d h; 
+    b1 b2 = intersections_lc b1 b2 : a c e h; 
+    c1 c2 = intersections_lc c1 c2 : a b f h;
+    p = reflect p : h e f;
+    q = reflect q : h d f;
+    r = reflect r : h d e
+    ? cyclic a1 b1 c1 c2
+
+---------------------------------------
+    b = (0.198231, 0.777943)    c = (0.609022, 0.328524)    h = (0.626951, 0.453713)
+    a = (0.875545, 0.680940)    d = (0.403627, 0.553233)    e = (0.742283, 0.504732)
+    f = (0.536888, 0.729441)    a1 = (0.238671, 0.733700)    a2 = (0.568582, 0.372767)
+    b1 = (0.666213, 0.404146)    b2 = (0.818354, 0.605318)    c1 = (0.249753, 0.770564)
+    c2 = (0.824023, 0.688319)    p = (0.803434, 0.615027)    q = (0.247054, 0.741019)
+    r = (0.645907, 0.586071)
+    Loss: 0
+---------------------------------------
+[   2 | gr ] f midpoint of ab && a, b, c1 collinear => eq l_a_b l_c1_f
+[   2 | gr ] b, c, a1 collinear && d midpoint of bc => eq l_b_c l_a1_d
+[   2 | gr ] b, c, a2 collinear && d midpoint of bc => eq l_b_c l_a2_d
+[   2 | gr ] e midpoint of ac && a, c, b1 collinear => eq l_a_c l_b1_e
+[   2 | gr ] e midpoint of ac && a, c, b2 collinear => eq l_a_c l_b2_e
+[   2 | gr ] f midpoint of ab && a, b, c2 collinear => eq l_a_b l_c2_f
+[   3 | dd ] dh = dq && hf = qf && fd = fd && ncoll d h f => △dhf ≅ △dqf
+[   3 | gr ] fh = fq => hf = qf
+[   3 | gr ] fd = fd
+[   3 | gr ] ncoll d h f
+[   3 | dd ] dh = dr && he = re && ed = ed && ncoll d h e => △dhe ≅ △dre
+[   3 | gr ] eh = er => he = re
+[   3 | gr ] ed = ed
+[   3 | gr ] ncoll d h e
+[   3 | dd ] eh = ep && hf = pf && fe = fe && ncoll e h f => △ehf ≅ △epf
+[   3 | gr ] fh = fp => hf = pf
+[   3 | gr ] fe = fe
+[   3 | gr ] ncoll e h f
+[   3 | gr ] dh = da1 && dh = dq => da1 = dq
+[   3 | gr ] dh = da1 && dh = dr => da1 = dr
+[   3 | gr ] dh = da2 && dh = dq => da2 = dq
+[   3 | gr ] dh = da2 && dh = dr => da2 = dr
+[   3 | gr ] eh = eb1 && eh = ep => eb1 = ep
+[   3 | gr ] eh = eb2 && eh = ep => eb2 = ep
+[   3 | gr ] eh = eb2 && eh = er => eb2 = er
+[   3 | gr ] fh = fc2 && fh = fp => fc2 = fp
+[   3 | gr ] ncoll d h a1
+[   3 | gr ] ncoll d h a2
+[   3 | gr ] ncoll d a1 q
+[   3 | gr ] ncoll d a1 r
+[   3 | gr ] ncoll d a2 q
+[   3 | gr ] ncoll d a2 r
+[   3 | gr ] ncoll e h b1
+[   3 | gr ] ncoll e b1 p
+[   3 | gr ] ncoll e b2 p
+[   3 | gr ] ncoll e b2 r
+[   3 | gr ] ncoll f h c1
+[   3 | gr ] ncoll f c2 p
+[   3 | dd ] d midpoint of bc && f midpoint of ba && diff c a d f && ncoll b c a => df ∥ ca
+[   3 | gr ] f midpoint of ab => f midpoint of ba
+[   3 | gr ] diff c a d f
+[   3 | gr ] ncoll b c a
+[   3 | dd ] d midpoint of cb && e midpoint of ca && diff b a d e && ncoll c b a => de ∥ ba
+[   3 | gr ] d midpoint of bc => d midpoint of cb
+[   3 | gr ] e midpoint of ac => e midpoint of ca
+[   3 | gr ] diff b a d e
+[   3 | gr ] ncoll c b a
+[   3 | dd ] e midpoint of ac && f midpoint of ab && diff c b e f && ncoll a c b => ef ∥ cb
+[   3 | gr ] diff c b e f
+[   3 | gr ] ncoll a c b
+[   4 | dd ] dh = da1 && ncoll d h a1 => ∠dha1 = ∠ha1d
+[   4 | dd ] dh = da2 && ncoll d h a2 => ∠dha2 = ∠ha2d
+[   4 | dd ] da1 = dq && ncoll d a1 q => ∠da1q = ∠a1qd
+[   4 | dd ] da1 = dr && ncoll d a1 r => ∠da1r = ∠a1rd
+[   4 | dd ] da2 = dq && ncoll d a2 q => ∠da2q = ∠a2qd
+[   4 | dd ] da2 = dr && ncoll d a2 r => ∠da2r = ∠a2rd
+[   4 | dd ] eh = eb1 && ncoll e h b1 => ∠ehb1 = ∠hb1e
+[   4 | dd ] eb1 = ep && ncoll e b1 p => ∠eb1p = ∠b1pe
+[   4 | dd ] eb2 = ep && ncoll e b2 p => ∠eb2p = ∠b2pe
+[   4 | dd ] eb2 = er && ncoll e b2 r => ∠eb2r = ∠b2re
+[   4 | dd ] fh = fc1 && ncoll f h c1 => ∠fhc1 = ∠hc1f
+[   4 | dd ] fc2 = fp && ncoll f c2 p => ∠fc2p = ∠c2pf
+[   6 | ar ] hb ⊥ ca && ∠da1q = ∠a1qd && ∠da2q = ∠a2qd => ∠(ca, a1q) = ∠(bh, a2q)
+[   6 | ar ] ha ⊥ bc && ∠dha1 = ∠ha1d && ∠dha2 = ∠ha2d && ef ∥ cb => ∠(ha1, bc) = ∠a2ha
+[   6 | ar ] ef ⊥ hp && △dhe ≅ △dre && ∠dha2 = ∠ha2d && ∠da1r = ∠a1rd && de ∥ ba && ef ∥ cb => ∠a2ha = ∠(ba, a1r)
+[   6 | ar ] △dhf ≅ △dqf && △dhe ≅ △dre && ∠da1q = ∠a1qd && ∠da1r = ∠a1rd && df ∥ ca && de ∥ ba => ∠(ba, a1r) = ∠(ca, a1q)
+[   6 | ar ] hb ⊥ ca && hc ⊥ ab && △dhf ≅ △dqf && △dhe ≅ △dre && ∠da2q = ∠a2qd && ∠da2r = ∠a2rd && df ∥ ca && de ∥ ba => ∠(bh, a2q) = ∠(ch, a2r)
+[   6 | ar ] ha ⊥ bc && △ehf ≅ △epf && ∠ehb1 = ∠hb1e && ∠eb2p = ∠b2pe && ef ∥ cb => ∠(hb1, ca) = ∠(ha, b2p)
+[   6 | ar ] △ehf ≅ △epf && ∠ehb1 = ∠hb1e && ∠eb1p = ∠b1pe && ef ∥ cb => ∠(hb1, ca) = ∠(bc, b1p)
+[   6 | ar ] hc ⊥ ab && △dhe ≅ △dre && △ehf ≅ △epf && ∠eb1p = ∠b1pe && ∠eb2r = ∠b2re && de ∥ ba && ef ∥ cb => ∠(bc, b1p) = ∠(ch, b2r)
+[   6 | ar ] ha ⊥ bc && △ehf ≅ △epf && ∠fhc1 = ∠hc1f && ∠fc2p = ∠c2pf && ef ∥ cb => ∠(hc1, ba) = ∠(ha, c2p)
+[   6 | ar ] f midpoint of ab && fh = fc1 && fh = fc2 && eq l_a_b l_c1_f && eq l_a_b l_c2_f => ac2 = c1b
+[   6 | ar ] f midpoint of ab && fh = fc1 && fh = fc2 && eq l_a_b l_c1_f && eq l_a_b l_c2_f => ac1 = c2b
+[   6 | ar ] dh = da1 && dh = da2 && d midpoint of bc && eq l_b_c l_a1_d && eq l_b_c l_a2_d => a2b = ca1
+[   6 | ar ] eh = eb1 && e midpoint of ac && eh = eb2 && eq l_a_c l_b1_e && eq l_a_c l_b2_e => ab1 = b2c
+[   6 | ar ] eh = eb1 && e midpoint of ac && eh = eb2 && eq l_a_c l_b1_e && eq l_a_c l_b2_e => ab2 = b1c
+[   6 | ar ] dh = da1 && dh = da2 && d midpoint of bc && eq l_b_c l_a1_d && eq l_b_c l_a2_d => a2c = ba1
+[   7 | dd ] ha ∥ hp && diff a p => h, a, p collinear
+[   7 | gr ] ha ⊥ bc && ef ⊥ hp && ef ∥ cb => ha ∥ hp
+[   7 | gr ] diff a p
+[   7 | dd ] hc ∥ hr && diff c r => h, c, r collinear
+[   7 | gr ] hc ⊥ ab && de ⊥ hr && de ∥ ba => hc ∥ hr
+[   7 | gr ] diff c r
+[  11 | gr ] e midpoint of ac && a, c, b1 collinear && ∠ehb1 = ∠hb1e && ∠(hb1, ca) = ∠(bc, b1p) && ∠(bc, b1p) = ∠(ch, b2r) && h, c, r collinear => ∠hb1c = ∠crb2
+[  11 | gr ] diffclock h b1 c b2 r c
+[  11 | gr ] diffclock h a1 c a2 r c
+[  11 | gr ] b, c, a1 collinear && b, c, a2 collinear && d midpoint of bc && ef ∥ cb && h, c, r collinear => ∠hca1 = ∠rca2
+[  11 | gr ] ncoll h a1 c
+[  11 | gr ] b, c, a1 collinear && d midpoint of bc && ∠dha1 = ∠ha1d && ∠(ca, a1q) = ∠(bh, a2q) && ∠(ha1, bc) = ∠a2ha && ∠a2ha = ∠(ba, a1r) && ∠(ba, a1r) = ∠(ca, a1q) && ∠(bh, a2q) = ∠(ch, a2r) && h, c, r collinear => ∠ha1c = ∠cra2
+[  11 | gr ] e midpoint of ac && a, c, b1 collinear && a, c, b2 collinear && df ∥ ca && h, c, r collinear => ∠hcb1 = ∠rcb2
+[  11 | gr ] ncoll h b1 c
+[  11 | gr ] e midpoint of ac && a, c, b1 collinear && ∠ehb1 = ∠hb1e && ∠(hb1, ca) = ∠(ha, b2p) && h, a, p collinear => ∠hb1a = ∠apb2
+[  11 | gr ] diffclock h b1 a b2 p a
+[  11 | gr ] e midpoint of ac && a, c, b1 collinear && a, c, b2 collinear && df ∥ ca && h, a, p collinear => ∠hab1 = ∠pab2
+[  11 | gr ] ncoll h b1 a
+[  11 | gr ] f midpoint of ab && a, b, c1 collinear && ∠fhc1 = ∠hc1f && ∠(hc1, ba) = ∠(ha, c2p) && h, a, p collinear => ∠hc1a = ∠apc2
+[  11 | gr ] diffclock h c1 a c2 p a
+[  11 | gr ] f midpoint of ab && a, b, c1 collinear && a, b, c2 collinear && de ∥ ba && h, a, p collinear => ∠hac1 = ∠pac2
+[  11 | gr ] ncoll h c1 a
+[  12 | dd ] ∠hb1c = ∠crb2 && diffclock h b1 c b2 r c && ∠hcb1 = ∠rcb2 && ncoll h b1 c => △hb1c ~ △b2rc
+[  12 | dd ] diffclock h a1 c a2 r c && ∠hca1 = ∠rca2 && ncoll h a1 c && ∠ha1c = ∠cra2 => △ha1c ~ △a2rc
+[  12 | dd ] ∠hb1a = ∠apb2 && diffclock h b1 a b2 p a && ∠hab1 = ∠pab2 && ncoll h b1 a => △hb1a ~ △b2pa
+[  12 | dd ] ∠hc1a = ∠apc2 && diffclock h c1 a c2 p a && ∠hac1 = ∠pac2 && ncoll h c1 a => △hc1a ~ △c2pa
+[  14 | ar ] △hb1a ~ △b2pa && △hc1a ~ △c2pa => c2a / cb1 = b1a / bc2
+[  14 | ar ] △hb1c ~ △b2rc && △ha1c ~ △a2rc && △hb1a ~ △b2pa && △hc1a ~ △c2pa => a2c / c2a = bc2 / ba2
+[  14 | ar ] △hb1c ~ △b2rc && △ha1c ~ △a2rc => b1a / a2c = ba2 / cb1
+[  15 | gr ] b, c, a1 collinear && b, c, a2 collinear && d midpoint of bc => a1, b, a2 collinear
+[  15 | gr ] f midpoint of ab && a, b, c1 collinear && a, b, c2 collinear => c1, b, c2 collinear
+[  15 | gr ] ncoll a1 c1 a2
+[  15 | gr ] sameside_p b a1 a2
+[  15 | gr ] e midpoint of ac && a, c, b1 collinear && a, c, b2 collinear => b1, a, b2 collinear
+[  15 | gr ] f midpoint of ab && a, b, c1 collinear && a, b, c2 collinear => c1, a, c2 collinear
+[  15 | gr ] ncoll b1 c1 b2
+[  15 | gr ] sameside_p a b1 b2
+[  15 | gr ] sameside_p c a1 a2
+[  15 | gr ] sameside_p c b1 b2
+[  15 | gr ] a2b = ca1 && ab1 = b2c && ab2 = b1c && b1a / a2c = ba2 / cb1 => ca1 / cb1 = cb2 / ca2
+[  15 | gr ] sameside_p b c1 c2
+[  15 | gr ] ac2 = c1b && ac1 = c2b && a2c = ba1 && a2c / c2a = bc2 / ba2 => ba1 / bc1 = bc2 / ba2
+[  15 | gr ] sameside_p a c1 c2
+[  15 | gr ] c2a / cb1 = b1a / bc2 => ab1 / ac1 = ac2 / ab2
+[  15 | gr ] b, c, a1 collinear && b, c, a2 collinear && d midpoint of bc => a1, c, a2 collinear
+[  15 | gr ] e midpoint of ac && a, c, b1 collinear && a, c, b2 collinear => b1, c, b2 collinear
+[  15 | gr ] ncoll a1 b1 a2
+[  16 | dd ] b1, a, b2 collinear && c1, a, c2 collinear && ncoll b1 c1 b2 && sameside_p a b1 b2 && sameside_p a c1 c2 && ab1 / ac1 = ac2 / ab2 => b1, c1, b2, c2 cyclic
+[  16 | dd ] sameside_p c a1 a2 && sameside_p c b1 b2 && ca1 / cb1 = cb2 / ca2 && a1, c, a2 collinear && b1, c, b2 collinear && ncoll a1 b1 a2 => a1, b1, a2, b2 cyclic
+[  16 | dd ] a1, b, a2 collinear && c1, b, c2 collinear && ncoll a1 c1 a2 && sameside_p b a1 a2 && sameside_p b c1 c2 && ba1 / bc1 = bc2 / ba2 => a1, c1, a2, c2 cyclic
+[  19 | dd ] a1, a2, c1, c2 cyclic && c1, c2, b1, b2 cyclic && b1, b2, a1, a2 cyclic && a1, a2, b collinear && c1, c2, b collinear && ncoll b1 b2 b => a1, a2, c1, b1 cyclic
+[  19 | gr ] a1, c1, a2, c2 cyclic => a1, a2, c1, c2 cyclic
+[  19 | gr ] b1, c1, b2, c2 cyclic => c1, c2, b1, b2 cyclic
+[  19 | gr ] a1, b1, a2, b2 cyclic => b1, b2, a1, a2 cyclic
+[  19 | gr ] b, c, a1 collinear && b, c, a2 collinear && d midpoint of bc => a1, a2, b collinear
+[  19 | gr ] f midpoint of ab && a, b, c1 collinear && a, b, c2 collinear => c1, c2, b collinear
+[  19 | gr ] ncoll b1 b2 b
+[ 511 | dd ] a1, c1, a2, c2 cyclic && a1, a2, c1, b1 cyclic => a1, b1, c1, c2 cyclic
