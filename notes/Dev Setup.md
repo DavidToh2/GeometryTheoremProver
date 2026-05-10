@@ -42,11 +42,39 @@ The project's build instructions are specified in the `CMakeLists.txt` file at r
 
 Note that to switch to the `clang` compiler we need to add `-DCMAKE_C_COMPILER=/path/to/clang -DCMAKE_CXX_COMPILER=/path/to/clang++` to every command-line invocation of `cmake`. For me, my path is `/usr/local/bin/clang-20`. This is already done by the `CMake Tools` extension (by using the VSCode interface to select the appropriate "CMake Kits").
 
+A manual build can be run using
+
+```
+cmake --build ./build --target all -j4 --
+```
+
+The main program is at `./build/bin/main`; tests are run from `./build/bin/tests`.
+
 ## External Libraries
 
 All external libraries are installed to `lib/`. Each library needs to be added to the list of directories searched for both `include`s and linkage by CMake. In general, this is done by:
 - adding the parent folder(s) of the header file(s) we want the compiler to access;
 - adding the parent folder(s) of the built object files for linking, if any.
+
+When your project is correctly set up, your `lib/` folder should look like this:
+
+```
+lib/
+    doctest/
+        doctest.h
+    HiGHS/
+        bin/
+            highs
+        include/
+            highs/...
+            highs_export.h
+        lib/
+            cmake/...
+            pkgconfig/...
+            libhighs.so[.1[.12.0]]
+```
+
+## HiGHS
 
 We use the [**HiGHS**](https://highs.dev/) linear programming library. Build instructions can be found [here](https://github.com/ERGO-Code/HiGHS/blob/master/cmake/README.md). Example program found [here](https://github.com/ERGO-Code/HiGHS/blob/master/examples/call_highs_from_cpp.cpp).
 
@@ -100,8 +128,6 @@ To allow for the inclusion of all test files, it suffices to add them via `tests
 ```cmake
 add_executable(tests ${entry_test} ${sources_test} ${sources})
 ```
-
-The test executable is compiled to `build/bin/tests`.
 
 ## Development Environment
 

@@ -3,24 +3,16 @@
 | Geometric Node Type |  | All nodes of the same type connect to each other to form a DSU if they are identical. |
 |---|---|---|
 | `Point` Nodes | `Point` | Every `Point` has `on_line`, `on_circle`, and `on_segment` attributes. |
-| `Object` Nodes | `Line`, `Circle`<br>`Segment` | Every `Line` and `Circle` contains some `points`.<br>Every `Segment` has two `endpoints`. |
+| `Object` Nodes | `Line`, `Circle`<br>`Segment`<br>`Triangle` | Every `Line` and `Circle` contains some `points`.<br>Every `Segment` has two `endpoints`.<br>Every `Triangle` has three `vertices`.|
 | `Value` Nodes | `Direction`, `Length` | Every `Value` connects in a two-way fashion to all the `Object`s for which they are relevant.<br>A `Direction` connects to a collection of `lines` which are parallel.<br>Additionally, it also has a `perp` attribute.<br>A `Length` connects to a collection of `segments`. |
-| `Object2` Nodes | `Angle`, `Ratio` | Every `Object2` connects in a two-way fashion to the `Value` nodes for which they are relevant.<br>Every `Angle` has a `direction1` and a `direction2`.<br>Every `Ratio` has a `Length1` and a `Length2`. |
-| `Value2` Nodes | `Measure`, `Fraction` | Every `Value2` connects in a two-way fashion to all the `Object2`s for which they are relevant.<br>Every `Measure` connects to a collection of `angles`.<br>Every `Fraction` connects to a collection of `ratios`. |
+| `Object2` Nodes | `Angle`, `Ratio`<br>`Dimension` | Every `Object2` connects in a two-way fashion to the `Value` (or `Triangle`, for `Dimension`) nodes for which they are relevant.<br>Every `Angle` has a `direction1` and a `direction2`.<br>Every `Ratio` has a `Length1` and a `Length2`.<br>Every `Dimension` has an `isosceles_mask`. |
+| `Value2` Nodes | `Measure`, `Fraction`<br>`Shape` | Every `Value2` connects in a two-way fashion to all the `Object2`s for which they are relevant. |
 
 Associations between `Value`s and `Object2`s, or between themselves, shall always store root nodes.
 
 Associations between `Object(2)s` and `Value(2)s` need not store root nodes. (However, `Value(2)s` will always contain a `root_obj(2)s` set that must store root nodes.)
 
 Note that our current implementation of `Triangle`, `Dimension` and `Shape` only serves to record congruent and similar triangles derived by deduction rules, both to deduplicate deductions, as well as to perform traceback in the near future. (In other words, merging two `Dimension`s, for example, does not merge the corresponding segment `Length`s.)
-
-| Geometric Node Type |  | All nodes of the same type connect to each other to form a DSU if they are identical. |
-|---|---|---|
-| `Object` nodes | `Triangle` | Every `Triangle` has three `Points` and three `Segments`. These points and segments are stored in the order <br>`points = [A, B, C]`<br>`segments = [BC, CA, AB]`<br>In other words, `points[i]` will be an endpoint of `segments[i+1]` and `segments[i+2]`, and `segments[0]` stores the segment `points[1]points[2]`, where indices are taken mod 3. These must always be root nodes. <br>A permutation of vertex indices is given in the array `perm`, and indicates the order in which the triangle's `points` and `segments` should be read. For example, the array `perm = [1, 0, 2]` might be accompanied by `points = [B, A, C], segments = [AC, CB, BA]` to indicate triangle `ABC`. This is used for the mappings described below. |
-| `Object2` nodes | `Dimension` | A `Dimension` object connects in a two-way fashion to all `Triangle`s which are congruent.<br>The `Dimension` object also has a list `lengths` corresponding to the lengths of segments `[BC, CA, AB]`. These must always be root nodes. <br>For any given `Triangle` associated with this `Dimension`, its segments may be mapped to the correct lengths as such:<br>`lengths[i] -> segments[perm[i]]` <br>The `Dimension` object additionally contains an `isosceles` array which stores "swappable" vertices. For instance, if `ABC` is isosceles with `AC = BC`, then `isosceles = [1, 1, 0]` since `A, B` are swappable. |
-| `Object3` nodes | `Shape` | A `Shape` object connects in a two-way fashion to all `Dimension`s which are similar.<br>The `Shape` object also has a list `measures` corresponding to the measures of the angles at vertices `[A, B, C]`. These must always be root nodes. <br>For any given `Triangle` associated with this `Shape`, its vertices may be mapped to the correct measures as such:<br>`measures[i] -> points[perm[i]]` |
-
-Note: Every triangle is initialised together with a `Dimension` and a `Shape`.
 
 Every `Measure` merger would need to check for newly incident `Shape`s. Conversely, every `Shape` merger would need to merge the associated `Measure`s. (We would also need to re-map every `Triangle`'s `perm`.)
 
@@ -44,13 +36,13 @@ as well as the identification of corresponding points, as in
 |  | `contri a1 b1 c1 a2 b2 c2`<br>`simtri a1 b1 c1 a2 b2 c2` | Triangle congruency and similarity predicates |
 |  | `midp m x1 x2`<br>`circle o x1 x2 x3` | Midpoint and circle center respectively |
 |  | `constangle n x1 x2 x3`<br>`constratio n x1 x2 x3 x4` | Constant-equality predicates for the segments or angles formed by the points |
-| Degenerate Predicates | `diff p q ...`<br>`ncoll x y z ...`<br>`npara p q r s`<br>`same/diffside_p a x y`<br>`same/diffclock a b c p q r`<br>`convex a b c d` | Points `p`, `q` are not equal<br>The points `x, y, z` are not collinear<br>`pq` and `rs` are not parallel<br>Angle `xay` is acute; and conversely obtuse<br>`abc` and `pqr` are either both (counter)clockwise; and converse<br>`abcd` is a convex quadrilateral |
+| Degenerate Predicates | `diff p q ...`<br>`ncoll x y z ...`<br>`npara p q r s`<br>`nperp p q r s`<br>`ncong p q r s`<br>`same/diffside_p a x y`<br>`same/diffclock a b c p q r`<br>`convex a b c d` | Points `p`, `q` are not equal<br>The points `x, y, z` are not collinear<br>`pq` and `rs` are not parallel / perpendicular / congruent<br>Angle `xay` is acute; and conversely obtuse<br>`abc` and `pqr` are either both (counter)clockwise; and converse<br>`abcd` is a convex quadrilateral |
 
 Note: The matching rules for `eqangle`, `perp` and `para`, as well as those of `eqratio` and `cong`, will not interfere with one another. The rule for `eqangle`, for instance, iterates over `Measure`s, while that of `para` iterates over `Direction`s. 
 
 Note: The `circle` predicate is special as it also adds all radii `cong`s, together with populating information about "angle at circumcenter is twice angle at circumference" into the AREngine.
 
-There is room for expanding the list of available predicates, in order to encode more complex rules.
+There is room for expanding the list of available predicates, in order to encode more complex rules, shown below:
 
 | Extension Declarations |  |  |
 |---|---|---|
